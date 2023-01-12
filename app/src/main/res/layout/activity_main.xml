@@ -6,4 +6,38 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <FrameLayout
+        android:id="@+id/topMenu"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/mainMenuTopBarHeight"
+        android:background="@color/mainMenuTopBar"
+        app:layout_constraintTop_toTopOf="parent">
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/mainMenuCenterContainerHorizontalMargin"
+        android:layout_marginTop="@dimen/mainMenuCenterContainerVerticalMargin"
+        android:layout_marginEnd="@dimen/mainMenuCenterContainerHorizontalMargin"
+        android:layout_marginBottom="@dimen/mainMenuCenterContainerVerticalMargin"
+        android:background="@color/mainMenuCenterContainer"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/bottomMenu"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_default="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topMenu"
+        app:layout_constraintWidth_default="spread">
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/bottomMenu"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/mainMenuBottomBarHeight"
+        android:background="@color/mainMenuBottomBar"
+        app:layout_constraintBottom_toBottomOf="parent">
+    </FrameLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
