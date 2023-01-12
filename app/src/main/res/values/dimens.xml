@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="mainMenuCenterContainerVerticalMargin">40dp</dimen>
+    <dimen name="mainMenuCenterContainerHorizontalMargin">60dp</dimen>
+    <dimen name="mainMenuBottomBarHeight">70dp</dimen>
+    <dimen name="mainMenuTopBarHeight">70dp</dimen>
+</resources>
