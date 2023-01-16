@@ -3,6 +3,7 @@
     // main activity
     <dimen name="activity_main.center_container.vertical_margin">40dp</dimen>
     <dimen name="activity_main.center_container.horizontal_margin">60dp</dimen>
+    <dimen name="activity_main.center_container.button.margin_top">5dp</dimen>
     <dimen name="activity_main.bottom_bar.height">70dp</dimen>
     <dimen name="activity_main.top_bar.height">70dp</dimen>
 </resources>
