@@ -10,7 +10,6 @@
         android:id="@+id/top_bar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/activity_main.top_bar.height"
-        android:background="@color/activity_main.top_bar"
         android:scrollbars="none"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -59,6 +58,20 @@
                 android:layout_width="@dimen/activity_main.top_bar.poster.width"
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/poster_3"
+                android:scaleType="centerCrop"/>
+
+            <ImageView
+                android:id="@+id/poster7"
+                android:layout_width="@dimen/activity_main.top_bar.poster.width"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/poster_7"
+                android:scaleType="centerCrop"/>
+
+            <ImageView
+                android:id="@+id/poster8"
+                android:layout_width="@dimen/activity_main.top_bar.poster.width"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/poster_8"
                 android:scaleType="centerCrop"/>
         </LinearLayout>
     </HorizontalScrollView>
