@@ -76,6 +76,33 @@
         </LinearLayout>
     </HorizontalScrollView>
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/posters_source_link"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:cardBackgroundColor="@color/activity_main.posters_source_link_background"
+        app:cardCornerRadius="@dimen/activity_main.cards_corner_radius"
+        app:cardElevation="0dp"
+        app:layout_constraintHeight_default="wrap"
+        app:layout_constraintWidth_default="wrap"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_bar"
+        app:layout_constraintHorizontal_bias="1"
+        android:layout_marginTop="@dimen/activity_main.posters_source_link.margin"
+        android:layout_marginEnd="@dimen/activity_main.posters_source_link.margin">
+
+        <TextView
+            android:id="@+id/posters_source_link_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="@dimen/activity_main.posters_source_link.padding_horizontal"
+            android:layout_marginVertical="@dimen/activity_main.posters_source_link.padding_vertical"
+            android:text="@string/activity_main.posters_source_link"
+            android:autoLink="web"
+            android:linksClickable="true" />
+    </androidx.cardview.widget.CardView>
+
     <LinearLayout
         android:id="@+id/center_container"
         android:layout_width="0dp"

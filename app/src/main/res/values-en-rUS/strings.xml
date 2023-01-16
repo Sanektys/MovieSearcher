@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Movie Searcher</string>
+    <string name="activity_main.posters_source_link">Posters from www.movieposters.com</string>
+</resources>
