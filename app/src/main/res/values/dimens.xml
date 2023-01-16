@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="mainMenuCenterContainerVerticalMargin">40dp</dimen>
-    <dimen name="mainMenuCenterContainerHorizontalMargin">60dp</dimen>
-    <dimen name="mainMenuBottomBarHeight">70dp</dimen>
-    <dimen name="mainMenuTopBarHeight">70dp</dimen>
+    // main activity
+    <dimen name="activity_main.center_container.vertical_margin">40dp</dimen>
+    <dimen name="activity_main.center_container.horizontal_margin">60dp</dimen>
+    <dimen name="activity_main.bottom_bar.height">70dp</dimen>
+    <dimen name="activity_main.top_bar.height">70dp</dimen>
 </resources>

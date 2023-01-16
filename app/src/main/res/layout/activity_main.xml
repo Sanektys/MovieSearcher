@@ -7,36 +7,36 @@
     tools:context=".MainActivity">
 
     <FrameLayout
-        android:id="@+id/topMenu"
+        android:id="@+id/top_bar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/mainMenuTopBarHeight"
-        android:background="@color/mainMenuTopBar"
+        android:layout_height="@dimen/activity_main.top_bar.height"
+        android:background="@color/activity_main.top_bar"
         app:layout_constraintTop_toTopOf="parent">
     </FrameLayout>
 
     <LinearLayout
-        android:id="@+id/buttons"
+        android:id="@+id/center_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="@dimen/mainMenuCenterContainerHorizontalMargin"
-        android:layout_marginTop="@dimen/mainMenuCenterContainerVerticalMargin"
-        android:layout_marginEnd="@dimen/mainMenuCenterContainerHorizontalMargin"
-        android:layout_marginBottom="@dimen/mainMenuCenterContainerVerticalMargin"
-        android:background="@color/mainMenuCenterContainer"
+        android:layout_marginStart="@dimen/activity_main.center_container.horizontal_margin"
+        android:layout_marginTop="@dimen/activity_main.center_container.vertical_margin"
+        android:layout_marginEnd="@dimen/activity_main.center_container.horizontal_margin"
+        android:layout_marginBottom="@dimen/activity_main.center_container.vertical_margin"
+        android:background="@color/activity_main.center_container"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@id/bottomMenu"
+        app:layout_constraintBottom_toTopOf="@id/bottom_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_default="spread"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topMenu"
+        app:layout_constraintTop_toBottomOf="@id/top_bar"
         app:layout_constraintWidth_default="spread">
     </LinearLayout>
 
     <FrameLayout
-        android:id="@+id/bottomMenu"
+        android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/mainMenuBottomBarHeight"
-        android:background="@color/mainMenuBottomBar"
+        android:layout_height="@dimen/activity_main.bottom_bar.height"
+        android:background="@color/activity_main.bottom_bar"
         app:layout_constraintBottom_toBottomOf="parent">
     </FrameLayout>
 
