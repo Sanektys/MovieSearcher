@@ -3,4 +3,9 @@
 
     // main activity
     <string name="activity_main.posters_source_link">Постеры взяты с www.movieposters.com</string>
+    <string name="activity_main.center_container.button1.text">МЕНЮ</string>
+    <string name="activity_main.center_container.button2.text">ПОДБОРКИ</string>
+    <string name="activity_main.center_container.button3.text">ИЗБРАННОЕ</string>
+    <string name="activity_main.center_container.button4.text">ПОСМОТРЕТЬ ПОЗЖЕ</string>
+    <string name="activity_main.center_container.button5.text">НАСТРОЙКИ</string>
 </resources>
