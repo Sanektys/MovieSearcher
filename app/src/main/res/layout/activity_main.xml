@@ -76,6 +76,12 @@
         </LinearLayout>
     </HorizontalScrollView>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/activity_main_top_bar_shadow"
+        app:layout_constraintTop_toBottomOf="@id/top_bar" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/posters_source_link"
         android:layout_width="0dp"
@@ -85,10 +91,8 @@
         app:cardElevation="0dp"
         app:layout_constraintHeight_default="wrap"
         app:layout_constraintWidth_default="wrap"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/top_bar"
-        app:layout_constraintHorizontal_bias="1"
         android:layout_marginTop="@dimen/activity_main.posters_source_link.margin"
         android:layout_marginEnd="@dimen/activity_main.posters_source_link.margin">
 

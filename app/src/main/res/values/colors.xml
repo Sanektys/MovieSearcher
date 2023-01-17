@@ -12,5 +12,5 @@
     <color name="activity_main.center_container">#FFBF5F</color>
     <color name="activity_main.top_bar">#935CF8</color>
     <color name="activity_main.bottom_bar">#6DD4E1</color>"
-    <color name="activity_main.posters_source_link_background">#2A000000</color>
+    <color name="activity_main.posters_source_link_background">#14000000</color>
 </resources>
