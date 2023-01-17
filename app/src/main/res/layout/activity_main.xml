@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/activity_main_background"
     tools:context=".MainActivity">
 
     <HorizontalScrollView
@@ -103,6 +104,8 @@
             android:layout_marginHorizontal="@dimen/activity_main.posters_source_link.padding_horizontal"
             android:layout_marginVertical="@dimen/activity_main.posters_source_link.padding_vertical"
             android:text="@string/activity_main.posters_source_link"
+            android:textColorLink="@color/violet_secondary"
+            android:textSize="15sp"
             android:autoLink="web"
             android:linksClickable="true" />
     </androidx.cardview.widget.CardView>
@@ -163,7 +166,7 @@
         android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/activity_main.bottom_bar.height"
-        android:background="@color/activity_main.bottom_bar"
+        android:background="@color/violet_primary"
         app:layout_constraintBottom_toBottomOf="parent"></FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

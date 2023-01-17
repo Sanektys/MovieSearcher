@@ -8,9 +8,13 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    // common colors
+    <color name="red_primary">#EA300F</color>
+    <color name="red_secondary">#C52103</color>
+    <color name="violet_primary">#7A38C3</color>
+    <color name="violet_secondary">#56159F</color>
+
     // main activity
-    <color name="activity_main.center_container">#FFBF5F</color>
-    <color name="activity_main.top_bar">#935CF8</color>
-    <color name="activity_main.bottom_bar">#6DD4E1</color>"
-    <color name="activity_main.posters_source_link_background">#14000000</color>
+    <color name="activity_main.center_container">#00FFBF5F</color>
+    <color name="activity_main.posters_source_link_background">#0C000000</color>
 </resources>
