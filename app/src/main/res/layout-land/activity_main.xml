@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/activity_main_background"
+    tools:context=".MainActivity">
+
+    <HorizontalScrollView
+        android:id="@+id/top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:alpha="@dimen/activity_main.top_bar.alpha"
+        android:scrollbars="none"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/center_container">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/poster1"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:scaleType="fitStart"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/poster_1" />
+
+            <ImageView
+                android:id="@+id/poster2"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:scaleType="fitStart"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/poster_5" />
+
+            <ImageView
+                android:id="@+id/poster3"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:scaleType="fitStart"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/poster_4" />
+
+            <ImageView
+                android:id="@+id/poster4"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:scaleType="fitStart"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/poster_6" />
+
+            <ImageView
+                android:id="@+id/poster5"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:scaleType="fitStart"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/poster_2" />
+
+            <ImageView
+                android:id="@+id/poster6"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:scaleType="fitStart"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/poster_3" />
+
+            <ImageView
+                android:id="@+id/poster7"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:scaleType="fitStart"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/poster_7" />
+
+            <ImageView
+                android:id="@+id/poster8"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:scaleType="fitStart"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/poster_8" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/activity_main.top_bar.shadow.height"
+        android:background="@drawable/activity_main_top_bar_shadow"
+        app:layout_constraintTop_toBottomOf="@id/top_bar" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/posters_source_link"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/activity_main.posters_source_link.margin"
+        android:layout_marginEnd="@dimen/activity_main.posters_source_link.margin"
+        app:cardBackgroundColor="@color/activity_main.posters_source_link.background"
+        app:cardCornerRadius="@dimen/activity_main.cards_corner_radius"
+        app:cardElevation="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/top_bar">
+
+        <TextView
+            android:id="@+id/posters_source_link_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="@dimen/activity_main.posters_source_link.padding_horizontal"
+            android:layout_marginVertical="@dimen/activity_main.posters_source_link.padding_vertical"
+            android:autoLink="web"
+            android:linksClickable="true"
+            android:text="@string/activity_main.posters_source_link"
+            android:textColor="@color/activity_main.posters_source_link.text_color"
+            android:textColorLink="@color/red_secondary"
+            android:textSize="@dimen/activity_main.posters_source_link.text_size" />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/center_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="@dimen/activity_main.center_container.alpha"
+        app:cardBackgroundColor="@color/activity_main.center_container.background"
+        app:cardElevation="@dimen/activity_main.center_container.elevation"
+        app:cardCornerRadius="@dimen/activity_main.cards_corner_radius"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_bar"
+        app:layout_constraintBottom_toTopOf="@id/bottom_bar">
+
+        <HorizontalScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scrollbarStyle="outsideInset">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/center_container.button1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/activity_main_buttons_ripple"
+                    android:letterSpacing="@dimen/activity_main.center_container.button.text_letter_spacing"
+                    android:lineSpacingMultiplier="@dimen/activity_main.center_container.button.text_lines_spacing"
+                    android:shadowColor="@color/activity_main.center_container.button.text_shadow_color"
+                    android:shadowDx="@dimen/activity_main.center_container.button.text_shadow_dx"
+                    android:shadowDy="@dimen/activity_main.center_container.button.text_shadow_dy"
+                    android:shadowRadius="@dimen/activity_main.center_container.button.text_shadow_radius"
+                    android:text="@string/activity_main.center_container.button1.text"
+                    android:textColor="@drawable/activity_main_text_color_selector"
+                    android:textSize="@dimen/activity_main.center_container.button.text_size"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/center_container.button2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/activity_main_buttons_ripple"
+                    android:letterSpacing="@dimen/activity_main.center_container.button.text_letter_spacing"
+                    android:lineSpacingMultiplier="@dimen/activity_main.center_container.button.text_lines_spacing"
+                    android:shadowColor="@color/activity_main.center_container.button.text_shadow_color"
+                    android:shadowDx="@dimen/activity_main.center_container.button.text_shadow_dx"
+                    android:shadowDy="@dimen/activity_main.center_container.button.text_shadow_dy"
+                    android:shadowRadius="@dimen/activity_main.center_container.button.text_shadow_radius"
+                    android:text="@string/activity_main.center_container.button2.text"
+                    android:textColor="@drawable/activity_main_text_color_selector"
+                    android:textSize="@dimen/activity_main.center_container.button.text_size"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/center_container.button3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/activity_main_buttons_ripple"
+                    android:letterSpacing="@dimen/activity_main.center_container.button.text_letter_spacing"
+                    android:lineSpacingMultiplier="@dimen/activity_main.center_container.button.text_lines_spacing"
+                    android:shadowColor="@color/activity_main.center_container.button.text_shadow_color"
+                    android:shadowDx="@dimen/activity_main.center_container.button.text_shadow_dx"
+                    android:shadowDy="@dimen/activity_main.center_container.button.text_shadow_dy"
+                    android:shadowRadius="@dimen/activity_main.center_container.button.text_shadow_radius"
+                    android:text="@string/activity_main.center_container.button3.text"
+                    android:textColor="@drawable/activity_main_text_color_selector"
+                    android:textSize="@dimen/activity_main.center_container.button.text_size"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/center_container.button4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/activity_main_buttons_ripple"
+                    android:letterSpacing="@dimen/activity_main.center_container.button.text_letter_spacing"
+                    android:lineSpacingMultiplier="@dimen/activity_main.center_container.button.text_lines_spacing"
+                    android:shadowColor="@color/activity_main.center_container.button.text_shadow_color"
+                    android:shadowDx="@dimen/activity_main.center_container.button.text_shadow_dx"
+                    android:shadowDy="@dimen/activity_main.center_container.button.text_shadow_dy"
+                    android:shadowRadius="@dimen/activity_main.center_container.button.text_shadow_radius"
+                    android:text="@string/activity_main.center_container.button4.text"
+                    android:textColor="@drawable/activity_main_text_color_selector"
+                    android:textSize="@dimen/activity_main.center_container.button.text_size"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/center_container.button5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/activity_main_buttons_ripple"
+                    android:letterSpacing="@dimen/activity_main.center_container.button.text_letter_spacing"
+                    android:lineSpacingMultiplier="@dimen/activity_main.center_container.button.text_lines_spacing"
+                    android:shadowColor="@color/activity_main.center_container.button.text_shadow_color"
+                    android:shadowDx="@dimen/activity_main.center_container.button.text_shadow_dx"
+                    android:shadowDy="@dimen/activity_main.center_container.button.text_shadow_dy"
+                    android:shadowRadius="@dimen/activity_main.center_container.button.text_shadow_radius"
+                    android:text="@string/activity_main.center_container.button5.text"
+                    android:textColor="@drawable/activity_main_text_color_selector"
+                    android:textSize="@dimen/activity_main.center_container.button.text_size"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </HorizontalScrollView>
+    </androidx.cardview.widget.CardView>
+
+    <FrameLayout
+        android:id="@+id/bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/activity_main.bottom_bar.height"
+        android:background="@color/violet_primary"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+    </FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
