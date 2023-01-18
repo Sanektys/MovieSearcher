@@ -88,13 +88,13 @@
         android:id="@+id/posters_source_link"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_main.posters_source_link.margin"
+        android:layout_marginBottom="@dimen/activity_main.posters_source_link.margin"
         android:layout_marginEnd="@dimen/activity_main.posters_source_link.margin"
         app:cardBackgroundColor="@color/activity_main.posters_source_link.background"
         app:cardCornerRadius="@dimen/activity_main.cards_corner_radius"
         app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_bar">
+        app:layout_constraintBottom_toBottomOf="@id/top_bar">
 
         <TextView
             android:id="@+id/posters_source_link_text"
@@ -105,7 +105,8 @@
             android:autoLink="web"
             android:linksClickable="true"
             android:text="@string/activity_main.posters_source_link"
-            android:textColorLink="@color/violet_secondary"
+            android:textColor="@color/activity_main.posters_source_link.text_color"
+            android:textColorLink="@color/red_secondary"
             android:textSize="@dimen/activity_main.posters_source_link.text_size" />
     </androidx.cardview.widget.CardView>
 

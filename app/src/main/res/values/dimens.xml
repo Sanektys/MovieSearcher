@@ -23,7 +23,7 @@
 
     <dimen name="activity_main.cards_corner_radius">15dp</dimen>
 
-    <dimen name="activity_main.posters_source_link.margin">10dp</dimen>
+    <dimen name="activity_main.posters_source_link.margin">6dp</dimen>
     <dimen name="activity_main.posters_source_link.padding_horizontal">8dp</dimen>
     <dimen name="activity_main.posters_source_link.padding_vertical">2dp</dimen>
     <dimen name="activity_main.posters_source_link.text_size">15sp</dimen>
