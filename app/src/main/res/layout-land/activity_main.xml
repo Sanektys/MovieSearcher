@@ -115,7 +115,8 @@
             android:linksClickable="true"
             android:text="@string/activity_main.posters_source_link"
             android:textColor="@color/activity_main.posters_source_link.text_color"
-            android:textColorLink="@color/red_secondary"
+            android:textColorHighlight="@color/violet_secondary"
+            android:textColorLink="@color/red_primary"
             android:textSize="@dimen/activity_main.posters_source_link.text_size" />
     </androidx.cardview.widget.CardView>
 

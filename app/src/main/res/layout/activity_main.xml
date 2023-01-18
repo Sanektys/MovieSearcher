@@ -13,7 +13,9 @@
         android:layout_height="@dimen/activity_main.top_bar.height"
         android:scrollbars="none"
         android:alpha="@dimen/activity_main.top_bar.alpha"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/center_container"
+        app:layout_constraintVertical_chainStyle="spread_inside">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -106,7 +108,8 @@
             android:linksClickable="true"
             android:text="@string/activity_main.posters_source_link"
             android:textColor="@color/activity_main.posters_source_link.text_color"
-            android:textColorLink="@color/red_secondary"
+            android:textColorHighlight="@color/violet_secondary"
+            android:textColorLink="@color/red_primary"
             android:textSize="@dimen/activity_main.posters_source_link.text_size" />
     </androidx.cardview.widget.CardView>
 
@@ -115,9 +118,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/activity_main.center_container.horizontal_margin"
-        android:layout_marginTop="@dimen/activity_main.center_container.vertical_margin"
         android:layout_marginEnd="@dimen/activity_main.center_container.horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_main.center_container.vertical_margin"
         app:cardBackgroundColor="@color/activity_main.center_container.background"
         app:cardCornerRadius="@dimen/activity_main.cards_corner_radius"
         app:cardElevation="@dimen/activity_main.center_container.elevation"
@@ -127,7 +128,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/top_bar"
         app:layout_constraintWidth_default="spread"
-        app:layout_constraintVertical_bias="@dimen/activity_main.center_container.vertical_bias">
+        app:layout_constraintVertical_chainStyle="spread_inside">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -222,7 +223,9 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/activity_main.bottom_bar.height"
         android:background="@color/violet_primary"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/center_container"
+        app:layout_constraintVertical_chainStyle="spread_inside">
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
