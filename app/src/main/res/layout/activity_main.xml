@@ -4,40 +4,228 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/activity_main_background"
     tools:context=".MainActivity">
 
-    <FrameLayout
-        android:id="@+id/topMenu"
+    <HorizontalScrollView
+        android:id="@+id/top_bar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/mainMenuTopBarHeight"
-        android:background="@color/mainMenuTopBar"
-        app:layout_constraintTop_toTopOf="parent">
-    </FrameLayout>
+        android:layout_height="@dimen/activity_main.top_bar.height"
+        android:scrollbars="none"
+        android:alpha="@dimen/activity_main.top_bar.alpha"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/center_container"
+        app:layout_constraintVertical_chainStyle="spread_inside">
 
-    <LinearLayout
-        android:id="@+id/buttons"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/mainMenuCenterContainerHorizontalMargin"
-        android:layout_marginTop="@dimen/mainMenuCenterContainerVerticalMargin"
-        android:layout_marginEnd="@dimen/mainMenuCenterContainerHorizontalMargin"
-        android:layout_marginBottom="@dimen/mainMenuCenterContainerVerticalMargin"
-        android:background="@color/mainMenuCenterContainer"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@id/bottomMenu"
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/poster1"
+                android:layout_width="@dimen/activity_main.top_bar.poster.width"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/poster_1" />
+
+            <ImageView
+                android:id="@+id/poster2"
+                android:layout_width="@dimen/activity_main.top_bar.poster.width"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/poster_5" />
+
+            <ImageView
+                android:id="@+id/poster3"
+                android:layout_width="@dimen/activity_main.top_bar.poster.width"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/poster_4" />
+
+            <ImageView
+                android:id="@+id/poster4"
+                android:layout_width="@dimen/activity_main.top_bar.poster.width"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/poster_6" />
+
+            <ImageView
+                android:id="@+id/poster5"
+                android:layout_width="@dimen/activity_main.top_bar.poster.width"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/poster_2" />
+
+            <ImageView
+                android:id="@+id/poster6"
+                android:layout_width="@dimen/activity_main.top_bar.poster.width"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/poster_3" />
+
+            <ImageView
+                android:id="@+id/poster7"
+                android:layout_width="@dimen/activity_main.top_bar.poster.width"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/poster_7" />
+
+            <ImageView
+                android:id="@+id/poster8"
+                android:layout_width="@dimen/activity_main.top_bar.poster.width"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/poster_8" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/activity_main.top_bar.shadow.height"
+        android:background="@drawable/activity_main_top_bar_shadow"
+        app:layout_constraintTop_toBottomOf="@id/top_bar" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/posters_source_link"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/activity_main.posters_source_link.margin"
+        android:layout_marginEnd="@dimen/activity_main.posters_source_link.margin"
+        app:cardBackgroundColor="@color/activity_main.posters_source_link.background"
+        app:cardCornerRadius="@dimen/activity_main.cards_corner_radius"
+        app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_default="spread"
+        app:layout_constraintBottom_toBottomOf="@id/top_bar">
+
+        <TextView
+            android:id="@+id/posters_source_link_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="@dimen/activity_main.posters_source_link.padding_horizontal"
+            android:layout_marginVertical="@dimen/activity_main.posters_source_link.padding_vertical"
+            android:autoLink="web"
+            android:linksClickable="true"
+            android:text="@string/activity_main.posters_source_link"
+            android:textColor="@color/activity_main.posters_source_link.text_color"
+            android:textColorHighlight="@color/violet_secondary"
+            android:textColorLink="@color/red_primary"
+            android:textSize="@dimen/activity_main.posters_source_link.text_size" />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/center_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/activity_main.center_container.horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_main.center_container.horizontal_margin"
+        app:cardBackgroundColor="@color/activity_main.center_container.background"
+        app:cardCornerRadius="@dimen/activity_main.cards_corner_radius"
+        app:cardElevation="@dimen/activity_main.center_container.elevation"
+        android:alpha="@dimen/activity_main.center_container.alpha"
+        app:layout_constraintBottom_toTopOf="@id/bottom_bar"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topMenu"
-        app:layout_constraintWidth_default="spread">
-    </LinearLayout>
+        app:layout_constraintTop_toBottomOf="@id/top_bar"
+        app:layout_constraintWidth_default="spread"
+        app:layout_constraintVertical_chainStyle="spread_inside">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingVertical="@dimen/activity_main.center_container.vertical_padding"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/center_container.button1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/activity_main_buttons_ripple"
+                android:text="@string/activity_main.center_container.button1.text"
+                android:textSize="@dimen/activity_main.center_container.button.text_size"
+                android:letterSpacing="@dimen/activity_main.center_container.button.text_letter_spacing"
+                android:lineSpacingMultiplier="@dimen/activity_main.center_container.button.text_lines_spacing"
+                android:textStyle="bold"
+                android:textColor="@drawable/activity_main_text_color_selector"
+                android:shadowColor="@color/activity_main.center_container.button.text_shadow_color"
+                android:shadowDx="@dimen/activity_main.center_container.button.text_shadow_dx"
+                android:shadowDy="@dimen/activity_main.center_container.button.text_shadow_dy"
+                android:shadowRadius="@dimen/activity_main.center_container.button.text_shadow_radius" />
+
+            <Button
+                android:id="@+id/center_container.button2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/activity_main_buttons_ripple"
+                android:text="@string/activity_main.center_container.button2.text"
+                android:textSize="@dimen/activity_main.center_container.button.text_size"
+                android:letterSpacing="@dimen/activity_main.center_container.button.text_letter_spacing"
+                android:lineSpacingMultiplier="@dimen/activity_main.center_container.button.text_lines_spacing"
+                android:textStyle="bold"
+                android:textColor="@drawable/activity_main_text_color_selector"
+                android:shadowColor="@color/activity_main.center_container.button.text_shadow_color"
+                android:shadowDx="@dimen/activity_main.center_container.button.text_shadow_dx"
+                android:shadowDy="@dimen/activity_main.center_container.button.text_shadow_dy"
+                android:shadowRadius="@dimen/activity_main.center_container.button.text_shadow_radius" />
+
+            <Button
+                android:id="@+id/center_container.button3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/activity_main_buttons_ripple"
+                android:text="@string/activity_main.center_container.button3.text"
+                android:textSize="@dimen/activity_main.center_container.button.text_size"
+                android:letterSpacing="@dimen/activity_main.center_container.button.text_letter_spacing"
+                android:lineSpacingMultiplier="@dimen/activity_main.center_container.button.text_lines_spacing"
+                android:textStyle="bold"
+                android:textColor="@drawable/activity_main_text_color_selector"
+                android:shadowColor="@color/activity_main.center_container.button.text_shadow_color"
+                android:shadowDx="@dimen/activity_main.center_container.button.text_shadow_dx"
+                android:shadowDy="@dimen/activity_main.center_container.button.text_shadow_dy"
+                android:shadowRadius="@dimen/activity_main.center_container.button.text_shadow_radius" />
+
+            <Button
+                android:id="@+id/center_container.button4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/activity_main_buttons_ripple"
+                android:text="@string/activity_main.center_container.button4.text"
+                android:textSize="@dimen/activity_main.center_container.button.text_size"
+                android:letterSpacing="@dimen/activity_main.center_container.button.text_letter_spacing"
+                android:lineSpacingMultiplier="@dimen/activity_main.center_container.button.text_lines_spacing"
+                android:textStyle="bold"
+                android:textColor="@drawable/activity_main_text_color_selector"
+                android:shadowColor="@color/activity_main.center_container.button.text_shadow_color"
+                android:shadowDx="@dimen/activity_main.center_container.button.text_shadow_dx"
+                android:shadowDy="@dimen/activity_main.center_container.button.text_shadow_dy"
+                android:shadowRadius="@dimen/activity_main.center_container.button.text_shadow_radius" />
+
+            <Button
+                android:id="@+id/center_container.button5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/activity_main_buttons_ripple"
+                android:text="@string/activity_main.center_container.button5.text"
+                android:textSize="@dimen/activity_main.center_container.button.text_size"
+                android:letterSpacing="@dimen/activity_main.center_container.button.text_letter_spacing"
+                android:lineSpacingMultiplier="@dimen/activity_main.center_container.button.text_lines_spacing"
+                android:textStyle="bold"
+                android:textColor="@drawable/activity_main_text_color_selector"
+                android:shadowColor="@color/activity_main.center_container.button.text_shadow_color"
+                android:shadowDx="@dimen/activity_main.center_container.button.text_shadow_dx"
+                android:shadowDy="@dimen/activity_main.center_container.button.text_shadow_dy"
+                android:shadowRadius="@dimen/activity_main.center_container.button.text_shadow_radius" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
     <FrameLayout
-        android:id="@+id/bottomMenu"
+        android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/mainMenuBottomBarHeight"
-        android:background="@color/mainMenuBottomBar"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:layout_height="@dimen/activity_main.bottom_bar.height"
+        android:background="@color/violet_primary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/center_container"
+        app:layout_constraintVertical_chainStyle="spread_inside">
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
