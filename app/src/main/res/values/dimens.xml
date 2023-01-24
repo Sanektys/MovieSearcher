@@ -23,7 +23,7 @@
     <dimen name="activity_main.posters_bar.poster.alpha">0.8</dimen>
 
     <dimen name="activity_main.posters_source_link.margin">12dp</dimen>
-    <dimen name="activity_main.posters_source_link.padding_horizontal">8dp</dimen>
+    <dimen name="activity_main.posters_source_link.padding_horizontal">10dp</dimen>
     <dimen name="activity_main.posters_source_link.padding_vertical">2dp</dimen>
     <dimen name="activity_main.posters_source_link.text_size">15sp</dimen>
 </resources>

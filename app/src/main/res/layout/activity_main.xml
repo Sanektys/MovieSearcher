@@ -49,7 +49,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginHorizontal="@dimen/activity_main.posters_source_link.padding_horizontal"
-            android:layout_marginVertical="@dimen/activity_main.posters_source_link.padding_vertical"
+            android:layout_marginBottom="@dimen/activity_main.posters_source_link.padding_vertical"
             android:autoLink="web"
             android:linksClickable="true"
             android:text="@string/activity_main.posters_source_link"
