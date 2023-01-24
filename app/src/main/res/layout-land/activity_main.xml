@@ -8,10 +8,10 @@
     tools:context=".MainActivity">
 
     <HorizontalScrollView
-        android:id="@+id/top_bar"
+        android:id="@+id/posters_bar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:alpha="@dimen/activity_main.top_bar.alpha"
+        android:alpha="@dimen/activity_main.posters_bar.poster.alpha"
         android:scrollbars="none"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/center_container">
@@ -87,12 +87,6 @@
         </LinearLayout>
     </HorizontalScrollView>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/activity_main.top_bar.shadow.height"
-        android:background="@drawable/activity_main_top_bar_shadow"
-        app:layout_constraintTop_toBottomOf="@id/top_bar" />
-
     <androidx.cardview.widget.CardView
         android:id="@+id/posters_source_link"
         android:layout_width="wrap_content"
@@ -103,7 +97,7 @@
         app:cardCornerRadius="@dimen/activity_main.cards_corner_radius"
         app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/top_bar">
+        app:layout_constraintBottom_toBottomOf="@id/posters_bar">
 
         <TextView
             android:id="@+id/posters_source_link_text"
@@ -130,8 +124,8 @@
         app:cardCornerRadius="@dimen/activity_main.cards_corner_radius"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_bar"
-        app:layout_constraintBottom_toTopOf="@id/bottom_bar">
+        app:layout_constraintTop_toBottomOf="@id/posters_bar"
+        app:layout_constraintBottom_toTopOf="@id/bottom_menu_bar">
 
         <HorizontalScrollView
             android:layout_width="wrap_content"
@@ -227,9 +221,9 @@
     </androidx.cardview.widget.CardView>
 
     <FrameLayout
-        android:id="@+id/bottom_bar"
+        android:id="@+id/bottom_menu_bar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/activity_main.bottom_bar.height"
+        android:layout_height="@dimen/activity_main.bottom_menu_bar.height"
         android:background="@color/violet_primary"
         app:layout_constraintBottom_toBottomOf="parent">
 

@@ -10,12 +10,15 @@
     <dimen name="activity_main.center_container.button.text_shadow_dy">5</dimen>
     <dimen name="activity_main.center_container.button.text_shadow_radius">12</dimen>
 
-    <dimen name="activity_main.bottom_bar.height">70dp</dimen>
+    <dimen name="activity_main.bottom_menu_bar.height">70dp</dimen>
 
-    <dimen name="activity_main.top_bar.height">180dp</dimen>
-    <dimen name="activity_main.top_bar.poster.width">120dp</dimen>
-    <dimen name="activity_main.top_bar.shadow.height">50dp</dimen>
-    <dimen name="activity_main.top_bar.alpha">0.8</dimen>
+    <dimen name="activity_main.posters_bar.height">180dp</dimen>
+    <dimen name="activity_main.posters_bar.margin_horizontal">12dp</dimen>
+    <dimen name="activity_main.posters_bar.margin_vertical">12dp</dimen>
+    <dimen name="activity_main.posters_bar.padding">10dp</dimen>
+    <dimen name="activity_main.posters_bar.elevation">3dp</dimen>
+    <dimen name="activity_main.posters_bar.poster.margin_end">12dp</dimen>
+    <dimen name="activity_main.posters_bar.poster.alpha">0.8</dimen>
 
     <dimen name="activity_main.cards_corner_radius">15dp</dimen>
 

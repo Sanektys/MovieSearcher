@@ -28,6 +28,6 @@
         <item name="colorSurfaceInverse">@color/md_theme_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/md_theme_inversePrimary</item>
 
-        <item name="android:statusBarColor">@color/md_theme_secondaryContainer</item>
+        <item name="android:statusBarColor">?attr/colorSecondaryContainer</item>
     </style>
 </resources>

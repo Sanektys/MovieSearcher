@@ -1,12 +1,13 @@
 package com.sandev.moviesearcher
 
-import android.content.res.Resources
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
+import androidx.core.view.marginEnd
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,6 +15,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         menuButtonsInit()
+        addPosters()
     }
 
     private fun menuButtonsInit() {
@@ -36,6 +38,24 @@ class MainActivity : AppCompatActivity() {
         button = findViewById(R.id.center_container_button5)
         button.setOnClickListener {
             Toast.makeText(this, R.string.activity_main_center_container_button5_text, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun addPosters() {
+        val postersContainer = findViewById<LinearLayout>(R.id.posters_container)
+        for (i in 1..8) {
+            val posterCard = layoutInflater.inflate(R.layout.poster_card, postersContainer, false)
+            when (i) {
+                1 -> posterCard.findViewById<ImageView>(R.id.poster_picture).setImageResource(R.drawable.poster_1)
+                2 -> posterCard.findViewById<ImageView>(R.id.poster_picture).setImageResource(R.drawable.poster_2)
+                3 -> posterCard.findViewById<ImageView>(R.id.poster_picture).setImageResource(R.drawable.poster_3)
+                4 -> posterCard.findViewById<ImageView>(R.id.poster_picture).setImageResource(R.drawable.poster_4)
+                5 -> posterCard.findViewById<ImageView>(R.id.poster_picture).setImageResource(R.drawable.poster_5)
+                6 -> posterCard.findViewById<ImageView>(R.id.poster_picture).setImageResource(R.drawable.poster_6)
+                7 -> posterCard.findViewById<ImageView>(R.id.poster_picture).setImageResource(R.drawable.poster_7)
+                8 -> posterCard.findViewById<ImageView>(R.id.poster_picture).setImageResource(R.drawable.poster_8)
+            }
+            postersContainer.addView(posterCard)
         }
     }
 }
