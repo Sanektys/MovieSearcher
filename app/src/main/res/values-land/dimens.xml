@@ -1,16 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     // main activity
-    <dimen name="activity_main.center_container.elevation">10dp</dimen>
-    <dimen name="activity_main.center_container.alpha">0.9</dimen>
-    <dimen name="activity_main.center_container.button.text_size">16sp</dimen>
-    <dimen name="activity_main.center_container.button.text_letter_spacing">0.2</dimen>
-    <dimen name="activity_main.center_container.button.text_lines_spacing">1.2</dimen>
-    <dimen name="activity_main.center_container.button.text_shadow_dx">8</dimen>
-    <dimen name="activity_main.center_container.button.text_shadow_dy">5</dimen>
-    <dimen name="activity_main.center_container.button.text_shadow_radius">12</dimen>
+    <dimen name="activity_main.toolbar.title.margin_bottom">14dp</dimen>
 
-    <dimen name="activity_main.bottom_menu_bar.height">70dp</dimen>
+    <dimen name="activity_main.bottom_navigation_bar.height">70dp</dimen>
 
     <dimen name="activity_main.posters_bar.height">180dp</dimen>
     <dimen name="activity_main.posters_bar.margin_horizontal">12dp</dimen>
@@ -19,6 +12,7 @@
     <dimen name="activity_main.posters_bar.elevation">3dp</dimen>
     <dimen name="activity_main.posters_bar.poster.margin_end">12dp</dimen>
     <dimen name="activity_main.posters_bar.poster.alpha">0.8</dimen>
+    <dimen name="activity_main.posters_bar.poster.dummy.width">120dp</dimen>
 
     <dimen name="activity_main.posters_source_link.margin">12dp</dimen>
     <dimen name="activity_main.posters_source_link.padding_horizontal">10dp</dimen>

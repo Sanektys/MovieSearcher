@@ -6,6 +6,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.cardview.widget.CardView
 import androidx.core.view.marginEnd
 
@@ -19,30 +20,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun menuButtonsInit() {
-        var button: Button = findViewById(R.id.center_container_button1)
-        button.setOnClickListener {
-            Toast.makeText(this,  R.string.activity_main_center_container_button1_text, Toast.LENGTH_SHORT).show()
-        }
-        button = findViewById(R.id.center_container_button2)
-        button.setOnClickListener {
-            Toast.makeText(this, R.string.activity_main_center_container_button2_text, Toast.LENGTH_SHORT).show()
-        }
-        button = findViewById(R.id.center_container_button3)
-        button.setOnClickListener {
-            Toast.makeText(this, R.string.activity_main_center_container_button3_text, Toast.LENGTH_SHORT).show()
-        }
-        button = findViewById(R.id.center_container_button4)
-        button.setOnClickListener {
-            Toast.makeText(this, R.string.activity_main_center_container_button4_text, Toast.LENGTH_SHORT).show()
-        }
-        button = findViewById(R.id.center_container_button5)
-        button.setOnClickListener {
-            Toast.makeText(this, R.string.activity_main_center_container_button5_text, Toast.LENGTH_SHORT).show()
-        }
+
     }
 
     private fun addPosters() {
-        val postersContainer = findViewById<LinearLayout>(R.id.posters_container)
+        val postersContainer = findViewById<LinearLayoutCompat>(R.id.posters_container)
+        postersContainer.removeAllViews()
         for (i in 1..8) {
             val posterCard = layoutInflater.inflate(R.layout.poster_card, postersContainer, false)
             when (i) {

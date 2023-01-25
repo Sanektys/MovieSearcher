@@ -7,6 +7,36 @@
     tools:context=".MainActivity">
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/top_bar"
+        style="@style/Widget.Material3.CardView.Filled"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:cardBackgroundColor="?attr/colorPrimaryContainer"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Bottom">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/app_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?attr/colorPrimaryContainer"
+                app:titleMarginBottom="@dimen/activity_main.toolbar.title.margin_bottom"
+                app:titleCentered="true"
+                app:menu="@menu/top_app_bar_menu"
+                app:navigationIcon="@drawable/round_menu"
+                app:title="@string/app_name"
+                app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
+                app:titleTextColor="?attr/colorOnPrimaryContainer" />
+        </com.google.android.material.appbar.AppBarLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/posters_bar"
         style="@style/Widget.Material3.CardView.Elevated"
         android:layout_width="match_parent"
@@ -15,7 +45,7 @@
         android:layout_marginTop="@dimen/activity_main.posters_bar.margin_vertical"
         app:cardBackgroundColor="?attr/colorSecondaryContainer"
         app:cardElevation="@dimen/activity_main.posters_bar.elevation"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_bar"
         app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large">
 
         <HorizontalScrollView
@@ -23,11 +53,44 @@
             android:layout_height="match_parent"
             android:scrollbars="none">
 
-            <LinearLayout
+            <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/posters_container"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"/>
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="@dimen/activity_main.posters_bar.poster.dummy.width"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/activity_main.posters_bar.poster.margin_end"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    app:cardBackgroundColor="?attr/colorPrimaryInverse"
+                    app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="@dimen/activity_main.posters_bar.poster.dummy.width"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/activity_main.posters_bar.poster.margin_end"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    app:cardBackgroundColor="?attr/colorPrimaryInverse"
+                    app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="@dimen/activity_main.posters_bar.poster.dummy.width"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/activity_main.posters_bar.poster.margin_end"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    app:cardBackgroundColor="?attr/colorPrimaryInverse"
+                    app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="@dimen/activity_main.posters_bar.poster.dummy.width"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/activity_main.posters_bar.poster.margin_end"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    app:cardBackgroundColor="?attr/colorPrimaryInverse"
+                    app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large"/>
+            </androidx.appcompat.widget.LinearLayoutCompat>
         </HorizontalScrollView>
     </com.google.android.material.card.MaterialCardView>
 
@@ -42,7 +105,7 @@
         app:layout_constraintTop_toBottomOf="@id/posters_bar"
         app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Medium">
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/posters_source_link_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -57,118 +120,20 @@
             android:textColorLink="?attr/colorSecondary" />
     </com.google.android.material.card.MaterialCardView>
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/center_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:alpha="@dimen/activity_main.center_container.alpha"
-        app:cardBackgroundColor="@color/activity_main.center_container.background"
-        app:cardElevation="@dimen/activity_main.center_container.elevation"
-        app:layout_constraintBottom_toTopOf="@id/bottom_menu_bar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/posters_bar">
-
-        <HorizontalScrollView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:scrollbarStyle="outsideInset">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/center_container.button1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/activity_main_buttons_ripple"
-                    android:letterSpacing="@dimen/activity_main.center_container.button.text_letter_spacing"
-                    android:lineSpacingMultiplier="@dimen/activity_main.center_container.button.text_lines_spacing"
-                    android:shadowColor="@color/activity_main.center_container.button.text_shadow_color"
-                    android:shadowDx="@dimen/activity_main.center_container.button.text_shadow_dx"
-                    android:shadowDy="@dimen/activity_main.center_container.button.text_shadow_dy"
-                    android:shadowRadius="@dimen/activity_main.center_container.button.text_shadow_radius"
-                    android:text="@string/activity_main.center_container.button1.text"
-                    android:textColor="@drawable/activity_main_text_color_selector"
-                    android:textSize="@dimen/activity_main.center_container.button.text_size"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/center_container.button2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/activity_main_buttons_ripple"
-                    android:letterSpacing="@dimen/activity_main.center_container.button.text_letter_spacing"
-                    android:lineSpacingMultiplier="@dimen/activity_main.center_container.button.text_lines_spacing"
-                    android:shadowColor="@color/activity_main.center_container.button.text_shadow_color"
-                    android:shadowDx="@dimen/activity_main.center_container.button.text_shadow_dx"
-                    android:shadowDy="@dimen/activity_main.center_container.button.text_shadow_dy"
-                    android:shadowRadius="@dimen/activity_main.center_container.button.text_shadow_radius"
-                    android:text="@string/activity_main.center_container.button2.text"
-                    android:textColor="@drawable/activity_main_text_color_selector"
-                    android:textSize="@dimen/activity_main.center_container.button.text_size"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/center_container.button3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/activity_main_buttons_ripple"
-                    android:letterSpacing="@dimen/activity_main.center_container.button.text_letter_spacing"
-                    android:lineSpacingMultiplier="@dimen/activity_main.center_container.button.text_lines_spacing"
-                    android:shadowColor="@color/activity_main.center_container.button.text_shadow_color"
-                    android:shadowDx="@dimen/activity_main.center_container.button.text_shadow_dx"
-                    android:shadowDy="@dimen/activity_main.center_container.button.text_shadow_dy"
-                    android:shadowRadius="@dimen/activity_main.center_container.button.text_shadow_radius"
-                    android:text="@string/activity_main.center_container.button3.text"
-                    android:textColor="@drawable/activity_main_text_color_selector"
-                    android:textSize="@dimen/activity_main.center_container.button.text_size"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/center_container.button4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/activity_main_buttons_ripple"
-                    android:letterSpacing="@dimen/activity_main.center_container.button.text_letter_spacing"
-                    android:lineSpacingMultiplier="@dimen/activity_main.center_container.button.text_lines_spacing"
-                    android:shadowColor="@color/activity_main.center_container.button.text_shadow_color"
-                    android:shadowDx="@dimen/activity_main.center_container.button.text_shadow_dx"
-                    android:shadowDy="@dimen/activity_main.center_container.button.text_shadow_dy"
-                    android:shadowRadius="@dimen/activity_main.center_container.button.text_shadow_radius"
-                    android:text="@string/activity_main.center_container.button4.text"
-                    android:textColor="@drawable/activity_main_text_color_selector"
-                    android:textSize="@dimen/activity_main.center_container.button.text_size"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/center_container.button5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/activity_main_buttons_ripple"
-                    android:letterSpacing="@dimen/activity_main.center_container.button.text_letter_spacing"
-                    android:lineSpacingMultiplier="@dimen/activity_main.center_container.button.text_lines_spacing"
-                    android:shadowColor="@color/activity_main.center_container.button.text_shadow_color"
-                    android:shadowDx="@dimen/activity_main.center_container.button.text_shadow_dx"
-                    android:shadowDy="@dimen/activity_main.center_container.button.text_shadow_dy"
-                    android:shadowRadius="@dimen/activity_main.center_container.button.text_shadow_radius"
-                    android:text="@string/activity_main.center_container.button5.text"
-                    android:textColor="@drawable/activity_main_text_color_selector"
-                    android:textSize="@dimen/activity_main.center_container.button.text_size"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </HorizontalScrollView>
-    </androidx.cardview.widget.CardView>
-
-    <FrameLayout
-        android:id="@+id/bottom_menu_bar"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottom_bar"
+        style="@style/Widget.Material3.CardView.Filled"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/activity_main.bottom_menu_bar.height"
-        android:background="?attr/colorPrimaryContainer"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:layout_height="?attr/actionBarSize"
+        app:cardBackgroundColor="?attr/colorPrimaryContainer"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Top">
 
-    </FrameLayout>
-
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/navigation_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimaryContainer" />
+    </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
