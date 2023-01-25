@@ -1,26 +1,51 @@
 package com.sandev.moviesearcher
 
 import android.os.Bundle
-import android.widget.Button
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.LinearLayoutCompat
-import androidx.cardview.widget.CardView
-import androidx.core.view.marginEnd
+import androidx.appcompat.widget.Toolbar
+import com.google.android.material.navigation.NavigationBarView
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        menuButtonsInit()
+        menuButtonsInitial()
         addPosters()
     }
 
-    private fun menuButtonsInit() {
-
+    private fun menuButtonsInitial() {
+        val appToolbar: Toolbar = findViewById(R.id.app_toolbar)
+        appToolbar.setOnMenuItemClickListener() {
+            when (it.itemId) {
+                R.id.top_toolbar_settings_button -> {
+                    Toast.makeText(this, R.string.activity_main_top_app_bar_settings_title, Toast.LENGTH_SHORT).show()
+                    true
+                }
+                else -> false
+            }
+        }
+        val navigationBar: NavigationBarView = findViewById(R.id.navigation_bar)
+        navigationBar.setOnItemSelectedListener {
+            when (it.itemId) {
+                R.id.bottom_navigation_favorites_button -> {
+                    Toast.makeText(this, R.string.activity_main_bottom_navigation_favorites_title, Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.bottom_navigation_watch_later_button -> {
+                    Toast.makeText(this, R.string.activity_main_bottom_navigation_watch_later_title, Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.bottom_navigation_selections_button -> {
+                    Toast.makeText(this, R.string.activity_main_bottom_navigation_selections_title, Toast.LENGTH_SHORT).show()
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
     private fun addPosters() {
