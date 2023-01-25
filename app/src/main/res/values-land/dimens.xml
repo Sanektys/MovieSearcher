@@ -1,21 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     // main activity
-    <dimen name="activity_main.toolbar.title.margin_bottom">14dp</dimen>
-
-    <dimen name="activity_main.bottom_navigation_bar.height">70dp</dimen>
-
     <dimen name="activity_main.posters_bar.height">180dp</dimen>
-    <dimen name="activity_main.posters_bar.margin_horizontal">12dp</dimen>
-    <dimen name="activity_main.posters_bar.margin_vertical">12dp</dimen>
-    <dimen name="activity_main.posters_bar.padding">10dp</dimen>
-    <dimen name="activity_main.posters_bar.elevation">3dp</dimen>
-    <dimen name="activity_main.posters_bar.poster.margin_end">12dp</dimen>
-    <dimen name="activity_main.posters_bar.poster.alpha">0.8</dimen>
     <dimen name="activity_main.posters_bar.poster.dummy.width">120dp</dimen>
-
-    <dimen name="activity_main.posters_source_link.margin">12dp</dimen>
-    <dimen name="activity_main.posters_source_link.padding_horizontal">10dp</dimen>
-    <dimen name="activity_main.posters_source_link.padding_vertical">2dp</dimen>
-    <dimen name="activity_main.posters_source_link.text_size">15sp</dimen>
 </resources>

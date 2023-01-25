@@ -16,23 +16,17 @@
         app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Bottom">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/app_bar"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/app_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/app_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="?attr/colorPrimaryContainer"
-                app:titleMarginBottom="@dimen/activity_main.toolbar.title.margin_bottom"
-                app:menu="@menu/top_app_bar_menu"
-                app:navigationIcon="@drawable/round_menu"
-                app:title="@string/app_name"
-                app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
-                app:titleTextColor="?attr/colorOnPrimaryContainer" />
-        </com.google.android.material.appbar.AppBarLayout>
+            android:layout_height="match_parent"
+            android:background="?attr/colorPrimaryContainer"
+            app:titleMarginBottom="@dimen/activity_main.toolbar.title.margin_bottom"
+            app:menu="@menu/top_app_bar_menu"
+            app:navigationIcon="@drawable/round_menu"
+            app:title="@string/app_name"
+            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
+            app:titleTextColor="?attr/colorOnPrimaryContainer" />
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
@@ -116,7 +110,7 @@
         android:id="@+id/bottom_bar"
         style="@style/Widget.Material3.CardView.Filled"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
         app:cardBackgroundColor="?attr/colorPrimaryContainer"
         app:layout_constraintBottom_toBottomOf="parent"
         app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large"
@@ -126,6 +120,16 @@
             android:id="@+id/navigation_bar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimaryContainer" />
+            android:background="?attr/colorPrimaryContainer"
+            app:menu="@menu/bottom_navigation_bar_menu"
+            app:itemBackground="?attr/colorPrimaryContainer"
+            app:itemTextAppearanceActive="@style/TextAppearance.Material3.LabelMedium"
+            app:itemTextColor="@drawable/on_primary_container_click_color"
+            app:itemActiveIndicatorStyle="@style/Widget.Material3.BottomNavigationView"
+            app:itemIconTint="@drawable/on_primary_container_selected_state_color"
+            app:itemIconSize="@dimen/activity_main.icon_size"
+            app:labelVisibilityMode="selected"
+            app:itemPaddingTop="@dimen/activity_main.bottom_navigation_bar.padding_top"
+            app:itemPaddingBottom="@dimen/activity_main.bottom_navigation_bar.padding_bottom" />
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
