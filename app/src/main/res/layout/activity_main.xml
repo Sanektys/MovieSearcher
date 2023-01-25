@@ -11,9 +11,11 @@
         style="@style/Widget.Material3.CardView.Filled"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        app:contentPaddingRight="@dimen/activity_main.toolbar.padding_horizontal"
+        app:contentPaddingLeft="@dimen/activity_main.toolbar.padding_horizontal"
         app:cardBackgroundColor="?attr/colorPrimaryContainer"
         app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large"
+        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.ExtraLarge"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Bottom">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -110,16 +112,16 @@
         android:id="@+id/bottom_bar"
         style="@style/Widget.Material3.CardView.Filled"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="?attr/actionBarSize"
         app:cardBackgroundColor="?attr/colorPrimaryContainer"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large"
+        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.ExtraLarge"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Top">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/navigation_bar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="match_parent"
             android:background="?attr/colorPrimaryContainer"
             app:menu="@menu/bottom_navigation_bar_menu"
             app:itemBackground="?attr/colorPrimaryContainer"
