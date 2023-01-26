@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Movie Searcher</string>
+
+    // main activity
     <string name="activity_main.posters_source_link">Posters from www.movieposters.com</string>
-    <string name="activity_main.center_container.button1.text">MENU</string>
-    <string name="activity_main.center_container.button2.text">SELECTIONS</string>
-    <string name="activity_main.center_container.button3.text">FAVORITES</string>
-    <string name="activity_main.center_container.button4.text">VIEW LATER</string>
-    <string name="activity_main.center_container.button5.text">SETTINGS</string>
+    <string name="activity_main.bottom_navigation.selections.title">SELECTIONS</string>
+    <string name="activity_main.bottom_navigation.favorites.title">FAVORITES</string>
+    <string name="activity_main.bottom_navigation.watch_later.title">VIEW LATER</string>
+    <string name="activity_main.top_app_bar.settings.title">SETTINGS</string>
+    <string name="activity_main.top_app_bar.menu.title">MENU</string>
 </resources>
