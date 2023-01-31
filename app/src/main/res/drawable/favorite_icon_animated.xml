@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/favorite_icon_selected"
+        android:drawable="@drawable/favorite_icon_selected"
+        android:state_selected="true" />
+
+    <item
+        android:id="@+id/favorite_icon_unselected"
+        android:drawable="@drawable/favorite_icon_unselected"
+        android:state_selected="false" />
+
+    <transition
+        android:fromId="@id/favorite_icon_selected"
+        android:toId="@id/favorite_icon_unselected"
+        android:drawable="@drawable/favorite_icon_selected_to_unselected" />
+
+    <transition
+        android:fromId="@id/favorite_icon_unselected"
+        android:toId="@id/favorite_icon_selected"
+        android:drawable="@drawable/favorite_icon_unselected_to_selected" />
+</animated-selector>

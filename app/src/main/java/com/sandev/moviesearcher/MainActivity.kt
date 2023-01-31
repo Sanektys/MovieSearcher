@@ -1,6 +1,9 @@
 package com.sandev.moviesearcher
 
+import android.animation.AnimatorInflater
 import android.os.Bundle
+import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -18,8 +21,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun menuButtonsInitial() {
+        val settingsButton: View = findViewById(R.id.top_toolbar_settings_button)
+        settingsButton.stateListAnimator = AnimatorInflater.loadStateListAnimator(this, R.animator.settings_button_spin)
+
         val appToolbar: Toolbar = findViewById(R.id.app_toolbar)
-        appToolbar.setOnMenuItemClickListener() {
+        appToolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.top_toolbar_settings_button -> {
                     Toast.makeText(this, R.string.activity_main_top_app_bar_settings_title, Toast.LENGTH_SHORT).show()
@@ -32,15 +38,15 @@ class MainActivity : AppCompatActivity() {
         navigationBar.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.bottom_navigation_favorites_button -> {
-                    Toast.makeText(this, R.string.activity_main_bottom_navigation_favorites_title, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
                     true
                 }
                 R.id.bottom_navigation_watch_later_button -> {
-                    Toast.makeText(this, R.string.activity_main_bottom_navigation_watch_later_title, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
                     true
                 }
                 R.id.bottom_navigation_selections_button -> {
-                    Toast.makeText(this, R.string.activity_main_bottom_navigation_selections_title, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
                     true
                 }
                 else -> false
@@ -51,6 +57,7 @@ class MainActivity : AppCompatActivity() {
     private fun addPosters() {
         val postersContainer = findViewById<LinearLayoutCompat>(R.id.posters_container)
         postersContainer.removeAllViews()
+
         for (i in 1..8) {
             val posterCard = layoutInflater.inflate(R.layout.poster_card, postersContainer, false)
             when (i) {
@@ -65,5 +72,6 @@ class MainActivity : AppCompatActivity() {
             }
             postersContainer.addView(posterCard)
         }
+        postersContainer.layoutAnimation = AnimationUtils.loadLayoutAnimation(this, R.anim.posters_appearance)
     }
 }

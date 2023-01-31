@@ -3,19 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/bottom_navigation.favorites_button"
-        android:icon="@drawable/outline_favorite"
+        android:icon="@drawable/favorite_icon_animated"
         android:title="@string/activity_main.bottom_navigation.favorites.title"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/bottom_navigation.watch_later_button"
-        android:icon="@drawable/outline_watch_later"
+        android:icon="@drawable/watch_later_icon_animated"
         android:title="@string/activity_main.bottom_navigation.watch_later.title"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/bottom_navigation.selections_button"
-        android:icon="@drawable/outline_selections"
+        android:icon="@drawable/selections_icon_animated"
         android:title="@string/activity_main.bottom_navigation.selections.title"
         app:showAsAction="ifRoom" />
 </menu>
