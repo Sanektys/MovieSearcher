@@ -125,7 +125,7 @@
             android:background="?attr/colorPrimaryContainer"
             app:menu="@menu/bottom_navigation_bar_menu"
             app:itemBackground="?attr/colorPrimaryContainer"
-            app:itemTextAppearanceActive="@style/TextAppearance.Material3.LabelMedium"
+            app:itemTextAppearanceActive="@style/TextAppearance.Material3.LabelSmall"
             app:itemTextColor="@drawable/on_primary_container_click_color"
             app:itemActiveIndicatorStyle="@style/Widget.Material3.BottomNavigationView"
             app:itemIconTint="@drawable/on_primary_container_selected_state_color"

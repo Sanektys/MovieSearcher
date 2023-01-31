@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher
 
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.Toast
@@ -32,15 +33,15 @@ class MainActivity : AppCompatActivity() {
         navigationBar.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.bottom_navigation_favorites_button -> {
-                    Toast.makeText(this, R.string.activity_main_bottom_navigation_favorites_title, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
                     true
                 }
                 R.id.bottom_navigation_watch_later_button -> {
-                    Toast.makeText(this, R.string.activity_main_bottom_navigation_watch_later_title, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
                     true
                 }
                 R.id.bottom_navigation_selections_button -> {
-                    Toast.makeText(this, R.string.activity_main_bottom_navigation_selections_title, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
                     true
                 }
                 else -> false
