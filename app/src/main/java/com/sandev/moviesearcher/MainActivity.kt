@@ -1,7 +1,6 @@
 package com.sandev.moviesearcher
 
 import android.animation.AnimatorInflater
-import android.animation.StateListAnimator
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
@@ -26,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         settingsButton.stateListAnimator = AnimatorInflater.loadStateListAnimator(this, R.animator.settings_button_spin)
 
         val appToolbar: Toolbar = findViewById(R.id.app_toolbar)
-        appToolbar.setOnMenuItemClickListener() {
+        appToolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.top_toolbar_settings_button -> {
                     Toast.makeText(this, R.string.activity_main_top_app_bar_settings_title, Toast.LENGTH_SHORT).show()
@@ -58,6 +57,7 @@ class MainActivity : AppCompatActivity() {
     private fun addPosters() {
         val postersContainer = findViewById<LinearLayoutCompat>(R.id.posters_container)
         postersContainer.removeAllViews()
+
         for (i in 1..8) {
             val posterCard = layoutInflater.inflate(R.layout.poster_card, postersContainer, false)
             when (i) {
@@ -72,5 +72,6 @@ class MainActivity : AppCompatActivity() {
             }
             postersContainer.addView(posterCard)
         }
+        postersContainer.layoutAnimation = AnimationUtils.loadLayoutAnimation(this, R.anim.posters_appearance)
     }
 }
