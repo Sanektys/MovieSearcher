@@ -1,7 +1,10 @@
 package com.sandev.moviesearcher
 
-import android.graphics.drawable.AnimatedVectorDrawable
+import android.animation.AnimatorInflater
+import android.animation.StateListAnimator
 import android.os.Bundle
+import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +22,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun menuButtonsInitial() {
+        val settingsButton: View = findViewById(R.id.top_toolbar_settings_button)
+        settingsButton.stateListAnimator = AnimatorInflater.loadStateListAnimator(this, R.animator.settings_button_spin)
+
         val appToolbar: Toolbar = findViewById(R.id.app_toolbar)
         appToolbar.setOnMenuItemClickListener() {
             when (it.itemId) {
