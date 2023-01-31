@@ -12,7 +12,7 @@
     <dimen name="activity_main.posters_bar.padding">10dp</dimen>
     <dimen name="activity_main.posters_bar.elevation">3dp</dimen>
     <dimen name="activity_main.posters_bar.poster.margin_end">12dp</dimen>
-    <dimen name="activity_main.posters_bar.poster.alpha">0.8</dimen>
+    <dimen name="activity_main.posters_bar.poster.alpha">0.75</dimen>
     <dimen name="activity_main.posters_bar.poster.dummy.width">160dp</dimen>
 
     <dimen name="activity_main.posters_source_link.margin">12dp</dimen>

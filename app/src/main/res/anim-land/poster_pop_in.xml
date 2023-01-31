@@ -3,7 +3,7 @@
     android:duration="600">
     <alpha
         android:fromAlpha="0"
-        android:toAlpha="0.8" />
+        android:toAlpha="@dimen/activity_main.posters_bar.poster.alpha" />
 
     <scale
         android:fromXScale="0"
