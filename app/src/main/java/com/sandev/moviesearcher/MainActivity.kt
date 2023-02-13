@@ -14,6 +14,8 @@ import com.sandev.moviesearcher.movieListRecyclerView.data.setMockData
 
 class MainActivity : AppCompatActivity() {
     private lateinit var moviesRecyclerAdapter: MoviesRecyclerAdapter
+    private lateinit var moviesRecyclerManager: RecyclerView.LayoutManager
+    private val MOVIES_RECYCLER_VIEW_STATE: String = "MoviesRecylerViewState"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,6 +23,16 @@ class MainActivity : AppCompatActivity() {
 
         menuButtonsInitial()
         addMoviesCards()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putParcelable(MOVIES_RECYCLER_VIEW_STATE, moviesRecyclerManager.onSaveInstanceState())
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        moviesRecyclerManager.onRestoreInstanceState(savedInstanceState.getBundle(MOVIES_RECYCLER_VIEW_STATE))
     }
 
     private fun menuButtonsInitial() {
@@ -64,5 +76,7 @@ class MainActivity : AppCompatActivity() {
         val moviesListRecycler: RecyclerView = findViewById(R.id.movies_list_recycler)
         moviesListRecycler.adapter = moviesRecyclerAdapter
         moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(this, R.anim.posters_appearance)
+
+        moviesRecyclerManager = moviesListRecycler.layoutManager!!
     }
 }
