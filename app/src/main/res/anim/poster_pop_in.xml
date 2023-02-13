@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <set xmlns:android="http://schemas.android.com/apk/res/android"
-    android:duration="700">
+    android:duration="500">
     <alpha
         android:fromAlpha="0"
-        android:toAlpha="@dimen/activity_main.posters_bar.poster.alpha" />
+        android:toAlpha="@dimen/activity_main.movies_recycler.movie_card.poster.alpha" />
 
     <scale
         android:fromXScale="0"

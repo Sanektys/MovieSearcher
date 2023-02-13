@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    // main activity
-    <dimen name="activity_main.posters_bar.height">180dp</dimen>
-    <dimen name="activity_main.posters_bar.poster.dummy.width">120dp</dimen>
+    <!-- main activity -->
+    <dimen name="activity_main.movies_recycler.movie_card.height">180dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.width">350dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.margin_horizontal">12dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.margin_bottom">0dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.poster.width">120dp</dimen>
 </resources>

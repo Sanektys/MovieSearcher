@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    // main activity
+    <!-- main activity -->
     <dimen name="activity_main.icon_size">28dp</dimen>
 
     <dimen name="activity_main.toolbar.title.margin_bottom">10dp</dimen>
     <dimen name="activity_main.toolbar.padding_horizontal">2dp</dimen>
 
-    <dimen name="activity_main.posters_bar.height">240dp</dimen>
-    <dimen name="activity_main.posters_bar.margin_horizontal">12dp</dimen>
-    <dimen name="activity_main.posters_bar.margin_vertical">12dp</dimen>
-    <dimen name="activity_main.posters_bar.padding">10dp</dimen>
-    <dimen name="activity_main.posters_bar.elevation">3dp</dimen>
-    <dimen name="activity_main.posters_bar.poster.margin_end">12dp</dimen>
-    <dimen name="activity_main.posters_bar.poster.alpha">0.75</dimen>
-    <dimen name="activity_main.posters_bar.poster.dummy.width">160dp</dimen>
+    <dimen name="activity_main.movies_recycler.margin_horizontal">12dp</dimen>
+    <dimen name="activity_main.movies_recycler.margin_vertical">12dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.height">180dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.width">0dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.margin_horizontal">0dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.margin_bottom">12dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.poster.width">120dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.poster.alpha">0.75</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.title.margin_top">8dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.title.margin_bottom">4dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.separator.margin_horizontal">12dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.description.margin_horizontal">10dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.description.margin_top">4dp</dimen>
 
     <dimen name="activity_main.posters_source_link.margin">12dp</dimen>
     <dimen name="activity_main.posters_source_link.padding_horizontal">10dp</dimen>
