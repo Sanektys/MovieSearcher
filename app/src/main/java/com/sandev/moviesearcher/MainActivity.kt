@@ -4,20 +4,23 @@ import android.animation.AnimatorInflater
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationBarView
+import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
+import com.sandev.moviesearcher.movieListRecyclerView.data.setMockData
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var moviesRecyclerAdapter: MoviesRecyclerAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         menuButtonsInitial()
-        addPosters()
+        addMoviesCards()
     }
 
     private fun menuButtonsInitial() {
@@ -54,24 +57,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun addPosters() {
-        val postersContainer = findViewById<LinearLayoutCompat>(R.id.posters_container)
-        postersContainer.removeAllViews()
+    private fun addMoviesCards() {
+        moviesRecyclerAdapter = MoviesRecyclerAdapter()
+        moviesRecyclerAdapter.setList(setMockData())
 
-        for (i in 1..8) {
-            val posterCard = layoutInflater.inflate(R.layout.poster_card, postersContainer, false)
-            when (i) {
-                1 -> posterCard.findViewById<ImageView>(R.id.poster_picture).setImageResource(R.drawable.poster_1)
-                2 -> posterCard.findViewById<ImageView>(R.id.poster_picture).setImageResource(R.drawable.poster_2)
-                3 -> posterCard.findViewById<ImageView>(R.id.poster_picture).setImageResource(R.drawable.poster_3)
-                4 -> posterCard.findViewById<ImageView>(R.id.poster_picture).setImageResource(R.drawable.poster_4)
-                5 -> posterCard.findViewById<ImageView>(R.id.poster_picture).setImageResource(R.drawable.poster_5)
-                6 -> posterCard.findViewById<ImageView>(R.id.poster_picture).setImageResource(R.drawable.poster_6)
-                7 -> posterCard.findViewById<ImageView>(R.id.poster_picture).setImageResource(R.drawable.poster_7)
-                8 -> posterCard.findViewById<ImageView>(R.id.poster_picture).setImageResource(R.drawable.poster_8)
-            }
-            postersContainer.addView(posterCard)
-        }
-        postersContainer.layoutAnimation = AnimationUtils.loadLayoutAnimation(this, R.anim.posters_appearance)
+        val moviesListRecycler: RecyclerView = findViewById(R.id.movies_list_recycler)
+        moviesListRecycler.adapter = moviesRecyclerAdapter
+        moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(this, R.anim.posters_appearance)
     }
 }
