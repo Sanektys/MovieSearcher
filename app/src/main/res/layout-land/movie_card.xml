@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/movie_card"
+    style="@style/Widget.Material3.CardView.Outlined"
+    android:layout_width="@dimen/activity_main.movies_recycler.movie_card.width"
+    android:layout_height="@dimen/activity_main.movies_recycler.movie_card.height"
+    android:layout_marginEnd="@dimen/activity_main.movies_recycler.movie_card.margin_horizontal"
+    app:cardBackgroundColor="?attr/colorPrimaryContainer"
+    app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/movie_card.poster_frame"
+            style="@style/Widget.Material3.CardView.Outlined"
+            android:layout_width="@dimen/activity_main.movies_recycler.movie_card.poster.width"
+            android:layout_height="match_parent"
+            android:alpha="@dimen/activity_main.movies_recycler.movie_card.poster.alpha"
+            android:clickable="true"
+            android:focusable="true"
+            android:stateListAnimator="@animator/poster_card_click_animation"
+            app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/movie_card.poster_picture"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/dummy_poster" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/movie_card.movie_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/movie_card.poster_frame"
+            android:layout_marginTop="@dimen/activity_main.movies_recycler.movie_card.title.margin_top"
+            android:layout_marginBottom="@dimen/activity_main.movies_recycler.movie_card.title.margin_bottom"
+            android:textAlignment="center"
+            android:maxLines="2"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textStyle="bold"
+            tools:text="Title"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/colorOutline"
+            android:layout_marginHorizontal="@dimen/activity_main.movies_recycler.movie_card.separator.margin_horizontal"
+            android:layout_below="@id/movie_card.movie_title"
+            android:layout_toEndOf="@id/movie_card.poster_frame" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/movie_card.movie_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/activity_main.movies_recycler.movie_card.description.margin_horizontal"
+            android:layout_marginTop="@dimen/activity_main.movies_recycler.movie_card.description.margin_top"
+            android:layout_below="@id/movie_card.movie_title"
+            android:layout_toEndOf="@id/movie_card.poster_frame"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            android:textAlignment="center"
+            android:maxLines="8"
+            android:breakStrategy="simple"
+            android:ellipsize="end"
+            tools:text="@tools:sample/lorem/random" />
+    </RelativeLayout>
+</com.google.android.material.card.MaterialCardView>
