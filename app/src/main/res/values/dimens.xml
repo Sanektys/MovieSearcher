@@ -27,4 +27,19 @@
 
     <dimen name="activity_main.bottom_navigation_bar.padding_top">1dp</dimen>
     <dimen name="activity_main.bottom_navigation_bar.padding_bottom">1dp</dimen>
+
+
+    <!-- details activity -->
+    <dimen name="activity_details.app_bar.height">400dp</dimen>
+
+    <dimen name="activity_details.fab.image_size">30dp</dimen>
+    <dimen name="activity_details.fab.first_margin_end">152dp</dimen>
+    <dimen name="activity_details.fab.second_margin_end">88dp</dimen>
+    <dimen name="activity_details.fab.third_margin_end">24dp</dimen>
+
+    <dimen name="activity_details.title.margin_top">20dp</dimen>
+    <dimen name="activity_details.title.margin_horizontal">32dp</dimen>
+
+    <dimen name="activity_details.description.margin_top">16dp</dimen>
+    <dimen name="activity_details.description.margin_horizontal">20dp</dimen>
 </resources>

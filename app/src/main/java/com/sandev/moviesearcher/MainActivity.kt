@@ -1,6 +1,7 @@
 package com.sandev.moviesearcher
 
 import android.animation.AnimatorInflater
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
@@ -10,6 +11,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationBarView
 import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
+import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 import com.sandev.moviesearcher.movieListRecyclerView.data.setMockData
 
 class MainActivity : AppCompatActivity() {
@@ -70,7 +72,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addMoviesCards() {
-        moviesRecyclerAdapter = MoviesRecyclerAdapter()
+        moviesRecyclerAdapter = MoviesRecyclerAdapter(object : MoviesRecyclerAdapter.OnClickListener {
+            override fun onClick(movie: Movie) {
+                val bundle = Bundle()
+                bundle.putParcelable("Movie", movie)
+                val intent = Intent(this@MainActivity, DetailsActivity::class.java)
+                intent.putExtras(bundle)
+                startActivity(intent)
+            }
+        })
         moviesRecyclerAdapter.setList(setMockData())
 
         val moviesListRecycler: RecyclerView = findViewById(R.id.movies_list_recycler)
