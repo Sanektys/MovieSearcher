@@ -22,7 +22,7 @@
             app:toolbarId="@id/collapsing_toolbar.toolbar"
             tools:title="Movie title">
 
-            <androidx.appcompat.widget.AppCompatImageView
+            <ImageView
                 android:id="@+id/collapsing_toolbar.image"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

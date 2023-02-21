@@ -7,9 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.ImageView
 import android.widget.Toast
-import android.widget.Toolbar
+import androidx.core.view.doOnPreDraw
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.TransitionInflater
 import com.google.android.material.appbar.MaterialToolbar
 import com.sandev.moviesearcher.MainActivity
 import com.sandev.moviesearcher.R
@@ -41,7 +43,12 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        val view = inflater.inflate(R.layout.fragment_home, container, false)
+
+        sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
+        postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
+
+        return view;
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -67,14 +74,16 @@ class HomeFragment : Fragment() {
 
     private fun initializeMovieRecyclerList(view: View) {
         moviesRecyclerAdapter = MoviesRecyclerAdapter(object : MoviesRecyclerAdapter.OnClickListener {
-            override fun onClick(movie: Movie) = (activity as MainActivity).startDetailsFragment(movie)
+            override fun onClick(movie: Movie, posterView: ImageView)
+                    = (activity as MainActivity).startDetailsFragment(movie, posterView)
         })
         moviesRecyclerAdapter.setList(setMockData())
 
         val moviesListRecycler: RecyclerView = view.findViewById(R.id.movies_list_recycler)
         moviesListRecycler.adapter = moviesRecyclerAdapter
-        moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
-
         moviesRecyclerManager = moviesListRecycler.layoutManager!!
+
+        moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
+        moviesListRecycler.doOnPreDraw { startPostponedEnterTransition() }
     }
 }

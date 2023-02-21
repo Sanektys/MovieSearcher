@@ -1,24 +1,20 @@
 package com.sandev.moviesearcher
 
-import android.animation.AnimatorInflater
-import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.view.animation.AnimationUtils
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationBarView
 import com.sandev.moviesearcher.fragments.DetailsFragment
 import com.sandev.moviesearcher.fragments.HomeFragment
-import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
-import com.sandev.moviesearcher.movieListRecyclerView.data.setMockData
 
 class MainActivity : AppCompatActivity() {
 
-
+    companion object {
+        const val MOVIE_DATA_KEY = "MOVIE"
+        const val POSTER_TRANSITION_KEY ="POSTER_TRANSITION"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,9 +60,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun startDetailsFragment(movie: Movie) {
+    fun startDetailsFragment(movie: Movie, posterView: ImageView) {
         val bundle = Bundle()
-        bundle.putParcelable("Movie", movie)
+        bundle.putParcelable(MOVIE_DATA_KEY, movie)
+        val transitionName = posterView.transitionName
+        bundle.putString(POSTER_TRANSITION_KEY, transitionName)
 
         val detailsFragment = DetailsFragment().apply {
             arguments = bundle
@@ -74,6 +72,7 @@ class MainActivity : AppCompatActivity() {
 
         supportFragmentManager
             .beginTransaction()
+            .addSharedElement(posterView, transitionName)
             .replace(R.id.fragment, detailsFragment)
             .addToBackStack(null)
             .commit()
