@@ -1,11 +1,12 @@
 <resources>
     <string name="app_name">Movie Searcher</string>
 
-    // main activity
+    <!-- Main activity -->
     <string name="activity_main.posters_source_link">Постеры взяты с www.movieposters.com</string>
     <string name="activity_main.bottom_navigation.selections.title">ПОДБОРКИ</string>
     <string name="activity_main.bottom_navigation.favorites.title">ИЗБРАННОЕ</string>
     <string name="activity_main.bottom_navigation.watch_later.title">ПОСМОТРЕТЬ ПОЗЖЕ</string>
     <string name="activity_main.top_app_bar.settings.title">НАСТРОЙКИ</string>
     <string name="activity_main.top_app_bar.menu.title">МЕНЮ</string>
+    <string name="activity_main.press_back_for_exit_warning">Чтобы выйти, нажмите \"назад\" ещё раз</string>
 </resources>

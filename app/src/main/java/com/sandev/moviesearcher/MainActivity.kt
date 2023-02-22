@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewOutlineProvider
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.*
 import androidx.recyclerview.widget.RecyclerView
@@ -19,10 +20,14 @@ import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 
 class MainActivity : AppCompatActivity() {
 
+    private var backPressedLastTime: Long = 0
+
     companion object {
         private const val MOVIES_RECYCLER_VIEW_STATE = "MoviesRecylerViewState"
         const val MOVIE_DATA_KEY = "MOVIE"
         const val POSTER_TRANSITION_KEY = "POSTER_TRANSITION"
+
+        const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
 
         val APP_BARS_CORNER_RADIUS = 28f * Resources.getSystem().displayMetrics.density
 
@@ -38,6 +43,7 @@ class MainActivity : AppCompatActivity() {
 
         menuButtonsInitial()
         setNavigationBarAppearance()
+        setOnBackPressed()
 
         supportFragmentManager
             .beginTransaction()
@@ -93,6 +99,24 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.fragment, detailsFragment)
             .addToBackStack(null)
             .commit()
+    }
+
+    private fun setOnBackPressed() {
+        onBackPressedDispatcher.addCallback(this,  object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val backPressedTime = System.currentTimeMillis()
+                if (supportFragmentManager.backStackEntryCount <= 1) {
+                    if (backPressedLastTime + BACK_DOUBLE_TAP_THRESHOLD >= backPressedTime) {
+                        finish()
+                    } else {
+                        Toast.makeText(this@MainActivity, R.string.activity_main_press_back_for_exit_warning, Toast.LENGTH_SHORT).show()
+                    }
+                    backPressedLastTime = backPressedTime
+                } else {
+                    supportFragmentManager.popBackStack()
+                }
+            }
+        })
     }
 
     private fun setNavigationBarAppearance() {
