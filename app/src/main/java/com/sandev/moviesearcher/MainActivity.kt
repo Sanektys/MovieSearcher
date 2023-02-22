@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher
 
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Outline
 import android.os.Bundle
@@ -38,12 +39,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Отменяем коллизию status & navigation bars, чтобы наши вьюхи проходили под ними
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        menuButtonsInitial()
+        setSystemBarsAppearanceAndBehavior()
         setNavigationBarAppearance()
-        setOnBackPressed()
+        setOnBackPressedAction()
+        menuButtonsInitial()
 
         supportFragmentManager
             .beginTransaction()
@@ -101,7 +100,21 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
-    private fun setOnBackPressed() {
+    private fun setSystemBarsAppearanceAndBehavior() {
+        // Отменяем коллизию status & navigation bars, чтобы наши вьюхи проходили под ними
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        val view: View = findViewById(R.id.navigation_bar)
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // Для альбомной ориентации убираем системные кнопки навигации с возможностью вытащить их по жесту
+            WindowInsetsControllerCompat(window, view).apply {
+                hide(WindowInsetsCompat.Type.navigationBars())
+                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        }
+    }
+
+    private fun setOnBackPressedAction() {
         onBackPressedDispatcher.addCallback(this,  object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 val backPressedTime = System.currentTimeMillis()
