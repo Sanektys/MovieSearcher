@@ -4,7 +4,7 @@
     <dimen name="activity_main.icon_size">28dp</dimen>
 
     <dimen name="activity_main.toolbar.title.margin_bottom">10dp</dimen>
-    <dimen name="activity_main.toolbar.padding_horizontal">2dp</dimen>
+    <dimen name="activity_main.toolbar.padding_horizontal">4dp</dimen>
 
     <dimen name="activity_main.movies_recycler.margin_horizontal">12dp</dimen>
     <dimen name="activity_main.movies_recycler.margin_vertical">12dp</dimen>
@@ -25,12 +25,14 @@
     <dimen name="activity_main.posters_source_link.padding_vertical">2dp</dimen>
     <dimen name="activity_main.posters_source_link.text_size">15sp</dimen>
 
-    <dimen name="activity_main.bottom_navigation_bar.padding_top">1dp</dimen>
-    <dimen name="activity_main.bottom_navigation_bar.padding_bottom">1dp</dimen>
+    <dimen name="activity_main.bottom_navigation_bar.height">64dp</dimen>
+    <dimen name="activity_main.bottom_navigation_bar.padding_top">10dp</dimen>
+    <dimen name="activity_main.bottom_navigation_bar.padding_bottom">10dp</dimen>
 
 
-    <!-- details activity -->
+    <!-- details fragment -->
     <dimen name="activity_details.app_bar.height">400dp</dimen>
+    <dimen name="activity_details.app_bar.toolbar.height">28dp</dimen>
 
     <dimen name="activity_details.fab.image_size">30dp</dimen>
     <dimen name="activity_details.fab.first_margin_end">152dp</dimen>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.MovieSearcher.TransparentSystemBars">
+        <item name="android:statusBarColor">@color/transparent_status_bar</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/transparent_navigation_bar</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>

@@ -10,30 +10,20 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize">
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/activity_main.toolbar.padding_horizontal"
+        android:background="?attr/colorPrimaryContainer">
 
-        <com.google.android.material.card.MaterialCardView
-            style="@style/Widget.Material3.CardView.Filled"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/app_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:contentPaddingRight="@dimen/activity_main.toolbar.padding_horizontal"
-            app:contentPaddingLeft="@dimen/activity_main.toolbar.padding_horizontal"
-            app:cardBackgroundColor="?attr/colorPrimaryContainer"
-            app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.ExtraLarge"
-            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Bottom">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/app_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="?attr/colorPrimaryContainer"
-                app:titleMarginBottom="@dimen/activity_main.toolbar.title.margin_bottom"
-                app:menu="@menu/top_app_bar_menu"
-                app:navigationIcon="@drawable/round_menu"
-                app:title="@string/app_name"
-                app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
-                app:titleTextColor="?attr/colorOnPrimaryContainer" />
-        </com.google.android.material.card.MaterialCardView>
+            app:titleMarginBottom="@dimen/activity_main.toolbar.title.margin_bottom"
+            app:menu="@menu/top_app_bar_menu"
+            app:navigationIcon="@drawable/round_menu"
+            app:title="@string/app_name"
+            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
+            app:titleTextColor="?attr/colorOnPrimaryContainer" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <com.google.android.material.card.MaterialCardView
