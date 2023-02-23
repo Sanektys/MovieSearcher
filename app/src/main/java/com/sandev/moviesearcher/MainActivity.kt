@@ -124,11 +124,15 @@ class MainActivity : AppCompatActivity() {
                     if (backPressedLastTime + BACK_DOUBLE_TAP_THRESHOLD >= backPressedTime) {
                         finish()
                     } else {
-                        Toast.makeText(this@MainActivity, R.string.activity_main_press_back_for_exit_warning, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity,
+                            R.string.activity_main_press_back_for_exit_warning, Toast.LENGTH_SHORT).show()
                     }
                     backPressedLastTime = backPressedTime
-                } else {
-                    supportFragmentManager.popBackStack()
+                } else if (supportFragmentManager.backStackEntryCount == 2) {
+                    if (!(supportFragmentManager.fragments.last() as DetailsFragment)
+                            .collapsingToolbarHasBeenExpanded()) {
+                        supportFragmentManager.popBackStack()
+                    }
                 }
             }
         })

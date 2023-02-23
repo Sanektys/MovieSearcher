@@ -104,4 +104,13 @@ class DetailsFragment : Fragment() {
             }
         }
     }
+
+    fun collapsingToolbarHasBeenExpanded(): Boolean {
+        val appBar = view?.findViewById<AppBarLayout>(R.id.app_bar)
+        if (appBar?.isLifted == true) {
+            appBar.setExpanded(true, true)
+            return true
+        }
+        return false
+    }
 }
