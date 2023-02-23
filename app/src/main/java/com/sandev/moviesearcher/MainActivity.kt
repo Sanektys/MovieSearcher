@@ -44,11 +44,13 @@ class MainActivity : AppCompatActivity() {
         setOnBackPressedAction()
         menuButtonsInitial()
 
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.fragment, HomeFragment())
-            .addToBackStack(null)
-            .commit()
+        if (supportFragmentManager.backStackEntryCount == 0) {
+            supportFragmentManager
+                .beginTransaction()
+                .add(R.id.fragment, HomeFragment())
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
