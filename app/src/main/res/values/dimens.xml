@@ -13,7 +13,7 @@
     <dimen name="activity_main.movies_recycler.movie_card.margin_horizontal">0dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.margin_bottom">12dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.poster.width">120dp</dimen>
-    <dimen name="activity_main.movies_recycler.movie_card.poster.alpha">0.75</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.poster.alpha">0.8</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.title.margin_top">8dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.title.margin_bottom">4dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.separator.margin_horizontal">12dp</dimen>

@@ -9,10 +9,7 @@ import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
+import androidx.core.view.*
 import androidx.transition.TransitionInflater
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.CollapsingToolbarLayout
@@ -83,7 +80,7 @@ class DetailsFragment : Fragment() {
                     updatePadding(top = topInset)  // Обновляем паддинг только у свёрнутого тулбара, иначе изображение съедет
                     updateLayoutParams { height = toolbarSize + paddingTop }  // Закономерно увеличиваем высоту тулбара, чтобы его контент не скукожило
                 }
-                view.findViewById<AppBarLayout>(R.id.app_bar).apply {
+                val appBar = view.findViewById<AppBarLayout>(R.id.app_bar).apply {
                     updateLayoutParams { height = appBarHeight + topInset }
 
                     // Также делаем закругление краёв снизу для тулбара
@@ -98,7 +95,10 @@ class DetailsFragment : Fragment() {
                 }
                 view.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar).apply {
                     // Обновляем позицию триггера перехода на свёрнутый тулбар, где фон заменяется на цвет
-                    scrimVisibleHeightTrigger = toolbar.height - 2 * resources.displayMetrics.density.toInt()
+                    doOnPreDraw {
+                        scrimVisibleHeightTrigger =
+                            findViewById<MaterialToolbar>(R.id.collapsing_toolbar_toolbar).height * 2
+                    }
                 }
                 insets
             }
