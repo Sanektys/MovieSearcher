@@ -29,6 +29,8 @@ class MainActivity : AppCompatActivity() {
         const val POSTER_TRANSITION_KEY = "POSTER_TRANSITION"
 
         const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
+        const val ONE_FRAGMENT_IN_STACK = 1
+        const val TWO_FRAGMENTS_IN_STACK = 2
 
         val APP_BARS_CORNER_RADIUS = 28f * Resources.getSystem().displayMetrics.density
 
@@ -120,7 +122,7 @@ class MainActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this,  object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 val backPressedTime = System.currentTimeMillis()
-                if (supportFragmentManager.backStackEntryCount <= 1) {
+                if (supportFragmentManager.backStackEntryCount <= ONE_FRAGMENT_IN_STACK) {
                     if (backPressedLastTime + BACK_DOUBLE_TAP_THRESHOLD >= backPressedTime) {
                         finish()
                     } else {
@@ -128,7 +130,7 @@ class MainActivity : AppCompatActivity() {
                             R.string.activity_main_press_back_for_exit_warning, Toast.LENGTH_SHORT).show()
                     }
                     backPressedLastTime = backPressedTime
-                } else if (supportFragmentManager.backStackEntryCount == 2) {
+                } else if (supportFragmentManager.backStackEntryCount == TWO_FRAGMENTS_IN_STACK) {
                     if (!(supportFragmentManager.fragments.last() as DetailsFragment)
                             .collapsingToolbarHasBeenExpanded()) {
                         supportFragmentManager.popBackStack()

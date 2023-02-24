@@ -23,6 +23,10 @@ import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 
 class DetailsFragment : Fragment() {
 
+    companion object {
+        const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -47,13 +51,13 @@ class DetailsFragment : Fragment() {
         val shareButton:        FloatingActionButton = view.findViewById(R.id.fab_share)
 
         toFavoriteButton.setOnClickListener {
-            Snackbar.make(requireContext(), view, "Added to favorites", Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(requireContext(), view, getString(R.string.details_fragment_fab_favorite), Snackbar.LENGTH_SHORT).show()
         }
         toWatchLaterButton.setOnClickListener {
-            Snackbar.make(requireContext(), view, "Added to watch later", Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(requireContext(), view, getString(R.string.details_fragment_fab_watch_later), Snackbar.LENGTH_SHORT).show()
         }
         shareButton.setOnClickListener {
-            Snackbar.make(requireContext(), view, "Going to share", Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(requireContext(), view, getString(R.string.details_fragment_fab_share), Snackbar.LENGTH_SHORT).show()
         }
     }
 
@@ -76,11 +80,11 @@ class DetailsFragment : Fragment() {
                 val appBarHeight = resources.getDimensionPixelSize(R.dimen.activity_details_app_bar_height)
                 val toolbarSize = resources.getDimensionPixelSize(R.dimen.activity_details_app_bar_toolbar_height)
 
-                val toolbar = view.findViewById<MaterialToolbar>(R.id.collapsing_toolbar_toolbar).apply {
+                view.findViewById<MaterialToolbar>(R.id.collapsing_toolbar_toolbar).apply {
                     updatePadding(top = topInset)  // Обновляем паддинг только у свёрнутого тулбара, иначе изображение съедет
                     updateLayoutParams { height = toolbarSize + paddingTop }  // Закономерно увеличиваем высоту тулбара, чтобы его контент не скукожило
                 }
-                val appBar = view.findViewById<AppBarLayout>(R.id.app_bar).apply {
+                view.findViewById<AppBarLayout>(R.id.app_bar).apply {
                     updateLayoutParams { height = appBarHeight + topInset }
 
                     // Также делаем закругление краёв снизу для тулбара
@@ -97,7 +101,8 @@ class DetailsFragment : Fragment() {
                     // Обновляем позицию триггера перехода на свёрнутый тулбар, где фон заменяется на цвет
                     doOnPreDraw {
                         scrimVisibleHeightTrigger =
-                            findViewById<MaterialToolbar>(R.id.collapsing_toolbar_toolbar).height * 2
+                            findViewById<MaterialToolbar>(R.id.collapsing_toolbar_toolbar).height *
+                                    TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER
                     }
                 }
                 insets
