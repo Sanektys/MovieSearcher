@@ -9,4 +9,8 @@
     <string name="activity_main.bottom_navigation.watch_later.title">VIEW LATER</string>
     <string name="activity_main.top_app_bar.settings.title">SETTINGS</string>
     <string name="activity_main.top_app_bar.menu.title">MENU</string>
+    <string name="activity_main.press_back_for_exit_warning">Press \"back\" again for exit</string>
+    <string name="details_fragment.fab.favorite">Added to favorites</string>
+    <string name="details_fragment.fab.watch_later">Added to \\\"watch later\\\"</string>
+    <string name="details_fragment.fab.share">Link shared</string>
 </resources>

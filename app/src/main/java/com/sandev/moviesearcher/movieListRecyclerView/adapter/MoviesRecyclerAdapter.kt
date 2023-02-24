@@ -3,6 +3,7 @@ package com.sandev.moviesearcher.movieListRecyclerView.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.sandev.moviesearcher.R
@@ -20,14 +21,14 @@ class MoviesRecyclerAdapter(private val clickListener: OnClickListener) : Recycl
     override fun getItemCount() = moviesList.size
 
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
-        holder.onBind(moviesList[position])
+        holder.onBind(moviesList[position], position)
         holder.itemView.findViewById<View>(R.id.movie_card_poster_frame).setOnClickListener {
-            clickListener.onClick(moviesList[position])
+            clickListener.onClick(moviesList[position], holder.poster)
         }
     }
 
     interface OnClickListener {
-        fun onClick(movie: Movie)
+        fun onClick(movie: Movie, posterView: ImageView)
     }
 
     fun setList(newList: List<Movie>) {

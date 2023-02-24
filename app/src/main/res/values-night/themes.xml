@@ -31,4 +31,11 @@
         <item name="android:statusBarColor">?attr/colorPrimaryContainer</item>
         <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
     </style>
+
+    <!-- Child themes -->
+    <style name="Theme.MovieSearcher.TransparentSystemBars">
+        <item name="android:statusBarColor">@color/transparent_status_bar</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/transparent_navigation_bar</item>
+    </style>
 </resources>

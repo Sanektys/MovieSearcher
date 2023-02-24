@@ -7,114 +7,31 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/movies_list"
-        app:layout_constraintVertical_chainStyle="packed">
-
-        <com.google.android.material.card.MaterialCardView
-            style="@style/Widget.Material3.CardView.Filled"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:contentPaddingRight="@dimen/activity_main.toolbar.padding_horizontal"
-            app:contentPaddingLeft="@dimen/activity_main.toolbar.padding_horizontal"
-            app:cardBackgroundColor="?attr/colorPrimaryContainer"
-            app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.ExtraLarge"
-            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Bottom">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/app_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="?attr/colorPrimaryContainer"
-                app:titleMarginBottom="@dimen/activity_main.toolbar.title.margin_bottom"
-                app:menu="@menu/top_app_bar_menu"
-                app:navigationIcon="@drawable/round_menu"
-                app:title="@string/app_name"
-                app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
-                app:titleTextColor="?attr/colorOnPrimaryContainer" />
-        </com.google.android.material.card.MaterialCardView>
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/movies_list"
-        style="@style/Widget.Material3.CardView.Filled"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginHorizontal="@dimen/activity_main.movies_recycler.margin_horizontal"
-        android:layout_marginVertical="@dimen/activity_main.movies_recycler.margin_vertical"
-        app:cardBackgroundColor="?attr/colorSecondaryContainer"
-        app:layout_constraintTop_toBottomOf="@id/app_bar"
-        app:layout_constraintBottom_toTopOf="@id/posters_source_link"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/navigation_bar"
         app:layout_constraintVertical_chainStyle="packed"
-        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large">
+        tools:layout="@layout/fragment_home" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/movies_list_recycler"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/movie_card" />
-    </com.google.android.material.card.MaterialCardView>
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/posters_source_link"
-        style="@style/Widget.Material3.CardView.Filled"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/activity_main.posters_source_link.margin"
-        app:cardBackgroundColor="?attr/colorSecondaryContainer"
-        app:layout_constraintEnd_toEndOf="@id/movies_list"
-        app:layout_constraintTop_toBottomOf="@id/movies_list"
-        app:layout_constraintStart_toStartOf="@id/movies_list"
-        app:layout_constraintBottom_toTopOf="@id/bottom_bar"
-        app:layout_constraintVertical_chainStyle="packed"
-        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Medium">
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/posters_source_link_text"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginHorizontal="@dimen/activity_main.posters_source_link.padding_horizontal"
-            android:layout_marginBottom="@dimen/activity_main.posters_source_link.padding_vertical"
-            android:autoLink="web"
-            android:linksClickable="true"
-            android:text="@string/activity_main.posters_source_link"
-            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
-            android:textColor="?attr/colorOnSecondaryContainer"
-            android:textColorHighlight="?attr/colorPrimaryInverse"
-            android:textColorLink="?attr/colorSecondary" />
-    </com.google.android.material.card.MaterialCardView>
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/bottom_bar"
-        style="@style/Widget.Material3.CardView.Filled"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/navigation_bar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:cardBackgroundColor="?attr/colorPrimaryContainer"
+        android:layout_height="@dimen/activity_main.bottom_navigation_bar.height"
+        android:background="?attr/colorPrimaryContainer"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/posters_source_link"
+        app:layout_constraintTop_toBottomOf="@id/fragment"
         app:layout_constraintVertical_chainStyle="packed"
-        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.ExtraLarge"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Top">
-
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/navigation_bar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="?attr/colorPrimaryContainer"
-            app:menu="@menu/bottom_navigation_bar_menu"
-            app:itemBackground="?attr/colorPrimaryContainer"
-            app:itemTextAppearanceActive="@style/TextAppearance.Material3.LabelSmall"
-            app:itemTextColor="@drawable/on_primary_container_click_color"
-            app:itemActiveIndicatorStyle="@style/Widget.Material3.BottomNavigationView"
-            app:itemIconTint="@drawable/on_primary_container_selected_state_color"
-            app:itemIconSize="@dimen/activity_main.icon_size"
-            app:labelVisibilityMode="selected"
-            app:itemPaddingTop="@dimen/activity_main.bottom_navigation_bar.padding_top"
-            app:itemPaddingBottom="@dimen/activity_main.bottom_navigation_bar.padding_bottom" />
-    </com.google.android.material.card.MaterialCardView>
+        app:menu="@menu/bottom_navigation_bar_menu"
+        app:itemBackground="?attr/colorPrimaryContainer"
+        app:itemTextAppearanceActive="@style/TextAppearance.Material3.LabelSmall"
+        app:itemTextColor="@drawable/on_primary_container_click_color"
+        app:itemActiveIndicatorStyle="@style/Widget.Material3.BottomNavigationView"
+        app:itemIconTint="@drawable/on_primary_container_selected_state_color"
+        app:itemIconSize="@dimen/activity_main.icon_size"
+        app:labelVisibilityMode="selected"
+        app:itemPaddingTop="@dimen/activity_main.bottom_navigation_bar.padding_top"
+        app:itemPaddingBottom="@dimen/activity_main.bottom_navigation_bar.padding_bottom" />
 </androidx.constraintlayout.widget.ConstraintLayout>

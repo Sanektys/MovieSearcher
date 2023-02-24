@@ -13,10 +13,7 @@
         android:theme="@style/Theme.MovieSearcher"
         tools:targetApi="31">
         <activity
-            android:name=".DetailsActivity"
-            android:exported="false"
-            android:theme="@style/Theme.MovieSearcher.TransparentStatusBar" />
-        <activity
+            android:theme="@style/Theme.MovieSearcher.TransparentSystemBars"
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -30,5 +27,4 @@
                 android:value="" />
         </activity>
     </application>
-
 </manifest>

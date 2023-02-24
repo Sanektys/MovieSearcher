@@ -1,30 +1,58 @@
 package com.sandev.moviesearcher
 
-import android.animation.AnimatorInflater
-import android.content.Intent
+import android.content.res.Configuration
+import android.content.res.Resources
+import android.graphics.Outline
 import android.os.Bundle
 import android.view.View
-import android.view.animation.AnimationUtils
+import android.view.ViewOutlineProvider
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import androidx.core.view.*
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationBarView
-import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
+import com.sandev.moviesearcher.fragments.DetailsFragment
+import com.sandev.moviesearcher.fragments.HomeFragment
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
-import com.sandev.moviesearcher.movieListRecyclerView.data.setMockData
+
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var moviesRecyclerAdapter: MoviesRecyclerAdapter
-    private lateinit var moviesRecyclerManager: RecyclerView.LayoutManager
-    private val MOVIES_RECYCLER_VIEW_STATE: String = "MoviesRecylerViewState"
+
+    private var backPressedLastTime: Long = 0
+
+    companion object {
+        private const val MOVIES_RECYCLER_VIEW_STATE = "MoviesRecylerViewState"
+        const val MOVIE_DATA_KEY = "MOVIE"
+        const val POSTER_TRANSITION_KEY = "POSTER_TRANSITION"
+
+        const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
+        const val ONE_FRAGMENT_IN_STACK = 1
+        const val TWO_FRAGMENTS_IN_STACK = 2
+
+        val APP_BARS_CORNER_RADIUS = 28f * Resources.getSystem().displayMetrics.density
+
+        lateinit var moviesRecyclerManager: RecyclerView.LayoutManager
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        setSystemBarsAppearanceAndBehavior()
+        setNavigationBarAppearance()
+        setOnBackPressedAction()
         menuButtonsInitial()
-        addMoviesCards()
+
+        if (supportFragmentManager.backStackEntryCount == 0) {
+            supportFragmentManager
+                .beginTransaction()
+                .add(R.id.fragment, HomeFragment())
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -34,23 +62,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        moviesRecyclerManager.onRestoreInstanceState(savedInstanceState.getBundle(MOVIES_RECYCLER_VIEW_STATE))
+        moviesRecyclerManager.onRestoreInstanceState(savedInstanceState.getParcelable(MOVIES_RECYCLER_VIEW_STATE))
     }
 
     private fun menuButtonsInitial() {
-        val settingsButton: View = findViewById(R.id.top_toolbar_settings_button)
-        settingsButton.stateListAnimator = AnimatorInflater.loadStateListAnimator(this, R.animator.settings_button_spin)
-
-        val appToolbar: Toolbar = findViewById(R.id.app_toolbar)
-        appToolbar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.top_toolbar_settings_button -> {
-                    Toast.makeText(this, R.string.activity_main_top_app_bar_settings_title, Toast.LENGTH_SHORT).show()
-                    true
-                }
-                else -> false
-            }
-        }
         val navigationBar: NavigationBarView = findViewById(R.id.navigation_bar)
         navigationBar.setOnItemSelectedListener {
             when (it.itemId) {
@@ -71,22 +86,80 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun addMoviesCards() {
-        moviesRecyclerAdapter = MoviesRecyclerAdapter(object : MoviesRecyclerAdapter.OnClickListener {
-            override fun onClick(movie: Movie) {
-                val bundle = Bundle()
-                bundle.putParcelable("Movie", movie)
-                val intent = Intent(this@MainActivity, DetailsActivity::class.java)
-                intent.putExtras(bundle)
-                startActivity(intent)
+    fun startDetailsFragment(movie: Movie, posterView: ImageView) {
+        val bundle = Bundle()
+        bundle.putParcelable(MOVIE_DATA_KEY, movie)
+        val transitionName = posterView.transitionName
+        bundle.putString(POSTER_TRANSITION_KEY, transitionName)
+
+        val detailsFragment = DetailsFragment().apply {
+            arguments = bundle
+        }
+
+        supportFragmentManager
+            .beginTransaction()
+            .addSharedElement(posterView, transitionName)
+            .replace(R.id.fragment, detailsFragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun setSystemBarsAppearanceAndBehavior() {
+        // Отменяем коллизию status & navigation bars, чтобы наши вьюхи проходили под ними
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        val view: View = findViewById(R.id.navigation_bar)
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // Для альбомной ориентации убираем системные кнопки навигации с возможностью вытащить их по жесту
+            WindowInsetsControllerCompat(window, view).apply {
+                hide(WindowInsetsCompat.Type.navigationBars())
+                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        }
+    }
+
+    private fun setOnBackPressedAction() {
+        onBackPressedDispatcher.addCallback(this,  object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val backPressedTime = System.currentTimeMillis()
+                if (supportFragmentManager.backStackEntryCount <= ONE_FRAGMENT_IN_STACK) {
+                    if (backPressedLastTime + BACK_DOUBLE_TAP_THRESHOLD >= backPressedTime) {
+                        finish()
+                    } else {
+                        Toast.makeText(this@MainActivity,
+                            R.string.activity_main_press_back_for_exit_warning, Toast.LENGTH_SHORT).show()
+                    }
+                    backPressedLastTime = backPressedTime
+                } else if (supportFragmentManager.backStackEntryCount == TWO_FRAGMENTS_IN_STACK) {
+                    if (!(supportFragmentManager.fragments.last() as DetailsFragment)
+                            .collapsingToolbarHasBeenExpanded()) {
+                        supportFragmentManager.popBackStack()
+                    }
+                }
             }
         })
-        moviesRecyclerAdapter.setList(setMockData())
+    }
 
-        val moviesListRecycler: RecyclerView = findViewById(R.id.movies_list_recycler)
-        moviesListRecycler.adapter = moviesRecyclerAdapter
-        moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(this, R.anim.posters_appearance)
+    private fun setNavigationBarAppearance() {
+        findViewById<BottomNavigationView>(R.id.navigation_bar).apply {
+            ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
+                updatePadding(bottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom)
+                updateLayoutParams {
+                    height = resources.getDimensionPixelSize(R.dimen.activity_main_bottom_navigation_bar_height) + paddingBottom
+                }
+                insets
+            }
 
-        moviesRecyclerManager = moviesListRecycler.layoutManager!!
+            outlineProvider = object : ViewOutlineProvider() {
+                override fun getOutline(view: View?, outline: Outline?) {
+                    outline?.setRoundRect(
+                        0, 0,
+                        view!!.width, (view.height + APP_BARS_CORNER_RADIUS).toInt(),
+                        APP_BARS_CORNER_RADIUS
+                    )
+                }
+            }
+            clipToOutline = true
+        }
     }
 }
