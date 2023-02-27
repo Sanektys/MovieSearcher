@@ -2,18 +2,21 @@ package com.sandev.moviesearcher.fragments
 
 import android.graphics.Outline
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.*
+import androidx.fragment.app.Fragment
 import androidx.transition.TransitionInflater
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.sandev.moviesearcher.MainActivity
@@ -24,7 +27,7 @@ import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 class DetailsFragment : Fragment() {
 
     companion object {
-        const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
+        private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
     }
 
     override fun onCreateView(
@@ -43,6 +46,26 @@ class DetailsFragment : Fragment() {
         initializeContent(view)
 
         sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
+
+        activity?.findViewById<BottomNavigationView>(R.id.navigation_bar)?.run {
+            animate()  // Убрать нижний navigation view
+                .translationY(height.toFloat())
+                .setDuration(resources.getInteger(R.integer.activity_main_animations_durations_poster_transition).toLong())
+                .withStartAction { menu.forEach { it.isEnabled = false } }
+                .withEndAction { visibility = GONE }
+                .start()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        activity?.findViewById<BottomNavigationView>(R.id.navigation_bar)?.run {
+            animate()
+                .translationY(0f)
+                .setDuration(resources.getInteger(R.integer.activity_main_animations_durations_poster_transition).toLong())
+                .withStartAction { visibility = VISIBLE; menu.forEach { it.isEnabled = true } }
+                .start()
+        }
     }
 
     private fun setFloatButtonOnClick(view: View) {
