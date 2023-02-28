@@ -42,6 +42,7 @@ class DetailsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        setToolbarBackButton(view)
         setFloatButtonOnClick(view)
         initializeContent(view)
 
@@ -129,6 +130,29 @@ class DetailsFragment : Fragment() {
                     }
                 }
                 insets
+            }
+        }
+    }
+
+    private fun setToolbarBackButton(view: View) {
+        view.findViewById<MaterialToolbar>(R.id.collapsing_toolbar_toolbar).apply {
+            val appBar: AppBarLayout = view.findViewById(R.id.app_bar)
+
+            setNavigationIcon(R.drawable.round_arrow_back)
+            setNavigationOnClickListener {
+                if (appBar.isLifted) {
+                    appBar.addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
+                        override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
+                            if (verticalOffset == 0) {  // collapsing toolbar полностью развёрнут
+                                activity?.onBackPressedDispatcher?.onBackPressed()
+                                appBar.removeOnOffsetChangedListener(this)
+                            }
+                        }
+                    })
+                    appBar.setExpanded(true, true)
+                } else {
+                    activity?.onBackPressedDispatcher?.onBackPressed()
+                }
             }
         }
     }

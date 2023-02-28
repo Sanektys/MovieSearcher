@@ -1,7 +1,6 @@
 package com.sandev.moviesearcher.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,6 +25,7 @@ class FavoritesFragment : MoviesListFragment() {
         val rootView = layoutInflater.inflate(R.layout.fragment_favorites, container, false)
 
         sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
+        returnTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.no_transition)
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
         return rootView

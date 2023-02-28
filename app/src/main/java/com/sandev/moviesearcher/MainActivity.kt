@@ -34,7 +34,6 @@ class MainActivity : AppCompatActivity() {
 
         private const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
         private const val ONE_FRAGMENT_IN_STACK = 1
-        private const val TWO_FRAGMENTS_IN_STACK = 2
         private const val FRAGMENT_UNCOMMITTED = -1
 
         val APP_BARS_CORNER_RADIUS = 28f * Resources.getSystem().displayMetrics.density
