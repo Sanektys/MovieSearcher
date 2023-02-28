@@ -13,8 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.*
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.navigation.NavigationBarView
 import com.sandev.moviesearcher.fragments.DetailsFragment
+import com.sandev.moviesearcher.fragments.FavoritesFragment
 import com.sandev.moviesearcher.fragments.HomeFragment
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 
@@ -22,15 +22,20 @@ import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 class MainActivity : AppCompatActivity() {
 
     private var backPressedLastTime: Long = 0
+    private var homeFragmentCommitId: Int = FRAGMENT_UNCOMMITTED
+    private var favoritesFragmentCommitId: Int = FRAGMENT_UNCOMMITTED
 
     companion object {
         private const val MOVIES_RECYCLER_VIEW_STATE = "MoviesRecylerViewState"
+        private const val HOME_FRAGMENT_COMMIT_ID_KEY = "HOME_FRAGMENT_COMMIT_KEY"
+        private const val FAVORITES_FRAGMENT_COMMIT_ID_KEY = "FAVORITES_FRAGMENT_COMMIT_KEY"
         const val MOVIE_DATA_KEY = "MOVIE"
         const val POSTER_TRANSITION_KEY = "POSTER_TRANSITION"
 
-        const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
-        const val ONE_FRAGMENT_IN_STACK = 1
-        const val TWO_FRAGMENTS_IN_STACK = 2
+        private const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
+        private const val ONE_FRAGMENT_IN_STACK = 1
+        private const val TWO_FRAGMENTS_IN_STACK = 2
+        private const val FRAGMENT_UNCOMMITTED = -1
 
         val APP_BARS_CORNER_RADIUS = 28f * Resources.getSystem().displayMetrics.density
 
@@ -47,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         menuButtonsInitial()
 
         if (supportFragmentManager.backStackEntryCount == 0) {
-            supportFragmentManager
+            homeFragmentCommitId = supportFragmentManager
                 .beginTransaction()
                 .add(R.id.fragment, HomeFragment())
                 .addToBackStack(null)
@@ -58,30 +63,53 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putParcelable(MOVIES_RECYCLER_VIEW_STATE, moviesRecyclerManager.onSaveInstanceState())
+        outState.putInt(HOME_FRAGMENT_COMMIT_ID_KEY, homeFragmentCommitId)
+        outState.putInt(FAVORITES_FRAGMENT_COMMIT_ID_KEY, favoritesFragmentCommitId)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         moviesRecyclerManager.onRestoreInstanceState(savedInstanceState.getParcelable(MOVIES_RECYCLER_VIEW_STATE))
+        homeFragmentCommitId = savedInstanceState.getInt(HOME_FRAGMENT_COMMIT_ID_KEY)
+        favoritesFragmentCommitId = savedInstanceState.getInt(FAVORITES_FRAGMENT_COMMIT_ID_KEY)
     }
 
     private fun menuButtonsInitial() {
-        val navigationBar: NavigationBarView = findViewById(R.id.navigation_bar)
-        navigationBar.setOnItemSelectedListener {
-            when (it.itemId) {
-                R.id.bottom_navigation_favorites_button -> {
-                    Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
-                    true
+        findViewById<BottomNavigationView>(R.id.navigation_bar).apply {
+            setOnItemSelectedListener {
+                when (it.itemId) {
+                    R.id.bottom_navigation_all_movies_button -> {
+                        supportFragmentManager.popBackStack(homeFragmentCommitId, 0)
+                        true
+                    }
+                    R.id.bottom_navigation_watch_later_button -> {
+                        Toast.makeText(context, it.title, Toast.LENGTH_SHORT).show()
+                        true
+                    }
+                    R.id.bottom_navigation_favorites_button -> {
+                        if (favoritesFragmentCommitId == FRAGMENT_UNCOMMITTED) {
+                            favoritesFragmentCommitId = supportFragmentManager
+                                .beginTransaction()
+                                .replace(R.id.fragment, FavoritesFragment())
+                                .addToBackStack(null)
+                                .commit()
+                        }
+                        true
+                    }
+                    else -> false
                 }
-                R.id.bottom_navigation_watch_later_button -> {
-                    Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
-                    true
+            }
+            // Navigation bar будет отслеживать backstack чтобы вовремя переключать кнопки меню
+            supportFragmentManager.addOnBackStackChangedListener {
+                when (supportFragmentManager.fragments.last()) {
+                    is HomeFragment -> {
+                        menu.findItem(R.id.bottom_navigation_all_movies_button).isChecked = true
+                        favoritesFragmentCommitId = FRAGMENT_UNCOMMITTED
+                    }
+                    is FavoritesFragment -> {
+                        menu.findItem(R.id.bottom_navigation_favorites_button).isChecked = true
+                    }
                 }
-                R.id.bottom_navigation_all_movies_button -> {
-                    Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
-                    true
-                }
-                else -> false
             }
         }
     }
@@ -130,11 +158,13 @@ class MainActivity : AppCompatActivity() {
                             R.string.activity_main_press_back_for_exit_warning, Toast.LENGTH_SHORT).show()
                     }
                     backPressedLastTime = backPressedTime
-                } else if (supportFragmentManager.backStackEntryCount == TWO_FRAGMENTS_IN_STACK) {
+                } else if (supportFragmentManager.fragments.last() is DetailsFragment) {
                     if (!(supportFragmentManager.fragments.last() as DetailsFragment)
                             .collapsingToolbarHasBeenExpanded()) {
                         supportFragmentManager.popBackStack()
                     }
+                } else {
+                    supportFragmentManager.popBackStack()
                 }
             }
         })

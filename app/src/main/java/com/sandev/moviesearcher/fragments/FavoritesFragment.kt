@@ -1,6 +1,7 @@
 package com.sandev.moviesearcher.fragments
 
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,13 +17,13 @@ import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 import com.sandev.moviesearcher.movieListRecyclerView.data.setMockData
 
 
-class HomeFragment : MoviesListFragment() {
+class FavoritesFragment : MoviesListFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val rootView = layoutInflater.inflate(R.layout.fragment_home, container, false)
+        val rootView = layoutInflater.inflate(R.layout.fragment_favorites, container, false)
 
         sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
@@ -40,7 +41,7 @@ class HomeFragment : MoviesListFragment() {
             override fun onClick(movie: Movie, posterView: ImageView)
                     = (activity as MainActivity).startDetailsFragment(movie, posterView)
         })
-        moviesRecyclerAdapter.setList(setMockData())
+        moviesRecyclerAdapter.addMovieCard(setMockData().first())
 
         val moviesListRecycler: RecyclerView = view.findViewById(R.id.movies_list_recycler)
         moviesListRecycler.adapter = moviesRecyclerAdapter

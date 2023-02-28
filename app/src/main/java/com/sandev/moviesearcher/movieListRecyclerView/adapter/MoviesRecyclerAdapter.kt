@@ -48,4 +48,10 @@ class MoviesRecyclerAdapter(private val clickListener: OnClickListener) : Recycl
         moviesList.addAll(newCards)
         DiffUtil.calculateDiff(MoviesListDiff(oldList, moviesList)).dispatchUpdatesTo(this)
     }
+
+    fun removeMovieCard(movie: Movie) {
+        val index = moviesList.indexOf(movie)
+        moviesList.removeAt(index)
+        notifyItemRemoved(index)
+    }
 }
