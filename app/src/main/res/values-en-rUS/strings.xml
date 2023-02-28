@@ -4,7 +4,7 @@
 
     // main activity
     <string name="activity_main.posters_source_link">Posters from www.movieposters.com</string>
-    <string name="activity_main.bottom_navigation.selections.title">SELECTIONS</string>
+    <string name="activity_main.bottom_navigation.all_movies.title">ALL MOVIES</string>
     <string name="activity_main.bottom_navigation.favorites.title">FAVORITES</string>
     <string name="activity_main.bottom_navigation.watch_later.title">VIEW LATER</string>
     <string name="activity_main.top_app_bar.settings.title">SETTINGS</string>

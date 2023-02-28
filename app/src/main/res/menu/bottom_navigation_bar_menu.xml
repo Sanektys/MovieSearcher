@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
-        android:id="@+id/bottom_navigation.favorites_button"
-        android:icon="@drawable/favorite_icon_animated"
-        android:title="@string/activity_main.bottom_navigation.favorites.title"
+        android:id="@+id/bottom_navigation.all_movies_button"
+        android:icon="@drawable/selections_icon_animated"
+        android:title="@string/activity_main.bottom_navigation.all_movies.title"
         app:showAsAction="ifRoom" />
 
     <item
@@ -14,8 +15,8 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/bottom_navigation.selections_button"
-        android:icon="@drawable/selections_icon_animated"
-        android:title="@string/activity_main.bottom_navigation.selections.title"
+        android:id="@+id/bottom_navigation.favorites_button"
+        android:icon="@drawable/favorite_icon_animated"
+        android:title="@string/activity_main.bottom_navigation.favorites.title"
         app:showAsAction="ifRoom" />
 </menu>

@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
                     true
                 }
-                R.id.bottom_navigation_selections_button -> {
+                R.id.bottom_navigation_all_movies_button -> {
                     Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
                     true
                 }
