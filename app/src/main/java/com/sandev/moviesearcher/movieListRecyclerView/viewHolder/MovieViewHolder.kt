@@ -9,7 +9,7 @@ import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 
 
 class MovieViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    val poster: ImageView = view.findViewById(R.id.movie_card_poster_picture)
+    val poster: ImageView = view.findViewById(R.id.movie_card_poster)
     private val title: TextView = view.findViewById(R.id.movie_card_movie_title)
     private val description: TextView = view.findViewById(R.id.movie_card_movie_description)
 

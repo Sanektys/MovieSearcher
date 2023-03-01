@@ -22,7 +22,7 @@ class MoviesRecyclerAdapter(private val clickListener: OnClickListener) : Recycl
 
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
         holder.onBind(moviesList[position], position)
-        holder.itemView.findViewById<View>(R.id.movie_card_poster_frame).setOnClickListener {
+        holder.itemView.findViewById<View>(R.id.movie_card_poster).setOnClickListener {
             clickListener.onClick(moviesList[position], holder.poster)
         }
     }
