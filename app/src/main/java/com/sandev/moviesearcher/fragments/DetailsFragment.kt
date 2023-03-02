@@ -8,8 +8,8 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
+import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.os.bundleOf
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
@@ -110,7 +110,7 @@ class DetailsFragment : Fragment() {
     private fun initializeContent(view: View) {
         movie = arguments?.get(MainActivity.MOVIE_DATA_KEY) as Movie
 
-        view.findViewById<AppCompatImageView>(R.id.collapsing_toolbar_image).apply {
+        view.findViewById<ImageView>(R.id.collapsing_toolbar_image).apply {
             setImageResource(movie.poster)
             transitionName = arguments?.getString(MainActivity.POSTER_TRANSITION_KEY)
         }

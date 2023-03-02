@@ -27,8 +27,10 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
         holder.onBind(moviesList[position], position)
         holder.itemView.findViewById<View>(R.id.movie_card_poster).setOnClickListener {
-            clickListener.onClick(moviesList[holder.bindingAdapterPosition], holder.poster)
             lastMovieClickedPosition = holder.bindingAdapterPosition
+            it.transitionName = it.resources.getString(R.string.movie_view_holder_transition_name,
+                lastMovieClickedPosition)
+            clickListener.onClick(moviesList[lastMovieClickedPosition], holder.poster)
         }
     }
 

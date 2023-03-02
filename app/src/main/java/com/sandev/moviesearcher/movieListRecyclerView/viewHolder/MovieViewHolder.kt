@@ -15,7 +15,8 @@ class MovieViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
     fun onBind(movieData: Movie, position: Int) {
         poster.setImageResource(movieData.poster)
-        poster.transitionName = "PosterTransition$position"
+        poster.transitionName = poster.resources.getString(R.string.movie_view_holder_transition_name,
+            position)
         title.text = movieData.title
         description.text = movieData.description
     }

@@ -8,6 +8,7 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
 import com.sandev.moviesearcher.MainActivity
@@ -22,6 +23,15 @@ class FavoritesFragment : MoviesListFragment() {
     private lateinit var favoriteMoviesRecyclerManager: RecyclerView.LayoutManager
     private var favoriteMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
     private var isMovieNowNotFavorite: Boolean = false
+
+    private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
+        override fun onClick(movie: Movie, posterView: ImageView) {
+            (requireActivity() as MainActivity).startDetailsFragment(movie, posterView)
+        }
+    }
+    private val posterOnClickDummy = object : MoviesRecyclerAdapter.OnClickListener {
+        override fun onClick(movie: Movie, posterView: ImageView) {}
+    }
 
     companion object {
         const val DETAILS_RESULT_KEY = "DETAILS_RESULT"
@@ -65,11 +75,8 @@ class FavoritesFragment : MoviesListFragment() {
             favoriteMoviesRecyclerAdapter = MoviesRecyclerAdapter()
             favoriteMoviesRecyclerAdapter!!.setList(favoriteMovies)
         }
-        favoriteMoviesRecyclerAdapter!!.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
-            override fun onClick(movie: Movie, posterView: ImageView) {
-                (activity as MainActivity).startDetailsFragment(movie, posterView)
-            }
-        })
+        // Пока не прошла анимация не обрабатывать клики на постеры
+        favoriteMoviesRecyclerAdapter!!.setPosterOnClickListener(posterOnClickDummy)
 
         val moviesListRecycler: RecyclerView = view.findViewById(R.id.movies_list_recycler)
         moviesListRecycler.setHasFixedSize(true)
@@ -77,10 +84,17 @@ class FavoritesFragment : MoviesListFragment() {
         favoriteMoviesRecyclerManager = moviesListRecycler.layoutManager!!
         moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
 
-        moviesListRecycler.postDelayed(
+        moviesListRecycler.postDelayed(  // Запускать удаление только после отрисовки анимации recycler
                 resources.getInteger(R.integer.fragment_favorites_delay_recyclerViewAppearance).toLong()) {
             if (isMovieNowNotFavorite) {
                 favoriteMoviesRecyclerAdapter!!.removeLastClickedMovie()
+                isMovieNowNotFavorite = false
+                moviesListRecycler.postDelayed(moviesListRecycler.itemAnimator!!.removeDuration +
+                        moviesListRecycler.itemAnimator!!.moveDuration) {
+                    favoriteMoviesRecyclerAdapter!!.setPosterOnClickListener(posterOnClick)
+                }
+            } else {
+                favoriteMoviesRecyclerAdapter!!.setPosterOnClickListener(posterOnClick)
             }
         }
         moviesListRecycler.doOnPreDraw { startPostponedEnterTransition() }
