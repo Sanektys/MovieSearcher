@@ -8,7 +8,6 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
 import com.sandev.moviesearcher.MainActivity

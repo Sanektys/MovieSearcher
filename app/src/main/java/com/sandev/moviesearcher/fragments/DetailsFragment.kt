@@ -29,6 +29,7 @@ import com.sandev.moviesearcher.movieListRecyclerView.data.favoriteMovies
 class DetailsFragment : Fragment() {
 
     private lateinit var movie: Movie
+    private var isFavoriteMovie: Boolean = false
 
     companion object {
         private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
@@ -74,7 +75,7 @@ class DetailsFragment : Fragment() {
         // Принятие решения о добавлении/удалении фильма в избранном
         changeFavoriteMoviesList()
         parentFragmentManager.setFragmentResult(FavoritesFragment.DETAILS_RESULT_KEY,
-            bundleOf(FavoritesFragment.MOVIE_NOW_NOT_FAVORITE_KEY to !movie.isFavorite))
+            bundleOf(FavoritesFragment.MOVIE_NOW_NOT_FAVORITE_KEY to !isFavoriteMovie))
     }
 
     private fun setFloatButtonOnClick(view: View) {
@@ -82,7 +83,8 @@ class DetailsFragment : Fragment() {
         val toWatchLaterButton: FloatingActionButton = view.findViewById(R.id.fab_to_watch_later)
         val shareButton:        FloatingActionButton = view.findViewById(R.id.fab_share)
 
-        if (movie.isFavorite) {
+        if (favoriteMovies.find{ it.title == movie.title } != null) {
+            isFavoriteMovie = true
             toFavoriteButton.isSelected = true
             toFavoriteButton.setImageResource(R.drawable.favorite_icon_selected)
         }
@@ -108,7 +110,7 @@ class DetailsFragment : Fragment() {
     }
 
     private fun initializeContent(view: View) {
-        movie = arguments?.get(MainActivity.MOVIE_DATA_KEY) as Movie
+        movie = arguments?.getParcelable(MainActivity.MOVIE_DATA_KEY)!!
 
         view.findViewById<ImageView>(R.id.collapsing_toolbar_image).apply {
             setImageResource(movie.poster)
@@ -190,11 +192,11 @@ class DetailsFragment : Fragment() {
 
     private fun changeFavoriteMoviesList() {
         val toFavoriteButton = requireView().findViewById<FloatingActionButton>(R.id.fab_to_favorite)
-        if (!movie.isFavorite && toFavoriteButton.isSelected) {
-            movie.isFavorite = true
+        if (!isFavoriteMovie && toFavoriteButton.isSelected) {
+            isFavoriteMovie = true
             favoriteMovies.add(movie)
-        } else if (movie.isFavorite && !toFavoriteButton.isSelected) {
-            movie.isFavorite = false
+        } else if (isFavoriteMovie && !toFavoriteButton.isSelected) {
+            isFavoriteMovie = false
             favoriteMovies.remove(movie)
         }
     }
