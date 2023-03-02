@@ -22,6 +22,7 @@
             app:menu="@menu/top_app_bar_menu"
             app:navigationIcon="@drawable/round_menu"
             app:title="@string/app_name"
+            app:titleCentered="true"
             app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
             app:titleTextColor="?attr/colorOnPrimaryContainer" />
     </com.google.android.material.appbar.AppBarLayout>

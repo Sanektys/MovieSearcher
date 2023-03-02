@@ -56,7 +56,7 @@
         android:layout_marginEnd="@dimen/activity_details.fab.third_margin_end" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_to_favorite"
+        android:id="@+id/fab_to_watch_later"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/Widget.Material3.FloatingActionButton.Primary"
@@ -68,11 +68,11 @@
         android:layout_marginEnd="@dimen/activity_details.fab.second_margin_end" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_to_watch_later"
+        android:id="@+id/fab_to_favorite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/Widget.Material3.FloatingActionButton.Primary"
-        android:src="@drawable/bottom_navigation_favorite_icon"
+        android:src="@drawable/favorite_icon_unselected"
         app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Full"
         app:maxImageSize="@dimen/activity_details.fab.image_size"
         app:layout_anchor="@id/app_bar"

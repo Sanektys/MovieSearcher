@@ -18,6 +18,13 @@ import com.sandev.moviesearcher.movieListRecyclerView.data.setMockData
 
 class HomeFragment : MoviesListFragment() {
 
+    private lateinit var moviesRecyclerManager: RecyclerView.LayoutManager
+    private var moviesRecyclerAdapter: MoviesRecyclerAdapter? = null
+
+    companion object {
+        private const val MOVIES_RECYCLER_VIEW_STATE = "MoviesRecylerViewState"
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -33,18 +40,30 @@ class HomeFragment : MoviesListFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initializeMovieRecyclerList(view)
+        moviesRecyclerManager.onRestoreInstanceState(savedInstanceState?.getParcelable(
+            MOVIES_RECYCLER_VIEW_STATE))
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putParcelable(MOVIES_RECYCLER_VIEW_STATE, moviesRecyclerManager.onSaveInstanceState())
     }
 
     private fun initializeMovieRecyclerList(view: View) {
-        val moviesRecyclerAdapter = MoviesRecyclerAdapter(object : MoviesRecyclerAdapter.OnClickListener {
-            override fun onClick(movie: Movie, posterView: ImageView)
-                    = (activity as MainActivity).startDetailsFragment(movie, posterView)
+        if (moviesRecyclerAdapter == null) {
+            moviesRecyclerAdapter = MoviesRecyclerAdapter()
+            moviesRecyclerAdapter!!.setList(setMockData())
+        }
+        moviesRecyclerAdapter!!.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
+            override fun onClick(movie: Movie, posterView: ImageView) {
+                (activity as MainActivity).startDetailsFragment(movie, posterView)
+            }
         })
-        moviesRecyclerAdapter.setList(setMockData())
 
         val moviesListRecycler: RecyclerView = view.findViewById(R.id.movies_list_recycler)
+        moviesListRecycler.setHasFixedSize(true)
         moviesListRecycler.adapter = moviesRecyclerAdapter
-        MainActivity.moviesRecyclerManager = moviesListRecycler.layoutManager!!
+        moviesRecyclerManager = moviesListRecycler.layoutManager!!
 
         moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
         moviesListRecycler.doOnPreDraw { startPostponedEnterTransition() }

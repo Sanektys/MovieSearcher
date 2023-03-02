@@ -3,4 +3,8 @@
     <!-- Main activity -->
     <integer name="activity_main.animations_durations.posters_appearance">300</integer>
     <integer name="activity_main.animations_durations.poster_transition">350</integer>
+
+
+    <!-- Favorites fragment -->
+    <integer name="fragment_favorites.delay.recyclerViewAppearance">500</integer>
 </resources>

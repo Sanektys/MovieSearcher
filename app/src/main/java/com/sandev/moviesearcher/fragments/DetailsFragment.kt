@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.os.bundleOf
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.transition.TransitionInflater
@@ -22,9 +23,12 @@ import com.google.android.material.snackbar.Snackbar
 import com.sandev.moviesearcher.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
+import com.sandev.moviesearcher.movieListRecyclerView.data.favoriteMovies
 
 
 class DetailsFragment : Fragment() {
+
+    private lateinit var movie: Movie
 
     companion object {
         private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
@@ -42,9 +46,9 @@ class DetailsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        initializeContent(view)
         setToolbarBackButton(view)
         setFloatButtonOnClick(view)
-        initializeContent(view)
 
         sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
 
@@ -67,6 +71,10 @@ class DetailsFragment : Fragment() {
                 .withStartAction { visibility = VISIBLE; menu.forEach { it.isEnabled = true } }
                 .start()
         }
+        // Принятие решения о добавлении/удалении фильма в избранном
+        changeFavoriteMoviesList()
+        parentFragmentManager.setFragmentResult(FavoritesFragment.DETAILS_RESULT_KEY,
+            bundleOf(FavoritesFragment.MOVIE_NOW_NOT_FAVORITE_KEY to !movie.isFavorite))
     }
 
     private fun setFloatButtonOnClick(view: View) {
@@ -74,8 +82,22 @@ class DetailsFragment : Fragment() {
         val toWatchLaterButton: FloatingActionButton = view.findViewById(R.id.fab_to_watch_later)
         val shareButton:        FloatingActionButton = view.findViewById(R.id.fab_share)
 
+        if (movie.isFavorite) {
+            toFavoriteButton.isSelected = true
+            toFavoriteButton.setImageResource(R.drawable.favorite_icon_selected)
+        }
+
         toFavoriteButton.setOnClickListener {
-            Snackbar.make(requireContext(), view, getString(R.string.details_fragment_fab_favorite), Snackbar.LENGTH_SHORT).show()
+            toFavoriteButton.isSelected = !toFavoriteButton.isSelected
+            if (toFavoriteButton.isSelected) {
+                toFavoriteButton.setImageResource(R.drawable.favorite_icon_selected)
+            } else {
+                toFavoriteButton.setImageResource(R.drawable.favorite_icon_unselected)
+            }
+            Snackbar.make(requireContext(), view,
+                if (toFavoriteButton.isSelected) getString(R.string.details_fragment_fab_add_favorite)
+                else getString(R.string.details_fragment_fab_remove_favorite),
+                Snackbar.LENGTH_SHORT).show()
         }
         toWatchLaterButton.setOnClickListener {
             Snackbar.make(requireContext(), view, getString(R.string.details_fragment_fab_watch_later), Snackbar.LENGTH_SHORT).show()
@@ -86,7 +108,7 @@ class DetailsFragment : Fragment() {
     }
 
     private fun initializeContent(view: View) {
-        val movie = arguments?.get(MainActivity.MOVIE_DATA_KEY) as Movie
+        movie = arguments?.get(MainActivity.MOVIE_DATA_KEY) as Movie
 
         view.findViewById<AppCompatImageView>(R.id.collapsing_toolbar_image).apply {
             setImageResource(movie.poster)
@@ -164,5 +186,16 @@ class DetailsFragment : Fragment() {
             return true
         }
         return false
+    }
+
+    private fun changeFavoriteMoviesList() {
+        val toFavoriteButton = requireView().findViewById<FloatingActionButton>(R.id.fab_to_favorite)
+        if (!movie.isFavorite && toFavoriteButton.isSelected) {
+            movie.isFavorite = true
+            favoriteMovies.add(movie)
+        } else if (movie.isFavorite && !toFavoriteButton.isSelected) {
+            movie.isFavorite = false
+            favoriteMovies.remove(movie)
+        }
     }
 }

@@ -12,8 +12,12 @@ import com.sandev.moviesearcher.movieListRecyclerView.diffUtil.MoviesListDiff
 import com.sandev.moviesearcher.movieListRecyclerView.viewHolder.MovieViewHolder
 
 
-class MoviesRecyclerAdapter(private val clickListener: OnClickListener) : RecyclerView.Adapter<MovieViewHolder>() {
+class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
+
     private val moviesList: MutableList<Movie> = mutableListOf()
+    private lateinit var clickListener: OnClickListener
+    var lastMovieClickedPosition = -1
+        private set
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         MovieViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.movie_card, parent, false))
@@ -23,13 +27,22 @@ class MoviesRecyclerAdapter(private val clickListener: OnClickListener) : Recycl
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
         holder.onBind(moviesList[position], position)
         holder.itemView.findViewById<View>(R.id.movie_card_poster).setOnClickListener {
-            clickListener.onClick(moviesList[position], holder.poster)
+            clickListener.onClick(moviesList[holder.bindingAdapterPosition], holder.poster)
+            lastMovieClickedPosition = holder.bindingAdapterPosition
         }
     }
 
     interface OnClickListener {
         fun onClick(movie: Movie, posterView: ImageView)
     }
+
+    fun setPosterOnClickListener(onClickListener: OnClickListener) {
+        clickListener = onClickListener
+    }
+
+    fun getMovieAt(position: Int): Movie? = moviesList.getOrNull(position)
+
+    fun findMovie(movie: Movie): Movie? = moviesList.find { it.title == movie.title }
 
     fun setList(newList: List<Movie>) {
         val oldList = moviesList.toList()
@@ -53,5 +66,18 @@ class MoviesRecyclerAdapter(private val clickListener: OnClickListener) : Recycl
         val index = moviesList.indexOf(movie)
         moviesList.removeAt(index)
         notifyItemRemoved(index)
+    }
+
+    fun removeMovieCardAt(position: Int) {
+        moviesList.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
+    fun removeLastClickedMovie() {
+        if (lastMovieClickedPosition >= 0) {
+            moviesList.removeAt(lastMovieClickedPosition)
+            notifyItemRemoved(lastMovieClickedPosition)
+            lastMovieClickedPosition = -1
+        }
     }
 }
