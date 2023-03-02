@@ -15,6 +15,7 @@ import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 import com.sandev.moviesearcher.movieListRecyclerView.data.favoriteMovies
+import com.sandev.moviesearcher.movieListRecyclerView.itemAnimator.MovieItemAnimator
 
 
 class FavoritesFragment : MoviesListFragment() {
@@ -79,9 +80,12 @@ class FavoritesFragment : MoviesListFragment() {
 
         val moviesListRecycler: RecyclerView = view.findViewById(R.id.movies_list_recycler)
         moviesListRecycler.setHasFixedSize(true)
+        moviesListRecycler.isNestedScrollingEnabled = false
         moviesListRecycler.adapter = favoriteMoviesRecyclerAdapter
         favoriteMoviesRecyclerManager = moviesListRecycler.layoutManager!!
         moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
+        moviesListRecycler.itemAnimator = MovieItemAnimator()
+        moviesListRecycler
 
         moviesListRecycler.postDelayed(  // Запускать удаление только после отрисовки анимации recycler
                 resources.getInteger(R.integer.fragment_favorites_delay_recyclerViewAppearance).toLong()) {

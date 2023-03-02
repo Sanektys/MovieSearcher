@@ -62,6 +62,7 @@ class HomeFragment : MoviesListFragment() {
 
         val moviesListRecycler: RecyclerView = view.findViewById(R.id.movies_list_recycler)
         moviesListRecycler.setHasFixedSize(true)
+        moviesListRecycler.isNestedScrollingEnabled = false
         moviesListRecycler.adapter = moviesRecyclerAdapter
         moviesRecyclerManager = moviesListRecycler.layoutManager!!
 
