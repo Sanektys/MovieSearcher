@@ -17,23 +17,28 @@
             android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            app:title="@string/details_fragment.toolbar.title"
             app:contentScrim="?attr/colorPrimaryContainer"
-            app:titleEnabled="false"
+            app:expandedTitleTextColor="@android:color/transparent"
+            app:collapsedTitleTextColor="?attr/colorOnPrimaryContainer"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
             app:toolbarId="@id/collapsing_toolbar.toolbar">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/collapsing_toolbar.image"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 app:layout_collapseMode="parallax"
+                app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.ExtraLarge"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Bottom"
                 tools:src="@drawable/poster_8" />
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/collapsing_toolbar.toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/activity_details.app_bar.toolbar.height"
+                android:paddingHorizontal="@dimen/activity_main.toolbar.padding_horizontal"
                 app:layout_collapseMode="pin" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
@@ -51,7 +56,7 @@
         android:layout_marginEnd="@dimen/activity_details.fab.third_margin_end" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_to_favorite"
+        android:id="@+id/fab_to_watch_later"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/Widget.Material3.FloatingActionButton.Primary"
@@ -63,11 +68,11 @@
         android:layout_marginEnd="@dimen/activity_details.fab.second_margin_end" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_to_watch_later"
+        android:id="@+id/fab_to_favorite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/Widget.Material3.FloatingActionButton.Primary"
-        android:src="@drawable/bottom_navigation_favorite_icon"
+        android:src="@drawable/favorite_icon_unselected"
         app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Full"
         app:maxImageSize="@dimen/activity_details.fab.image_size"
         app:layout_anchor="@id/app_bar"

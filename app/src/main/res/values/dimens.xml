@@ -32,14 +32,14 @@
 
     <!-- details fragment -->
     <dimen name="activity_details.app_bar.height">400dp</dimen>
-    <dimen name="activity_details.app_bar.toolbar.height">28dp</dimen>
+    <dimen name="activity_details.app_bar.toolbar.height">64dp</dimen>
 
     <dimen name="activity_details.fab.image_size">30dp</dimen>
     <dimen name="activity_details.fab.first_margin_end">152dp</dimen>
     <dimen name="activity_details.fab.second_margin_end">88dp</dimen>
     <dimen name="activity_details.fab.third_margin_end">24dp</dimen>
 
-    <dimen name="activity_details.title.margin_top">20dp</dimen>
+    <dimen name="activity_details.title.margin_top">32dp</dimen>
     <dimen name="activity_details.title.margin_horizontal">32dp</dimen>
 
     <dimen name="activity_details.description.margin_top">16dp</dimen>

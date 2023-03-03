@@ -4,13 +4,17 @@
 
     // main activity
     <string name="activity_main.posters_source_link">Posters from www.movieposters.com</string>
-    <string name="activity_main.bottom_navigation.selections.title">SELECTIONS</string>
+    <string name="activity_main.bottom_navigation.all_movies.title">ALL MOVIES</string>
     <string name="activity_main.bottom_navigation.favorites.title">FAVORITES</string>
     <string name="activity_main.bottom_navigation.watch_later.title">VIEW LATER</string>
     <string name="activity_main.top_app_bar.settings.title">SETTINGS</string>
     <string name="activity_main.top_app_bar.menu.title">MENU</string>
     <string name="activity_main.press_back_for_exit_warning">Press \"back\" again for exit</string>
-    <string name="details_fragment.fab.favorite">Added to favorites</string>
+    <string name="details_fragment.toolbar.title">Movie details</string>
+    <string name="details_fragment.fab.add_favorite">Added to favorites</string>
     <string name="details_fragment.fab.watch_later">Added to \\\"watch later\\\"</string>
     <string name="details_fragment.fab.share">Link shared</string>
+    <string name="details_fragment.fab.remove_favorite">Removed from favorites</string>
+    <string name="details_fragment.fab.share.sending_text">Watch this movie: %s\n\n\t%s</string>
+    <string name="details_fragment.fab.share.to">Who to send the movie to?</string>
 </resources>

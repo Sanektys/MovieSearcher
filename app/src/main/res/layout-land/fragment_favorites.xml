@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.HomeFragment">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/activity_main.toolbar.padding_horizontal"
+        android:background="?attr/colorPrimaryContainer">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/app_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:titleMarginBottom="@dimen/activity_main.toolbar.title.margin_bottom"
+            app:menu="@menu/top_app_bar_menu"
+            app:navigationIcon="@drawable/round_menu"
+            app:title="@string/app_name"
+            app:titleCentered="true"
+            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
+            app:titleTextColor="?attr/colorOnPrimaryContainer" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/movies_list"
+        style="@style/Widget.Material3.CardView.Filled"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/activity_main.movies_recycler.movie_card.height"
+        android:layout_marginHorizontal="@dimen/activity_main.movies_recycler.margin_horizontal"
+        android:layout_marginVertical="@dimen/activity_main.movies_recycler.margin_vertical"
+        app:cardBackgroundColor="?attr/colorSecondaryContainer"
+        android:layout_below="@id/app_bar"
+        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/movies_list_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/movie_card" />
+    </com.google.android.material.card.MaterialCardView>
+</RelativeLayout>
