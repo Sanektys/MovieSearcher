@@ -15,4 +15,6 @@
     <string name="details_fragment.fab.watch_later">Added to \\\"watch later\\\"</string>
     <string name="details_fragment.fab.share">Link shared</string>
     <string name="details_fragment.fab.remove_favorite">Removed from favorites</string>
+    <string name="details_fragment.fab.share.sending_text">Watch this movie: %s\n\n\t%s</string>
+    <string name="details_fragment.fab.share.to">Who to send the movie to?</string>
 </resources>

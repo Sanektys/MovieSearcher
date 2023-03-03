@@ -39,7 +39,7 @@
     <dimen name="activity_details.fab.second_margin_end">88dp</dimen>
     <dimen name="activity_details.fab.third_margin_end">24dp</dimen>
 
-    <dimen name="activity_details.title.margin_top">20dp</dimen>
+    <dimen name="activity_details.title.margin_top">32dp</dimen>
     <dimen name="activity_details.title.margin_horizontal">32dp</dimen>
 
     <dimen name="activity_details.description.margin_top">16dp</dimen>

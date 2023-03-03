@@ -18,7 +18,7 @@ import com.sandev.moviesearcher.movieListRecyclerView.data.setMockData
 
 class HomeFragment : MoviesListFragment() {
 
-    private lateinit var moviesRecyclerManager: RecyclerView.LayoutManager
+    private var moviesRecyclerManager: RecyclerView.LayoutManager? = null
     private var moviesRecyclerAdapter: MoviesRecyclerAdapter? = null
 
     companion object {
@@ -39,14 +39,15 @@ class HomeFragment : MoviesListFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         initializeMovieRecyclerList(view)
-        moviesRecyclerManager.onRestoreInstanceState(savedInstanceState?.getParcelable(
+        moviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
             MOVIES_RECYCLER_VIEW_STATE))
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable(MOVIES_RECYCLER_VIEW_STATE, moviesRecyclerManager.onSaveInstanceState())
+        outState.putParcelable(MOVIES_RECYCLER_VIEW_STATE, moviesRecyclerManager?.onSaveInstanceState())
     }
 
     private fun initializeMovieRecyclerList(view: View) {

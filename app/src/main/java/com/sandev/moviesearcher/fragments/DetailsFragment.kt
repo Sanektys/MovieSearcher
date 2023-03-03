@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.fragments
 
+import android.content.Intent
 import android.graphics.Outline
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -105,7 +106,11 @@ class DetailsFragment : Fragment() {
             Snackbar.make(requireContext(), view, getString(R.string.details_fragment_fab_watch_later), Snackbar.LENGTH_SHORT).show()
         }
         shareButton.setOnClickListener {
-            Snackbar.make(requireContext(), view, getString(R.string.details_fragment_fab_share), Snackbar.LENGTH_SHORT).show()
+            val intent = Intent(Intent.ACTION_SEND)
+            intent.type = "text/plain"
+            intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.details_fragment_fab_share_sending_text,
+                movie.title, movie.description))
+            startActivity(Intent.createChooser(intent, getString(R.string.details_fragment_fab_share_to)))
         }
     }
 

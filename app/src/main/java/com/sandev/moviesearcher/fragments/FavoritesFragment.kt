@@ -20,7 +20,7 @@ import com.sandev.moviesearcher.movieListRecyclerView.itemAnimator.MovieItemAnim
 
 class FavoritesFragment : MoviesListFragment() {
 
-    private lateinit var favoriteMoviesRecyclerManager: RecyclerView.LayoutManager
+    private var favoriteMoviesRecyclerManager: RecyclerView.LayoutManager? = null
     private var favoriteMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
     private var isMovieNowNotFavorite: Boolean = false
 
@@ -61,13 +61,13 @@ class FavoritesFragment : MoviesListFragment() {
         }
 
         initializeMovieRecyclerList(view)
-        favoriteMoviesRecyclerManager.onRestoreInstanceState(savedInstanceState?.getParcelable(
+        favoriteMoviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
             FAVORITE_MOVIES_RECYCLER_VIEW_STATE))
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable(FAVORITE_MOVIES_RECYCLER_VIEW_STATE, favoriteMoviesRecyclerManager.onSaveInstanceState())
+        outState.putParcelable(FAVORITE_MOVIES_RECYCLER_VIEW_STATE, favoriteMoviesRecyclerManager?.onSaveInstanceState())
     }
 
     private fun initializeMovieRecyclerList(view: View) {
@@ -85,7 +85,6 @@ class FavoritesFragment : MoviesListFragment() {
         favoriteMoviesRecyclerManager = moviesListRecycler.layoutManager!!
         moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
         moviesListRecycler.itemAnimator = MovieItemAnimator()
-        moviesListRecycler
 
         moviesListRecycler.postDelayed(  // Запускать удаление только после отрисовки анимации recycler
                 resources.getInteger(R.integer.fragment_favorites_delay_recyclerViewAppearance).toLong()) {

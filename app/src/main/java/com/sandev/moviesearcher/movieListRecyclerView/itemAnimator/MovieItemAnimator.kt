@@ -1,7 +1,6 @@
 package com.sandev.moviesearcher.movieListRecyclerView.itemAnimator
 
 import android.content.res.Configuration
-import android.view.animation.AnticipateInterpolator
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
@@ -10,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 class MovieItemAnimator : DefaultItemAnimator() {
 
     companion object {
-        private const val REMOVE_DURATION = 200L
+        private const val REMOVE_DURATION = 300L
     }
 
     override fun animateRemove(holder: RecyclerView.ViewHolder?): Boolean {
