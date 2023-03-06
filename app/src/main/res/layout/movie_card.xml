@@ -56,7 +56,7 @@
             android:layout_marginTop="@dimen/activity_main.movies_recycler.movie_card.description.margin_top"
             android:layout_below="@id/movie_card.movie_title"
             android:layout_toEndOf="@id/movie_card.poster"
-            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             android:textAlignment="center"
             android:maxLines="8"
             android:breakStrategy="simple"
