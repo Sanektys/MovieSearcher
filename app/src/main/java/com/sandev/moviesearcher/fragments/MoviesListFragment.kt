@@ -3,10 +3,13 @@ package com.sandev.moviesearcher.fragments
 import android.animation.AnimatorInflater
 import android.content.res.Resources
 import android.graphics.Outline
+import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.Display
 import android.view.View
 import android.view.ViewOutlineProvider
+import android.view.WindowMetrics
 import android.widget.Toast
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
@@ -69,11 +72,11 @@ abstract class MoviesListFragment : Fragment() {
             doOnLayout {
                 // Слушатель смещения app bar закрашивающий search bar и обновляющий размеры recycler
                 addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
-                    val expandedOffset = height - paddingTop
+                    val expandedOffset = height - paddingTop.toFloat()
 
                     override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
                         foreground.alpha = (LinearOutSlowInInterpolator()
-                            .getInterpolation(-verticalOffset.toFloat() / expandedOffset) * 255).toInt()
+                            .getInterpolation(-verticalOffset / expandedOffset) * 255f).toInt()
 
                         recycler.invalidateOutline()
                     }
@@ -85,23 +88,36 @@ abstract class MoviesListFragment : Fragment() {
     private fun setRecyclerViewAppearance(rootView: View) {
         rootView.findViewById<RecyclerView>(R.id.movies_list_recycler).apply {
             val appBar: AppBarLayout = rootView.findViewById(R.id.app_bar)
-            outlineProvider = object : ViewOutlineProvider() {
-                val bottomNavigation = requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bar)
+            doOnPreDraw {
+                outlineProvider = object : ViewOutlineProvider() {
+                    val bottomNavigation =
+                        requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bar)
+                    val visibleDisplayFrame = Rect()
+                    val holdingPlaces = appBar.height - appBar.paddingTop +
+                            bottomNavigation.height - bottomNavigation.paddingBottom +
+                            resources.getDimensionPixelSize(R.dimen.activity_main_movies_recycler_margin_vertical) * 2
+                    val freeSpace: Int
 
-                override fun getOutline(view: View?, outline: Outline?) {
-                    // Прямо в методе закругления краёв обновляем высоту recycler, всё равно этот метод
-                    // вызывается при каждом изменении размеров вьюхи
-                    view!!.updateLayoutParams {
-                        height = Resources.getSystem().displayMetrics.heightPixels - appBar.height -
-                                appBar.top + appBar.paddingTop - bottomNavigation.height +
-                                bottomNavigation.paddingBottom -
-                                resources.getDimensionPixelSize(R.dimen.activity_main_movies_recycler_margin_vertical) * 2
+                    init {
+                        getWindowVisibleDisplayFrame(visibleDisplayFrame)
+                        freeSpace = visibleDisplayFrame.height() - holdingPlaces
                     }
-                    outline?.setRoundRect(0, 0, view.width, view.height,
-                        resources.getDimensionPixelSize(R.dimen.general_corner_radius_large).toFloat())
+
+                    override fun getOutline(view: View?, outline: Outline?) {
+                        // Прямо в методе закругления краёв обновляем высоту recycler, всё равно этот метод
+                        // вызывается при каждом изменении размеров вьюхи
+                        view!!.updateLayoutParams {
+                            height = freeSpace - appBar.top
+                        }
+                        outline?.setRoundRect(
+                            0, 0, view.width, view.height,
+                            resources.getDimensionPixelSize(R.dimen.general_corner_radius_large)
+                                .toFloat()
+                        )
+                    }
                 }
+                clipToOutline = true
             }
-            clipToOutline = true
         }
     }
 }
