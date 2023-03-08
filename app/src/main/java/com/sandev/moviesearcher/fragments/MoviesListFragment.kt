@@ -1,20 +1,20 @@
 package com.sandev.moviesearcher.fragments
 
 import android.animation.AnimatorInflater
+import android.content.res.Resources
 import android.graphics.Outline
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.Toast
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
+import androidx.core.view.*
 import androidx.fragment.app.Fragment
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.appbar.MaterialToolbar
-import com.sandev.moviesearcher.MainActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.search.SearchBar
 import com.sandev.moviesearcher.R
 
 
@@ -22,6 +22,7 @@ abstract class MoviesListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setAppBarAppearance(view)
+        setRecyclerViewAppearance(view)
         initializeToolbar(view)
     }
 
@@ -29,8 +30,8 @@ abstract class MoviesListFragment : Fragment() {
         val settingsButton: View = view.findViewById(R.id.top_toolbar_settings_button)
         settingsButton.stateListAnimator = AnimatorInflater.loadStateListAnimator(requireContext(), R.animator.settings_button_spin)
 
-        val appToolbar: MaterialToolbar = view.findViewById(R.id.app_toolbar)
-        appToolbar.setOnMenuItemClickListener {
+        val searchBar: SearchBar = view.findViewById(R.id.search_bar)
+        searchBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.top_toolbar_settings_button -> {
                     Toast.makeText(requireContext(), R.string.activity_main_top_app_bar_settings_title, Toast.LENGTH_SHORT).show()
@@ -49,11 +50,55 @@ abstract class MoviesListFragment : Fragment() {
             }
             outlineProvider = object : ViewOutlineProvider() {
                 override fun getOutline(view: View?, outline: Outline?) {
+                    val originHeight = height - paddingTop.toFloat()
+                    val deltaHeight = (originHeight + view!!.top) / originHeight
                     outline?.setRoundRect(
-                        0, -MainActivity.APP_BARS_CORNER_RADIUS.toInt(),
-                        view!!.width, view.height,
-                        MainActivity.APP_BARS_CORNER_RADIUS
+                        0, -resources.getDimensionPixelSize(R.dimen.general_corner_radius_extra_large),
+                        view.width, view.height,
+                        resources.getDimensionPixelSize(R.dimen.general_corner_radius_extra_large).toFloat() *
+                                deltaHeight  // Чем больше раскрыт app bar, тем больше скругление углов
                     )
+                }
+            }
+            clipToOutline = true
+            // Задаём цвет переднего плана для дальнейшего перекрытия им app bar при сворачивании
+            foreground = ColorDrawable(context.getColor(R.color.md_theme_secondaryContainer))
+            foreground.alpha = 0
+
+            val recycler = rootView.findViewById<RecyclerView>(R.id.movies_list_recycler)
+            doOnLayout {
+                // Слушатель смещения app bar закрашивающий search bar и обновляющий размеры recycler
+                addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
+                    val expandedOffset = height - paddingTop
+
+                    override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
+                        foreground.alpha = (LinearOutSlowInInterpolator()
+                            .getInterpolation(-verticalOffset.toFloat() / expandedOffset) * 255).toInt()
+
+                        recycler.invalidateOutline()
+                    }
+                })
+            }
+        }
+    }
+
+    private fun setRecyclerViewAppearance(rootView: View) {
+        rootView.findViewById<RecyclerView>(R.id.movies_list_recycler).apply {
+            val appBar: AppBarLayout = rootView.findViewById(R.id.app_bar)
+            outlineProvider = object : ViewOutlineProvider() {
+                val bottomNavigation = requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bar)
+
+                override fun getOutline(view: View?, outline: Outline?) {
+                    // Прямо в методе закругления краёв обновляем высоту recycler, всё равно этот метод
+                    // вызывается при каждом изменении размеров вьюхи
+                    view!!.updateLayoutParams {
+                        height = Resources.getSystem().displayMetrics.heightPixels - appBar.height -
+                                appBar.top + appBar.paddingTop - bottomNavigation.height +
+                                bottomNavigation.paddingBottom -
+                                resources.getDimensionPixelSize(R.dimen.activity_main_movies_recycler_margin_vertical) * 2
+                    }
+                    outline?.setRoundRect(0, 0, view.width, view.height,
+                        resources.getDimensionPixelSize(R.dimen.general_corner_radius_large).toFloat())
                 }
             }
             clipToOutline = true

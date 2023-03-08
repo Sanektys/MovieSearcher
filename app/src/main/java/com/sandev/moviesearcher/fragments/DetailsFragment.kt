@@ -143,9 +143,9 @@ class DetailsFragment : Fragment() {
                     // Также делаем закругление краёв снизу для тулбара
                     outlineProvider = object : ViewOutlineProvider() {
                         override fun getOutline(toolbar: View?, outline: Outline?) {
-                            outline?.setRoundRect(0, -MainActivity.APP_BARS_CORNER_RADIUS.toInt(),
+                            outline?.setRoundRect(0, -resources.getDimensionPixelSize(R.dimen.general_corner_radius_extra_large),
                                 toolbar!!.width, toolbar.height,
-                                MainActivity.APP_BARS_CORNER_RADIUS)
+                                resources.getDimensionPixelSize(R.dimen.general_corner_radius_extra_large).toFloat())
                         }
                     }
                     clipToOutline = true

@@ -1,7 +1,6 @@
 package com.sandev.moviesearcher
 
 import android.content.res.Configuration
-import android.content.res.Resources
 import android.graphics.Outline
 import android.os.Bundle
 import android.view.View
@@ -33,8 +32,6 @@ class MainActivity : AppCompatActivity() {
         private const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
         private const val ONE_FRAGMENT_IN_STACK = 1
         private const val FRAGMENT_UNCOMMITTED = -1
-
-        val APP_BARS_CORNER_RADIUS = 28f * Resources.getSystem().displayMetrics.density
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -177,8 +174,8 @@ class MainActivity : AppCompatActivity() {
                 override fun getOutline(view: View?, outline: Outline?) {
                     outline?.setRoundRect(
                         0, 0,
-                        view!!.width, (view.height + APP_BARS_CORNER_RADIUS).toInt(),
-                        APP_BARS_CORNER_RADIUS
+                        view!!.width, (view.height + resources.getDimensionPixelSize(R.dimen.general_corner_radius_extra_large)),
+                        resources.getDimensionPixelSize(R.dimen.general_corner_radius_extra_large).toFloat()
                     )
                 }
             }
