@@ -34,7 +34,7 @@
             app:navigationIconTint="?attr/colorOnPrimaryContainer"
             app:navigationIcon="@drawable/round_menu"
             app:menu="@menu/top_app_bar_menu"
-            android:hint="@string/favorites_fragment.search_bar.hint"
+            android:hint="@string/favorites_fragment.top_app_bar.search_bar.hint"
             app:defaultMarginsEnabled="false"
             app:forceDefaultNavigationOnClickListener="false"
             app:layout_scrollFlags="enterAlways|scroll|snap|snapMargins"

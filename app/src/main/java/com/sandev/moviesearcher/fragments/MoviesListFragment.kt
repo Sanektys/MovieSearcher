@@ -1,6 +1,7 @@
 package com.sandev.moviesearcher.fragments
 
 import android.animation.AnimatorInflater
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Outline
 import android.graphics.Rect
@@ -100,7 +101,11 @@ abstract class MoviesListFragment : Fragment() {
 
                     init {
                         getWindowVisibleDisplayFrame(visibleDisplayFrame)
-                        freeSpace = visibleDisplayFrame.height() - holdingPlaces
+                        freeSpace = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                            visibleDisplayFrame.height() - holdingPlaces
+                        } else {
+                            height
+                        }
                     }
 
                     override fun getOutline(view: View?, outline: Outline?) {

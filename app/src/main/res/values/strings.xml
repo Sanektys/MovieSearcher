@@ -21,7 +21,7 @@
     <string name="details_fragment.fab.share.to">Кому отправить фильм?</string>
 
     <!-- Favorites fragment -->
-    <string name="favorites_fragment.search_bar.hint">Найти избранный фильм</string>
+    <string name="favorites_fragment.top_app_bar.search_bar.hint">Найти избранный фильм</string>
 
     <!-- Movie view holder -->
     <string name="movie_view_holder.transition_name" translatable="false">MOVIE_POSTER_TRANSITION%d</string>

@@ -18,5 +18,5 @@
     <string name="details_fragment.fab.share.sending_text">Watch this movie: %s\n\n\t%s</string>
     <string name="details_fragment.fab.share.to">Who to send the movie to?</string>
     <string name="activity_main.top_app_bar.search_bar.hint">Search movies</string>
-    <string name="favorites_fragment.search_bar.hint">Search favorite movie</string>
+    <string name="favorites_fragment.top_app_bar.search_bar.hint">Search favorite movie</string>
 </resources>
