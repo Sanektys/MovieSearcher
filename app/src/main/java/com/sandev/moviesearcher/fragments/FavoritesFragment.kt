@@ -80,7 +80,7 @@ class FavoritesFragment : MoviesListFragment() {
 
         val moviesListRecycler: RecyclerView = view.findViewById(R.id.movies_list_recycler)
         moviesListRecycler.setHasFixedSize(true)
-        moviesListRecycler.isNestedScrollingEnabled = false
+        moviesListRecycler.isNestedScrollingEnabled = true
         moviesListRecycler.adapter = favoriteMoviesRecyclerAdapter
         favoriteMoviesRecyclerManager = moviesListRecycler.layoutManager!!
         moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
