@@ -18,7 +18,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.search.SearchBar
 import com.google.android.material.search.SearchView
 import com.sandev.moviesearcher.R
-import java.lang.Integer.max
 
 
 abstract class MoviesListFragment : Fragment() {
@@ -146,11 +145,18 @@ abstract class MoviesListFragment : Fragment() {
                         // Прямо в методе закругления краёв обновляем высоту recycler, всё равно этот метод
                         // вызывается при каждом изменении размеров вьюхи
                         view!!.updateLayoutParams {
-                            if (searchView.isShowing) {
-                                height = freeSpace
-                                top = searchView.height + margin
+                            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                                if (searchView.isShowing) {
+                                    height = freeSpace
+                                    top = searchView.height + margin
+                                } else {
+                                    height = freeSpace - appBar.top
+                                }
                             } else {
-                                height = freeSpace - appBar.top
+                                if (searchView.isShowing) {
+                                    top = searchView.height + margin
+                                    bottom = searchView.height + margin + height
+                                }
                             }
                         }
                         outline?.setRoundRect(
