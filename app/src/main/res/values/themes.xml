@@ -38,4 +38,10 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:navigationBarColor">@color/transparent_navigation_bar</item>
     </style>
+
+    <style name="Theme.MovieSearcher.Search">  <!-- Theme special for search bar/view -->
+        <item name="colorSurface">?attr/colorPrimaryContainer</item>
+        <item name="colorOnSurface">?attr/colorOnPrimaryContainer</item>
+        <item name="colorOnSurfaceVariant">?attr/colorOnPrimaryContainer</item>
+    </style>
 </resources>

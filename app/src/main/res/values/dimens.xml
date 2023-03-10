@@ -12,6 +12,7 @@
     <dimen name="activity_main.toolbar.padding_horizontal">4dp</dimen>
     <dimen name="activity_main.search_bar.margin">12dp</dimen>
     <dimen name="activity_main.search_bar.height">44dp</dimen>
+    <dimen name="activity_main.search_view.height">72dp</dimen>
 
     <dimen name="activity_main.movies_recycler.margin_horizontal">12dp</dimen>
     <dimen name="activity_main.movies_recycler.margin_vertical">12dp</dimen>
