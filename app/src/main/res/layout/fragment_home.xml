@@ -47,5 +47,6 @@
         app:layout_anchor="@id/search_bar"
         app:layout_anchorGravity="top"
         android:hint="@string/activity_main.top_app_bar.search_bar.hint"
-        app:useDrawerArrowDrawable="true" />
+        app:useDrawerArrowDrawable="true"
+        app:autoShowKeyboard="false" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

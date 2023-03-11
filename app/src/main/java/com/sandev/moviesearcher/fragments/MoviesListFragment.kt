@@ -3,7 +3,6 @@ package com.sandev.moviesearcher.fragments
 import android.animation.AnimatorInflater
 import android.content.res.Configuration
 import android.graphics.Outline
-import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.Editable
@@ -81,6 +80,7 @@ abstract class MoviesListFragment : Fragment() {
                 } else if (previousState == SearchView.TransitionState.HIDDEN &&
                         newState == SearchView.TransitionState.SHOWING) {
                     editText.removeTextChangedListener(textChangeListener)
+                    requestFocusAndShowKeyboard()
                 }
             }
             editText.setOnEditorActionListener { _, actionId, _ ->
@@ -190,19 +190,10 @@ abstract class MoviesListFragment : Fragment() {
                     val bottomNavigation =
                         requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bar)
                     val margin = resources.getDimensionPixelSize(R.dimen.activity_main_movies_recycler_margin_vertical)
-                    val visibleDisplayFrame = Rect()
-                    val holdingPlaces = appBar.height - appBar.paddingTop +
-                            bottomNavigation.height - bottomNavigation.paddingBottom +
-                            margin * 2
-                    val freeSpace: Int
-
-                    init {
-                        getWindowVisibleDisplayFrame(visibleDisplayFrame)
-                        freeSpace = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                            visibleDisplayFrame.height() - holdingPlaces
-                        } else {
-                            height
-                        }
+                    val freeSpace = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        bottomNavigation.top - appBar.bottom - margin * 2
+                    } else {
+                        height
                     }
 
                     override fun getOutline(view: View?, outline: Outline?) {
