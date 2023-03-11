@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- general -->
+    <dimen name="general.corner_radius.large">16dp</dimen>
+    <dimen name="general.corner_radius.extra_large">28dp</dimen>
+
+
     <!-- main activity -->
     <dimen name="activity_main.icon_size">28dp</dimen>
 
-    <dimen name="activity_main.toolbar.title.margin_bottom">10dp</dimen>
     <dimen name="activity_main.toolbar.padding_horizontal">4dp</dimen>
+    <dimen name="activity_main.search_bar.margin">12dp</dimen>
+    <dimen name="activity_main.search_bar.height">44dp</dimen>
+    <dimen name="activity_main.search_view.height">72dp</dimen>
 
     <dimen name="activity_main.movies_recycler.margin_horizontal">12dp</dimen>
     <dimen name="activity_main.movies_recycler.margin_vertical">12dp</dimen>
@@ -19,11 +26,6 @@
     <dimen name="activity_main.movies_recycler.movie_card.separator.margin_horizontal">12dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.description.margin_horizontal">10dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.description.margin_top">4dp</dimen>
-
-    <dimen name="activity_main.posters_source_link.margin">12dp</dimen>
-    <dimen name="activity_main.posters_source_link.padding_horizontal">10dp</dimen>
-    <dimen name="activity_main.posters_source_link.padding_vertical">2dp</dimen>
-    <dimen name="activity_main.posters_source_link.text_size">15sp</dimen>
 
     <dimen name="activity_main.bottom_navigation_bar.height">64dp</dimen>
     <dimen name="activity_main.bottom_navigation_bar.padding_top">10dp</dimen>

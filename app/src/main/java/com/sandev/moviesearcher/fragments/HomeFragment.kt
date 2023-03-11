@@ -20,6 +20,7 @@ class HomeFragment : MoviesListFragment() {
 
     private var moviesRecyclerManager: RecyclerView.LayoutManager? = null
     private var moviesRecyclerAdapter: MoviesRecyclerAdapter? = null
+    override var lastSearch: CharSequence? = null
 
     companion object {
         private const val MOVIES_RECYCLER_VIEW_STATE = "MoviesRecylerViewState"
@@ -43,6 +44,8 @@ class HomeFragment : MoviesListFragment() {
         initializeMovieRecyclerList(view)
         moviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
             MOVIES_RECYCLER_VIEW_STATE))
+
+        setupSearchBehavior(moviesRecyclerAdapter)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -63,7 +66,7 @@ class HomeFragment : MoviesListFragment() {
 
         val moviesListRecycler: RecyclerView = view.findViewById(R.id.movies_list_recycler)
         moviesListRecycler.setHasFixedSize(true)
-        moviesListRecycler.isNestedScrollingEnabled = false
+        moviesListRecycler.isNestedScrollingEnabled = true
         moviesListRecycler.adapter = moviesRecyclerAdapter
         moviesRecyclerManager = moviesListRecycler.layoutManager!!
 

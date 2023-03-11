@@ -23,6 +23,7 @@ class FavoritesFragment : MoviesListFragment() {
     private var favoriteMoviesRecyclerManager: RecyclerView.LayoutManager? = null
     private var favoriteMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
     private var isMovieNowNotFavorite: Boolean = false
+    override var lastSearch: CharSequence? = null
 
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
         override fun onClick(movie: Movie, posterView: ImageView) {
@@ -63,6 +64,8 @@ class FavoritesFragment : MoviesListFragment() {
         initializeMovieRecyclerList(view)
         favoriteMoviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
             FAVORITE_MOVIES_RECYCLER_VIEW_STATE))
+
+        setupSearchBehavior(favoriteMoviesRecyclerAdapter)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -80,7 +83,7 @@ class FavoritesFragment : MoviesListFragment() {
 
         val moviesListRecycler: RecyclerView = view.findViewById(R.id.movies_list_recycler)
         moviesListRecycler.setHasFixedSize(true)
-        moviesListRecycler.isNestedScrollingEnabled = false
+        moviesListRecycler.isNestedScrollingEnabled = true
         moviesListRecycler.adapter = favoriteMoviesRecyclerAdapter
         favoriteMoviesRecyclerManager = moviesListRecycler.layoutManager!!
         moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
