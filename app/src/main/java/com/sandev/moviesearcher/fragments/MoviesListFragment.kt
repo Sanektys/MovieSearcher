@@ -6,8 +6,11 @@ import android.graphics.Outline
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.view.ViewOutlineProvider
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
@@ -18,15 +21,76 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.search.SearchBar
 import com.google.android.material.search.SearchView
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
+import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
+import com.sandev.moviesearcher.movieListRecyclerView.data.favoriteMovies
+import com.sandev.moviesearcher.movieListRecyclerView.data.setMockData
 
 
 abstract class MoviesListFragment : Fragment() {
+
+    protected abstract var lastSearch: CharSequence?
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setAppBarAppearance(view)
         setSearchViewAppearance(view)
         setRecyclerViewAppearance(view)
         initializeToolbar(view)
+    }
+
+    protected fun setupSearchBehavior(moviesRecyclerAdapter: MoviesRecyclerAdapter?) {
+        val textChangeListener = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun afterTextChanged(s: Editable?) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (s!!.length >= 2) {
+                    var result: List<Movie>? = null
+                    if (this@MoviesListFragment is HomeFragment) {
+                        result = setMockData()
+                    } else if (this@MoviesListFragment is FavoritesFragment) {
+                        result = favoriteMovies
+                    }
+                    result = result!!.filter {
+                        it.title!!.lowercase().contains(s.toString().lowercase())
+                    }
+                    moviesRecyclerAdapter?.setList(result)
+                } else if (s.isEmpty()) {
+                    if (this@MoviesListFragment is HomeFragment) {
+                        moviesRecyclerAdapter?.setList(setMockData())
+                    } else if (this@MoviesListFragment is FavoritesFragment) {
+                        moviesRecyclerAdapter?.setList(favoriteMovies)
+                    }
+                }
+                lastSearch = s
+            }
+        }
+        requireView().findViewById<SearchView>(R.id.search_view).apply {
+            editText.text = lastSearch as? Editable
+            editText.addTextChangedListener(textChangeListener)
+            addTransitionListener { _, previousState, newState ->
+                if (previousState == SearchView.TransitionState.SHOWING &&
+                        newState == SearchView.TransitionState.SHOWN) {
+                    editText.text = lastSearch as? Editable
+                    editText.addTextChangedListener(textChangeListener)
+                // При скрытии и начале открытия search view удалять обработчик для избежания
+                // промежуточных загрузок полной базы при временно пустом поле при анимации
+                } else if (previousState == SearchView.TransitionState.SHOWN &&
+                        newState == SearchView.TransitionState.HIDING) {
+                    editText.removeTextChangedListener(textChangeListener)
+                } else if (previousState == SearchView.TransitionState.HIDDEN &&
+                        newState == SearchView.TransitionState.SHOWING) {
+                    editText.removeTextChangedListener(textChangeListener)
+                }
+            }
+            editText.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    clearFocusAndHideKeyboard()
+                    hide()
+                }
+                true
+            }
+        }
     }
 
     private fun initializeToolbar(view: View) {
