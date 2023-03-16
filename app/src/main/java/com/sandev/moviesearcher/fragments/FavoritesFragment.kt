@@ -1,15 +1,22 @@
 package com.sandev.moviesearcher.fragments
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.Fade
+import androidx.transition.Slide
 import androidx.transition.TransitionInflater
+import androidx.transition.TransitionSet
+import com.google.android.material.search.SearchBar
 import com.sandev.moviesearcher.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
@@ -47,9 +54,7 @@ class FavoritesFragment : MoviesListFragment() {
     ): View? {
         val rootView = layoutInflater.inflate(R.layout.fragment_favorites, container, false)
 
-        sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
-        returnTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.no_transition)
-        postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
+        setAnimationTransition(rootView)
 
         return rootView
     }
@@ -103,5 +108,35 @@ class FavoritesFragment : MoviesListFragment() {
             }
         }
         moviesListRecycler.doOnPreDraw { startPostponedEnterTransition() }
+    }
+
+    private fun setAnimationTransition(rootView: View) {
+        setDefaultTransitionAnimation(rootView)
+
+        sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
+        postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
+    }
+
+    fun setDefaultTransitionAnimation(view: View) {
+        val searchBar: SearchBar = view.findViewById(R.id.search_bar)
+        val recycler: RecyclerView = view.findViewById(R.id.movies_list_recycler)
+        val duration = resources.getInteger(R.integer.general_animations_durations_fragment_transition).toLong()
+
+        val appBarTransition = Fade().apply {
+            this.duration = duration
+            interpolator = DecelerateInterpolator()
+            addTarget(searchBar)
+        }
+        val recyclerTransition = Slide(Gravity.END).apply {
+            this.duration = duration
+            interpolator = LinearInterpolator()
+            addTarget(recycler)
+        }
+        enterTransition = TransitionSet()
+            .addTransition(appBarTransition)
+            .addTransition(recyclerTransition)
+        returnTransition = TransitionSet()
+            .addTransition(appBarTransition)
+            .addTransition(recyclerTransition)
     }
 }

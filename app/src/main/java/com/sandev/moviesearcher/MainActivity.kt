@@ -3,15 +3,14 @@ package com.sandev.moviesearcher
 import android.content.res.Configuration
 import android.graphics.Outline
 import android.os.Bundle
-import android.view.*
+import android.view.View
+import android.view.ViewOutlineProvider
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.*
-import androidx.transition.Slide
-import androidx.transition.TransitionManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.sandev.moviesearcher.fragments.DetailsFragment
 import com.sandev.moviesearcher.fragments.FavoritesFragment
@@ -20,6 +19,8 @@ import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 
 
 class MainActivity : AppCompatActivity() {
+
+    var poppedFragmentName: String? = null
 
     private var backPressedLastTime: Long = 0
     private var homeFragmentCommitId: Int = FRAGMENT_UNCOMMITTED
@@ -81,6 +82,7 @@ class MainActivity : AppCompatActivity() {
             setOnItemSelectedListener {
                 when (it.itemId) {
                     R.id.bottom_navigation_all_movies_button -> {
+                        poppedFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
                         supportFragmentManager.popBackStack(homeFragmentCommitId, 0)
                         true
                     }
@@ -163,9 +165,11 @@ class MainActivity : AppCompatActivity() {
                 } else if (supportFragmentManager.fragments.last() is DetailsFragment) {
                     if (!(supportFragmentManager.fragments.last() as DetailsFragment)
                             .collapsingToolbarHasBeenExpanded()) {
+                        poppedFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
                         supportFragmentManager.popBackStack()
                     }
                 } else {
+                    poppedFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
                     supportFragmentManager.popBackStack()
                 }
             }

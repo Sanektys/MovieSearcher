@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- General -->
+    <integer name="general.animations_durations.fragment_transition">300</integer>
+
+
     <!-- Main activity -->
     <integer name="activity_main.animations_durations.posters_appearance">300</integer>
     <integer name="activity_main.animations_durations.poster_transition">350</integer>
