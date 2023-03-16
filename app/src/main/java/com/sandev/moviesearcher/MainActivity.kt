@@ -3,13 +3,15 @@ package com.sandev.moviesearcher
 import android.content.res.Configuration
 import android.graphics.Outline
 import android.os.Bundle
-import android.view.View
-import android.view.ViewOutlineProvider
+import android.view.*
+import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.*
+import androidx.transition.Slide
+import androidx.transition.TransitionManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.sandev.moviesearcher.fragments.DetailsFragment
 import com.sandev.moviesearcher.fragments.FavoritesFragment
@@ -44,6 +46,16 @@ class MainActivity : AppCompatActivity() {
         menuButtonsInitial()
 
         if (supportFragmentManager.backStackEntryCount == 0) {
+            findViewById<BottomNavigationView>(R.id.navigation_bar).doOnLayout {
+                it.translationY = it.height.toFloat()
+                it.animate()
+                    .setDuration(resources.getInteger(
+                        R.integer.activity_main_animations_durations_first_appearance_navigation_bar).toLong())
+                    .translationY(0f)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+            }
+
             homeFragmentCommitId = supportFragmentManager
                 .beginTransaction()
                 .add(R.id.fragment, HomeFragment())

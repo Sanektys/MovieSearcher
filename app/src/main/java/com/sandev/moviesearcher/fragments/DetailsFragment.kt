@@ -3,18 +3,20 @@ package com.sandev.moviesearcher.fragments
 import android.content.Intent
 import android.graphics.Outline
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
+import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.view.ViewGroup
-import android.view.ViewOutlineProvider
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
+import androidx.transition.Fade
+import androidx.transition.Slide
 import androidx.transition.TransitionInflater
+import androidx.transition.TransitionSet
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
@@ -52,7 +54,7 @@ class DetailsFragment : Fragment() {
         setToolbarBackButton(view)
         setFloatButtonOnClick(view)
 
-        sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
+        setTransitionAnimation(view)
 
         activity?.findViewById<BottomNavigationView>(R.id.navigation_bar)?.run {
             animate()  // Убрать нижний navigation view
@@ -203,6 +205,33 @@ class DetailsFragment : Fragment() {
         } else if (isFavoriteMovie && !toFavoriteButton.isSelected) {
             isFavoriteMovie = false
             favoriteMovies.remove(movie)
+        }
+    }
+
+    private fun setTransitionAnimation(view: View) {
+        sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
+
+        val appBar: AppBarLayout = view.findViewById(R.id.app_bar)
+        val movieTitle: TextView = view.findViewById(R.id.title)
+        val movieDescription: TextView = view.findViewById(R.id.description)
+        enterTransition = TransitionSet().apply {
+            val appBarTransition = Slide(Gravity.TOP).apply {
+                mode = Slide.MODE_IN
+                duration = resources.getInteger(R.integer.activity_main_animations_durations_poster_transition)
+                        .toLong()
+                interpolator = DecelerateInterpolator()
+                addTarget(appBar)
+            }
+            val movieInformationTransition = Fade().apply {
+                mode = Fade.MODE_IN
+                duration = resources.getInteger(R.integer.activity_main_animations_durations_poster_transition)
+                        .toLong()
+                interpolator = AccelerateInterpolator()
+                addTarget(movieTitle)
+                addTarget(movieDescription)
+            }
+            addTransition(appBarTransition)
+            addTransition(movieInformationTransition)
         }
     }
 }
