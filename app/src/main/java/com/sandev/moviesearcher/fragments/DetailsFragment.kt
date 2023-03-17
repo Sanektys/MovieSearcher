@@ -13,6 +13,9 @@ import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
+import androidx.interpolator.view.animation.FastOutLinearInInterpolator
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
 import androidx.transition.Fade
 import androidx.transition.Slide
 import androidx.transition.TransitionInflater
@@ -214,24 +217,35 @@ class DetailsFragment : Fragment() {
         val appBar: AppBarLayout = view.findViewById(R.id.app_bar)
         val movieTitle: TextView = view.findViewById(R.id.title)
         val movieDescription: TextView = view.findViewById(R.id.description)
+        val fabFavorite: FloatingActionButton = view.findViewById(R.id.fab_to_favorite)
+        val fabWatchLater: FloatingActionButton = view.findViewById(R.id.fab_to_watch_later)
+        val fabShare: FloatingActionButton = view.findViewById(R.id.fab_share)
+        val duration = resources.getInteger(R.integer.activity_main_animations_durations_poster_transition)
+            .toLong()
+
         enterTransition = TransitionSet().apply {
-            val appBarTransition = Slide(Gravity.TOP).apply {
-                mode = Slide.MODE_IN
-                duration = resources.getInteger(R.integer.activity_main_animations_durations_poster_transition)
-                        .toLong()
+            val appBarTransition = Fade().apply {
+                mode = Fade.MODE_IN
                 interpolator = DecelerateInterpolator()
                 addTarget(appBar)
             }
             val movieInformationTransition = Fade().apply {
                 mode = Fade.MODE_IN
-                duration = resources.getInteger(R.integer.activity_main_animations_durations_poster_transition)
-                        .toLong()
-                interpolator = AccelerateInterpolator()
+                interpolator = FastOutLinearInInterpolator()
                 addTarget(movieTitle)
                 addTarget(movieDescription)
             }
+            val fabTransition = Slide(Gravity.END).apply {
+                mode = Slide.MODE_IN
+                interpolator = LinearOutSlowInInterpolator()
+                addTarget(fabFavorite)
+                addTarget(fabWatchLater)
+                addTarget(fabShare)
+            }
+            this.duration = duration
             addTransition(appBarTransition)
             addTransition(movieInformationTransition)
+            addTransition(fabTransition)
         }
     }
 }

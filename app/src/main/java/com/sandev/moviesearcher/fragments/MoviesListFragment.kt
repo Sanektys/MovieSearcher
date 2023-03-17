@@ -30,12 +30,20 @@ abstract class MoviesListFragment : Fragment() {
 
     protected abstract var lastSearch: CharSequence?
 
+    companion object {
+        var isAppBarLifted = false
+
+        private const val MAX_ALPHA = 255F
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setAppBarAppearance(view)
         setSearchViewAppearance(view)
         setRecyclerViewAppearance(view)
         initializeToolbar(view)
     }
+
+    protected abstract fun setDefaultTransitionAnimation(view: View)
 
     protected fun setupSearchBehavior(moviesRecyclerAdapter: MoviesRecyclerAdapter?) {
         val textChangeListener = object : TextWatcher {
@@ -135,18 +143,32 @@ abstract class MoviesListFragment : Fragment() {
             foreground = ColorDrawable(context.getColor(R.color.md_theme_secondaryContainer))
             foreground.alpha = 0
 
+            setExpanded(!isAppBarLifted, false)
+
             val recycler = rootView.findViewById<RecyclerView>(R.id.movies_list_recycler)
             val searchView: SearchView = rootView.findViewById(R.id.search_view)
             doOnLayout {
                 // Слушатель смещения app bar закрашивающий search bar и обновляющий размеры recycler
                 addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
                     val expandedOffset = height - paddingTop.toFloat()
+                    val halfExpandedOffset = (height - paddingTop) / 2
 
                     override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
                         isLiftOnScroll = !searchView.isShowing  // Не убирать app bar при открытом поиске
 
                         foreground.alpha = (LinearOutSlowInInterpolator()
-                            .getInterpolation(-verticalOffset / expandedOffset) * 255f).toInt()
+                            .getInterpolation(-verticalOffset / expandedOffset) * MAX_ALPHA).toInt()
+                        if (-verticalOffset > halfExpandedOffset) {
+                            if (!isAppBarLifted) {
+                                isAppBarLifted = true
+                                setDefaultTransitionAnimation(rootView)
+                            }
+                        } else {
+                            if (isAppBarLifted) {
+                                isAppBarLifted = false
+                                setDefaultTransitionAnimation(rootView)
+                            }
+                        }
 
                         recycler.invalidateOutline()
                     }
@@ -191,7 +213,7 @@ abstract class MoviesListFragment : Fragment() {
                         requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bar)
                     val margin = resources.getDimensionPixelSize(R.dimen.activity_main_movies_recycler_margin_vertical)
                     val freeSpace = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        bottomNavigation.top - appBar.bottom - margin * 2
+                        bottomNavigation.top - appBar.height - margin - margin
                     } else {
                         height
                     }
@@ -202,8 +224,8 @@ abstract class MoviesListFragment : Fragment() {
                         view!!.updateLayoutParams {
                             if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                                 if (searchView.isShowing) {
-                                    height = freeSpace
                                     top = searchView.height + margin
+                                    bottom = bottomNavigation.top - margin
                                 } else {
                                     height = freeSpace - appBar.top
                                 }

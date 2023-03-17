@@ -20,7 +20,7 @@ import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 
 class MainActivity : AppCompatActivity() {
 
-    var poppedFragmentName: String? = null
+    var previousFragmentName: String? = null
 
     private var backPressedLastTime: Long = 0
     private var homeFragmentCommitId: Int = FRAGMENT_UNCOMMITTED
@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity() {
             setOnItemSelectedListener {
                 when (it.itemId) {
                     R.id.bottom_navigation_all_movies_button -> {
-                        poppedFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
+                        previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
                         supportFragmentManager.popBackStack(homeFragmentCommitId, 0)
                         true
                     }
@@ -92,6 +92,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     R.id.bottom_navigation_favorites_button -> {
                         if (favoritesFragmentCommitId == FRAGMENT_UNCOMMITTED) {
+                            previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
                             favoritesFragmentCommitId = supportFragmentManager
                                 .beginTransaction()
                                 .replace(R.id.fragment, FavoritesFragment())
@@ -165,11 +166,11 @@ class MainActivity : AppCompatActivity() {
                 } else if (supportFragmentManager.fragments.last() is DetailsFragment) {
                     if (!(supportFragmentManager.fragments.last() as DetailsFragment)
                             .collapsingToolbarHasBeenExpanded()) {
-                        poppedFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
+                        previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
                         supportFragmentManager.popBackStack()
                     }
                 } else {
-                    poppedFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
+                    previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
                     supportFragmentManager.popBackStack()
                 }
             }

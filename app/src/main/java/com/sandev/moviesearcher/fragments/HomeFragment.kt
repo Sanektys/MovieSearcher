@@ -107,7 +107,7 @@ class HomeFragment : MoviesListFragment() {
         }
 
         val recycler: RecyclerView = rootView.findViewById(R.id.movies_list_recycler)
-        if ((activity as MainActivity).poppedFragmentName == DetailsFragment::class.qualifiedName) {
+        if ((activity as MainActivity).previousFragmentName == DetailsFragment::class.qualifiedName) {
             // Не включать transition анимации после выхода из окна деталей
             rootView.postDelayed(resources.getInteger(R.integer.activity_main_animations_durations_poster_transition).toLong()) {
                 setDefaultTransitionAnimation(rootView)
@@ -120,28 +120,28 @@ class HomeFragment : MoviesListFragment() {
         }
     }
 
-    private fun setDefaultTransitionAnimation(view: View) {
+    override fun setDefaultTransitionAnimation(view: View) {
         val searchBar: SearchBar = view.findViewById(R.id.search_bar)
         val recycler: RecyclerView = view.findViewById(R.id.movies_list_recycler)
         val duration = resources.getInteger(R.integer.general_animations_durations_fragment_transition).toLong()
 
-        val appBarTransition = Fade().apply {
-            this.duration = duration
-            interpolator = AccelerateInterpolator()
-            addTarget(searchBar)
-        }
         val recyclerTransition = Slide(Gravity.START).apply {
             this.duration = duration
             interpolator = LinearInterpolator()
             addTarget(recycler)
         }
+        val transitionSet = TransitionSet().addTransition(recyclerTransition)
 
-        exitTransition = TransitionSet()
-            .addTransition(appBarTransition)
-            .addTransition(recyclerTransition)
-        reenterTransition = TransitionSet()
-            .addTransition(appBarTransition)
-            .addTransition(recyclerTransition)
+        if (!isAppBarLifted) {
+            val appBarTransition = Fade().apply {
+                this.duration = duration
+                interpolator = AccelerateInterpolator()
+                addTarget(searchBar)
+            }
+            transitionSet.addTransition(appBarTransition)
+        }
+        exitTransition = transitionSet
+        reenterTransition = transitionSet
     }
 
     private fun resetDefaultTransitionAnimation() {

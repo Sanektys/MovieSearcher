@@ -91,7 +91,6 @@ class FavoritesFragment : MoviesListFragment() {
         moviesListRecycler.isNestedScrollingEnabled = true
         moviesListRecycler.adapter = favoriteMoviesRecyclerAdapter
         favoriteMoviesRecyclerManager = moviesListRecycler.layoutManager!!
-        moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
         moviesListRecycler.itemAnimator = MovieItemAnimator()
 
         moviesListRecycler.postDelayed(  // Запускать удаление только после отрисовки анимации recycler
@@ -115,28 +114,34 @@ class FavoritesFragment : MoviesListFragment() {
 
         sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
+
+        val recycler: RecyclerView = rootView.findViewById(R.id.movies_list_recycler)
+        if ((activity as MainActivity).previousFragmentName == DetailsFragment::class.qualifiedName) {
+            recycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
+        }
     }
 
-    fun setDefaultTransitionAnimation(view: View) {
+    override fun setDefaultTransitionAnimation(view: View) {
         val searchBar: SearchBar = view.findViewById(R.id.search_bar)
         val recycler: RecyclerView = view.findViewById(R.id.movies_list_recycler)
         val duration = resources.getInteger(R.integer.general_animations_durations_fragment_transition).toLong()
 
-        val appBarTransition = Fade().apply {
-            this.duration = duration
-            interpolator = DecelerateInterpolator()
-            addTarget(searchBar)
-        }
         val recyclerTransition = Slide(Gravity.END).apply {
             this.duration = duration
             interpolator = LinearInterpolator()
             addTarget(recycler)
         }
-        enterTransition = TransitionSet()
-            .addTransition(appBarTransition)
-            .addTransition(recyclerTransition)
-        returnTransition = TransitionSet()
-            .addTransition(appBarTransition)
-            .addTransition(recyclerTransition)
+        val transitionSet = TransitionSet().addTransition(recyclerTransition)
+
+        if (!isAppBarLifted) {
+            val appBarTransition = Fade().apply {
+                this.duration = duration
+                interpolator = DecelerateInterpolator()
+                addTarget(searchBar)
+            }
+            transitionSet.addTransition(appBarTransition)
+        }
+        enterTransition = transitionSet
+        returnTransition = transitionSet
     }
 }
