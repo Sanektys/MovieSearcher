@@ -20,6 +20,7 @@ import androidx.transition.Fade
 import androidx.transition.Slide
 import androidx.transition.TransitionInflater
 import androidx.transition.TransitionSet
+import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
@@ -123,7 +124,7 @@ class DetailsFragment : Fragment() {
         movie = arguments?.getParcelable(MainActivity.MOVIE_DATA_KEY)!!
 
         view.findViewById<ImageView>(R.id.collapsing_toolbar_image).apply {
-            setImageResource(movie.poster)
+            Glide.with(this@DetailsFragment).load(movie.poster).centerCrop().into(this)
             transitionName = arguments?.getString(MainActivity.POSTER_TRANSITION_KEY)
         }
         view.findViewById<TextView>(R.id.title).text = movie.title
