@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.HomeFragment">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/movies_list_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/activity_main.movies_recycler.movie_card.height"
+        android:layout_marginHorizontal="@dimen/activity_main.movies_recycler.margin_horizontal"
+        android:layout_marginVertical="@dimen/activity_main.movies_recycler.margin_vertical"
+        android:background="?attr/colorSecondaryContainer"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:orientation="horizontal"
+        android:layout_below="@id/app_bar"
+        tools:listitem="@layout/movie_card" />
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimaryContainer"
+        app:layout_behavior=".behaviors.UnshiftedAppBar">
+
+        <com.google.android.material.search.SearchBar
+            android:id="@+id/search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/activity_main.search_bar.height"
+            android:layout_margin="@dimen/activity_main.search_bar.margin"
+            android:theme="@style/Theme.MovieSearcher.Search"
+            style="@style/Widget.Material3.SearchBar.Outlined"
+            app:navigationIcon="@drawable/round_menu"
+            app:menu="@menu/top_app_bar_menu"
+            android:hint="@string/activity_main.top_app_bar.search_bar.hint"
+            app:defaultMarginsEnabled="false"
+            app:layout_scrollFlags="enterAlways|scroll|snap|snapMargins"
+            app:layout_scrollEffect="none" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.search.SearchView
+        android:id="@+id/search_view"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/activity_main.search_view.height"
+        android:theme="@style/Theme.MovieSearcher.Search"
+        app:layout_anchor="@id/search_bar"
+        app:layout_anchorGravity="top"
+        android:hint="@string/activity_main.top_app_bar.search_bar.hint"
+        app:useDrawerArrowDrawable="true"
+        app:autoShowKeyboard="false" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -27,9 +27,10 @@ class HomeFragment : MoviesListFragment() {
     private var moviesRecyclerManager: RecyclerView.LayoutManager? = null
     private var moviesRecyclerAdapter: MoviesRecyclerAdapter? = null
     override var lastSearch: CharSequence? = null
-    private var isFragmentClassCreated = false
 
     companion object {
+        private var isFragmentClassOnceCreated = false
+        
         private const val MOVIES_RECYCLER_VIEW_STATE = "MoviesRecylerViewState"
     }
 
@@ -85,7 +86,7 @@ class HomeFragment : MoviesListFragment() {
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
         val scene = Scene.getSceneForLayout(rootView as ViewGroup, R.layout.merge_fragment_home_content, requireContext())
-        if (!isFragmentClassCreated) {  // запускать анимацию первого появления только при создании класса
+        if (!isFragmentClassOnceCreated) {  // запускать анимацию появления только при первой загрузке класса фрагмента
             val appBarSlideTransition = Slide(Gravity.TOP)
                 .setDuration(resources.getInteger(
                     R.integer.activity_main_animations_durations_first_appearance_app_bar).toLong())
@@ -101,7 +102,7 @@ class HomeFragment : MoviesListFragment() {
                 addTransition(moviesRecyclerTransition)
             }
             TransitionManager.go(scene, appearingTransition)
-            isFragmentClassCreated = true
+            isFragmentClassOnceCreated = true
         } else {
             scene.enter()
         }
