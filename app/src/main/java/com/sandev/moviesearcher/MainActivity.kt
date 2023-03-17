@@ -5,6 +5,7 @@ import android.graphics.Outline
 import android.os.Bundle
 import android.view.View
 import android.view.ViewOutlineProvider
+import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -18,6 +19,8 @@ import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 
 
 class MainActivity : AppCompatActivity() {
+
+    var previousFragmentName: String? = null
 
     private var backPressedLastTime: Long = 0
     private var homeFragmentCommitId: Int = FRAGMENT_UNCOMMITTED
@@ -44,6 +47,16 @@ class MainActivity : AppCompatActivity() {
         menuButtonsInitial()
 
         if (supportFragmentManager.backStackEntryCount == 0) {
+            findViewById<BottomNavigationView>(R.id.navigation_bar).doOnLayout {
+                it.translationY = it.height.toFloat()
+                it.animate()
+                    .setDuration(resources.getInteger(
+                        R.integer.activity_main_animations_durations_first_appearance_navigation_bar).toLong())
+                    .translationY(0f)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+            }
+
             homeFragmentCommitId = supportFragmentManager
                 .beginTransaction()
                 .add(R.id.fragment, HomeFragment())
@@ -69,6 +82,7 @@ class MainActivity : AppCompatActivity() {
             setOnItemSelectedListener {
                 when (it.itemId) {
                     R.id.bottom_navigation_all_movies_button -> {
+                        previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
                         supportFragmentManager.popBackStack(homeFragmentCommitId, 0)
                         true
                     }
@@ -78,6 +92,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     R.id.bottom_navigation_favorites_button -> {
                         if (favoritesFragmentCommitId == FRAGMENT_UNCOMMITTED) {
+                            previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
                             favoritesFragmentCommitId = supportFragmentManager
                                 .beginTransaction()
                                 .replace(R.id.fragment, FavoritesFragment())
@@ -151,9 +166,11 @@ class MainActivity : AppCompatActivity() {
                 } else if (supportFragmentManager.fragments.last() is DetailsFragment) {
                     if (!(supportFragmentManager.fragments.last() as DetailsFragment)
                             .collapsingToolbarHasBeenExpanded()) {
+                        previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
                         supportFragmentManager.popBackStack()
                     }
                 } else {
+                    previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
                     supportFragmentManager.popBackStack()
                 }
             }

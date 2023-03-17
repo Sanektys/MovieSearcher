@@ -3,18 +3,24 @@ package com.sandev.moviesearcher.fragments
 import android.content.Intent
 import android.graphics.Outline
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
+import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.view.ViewGroup
-import android.view.ViewOutlineProvider
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
+import androidx.interpolator.view.animation.FastOutLinearInInterpolator
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
+import androidx.transition.Fade
+import androidx.transition.Slide
 import androidx.transition.TransitionInflater
+import androidx.transition.TransitionSet
+import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
@@ -52,7 +58,7 @@ class DetailsFragment : Fragment() {
         setToolbarBackButton(view)
         setFloatButtonOnClick(view)
 
-        sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
+        setTransitionAnimation(view)
 
         activity?.findViewById<BottomNavigationView>(R.id.navigation_bar)?.run {
             animate()  // Убрать нижний navigation view
@@ -118,7 +124,7 @@ class DetailsFragment : Fragment() {
         movie = arguments?.getParcelable(MainActivity.MOVIE_DATA_KEY)!!
 
         view.findViewById<ImageView>(R.id.collapsing_toolbar_image).apply {
-            setImageResource(movie.poster)
+            Glide.with(this@DetailsFragment).load(movie.poster).centerCrop().into(this)
             transitionName = arguments?.getString(MainActivity.POSTER_TRANSITION_KEY)
         }
         view.findViewById<TextView>(R.id.title).text = movie.title
@@ -203,6 +209,44 @@ class DetailsFragment : Fragment() {
         } else if (isFavoriteMovie && !toFavoriteButton.isSelected) {
             isFavoriteMovie = false
             favoriteMovies.remove(movie)
+        }
+    }
+
+    private fun setTransitionAnimation(view: View) {
+        sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
+
+        val appBar: AppBarLayout = view.findViewById(R.id.app_bar)
+        val movieTitle: TextView = view.findViewById(R.id.title)
+        val movieDescription: TextView = view.findViewById(R.id.description)
+        val fabFavorite: FloatingActionButton = view.findViewById(R.id.fab_to_favorite)
+        val fabWatchLater: FloatingActionButton = view.findViewById(R.id.fab_to_watch_later)
+        val fabShare: FloatingActionButton = view.findViewById(R.id.fab_share)
+        val duration = resources.getInteger(R.integer.activity_main_animations_durations_poster_transition)
+            .toLong()
+
+        enterTransition = TransitionSet().apply {
+            val appBarTransition = Fade().apply {
+                mode = Fade.MODE_IN
+                interpolator = DecelerateInterpolator()
+                addTarget(appBar)
+            }
+            val movieInformationTransition = Fade().apply {
+                mode = Fade.MODE_IN
+                interpolator = FastOutLinearInInterpolator()
+                addTarget(movieTitle)
+                addTarget(movieDescription)
+            }
+            val fabTransition = Slide(Gravity.END).apply {
+                mode = Slide.MODE_IN
+                interpolator = LinearOutSlowInInterpolator()
+                addTarget(fabFavorite)
+                addTarget(fabWatchLater)
+                addTarget(fabShare)
+            }
+            this.duration = duration
+            addTransition(appBarTransition)
+            addTransition(movieInformationTransition)
+            addTransition(fabTransition)
         }
     }
 }

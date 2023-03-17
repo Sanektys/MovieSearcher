@@ -1,15 +1,22 @@
 package com.sandev.moviesearcher.fragments
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.Fade
+import androidx.transition.Slide
 import androidx.transition.TransitionInflater
+import androidx.transition.TransitionSet
+import com.google.android.material.search.SearchBar
 import com.sandev.moviesearcher.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
@@ -47,9 +54,7 @@ class FavoritesFragment : MoviesListFragment() {
     ): View? {
         val rootView = layoutInflater.inflate(R.layout.fragment_favorites, container, false)
 
-        sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
-        returnTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.no_transition)
-        postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
+        setAnimationTransition(rootView)
 
         return rootView
     }
@@ -86,7 +91,6 @@ class FavoritesFragment : MoviesListFragment() {
         moviesListRecycler.isNestedScrollingEnabled = true
         moviesListRecycler.adapter = favoriteMoviesRecyclerAdapter
         favoriteMoviesRecyclerManager = moviesListRecycler.layoutManager!!
-        moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
         moviesListRecycler.itemAnimator = MovieItemAnimator()
 
         moviesListRecycler.postDelayed(  // Запускать удаление только после отрисовки анимации recycler
@@ -103,5 +107,41 @@ class FavoritesFragment : MoviesListFragment() {
             }
         }
         moviesListRecycler.doOnPreDraw { startPostponedEnterTransition() }
+    }
+
+    private fun setAnimationTransition(rootView: View) {
+        setDefaultTransitionAnimation(rootView)
+
+        sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
+        postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
+
+        val recycler: RecyclerView = rootView.findViewById(R.id.movies_list_recycler)
+        if ((activity as MainActivity).previousFragmentName == DetailsFragment::class.qualifiedName) {
+            recycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
+        }
+    }
+
+    override fun setDefaultTransitionAnimation(view: View) {
+        val searchBar: SearchBar = view.findViewById(R.id.search_bar)
+        val recycler: RecyclerView = view.findViewById(R.id.movies_list_recycler)
+        val duration = resources.getInteger(R.integer.general_animations_durations_fragment_transition).toLong()
+
+        val recyclerTransition = Slide(Gravity.END).apply {
+            this.duration = duration
+            interpolator = LinearInterpolator()
+            addTarget(recycler)
+        }
+        val transitionSet = TransitionSet().addTransition(recyclerTransition)
+
+        if (!isAppBarLifted) {
+            val appBarTransition = Fade().apply {
+                this.duration = duration
+                interpolator = DecelerateInterpolator()
+                addTarget(searchBar)
+            }
+            transitionSet.addTransition(appBarTransition)
+        }
+        enterTransition = transitionSet
+        returnTransition = transitionSet
     }
 }
