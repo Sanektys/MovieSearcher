@@ -143,7 +143,11 @@ abstract class MoviesListFragment : Fragment() {
             foreground = ColorDrawable(context.getColor(R.color.md_theme_secondaryContainer))
             foreground.alpha = 0
 
-            setExpanded(!isAppBarLifted, false)
+            if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                setExpanded(true, false)
+            } else {
+                setExpanded(!isAppBarLifted, false)
+            }
 
             val recycler = rootView.findViewById<RecyclerView>(R.id.movies_list_recycler)
             val searchView: SearchView = rootView.findViewById(R.id.search_view)
