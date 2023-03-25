@@ -15,6 +15,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.sandev.moviesearcher.fragments.DetailsFragment
 import com.sandev.moviesearcher.fragments.FavoritesFragment
 import com.sandev.moviesearcher.fragments.HomeFragment
+import com.sandev.moviesearcher.fragments.SplashScreenFragment
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 
 
@@ -25,6 +26,8 @@ class MainActivity : AppCompatActivity() {
     private var backPressedLastTime: Long = 0
     private var homeFragmentCommitId: Int = FRAGMENT_UNCOMMITTED
     private var favoritesFragmentCommitId: Int = FRAGMENT_UNCOMMITTED
+
+    private lateinit var bottomNavigation: BottomNavigationView
 
     companion object {
         private const val HOME_FRAGMENT_COMMIT_ID_KEY = "HOME_FRAGMENT_COMMIT_KEY"
@@ -41,27 +44,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        bottomNavigation = findViewById(R.id.navigation_bar)
+
         setSystemBarsAppearanceAndBehavior()
         setNavigationBarAppearance()
         setOnBackPressedAction()
         menuButtonsInitial()
 
         if (supportFragmentManager.backStackEntryCount == 0) {
-            findViewById<BottomNavigationView>(R.id.navigation_bar).doOnLayout {
-                it.translationY = it.height.toFloat()
-                it.animate()
-                    .setDuration(resources.getInteger(
-                        R.integer.activity_main_animations_durations_first_appearance_navigation_bar).toLong())
-                    .translationY(0f)
-                    .setInterpolator(DecelerateInterpolator())
-                    .start()
-            }
-
-            homeFragmentCommitId = supportFragmentManager
-                .beginTransaction()
-                .add(R.id.fragment, HomeFragment())
-                .addToBackStack(null)
-                .commit()
+            startSplashScreen()
         }
     }
 
@@ -77,8 +68,46 @@ class MainActivity : AppCompatActivity() {
         favoritesFragmentCommitId = savedInstanceState.getInt(FAVORITES_FRAGMENT_COMMIT_ID_KEY)
     }
 
+    fun startHomeFragment() {
+        if (homeFragmentCommitId == FRAGMENT_UNCOMMITTED) {
+            bottomNavigation.animate()
+                .setDuration(
+                    resources.getInteger(
+                        R.integer.activity_main_animations_durations_first_appearance_navigation_bar
+                    ).toLong()
+                )
+                .translationY(0f)
+                .setInterpolator(DecelerateInterpolator())
+                .withEndAction { bottomNavigation.menu.forEach { it.isEnabled = true } }
+                .start()
+
+            homeFragmentCommitId = supportFragmentManager
+                .beginTransaction()
+                .add(R.id.fragment, HomeFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+    }
+
+    fun removeSplashScreen(splashScreenFragment: SplashScreenFragment) {
+        supportFragmentManager
+            .beginTransaction()
+            .remove(splashScreenFragment)
+            .commit()
+    }
+
+    private fun startSplashScreen() {
+        bottomNavigation.doOnLayout { it.translationY = it.height.toFloat() }
+        bottomNavigation.menu.forEach { it.isEnabled = false }
+
+        supportFragmentManager
+            .beginTransaction()
+            .add(R.id.fragment, SplashScreenFragment())
+            .commit()
+    }
+
     private fun menuButtonsInitial() {
-        findViewById<BottomNavigationView>(R.id.navigation_bar).apply {
+        bottomNavigation.apply {
             setOnItemSelectedListener {
                 when (it.itemId) {
                     R.id.bottom_navigation_all_movies_button -> {
@@ -178,7 +207,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setNavigationBarAppearance() {
-        findViewById<BottomNavigationView>(R.id.navigation_bar).apply {
+        bottomNavigation.apply {
             ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
                 updatePadding(bottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom)
                 updateLayoutParams {

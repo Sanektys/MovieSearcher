@@ -5,11 +5,12 @@
 
 
     <!-- Main activity -->
+    <integer name="activity_main.animations_durations.splash_screen_disappearing">1200</integer>
     <integer name="activity_main.animations_durations.posters_appearance">300</integer>
     <integer name="activity_main.animations_durations.poster_transition">350</integer>
     <integer name="activity_main.animations_durations.first_appearance.recycler">700</integer>
     <integer name="activity_main.animations_durations.first_appearance.app_bar">500</integer>
-    <integer name="activity_main.animations_durations.first_appearance.navigation_bar">400</integer>
+    <integer name="activity_main.animations_durations.first_appearance.navigation_bar">600</integer>
 
 
     <!-- Favorites fragment -->
