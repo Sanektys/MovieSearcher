@@ -20,6 +20,9 @@
     <!-- Favorites fragment -->
     <string name="favorites_fragment.top_app_bar.search_bar.hint">Найти избранный фильм</string>
 
+    <!-- Watch later fragment -->
+    <string name="watch_later_fragment.top_app_bar.search_bar.hint">Найти фильм из отложенного</string>
+
     <!-- Movie view holder -->
     <string name="movie_view_holder.transition_name" translatable="false">MOVIE_POSTER_TRANSITION%d</string>
 </resources>

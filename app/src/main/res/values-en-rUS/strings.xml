@@ -16,4 +16,5 @@
     <string name="details_fragment.fab.share.to">Who to send the movie to?</string>
     <string name="activity_main.top_app_bar.search_bar.hint">Search movies</string>
     <string name="favorites_fragment.top_app_bar.search_bar.hint">Search favorite movie</string>
+    <string name="watch_later_fragment.top_app_bar.search_bar.hint">Search a movie from watch later</string>
 </resources>

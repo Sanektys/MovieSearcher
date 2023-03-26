@@ -7,14 +7,22 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View
-import android.view.ViewOutlineProvider
+import android.view.*
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.LinearInterpolator
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
+import androidx.interpolator.view.animation.FastOutLinearInInterpolator
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.Fade
+import androidx.transition.Slide
+import androidx.transition.TransitionSet
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.search.SearchBar
@@ -22,13 +30,19 @@ import com.google.android.material.search.SearchView
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
-import com.sandev.moviesearcher.movieListRecyclerView.data.favoriteMovies
-import com.sandev.moviesearcher.movieListRecyclerView.data.setMockData
 
 
 abstract class MoviesListFragment : Fragment() {
 
     protected abstract var lastSearch: CharSequence?
+
+    protected lateinit var appBar: AppBarLayout
+    protected lateinit var searchBar: SearchBar
+    protected lateinit var searchView: SearchView
+    protected lateinit var recyclerView: RecyclerView
+
+    private var lastSlideGravity = Gravity.TOP
+    private var isInitialFragmentForTranslation = true
 
     companion object {
         var isAppBarLifted = false
@@ -38,41 +52,85 @@ abstract class MoviesListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setAppBarAppearance(view)
-        setSearchViewAppearance(view)
-        setRecyclerViewAppearance(view)
+        setSearchViewAppearance()
+        setRecyclerViewAppearance()
         initializeToolbar(view)
     }
 
-    protected abstract fun setDefaultTransitionAnimation(view: View)
+    override fun onDestroyView() {
+        super.onDestroyView()
 
-    protected fun setupSearchBehavior(moviesRecyclerAdapter: MoviesRecyclerAdapter?) {
+        // Если не обнулить метод провайдера, то будет exception при обращении к resources когда фрагмент уже detached
+        recyclerView.outlineProvider = object : ViewOutlineProvider() {
+            override fun getOutline(view: View?, outline: Outline?) {}
+        }
+    }
+
+    protected fun initializeViewsReferences(rootView: View) {
+        appBar = rootView.findViewById(R.id.app_bar)
+        searchBar = rootView.findViewById(R.id.search_bar)
+        searchView = rootView.findViewById(R.id.search_view)
+        recyclerView = rootView.findViewById(R.id.movies_list_recycler)
+    }
+
+    protected fun setTransitionAnimation(slideGravity: Int = lastSlideGravity,
+                                         isInitialFragment: Boolean = isInitialFragmentForTranslation) {
+        lastSlideGravity = slideGravity
+        isInitialFragmentForTranslation = isInitialFragment
+        val duration = resources.getInteger(R.integer.general_animations_durations_fragment_transition).toLong()
+
+        val recyclerTransition = Slide(slideGravity).apply {
+            this.duration = duration
+            interpolator = FastOutLinearInInterpolator()
+            addTarget(recyclerView)
+        }
+        val transitionSet = TransitionSet().addTransition(recyclerTransition)
+
+        if (!isAppBarLifted) {
+            val appBarTransition = Fade().apply {
+                this.duration = duration
+                interpolator = AccelerateInterpolator()
+                addTarget(searchBar)
+            }
+            transitionSet.addTransition(appBarTransition)
+        }
+        if (isInitialFragment) {
+            exitTransition = transitionSet
+            reenterTransition = transitionSet
+        } else {
+            enterTransition = transitionSet
+            returnTransition = transitionSet
+        }
+    }
+
+    protected fun resetTransitionAnimation(isInitialFragment: Boolean) {
+        if (isInitialFragment) {
+            exitTransition = null
+            reenterTransition = null
+        } else {
+            enterTransition = null
+            returnTransition = null
+        }
+    }
+
+    protected fun setupSearchBehavior(moviesRecyclerAdapter: MoviesRecyclerAdapter?, source: List<Movie>) {
         val textChangeListener = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun afterTextChanged(s: Editable?) {}
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (s!!.length >= 2) {
-                    var result: List<Movie>? = null
-                    if (this@MoviesListFragment is HomeFragment) {
-                        result = setMockData()
-                    } else if (this@MoviesListFragment is FavoritesFragment) {
-                        result = favoriteMovies
-                    }
-                    result = result!!.filter {
-                        it.title!!.lowercase().contains(s.toString().lowercase())
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                if (s.length >= 2) {
+                    val result = source.filter {
+                        it.title.lowercase().contains(s.toString().lowercase())
                     }
                     moviesRecyclerAdapter?.setList(result)
                 } else if (s.isEmpty()) {
-                    if (this@MoviesListFragment is HomeFragment) {
-                        moviesRecyclerAdapter?.setList(setMockData())
-                    } else if (this@MoviesListFragment is FavoritesFragment) {
-                        moviesRecyclerAdapter?.setList(favoriteMovies)
-                    }
+                    moviesRecyclerAdapter?.setList(source)
                 }
                 lastSearch = s
             }
         }
-        requireView().findViewById<SearchView>(R.id.search_view).apply {
+        searchView.apply {
             editText.text = lastSearch as? Editable
             editText.addTextChangedListener(textChangeListener)
             addTransitionListener { _, previousState, newState ->
@@ -105,7 +163,6 @@ abstract class MoviesListFragment : Fragment() {
         val settingsButton: View = view.findViewById(R.id.top_toolbar_settings_button)
         settingsButton.stateListAnimator = AnimatorInflater.loadStateListAnimator(requireContext(), R.animator.settings_button_spin)
 
-        val searchBar: SearchBar = view.findViewById(R.id.search_bar)
         searchBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.top_toolbar_settings_button -> {
@@ -118,7 +175,7 @@ abstract class MoviesListFragment : Fragment() {
     }
 
     private fun setAppBarAppearance(rootView: View) {
-        rootView.findViewById<AppBarLayout>(R.id.app_bar).apply {
+        appBar.apply {
             ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
                 updatePadding(top = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top)
                 insets
@@ -149,8 +206,6 @@ abstract class MoviesListFragment : Fragment() {
                 setExpanded(!isAppBarLifted, false)
             }
 
-            val recycler = rootView.findViewById<RecyclerView>(R.id.movies_list_recycler)
-            val searchView: SearchView = rootView.findViewById(R.id.search_view)
             doOnLayout {
                 // Слушатель смещения app bar закрашивающий search bar и обновляющий размеры recycler
                 addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
@@ -165,24 +220,24 @@ abstract class MoviesListFragment : Fragment() {
                         if (-verticalOffset > halfExpandedOffset) {
                             if (!isAppBarLifted) {
                                 isAppBarLifted = true
-                                setDefaultTransitionAnimation(rootView)
+                                setTransitionAnimation()
                             }
                         } else {
                             if (isAppBarLifted) {
                                 isAppBarLifted = false
-                                setDefaultTransitionAnimation(rootView)
+                                setTransitionAnimation()
                             }
                         }
 
-                        recycler.invalidateOutline()
+                        recyclerView.invalidateOutline()
                     }
                 })
             }
         }
     }
 
-    private fun setSearchViewAppearance(rootView: View) {
-        rootView.findViewById<SearchView>(R.id.search_view).apply {
+    private fun setSearchViewAppearance() {
+        searchView.apply {
             ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
                 updateLayoutParams {
                     height = resources.getDimensionPixelSize(R.dimen.activity_main_search_view_height) +
@@ -207,48 +262,44 @@ abstract class MoviesListFragment : Fragment() {
         }
     }
 
-    private fun setRecyclerViewAppearance(rootView: View) {
-        rootView.findViewById<RecyclerView>(R.id.movies_list_recycler).apply {
-            val appBar: AppBarLayout = rootView.findViewById(R.id.app_bar)
-            val searchView: SearchView = rootView.findViewById(R.id.search_view)
-            doOnPreDraw {
-                outlineProvider = object : ViewOutlineProvider() {
-                    val bottomNavigation =
-                        requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bar)
-                    val margin = resources.getDimensionPixelSize(R.dimen.activity_main_movies_recycler_margin_vertical)
-                    val freeSpace = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        bottomNavigation.top - appBar.height - margin - margin
-                    } else {
-                        height
-                    }
+    private fun setRecyclerViewAppearance() {
+        recyclerView.doOnPreDraw {
+            it.outlineProvider = object : ViewOutlineProvider() {
+                val bottomNavigation =
+                    requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bar)
+                val margin = resources.getDimensionPixelSize(R.dimen.activity_main_movies_recycler_margin_vertical)
+                val freeSpace = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    bottomNavigation.top - appBar.height - margin - margin
+                } else {
+                    it.height
+                }
 
-                    override fun getOutline(view: View?, outline: Outline?) {
-                        // Прямо в методе закругления краёв обновляем высоту recycler, всё равно этот метод
-                        // вызывается при каждом изменении размеров вьюхи
-                        view!!.updateLayoutParams {
-                            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                                if (searchView.isShowing) {
-                                    top = searchView.height + margin
-                                    bottom = bottomNavigation.top - margin
-                                } else {
-                                    height = freeSpace - appBar.top
-                                }
+                override fun getOutline(view: View?, outline: Outline?) {
+                    // Прямо в методе закругления краёв обновляем высоту recycler, всё равно этот метод
+                    // вызывается при каждом изменении размеров вьюхи
+                    view?.updateLayoutParams {
+                        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                            if (searchView.isShowing) {
+                                it.top = searchView.height + margin
+                                it.bottom = bottomNavigation.top - margin
                             } else {
-                                if (searchView.isShowing) {
-                                    top = searchView.height + margin
-                                    bottom = searchView.height + margin + height
-                                }
+                                height = freeSpace - appBar.top
+                            }
+                        } else {
+                            if (searchView.isShowing) {
+                                it.top = searchView.height + margin
+                                it.bottom = searchView.height + margin + height
                             }
                         }
-                        outline?.setRoundRect(
-                            0, 0, view.width, view.height,
-                            resources.getDimensionPixelSize(R.dimen.general_corner_radius_large)
-                                .toFloat()
-                        )
                     }
+                    outline?.setRoundRect(
+                        0, 0, view?.width ?: 0, view?.height ?: 0,
+                        resources.getDimensionPixelSize(R.dimen.general_corner_radius_large)
+                            .toFloat()
+                    )
                 }
-                clipToOutline = true
             }
+            it.clipToOutline = true
         }
     }
 }

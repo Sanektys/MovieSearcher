@@ -32,9 +32,11 @@ class FavoritesFragment : MoviesListFragment() {
     private var isMovieNowNotFavorite: Boolean = false
     override var lastSearch: CharSequence? = null
 
+    private val mainActivity by lazy { activity as MainActivity }
+
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
         override fun onClick(movie: Movie, posterView: ImageView) {
-            (requireActivity() as MainActivity).startDetailsFragment(movie, posterView)
+            mainActivity.startDetailsFragment(movie, posterView)
         }
     }
     private val posterOnClickDummy = object : MoviesRecyclerAdapter.OnClickListener {
@@ -48,13 +50,15 @@ class FavoritesFragment : MoviesListFragment() {
         private const val FAVORITE_MOVIES_RECYCLER_VIEW_STATE = "FavoriteMoviesRecylerViewState"
     }
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val rootView = layoutInflater.inflate(R.layout.fragment_favorites, container, false)
 
-        setAnimationTransition(rootView)
+        initializeViewsReferences(rootView)
+        setAllAnimationTransition()
 
         return rootView
     }
@@ -66,11 +70,11 @@ class FavoritesFragment : MoviesListFragment() {
             isMovieNowNotFavorite = bundle.getBoolean(MOVIE_NOW_NOT_FAVORITE_KEY)
         }
 
-        initializeMovieRecyclerList(view)
+        initializeMovieRecyclerList()
         favoriteMoviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
             FAVORITE_MOVIES_RECYCLER_VIEW_STATE))
 
-        setupSearchBehavior(favoriteMoviesRecyclerAdapter)
+        setupSearchBehavior(favoriteMoviesRecyclerAdapter, favoriteMovies)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -78,70 +82,46 @@ class FavoritesFragment : MoviesListFragment() {
         outState.putParcelable(FAVORITE_MOVIES_RECYCLER_VIEW_STATE, favoriteMoviesRecyclerManager?.onSaveInstanceState())
     }
 
-    private fun initializeMovieRecyclerList(view: View) {
+    private fun initializeMovieRecyclerList() {
         if (favoriteMoviesRecyclerAdapter == null) {
             favoriteMoviesRecyclerAdapter = MoviesRecyclerAdapter()
-            favoriteMoviesRecyclerAdapter!!.setList(favoriteMovies)
+            favoriteMoviesRecyclerAdapter?.setList(favoriteMovies)
         }
         // Пока не прошла анимация не обрабатывать клики на постеры
-        favoriteMoviesRecyclerAdapter!!.setPosterOnClickListener(posterOnClickDummy)
+        favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClickDummy)
 
-        val moviesListRecycler: RecyclerView = view.findViewById(R.id.movies_list_recycler)
-        moviesListRecycler.setHasFixedSize(true)
-        moviesListRecycler.isNestedScrollingEnabled = true
-        moviesListRecycler.adapter = favoriteMoviesRecyclerAdapter
-        favoriteMoviesRecyclerManager = moviesListRecycler.layoutManager!!
-        moviesListRecycler.itemAnimator = MovieItemAnimator()
+        recyclerView.setHasFixedSize(true)
+        recyclerView.isNestedScrollingEnabled = true
+        recyclerView.adapter = favoriteMoviesRecyclerAdapter
 
-        moviesListRecycler.postDelayed(  // Запускать удаление только после отрисовки анимации recycler
+        favoriteMoviesRecyclerManager = recyclerView.layoutManager!!
+
+        recyclerView.itemAnimator = MovieItemAnimator()
+
+        recyclerView.postDelayed(  // Запускать удаление только после отрисовки анимации recycler
                 resources.getInteger(R.integer.fragment_favorites_delay_recyclerViewAppearance).toLong()) {
             if (isMovieNowNotFavorite) {
-                favoriteMoviesRecyclerAdapter!!.removeLastClickedMovie()
+                favoriteMoviesRecyclerAdapter?.removeLastClickedMovie()
                 isMovieNowNotFavorite = false
-                moviesListRecycler.postDelayed(moviesListRecycler.itemAnimator!!.removeDuration +
-                        moviesListRecycler.itemAnimator!!.moveDuration) {
-                    favoriteMoviesRecyclerAdapter!!.setPosterOnClickListener(posterOnClick)
+                recyclerView.postDelayed((recyclerView.itemAnimator?.removeDuration ?: 0) +
+                        (recyclerView.itemAnimator?.moveDuration ?: 0)) {
+                    favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
                 }
             } else {
-                favoriteMoviesRecyclerAdapter!!.setPosterOnClickListener(posterOnClick)
+                favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
             }
         }
-        moviesListRecycler.doOnPreDraw { startPostponedEnterTransition() }
+        recyclerView.doOnPreDraw { startPostponedEnterTransition() }
     }
 
-    private fun setAnimationTransition(rootView: View) {
-        setDefaultTransitionAnimation(rootView)
+    private fun setAllAnimationTransition() {
+        setTransitionAnimation(Gravity.END, false)
 
         sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
-        val recycler: RecyclerView = rootView.findViewById(R.id.movies_list_recycler)
-        if ((activity as MainActivity).previousFragmentName == DetailsFragment::class.qualifiedName) {
-            recycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
+        if (mainActivity.previousFragmentName == DetailsFragment::class.qualifiedName) {
+            recyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
         }
-    }
-
-    override fun setDefaultTransitionAnimation(view: View) {
-        val searchBar: SearchBar = view.findViewById(R.id.search_bar)
-        val recycler: RecyclerView = view.findViewById(R.id.movies_list_recycler)
-        val duration = resources.getInteger(R.integer.general_animations_durations_fragment_transition).toLong()
-
-        val recyclerTransition = Slide(Gravity.END).apply {
-            this.duration = duration
-            interpolator = LinearInterpolator()
-            addTarget(recycler)
-        }
-        val transitionSet = TransitionSet().addTransition(recyclerTransition)
-
-        if (!isAppBarLifted) {
-            val appBarTransition = Fade().apply {
-                this.duration = duration
-                interpolator = DecelerateInterpolator()
-                addTarget(searchBar)
-            }
-            transitionSet.addTransition(appBarTransition)
-        }
-        enterTransition = transitionSet
-        returnTransition = transitionSet
     }
 }

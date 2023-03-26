@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- General -->
-    <integer name="general.animations_durations.fragment_transition">300</integer>
+    <integer name="general.animations_durations.fragment_transition">250</integer>
 
 
     <!-- Main activity -->
