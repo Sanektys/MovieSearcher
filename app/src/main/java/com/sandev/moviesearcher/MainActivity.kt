@@ -26,10 +26,6 @@ class MainActivity : AppCompatActivity() {
 
     private var backPressedLastTime: Long = 0
 
-    private var homeFragment: HomeFragment? = null
-    private var favoritesFragment: FavoritesFragment? = null
-    private var watchLaterFragment: WatchLaterFragment? = null
-
     private lateinit var bottomNavigation: BottomNavigationView
 
     companion object {
@@ -39,6 +35,10 @@ class MainActivity : AppCompatActivity() {
         private const val HOME_FRAGMENT_COMMIT = "HOME_FRAGMENT_COMMIT"
         private const val FAVORITES_FRAGMENT_COMMIT = "FAVORITES_FRAGMENT_COMMIT"
         private const val WATCH_LATER_FRAGMENT_COMMIT = "WATCH_LATER_FRAGMENT_COMMIT"
+
+        private var homeFragment: HomeFragment? = null
+        private var favoritesFragment: FavoritesFragment? = null
+        private var watchLaterFragment: WatchLaterFragment? = null
 
         private const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
         private const val ONE_FRAGMENT_IN_STACK = 1
@@ -74,12 +74,12 @@ class MainActivity : AppCompatActivity() {
                 .start()
 
             homeFragment = HomeFragment()
-            supportFragmentManager
-                .beginTransaction()
-                .add(R.id.fragment, homeFragment!!)
-                .addToBackStack(HOME_FRAGMENT_COMMIT)
-                .commit()
         }
+        supportFragmentManager
+            .beginTransaction()
+            .add(R.id.fragment, homeFragment!!)
+            .addToBackStack(HOME_FRAGMENT_COMMIT)
+            .commit()
     }
 
     fun removeSplashScreen(splashScreenFragment: SplashScreenFragment) {
@@ -181,6 +181,7 @@ class MainActivity : AppCompatActivity() {
             arguments = bundle
         }
 
+        previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
         supportFragmentManager
             .beginTransaction()
             .addSharedElement(posterView, transitionName)

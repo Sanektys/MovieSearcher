@@ -25,7 +25,7 @@ class HomeFragment : MoviesListFragment() {
     private var moviesRecyclerAdapter: MoviesRecyclerAdapter? = null
     override var lastSearch: CharSequence? = null
 
-    private val mainActivity by lazy { activity as MainActivity }
+    private lateinit var mainActivity: MainActivity
 
     companion object {
         private var isFragmentClassOnceCreated = false
@@ -38,6 +38,8 @@ class HomeFragment : MoviesListFragment() {
         savedInstanceState: Bundle?
     ): View {
         val rootView = layoutInflater.inflate(R.layout.fragment_home, container, false)
+
+        mainActivity = activity as MainActivity
 
         setAllTransitionAnimation(rootView)
 

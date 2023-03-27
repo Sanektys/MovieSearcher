@@ -35,8 +35,19 @@ class DetailsFragment : Fragment() {
 
     private lateinit var movie: Movie
     private var isFavoriteMovie: Boolean = false
+    private var configurationChanged = false
+
+    private lateinit var fragmentThatLaunchedDetails: String
+
+    private lateinit var appBar: AppBarLayout
+    private lateinit var fabFavorite: FloatingActionButton
+    private lateinit var fabWatchLater: FloatingActionButton
+    private lateinit var fabShare: FloatingActionButton
 
     companion object {
+        private const val FRAGMENT_LAUNCHED_KEY = "FRAGMENT_LAUNCHED"
+        private const val FAVORITE_BUTTON_SELECTED_KEY = "FAVORITE_BUTTON_SELECTED"
+
         private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
     }
 
@@ -46,15 +57,27 @@ class DetailsFragment : Fragment() {
     ): View? {
         val rootView = inflater.inflate(R.layout.fragment_details, container, false)
 
+        appBar = rootView.findViewById(R.id.app_bar)
+        fabFavorite = rootView.findViewById(R.id.fab_to_favorite)
+        fabWatchLater = rootView.findViewById(R.id.fab_to_watch_later)
+        fabShare = rootView.findViewById(R.id.fab_share)
+
         setToolbarAppearance(rootView)
 
         return rootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        fragmentThatLaunchedDetails = savedInstanceState?.getString(FRAGMENT_LAUNCHED_KEY) ?:
+                (activity as MainActivity).previousFragmentName!!
+
         initializeContent(view)
         setToolbarBackButton(view)
         setFloatButtonOnClick(view)
+        if (savedInstanceState != null) {
+            fabFavorite.isSelected = savedInstanceState.getBoolean(FAVORITE_BUTTON_SELECTED_KEY)
+            fabFavorite.setImageResource(R.drawable.favorite_icon_selector)
+        }
 
         setTransitionAnimation(view)
 
@@ -68,48 +91,55 @@ class DetailsFragment : Fragment() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(FRAGMENT_LAUNCHED_KEY, fragmentThatLaunchedDetails)
+        outState.putBoolean(FAVORITE_BUTTON_SELECTED_KEY, fabFavorite.isSelected)
+        configurationChanged = true
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
-        activity?.findViewById<BottomNavigationView>(R.id.navigation_bar)?.run {
-            animate()
-                .translationY(0f)
-                .setDuration(resources.getInteger(R.integer.activity_main_animations_durations_poster_transition).toLong())
-                .withStartAction { visibility = VISIBLE; menu.forEach { it.isEnabled = true } }
-                .start()
+        if (!configurationChanged) {
+            activity?.findViewById<BottomNavigationView>(R.id.navigation_bar)?.run {
+                animate()
+                    .translationY(0f)
+                    .setDuration(
+                        resources.getInteger(R.integer.activity_main_animations_durations_poster_transition)
+                            .toLong()
+                    )
+                    .withStartAction { visibility = VISIBLE; menu.forEach { it.isEnabled = true } }
+                    .start()
+            }
+            // Принятие решения о добавлении/удалении фильма в избранном
+            changeFavoriteMoviesList()
         }
-        // Принятие решения о добавлении/удалении фильма в избранном
-        changeFavoriteMoviesList()
-        parentFragmentManager.setFragmentResult(FavoritesFragment.DETAILS_RESULT_KEY,
-            bundleOf(FavoritesFragment.MOVIE_NOW_NOT_FAVORITE_KEY to !isFavoriteMovie))
     }
 
     private fun setFloatButtonOnClick(view: View) {
-        val toFavoriteButton:   FloatingActionButton = view.findViewById(R.id.fab_to_favorite)
-        val toWatchLaterButton: FloatingActionButton = view.findViewById(R.id.fab_to_watch_later)
-        val shareButton:        FloatingActionButton = view.findViewById(R.id.fab_share)
 
         if (favoriteMovies.find{ it.title == movie.title } != null) {
             isFavoriteMovie = true
-            toFavoriteButton.isSelected = true
-            toFavoriteButton.setImageResource(R.drawable.favorite_icon_selected)
+            fabFavorite.isSelected = true
+            fabFavorite.setImageResource(R.drawable.favorite_icon_selector)
         }
 
-        toFavoriteButton.setOnClickListener {
-            toFavoriteButton.isSelected = !toFavoriteButton.isSelected
-            if (toFavoriteButton.isSelected) {
-                toFavoriteButton.setImageResource(R.drawable.favorite_icon_selected)
+        fabFavorite.setOnClickListener {
+            fabFavorite.isSelected = !fabFavorite.isSelected
+            if (fabFavorite.isSelected) {
+                fabFavorite.setImageResource(R.drawable.favorite_icon_selector)
             } else {
-                toFavoriteButton.setImageResource(R.drawable.favorite_icon_unselected)
+                fabFavorite.setImageResource(R.drawable.favorite_icon_selector)
             }
             Snackbar.make(requireContext(), view,
-                if (toFavoriteButton.isSelected) getString(R.string.details_fragment_fab_add_favorite)
+                if (fabFavorite.isSelected) getString(R.string.details_fragment_fab_add_favorite)
                 else getString(R.string.details_fragment_fab_remove_favorite),
                 Snackbar.LENGTH_SHORT).show()
         }
-        toWatchLaterButton.setOnClickListener {
+        fabWatchLater.setOnClickListener {
             Snackbar.make(requireContext(), view, getString(R.string.details_fragment_fab_watch_later), Snackbar.LENGTH_SHORT).show()
         }
-        shareButton.setOnClickListener {
+        fabShare.setOnClickListener {
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "text/plain"
             intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.details_fragment_fab_share_sending_text,
@@ -141,7 +171,7 @@ class DetailsFragment : Fragment() {
                     updatePadding(top = topInset)  // Обновляем паддинг только у свёрнутого тулбара, иначе изображение съедет
                     updateLayoutParams { height = toolbarSize + paddingTop }  // Закономерно увеличиваем высоту тулбара, чтобы его контент не скукожило
                 }
-                view.findViewById<AppBarLayout>(R.id.app_bar).apply {
+                appBar.apply {
                     updateLayoutParams { height = appBarHeight + topInset }
 
                     // Также делаем закругление краёв снизу для тулбара
@@ -169,8 +199,6 @@ class DetailsFragment : Fragment() {
 
     private fun setToolbarBackButton(view: View) {
         view.findViewById<MaterialToolbar>(R.id.collapsing_toolbar_toolbar).apply {
-            val appBar: AppBarLayout = view.findViewById(R.id.app_bar)
-
             setNavigationIcon(R.drawable.round_arrow_back)
             setNavigationOnClickListener {
                 if (appBar.isLifted) {
@@ -191,8 +219,7 @@ class DetailsFragment : Fragment() {
     }
 
     fun collapsingToolbarExpanded(): Boolean {
-        val appBar = view?.findViewById<AppBarLayout>(R.id.app_bar)
-        if (appBar?.isLifted == true) {
+        if (appBar.isLifted) {
             appBar.setExpanded(true, true)
             return false
         }
@@ -200,25 +227,26 @@ class DetailsFragment : Fragment() {
     }
 
     private fun changeFavoriteMoviesList() {
-        val toFavoriteButton = requireView().findViewById<FloatingActionButton>(R.id.fab_to_favorite)
-        if (!isFavoriteMovie && toFavoriteButton.isSelected) {
+        if (!isFavoriteMovie && fabFavorite.isSelected) {
             isFavoriteMovie = true
             favoriteMovies.add(movie)
-        } else if (isFavoriteMovie && !toFavoriteButton.isSelected) {
+        } else if (isFavoriteMovie && !fabFavorite.isSelected) {
             isFavoriteMovie = false
             favoriteMovies.remove(movie)
+            if (fragmentThatLaunchedDetails == FavoritesFragment::class.qualifiedName) {
+                requireActivity().supportFragmentManager.setFragmentResult(
+                    FavoritesFragment.DETAILS_RESULT_KEY,
+                    bundleOf(FavoritesFragment.MOVIE_NOW_NOT_FAVORITE_KEY to true)
+                )
+            }
         }
     }
 
     private fun setTransitionAnimation(view: View) {
         sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
 
-        val appBar: AppBarLayout = view.findViewById(R.id.app_bar)
         val movieTitle: TextView = view.findViewById(R.id.title)
         val movieDescription: TextView = view.findViewById(R.id.description)
-        val fabFavorite: FloatingActionButton = view.findViewById(R.id.fab_to_favorite)
-        val fabWatchLater: FloatingActionButton = view.findViewById(R.id.fab_to_watch_later)
-        val fabShare: FloatingActionButton = view.findViewById(R.id.fab_share)
         val duration = resources.getInteger(R.integer.activity_main_animations_durations_poster_transition)
             .toLong()
 
