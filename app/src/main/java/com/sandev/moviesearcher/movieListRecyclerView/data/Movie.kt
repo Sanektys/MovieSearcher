@@ -9,7 +9,7 @@ import kotlinx.parcelize.Parcelize
 data class Movie(val poster: Int, val title: String, val description: String) : Parcelable
 
 val favoriteMovies = mutableListOf<Movie>()
-val watchLaterMovie = mutableListOf<Movie>()
+val watchLaterMovies = mutableListOf<Movie>()
 
 val mockData = listOf<Movie>(
     Movie(R.drawable.poster_1,"Pearl", "In 1918, a young woman on the brink of madness pursues stardom in a desperate attempt to escape the drudgery, isolation and lovelessness of life on her parents' farm."),

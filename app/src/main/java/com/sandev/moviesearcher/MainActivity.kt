@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.*
+import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.sandev.moviesearcher.fragments.DetailsFragment
 import com.sandev.moviesearcher.fragments.FavoritesFragment
@@ -24,20 +25,23 @@ class MainActivity : AppCompatActivity() {
     var previousFragmentName: String? = null
 
     private var backPressedLastTime: Long = 0
-    private var homeFragmentCommitId: Int = FRAGMENT_UNCOMMITTED
-    private var favoritesFragmentCommitId: Int = FRAGMENT_UNCOMMITTED
+
+    private var homeFragment: HomeFragment? = null
+    private var favoritesFragment: FavoritesFragment? = null
+    private var watchLaterFragment: WatchLaterFragment? = null
 
     private lateinit var bottomNavigation: BottomNavigationView
 
     companion object {
-        private const val HOME_FRAGMENT_COMMIT_ID_KEY = "HOME_FRAGMENT_COMMIT_KEY"
-        private const val FAVORITES_FRAGMENT_COMMIT_ID_KEY = "FAVORITES_FRAGMENT_COMMIT_KEY"
         const val MOVIE_DATA_KEY = "MOVIE"
         const val POSTER_TRANSITION_KEY = "POSTER_TRANSITION"
 
+        private const val HOME_FRAGMENT_COMMIT = "HOME_FRAGMENT_COMMIT"
+        private const val FAVORITES_FRAGMENT_COMMIT = "FAVORITES_FRAGMENT_COMMIT"
+        private const val WATCH_LATER_FRAGMENT_COMMIT = "WATCH_LATER_FRAGMENT_COMMIT"
+
         private const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
         private const val ONE_FRAGMENT_IN_STACK = 1
-        private const val FRAGMENT_UNCOMMITTED = -1
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,20 +60,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt(HOME_FRAGMENT_COMMIT_ID_KEY, homeFragmentCommitId)
-        outState.putInt(FAVORITES_FRAGMENT_COMMIT_ID_KEY, favoritesFragmentCommitId)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        homeFragmentCommitId = savedInstanceState.getInt(HOME_FRAGMENT_COMMIT_ID_KEY)
-        favoritesFragmentCommitId = savedInstanceState.getInt(FAVORITES_FRAGMENT_COMMIT_ID_KEY)
-    }
-
     fun startHomeFragment() {
-        if (homeFragmentCommitId == FRAGMENT_UNCOMMITTED) {
+        if (homeFragment == null) {
             bottomNavigation.animate()
                 .setDuration(
                     resources.getInteger(
@@ -81,10 +73,11 @@ class MainActivity : AppCompatActivity() {
                 .withEndAction { bottomNavigation.menu.forEach { it.isEnabled = true } }
                 .start()
 
-            homeFragmentCommitId = supportFragmentManager
+            homeFragment = HomeFragment()
+            supportFragmentManager
                 .beginTransaction()
-                .add(R.id.fragment, HomeFragment())
-                .addToBackStack(null)
+                .add(R.id.fragment, homeFragment!!)
+                .addToBackStack(HOME_FRAGMENT_COMMIT)
                 .commit()
         }
     }
@@ -97,37 +90,43 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startSplashScreen() {
-        bottomNavigation.doOnLayout { it.translationY = it.height.toFloat() }
-        bottomNavigation.menu.forEach { it.isEnabled = false }
+        if (!SplashScreenFragment.isSplashWasCreated) {
+            bottomNavigation.doOnLayout { it.translationY = it.height.toFloat() }
+            bottomNavigation.menu.forEach { it.isEnabled = false }
 
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.fragment, SplashScreenFragment())
-            .commit()
+            supportFragmentManager
+                .beginTransaction()
+                .add(R.id.fragment, SplashScreenFragment())
+                .commit()
+        } else {
+            startHomeFragment()
+        }
     }
 
     private fun menuButtonsInitial() {
         bottomNavigation.apply {
-            setOnItemSelectedListener {
-                when (it.itemId) {
+            setOnItemSelectedListener { menuItem ->
+                val lastFragmentInBackStack = supportFragmentManager.fragments.last()
+                when (menuItem.itemId) {
                     R.id.bottom_navigation_all_movies_button -> {
-                        previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
-                        supportFragmentManager.popBackStack(homeFragmentCommitId, 0)
+                        if (lastFragmentInBackStack != homeFragment) {
+                            previousFragmentName = lastFragmentInBackStack::class.qualifiedName
+                            supportFragmentManager.popBackStack(HOME_FRAGMENT_COMMIT, 0)
+                        }
                         true
                     }
                     R.id.bottom_navigation_watch_later_button -> {
-                        Toast.makeText(context, it.title, Toast.LENGTH_SHORT).show()
+                        if (watchLaterFragment == null) {
+                            watchLaterFragment = WatchLaterFragment()
+                        }
+                        startFragmentFromNavigation(watchLaterFragment!!, WATCH_LATER_FRAGMENT_COMMIT)
                         true
                     }
                     R.id.bottom_navigation_favorites_button -> {
-                        if (favoritesFragmentCommitId == FRAGMENT_UNCOMMITTED) {
-                            previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
-                            favoritesFragmentCommitId = supportFragmentManager
-                                .beginTransaction()
-                                .replace(R.id.fragment, FavoritesFragment())
-                                .addToBackStack(null)
-                                .commit()
+                        if (favoritesFragment == null) {
+                            favoritesFragment = FavoritesFragment()
                         }
+                        startFragmentFromNavigation(favoritesFragment!!, FAVORITES_FRAGMENT_COMMIT)
                         true
                     }
                     else -> false
@@ -138,12 +137,36 @@ class MainActivity : AppCompatActivity() {
                 when (supportFragmentManager.fragments.last()) {
                     is HomeFragment -> {
                         menu.findItem(R.id.bottom_navigation_all_movies_button).isChecked = true
-                        favoritesFragmentCommitId = FRAGMENT_UNCOMMITTED
+                    }
+                    is WatchLaterFragment -> {
+                        menu.findItem(R.id.bottom_navigation_watch_later_button).isChecked = true
                     }
                     is FavoritesFragment -> {
                         menu.findItem(R.id.bottom_navigation_favorites_button).isChecked = true
                     }
                 }
+            }
+        }
+    }
+
+    private fun startFragmentFromNavigation(fragment: Fragment, commitName: String) {
+        val lastFragmentInBackStack = supportFragmentManager.fragments.last()
+        if (lastFragmentInBackStack != fragment) {
+            previousFragmentName = lastFragmentInBackStack::class.qualifiedName
+            var fragmentAlreadyExists = false
+            for (i in 0 until supportFragmentManager.backStackEntryCount) {
+                if (supportFragmentManager.getBackStackEntryAt(i).name == commitName) {
+                    fragmentAlreadyExists = true
+                }
+            }
+            if (!fragmentAlreadyExists) {
+                supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.fragment, fragment)
+                    .addToBackStack(commitName)
+                    .commit()
+            } else {
+                supportFragmentManager.popBackStack(commitName, 0)
             }
         }
     }
@@ -184,6 +207,7 @@ class MainActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this,  object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 val backPressedTime = System.currentTimeMillis()
+                val lastFragmentInBackStack = supportFragmentManager.fragments.last()
                 if (supportFragmentManager.backStackEntryCount <= ONE_FRAGMENT_IN_STACK) {
                     if (backPressedLastTime + BACK_DOUBLE_TAP_THRESHOLD >= backPressedTime) {
                         finish()
@@ -192,14 +216,13 @@ class MainActivity : AppCompatActivity() {
                             R.string.activity_main_press_back_for_exit_warning, Toast.LENGTH_SHORT).show()
                     }
                     backPressedLastTime = backPressedTime
-                } else if (supportFragmentManager.fragments.last() is DetailsFragment) {
-                    if (!(supportFragmentManager.fragments.last() as DetailsFragment)
-                            .collapsingToolbarHasBeenExpanded()) {
-                        previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
+                } else if (lastFragmentInBackStack is DetailsFragment) {
+                    if (lastFragmentInBackStack.collapsingToolbarExpanded()) {
+                        previousFragmentName = lastFragmentInBackStack::class.qualifiedName
                         supportFragmentManager.popBackStack()
                     }
                 } else {
-                    previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
+                    previousFragmentName = lastFragmentInBackStack::class.qualifiedName
                     supportFragmentManager.popBackStack()
                 }
             }

@@ -20,7 +20,8 @@ class SplashScreenFragment : Fragment() {
     companion object {
         private const val REMOVING_DELAY = 100L
 
-        private var isSplashWasCreated = false
+        var isSplashWasCreated = false
+            private set
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

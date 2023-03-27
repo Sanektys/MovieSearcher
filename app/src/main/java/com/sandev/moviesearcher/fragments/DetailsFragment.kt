@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.TextView
@@ -14,7 +13,6 @@ import androidx.core.os.bundleOf
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
 import androidx.transition.Fade
 import androidx.transition.Slide
@@ -192,13 +190,13 @@ class DetailsFragment : Fragment() {
         }
     }
 
-    fun collapsingToolbarHasBeenExpanded(): Boolean {
+    fun collapsingToolbarExpanded(): Boolean {
         val appBar = view?.findViewById<AppBarLayout>(R.id.app_bar)
         if (appBar?.isLifted == true) {
             appBar.setExpanded(true, true)
-            return true
+            return false
         }
-        return false
+        return true
     }
 
     private fun changeFavoriteMoviesList() {
