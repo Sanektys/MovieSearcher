@@ -235,7 +235,7 @@ class DetailsFragment : Fragment() {
             favoriteMovies.remove(movie)
             if (fragmentThatLaunchedDetails == FavoritesFragment::class.qualifiedName) {
                 requireActivity().supportFragmentManager.setFragmentResult(
-                    FavoritesFragment.DETAILS_RESULT_KEY,
+                    FavoritesFragment.FAVORITES_DETAILS_RESULT_KEY,
                     bundleOf(FavoritesFragment.MOVIE_NOW_NOT_FAVORITE_KEY to true)
                 )
             }

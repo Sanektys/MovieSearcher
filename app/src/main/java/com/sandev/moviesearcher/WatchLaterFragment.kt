@@ -21,8 +21,7 @@ import com.sandev.moviesearcher.movieListRecyclerView.itemAnimator.MovieItemAnim
 
 class WatchLaterFragment : MoviesListFragment() {
 
-    private var favoriteMoviesRecyclerManager: RecyclerView.LayoutManager? = null
-    private var favoriteMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
+    private var watchLaterMoviesRecyclerManager: RecyclerView.LayoutManager? = null
     private var isMovieNowNotWatchLater: Boolean = false
     override var lastSearch: CharSequence? = null
 
@@ -38,10 +37,12 @@ class WatchLaterFragment : MoviesListFragment() {
     }
 
     companion object {
-        const val DETAILS_RESULT_KEY = "DETAILS_RESULT"
-        const val MOVIE_NOW_NOT_FAVORITE_KEY = "MOVIE_NOW_NOT_FAVORITE"
+        const val WATCH_LATER_DETAILS_RESULT_KEY = "WATCH_LATER_DETAILS_RESULT"
+        const val MOVIE_NOW_NOT_WATCH_LATER_KEY = "MOVIE_NOW_NOT_WATCH_LATER"
 
         private const val FAVORITE_MOVIES_RECYCLER_VIEW_STATE = "FavoriteMoviesRecylerViewState"
+
+        private var watchLaterMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
     }
 
 
@@ -62,49 +63,49 @@ class WatchLaterFragment : MoviesListFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        parentFragmentManager.setFragmentResultListener(DETAILS_RESULT_KEY, this) { _, bundle ->
-            isMovieNowNotWatchLater = bundle.getBoolean(MOVIE_NOW_NOT_FAVORITE_KEY)
+        parentFragmentManager.setFragmentResultListener(WATCH_LATER_DETAILS_RESULT_KEY, this) { _, bundle ->
+            isMovieNowNotWatchLater = bundle.getBoolean(MOVIE_NOW_NOT_WATCH_LATER_KEY)
         }
 
         initializeMovieRecyclerList()
-        favoriteMoviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
+        watchLaterMoviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
             FAVORITE_MOVIES_RECYCLER_VIEW_STATE))
 
-        setupSearchBehavior(favoriteMoviesRecyclerAdapter, watchLaterMovies)
+        setupSearchBehavior(watchLaterMoviesRecyclerAdapter, watchLaterMovies)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable(FAVORITE_MOVIES_RECYCLER_VIEW_STATE, favoriteMoviesRecyclerManager?.onSaveInstanceState())
+        outState.putParcelable(FAVORITE_MOVIES_RECYCLER_VIEW_STATE, watchLaterMoviesRecyclerManager?.onSaveInstanceState())
     }
 
     private fun initializeMovieRecyclerList() {
-        if (favoriteMoviesRecyclerAdapter == null) {
-            favoriteMoviesRecyclerAdapter = MoviesRecyclerAdapter()
-            favoriteMoviesRecyclerAdapter?.setList(watchLaterMovies)
+        if (watchLaterMoviesRecyclerAdapter == null) {
+            watchLaterMoviesRecyclerAdapter = MoviesRecyclerAdapter()
+            watchLaterMoviesRecyclerAdapter?.setList(watchLaterMovies)
         }
         // Пока не прошла анимация не обрабатывать клики на постеры
-        favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClickDummy)
+        watchLaterMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClickDummy)
 
         recyclerView.setHasFixedSize(true)
         recyclerView.isNestedScrollingEnabled = true
-        recyclerView.adapter = favoriteMoviesRecyclerAdapter
+        recyclerView.adapter = watchLaterMoviesRecyclerAdapter
 
-        favoriteMoviesRecyclerManager = recyclerView.layoutManager!!
+        watchLaterMoviesRecyclerManager = recyclerView.layoutManager!!
 
         recyclerView.itemAnimator = MovieItemAnimator()
 
         recyclerView.postDelayed(  // Запускать удаление только после отрисовки анимации recycler
             resources.getInteger(R.integer.fragment_favorites_delay_recyclerViewAppearance).toLong()) {
             if (isMovieNowNotWatchLater) {
-                favoriteMoviesRecyclerAdapter?.removeLastClickedMovie()
+                watchLaterMoviesRecyclerAdapter?.removeLastClickedMovie()
                 isMovieNowNotWatchLater = false
                 recyclerView.postDelayed((recyclerView.itemAnimator?.removeDuration ?: 0) +
                         (recyclerView.itemAnimator?.moveDuration ?: 0)) {
-                    favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
+                    watchLaterMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
                 }
             } else {
-                favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
+                watchLaterMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
             }
         }
         recyclerView.doOnPreDraw { startPostponedEnterTransition() }

@@ -7,9 +7,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.Gravity
-import android.view.View
-import android.view.ViewOutlineProvider
+import android.view.*
 import android.view.animation.AccelerateInterpolator
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
@@ -63,6 +61,10 @@ abstract class MoviesListFragment : Fragment() {
             override fun getOutline(view: View?, outline: Outline?) {}
         }
     }
+
+    fun hideSearchView() = searchView.hide()
+
+    fun isSearchViewHidden() = searchView.currentTransitionState == SearchView.TransitionState.HIDDEN
 
     protected fun initializeViewsReferences(rootView: View) {
         appBar = rootView.findViewById(R.id.app_bar)
@@ -149,7 +151,6 @@ abstract class MoviesListFragment : Fragment() {
             }
             editText.setOnEditorActionListener { _, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    clearFocusAndHideKeyboard()
                     hide()
                 }
                 true

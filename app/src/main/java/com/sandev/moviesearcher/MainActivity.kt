@@ -3,6 +3,7 @@ package com.sandev.moviesearcher
 import android.content.res.Configuration
 import android.graphics.Outline
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewOutlineProvider
 import android.view.animation.DecelerateInterpolator
@@ -13,11 +14,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.sandev.moviesearcher.fragments.DetailsFragment
-import com.sandev.moviesearcher.fragments.FavoritesFragment
-import com.sandev.moviesearcher.fragments.HomeFragment
-import com.sandev.moviesearcher.fragments.SplashScreenFragment
+import com.sandev.moviesearcher.fragments.*
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
+import java.util.concurrent.Executors
 
 
 class MainActivity : AppCompatActivity() {
@@ -107,29 +106,26 @@ class MainActivity : AppCompatActivity() {
         bottomNavigation.apply {
             setOnItemSelectedListener { menuItem ->
                 val lastFragmentInBackStack = supportFragmentManager.fragments.last()
-                when (menuItem.itemId) {
-                    R.id.bottom_navigation_all_movies_button -> {
-                        if (lastFragmentInBackStack != homeFragment) {
-                            previousFragmentName = lastFragmentInBackStack::class.qualifiedName
-                            supportFragmentManager.popBackStack(HOME_FRAGMENT_COMMIT, 0)
-                        }
+                if (lastFragmentInBackStack is MoviesListFragment) {
+                    if (lastFragmentInBackStack.isSearchViewHidden()) {
+                        navigationMenuItemClick(lastFragmentInBackStack, menuItem)
                         true
-                    }
-                    R.id.bottom_navigation_watch_later_button -> {
-                        if (watchLaterFragment == null) {
-                            watchLaterFragment = WatchLaterFragment()
+                    } else {
+                        lastFragmentInBackStack.hideSearchView()
+                        Executors.newSingleThreadExecutor().apply {
+                            execute {
+                                while (true) {
+                                    if (lastFragmentInBackStack.isSearchViewHidden()) break
+                                }
+                                navigationMenuItemClick(lastFragmentInBackStack, menuItem)
+                            }
+                            shutdown()
                         }
-                        startFragmentFromNavigation(watchLaterFragment!!, WATCH_LATER_FRAGMENT_COMMIT)
-                        true
+                        false
                     }
-                    R.id.bottom_navigation_favorites_button -> {
-                        if (favoritesFragment == null) {
-                            favoritesFragment = FavoritesFragment()
-                        }
-                        startFragmentFromNavigation(favoritesFragment!!, FAVORITES_FRAGMENT_COMMIT)
-                        true
-                    }
-                    else -> false
+                } else {
+                    navigationMenuItemClick(lastFragmentInBackStack, menuItem)
+                    true
                 }
             }
             // Navigation bar будет отслеживать backstack чтобы вовремя переключать кнопки меню
@@ -145,6 +141,29 @@ class MainActivity : AppCompatActivity() {
                         menu.findItem(R.id.bottom_navigation_favorites_button).isChecked = true
                     }
                 }
+            }
+        }
+    }
+
+    private fun navigationMenuItemClick(lastFragmentInBackStack: Fragment, menuItem: MenuItem) {
+        when (menuItem.itemId) {
+            R.id.bottom_navigation_all_movies_button -> {
+                if (lastFragmentInBackStack != homeFragment) {
+                    previousFragmentName = lastFragmentInBackStack::class.qualifiedName
+                    supportFragmentManager.popBackStack(HOME_FRAGMENT_COMMIT, 0)
+                }
+            }
+            R.id.bottom_navigation_watch_later_button -> {
+                if (watchLaterFragment == null) {
+                    watchLaterFragment = WatchLaterFragment()
+                }
+                startFragmentFromNavigation(watchLaterFragment!!, WATCH_LATER_FRAGMENT_COMMIT)
+            }
+            R.id.bottom_navigation_favorites_button -> {
+                if (favoritesFragment == null) {
+                    favoritesFragment = FavoritesFragment()
+                }
+                startFragmentFromNavigation(favoritesFragment!!, FAVORITES_FRAGMENT_COMMIT)
             }
         }
     }
@@ -209,6 +228,9 @@ class MainActivity : AppCompatActivity() {
             override fun handleOnBackPressed() {
                 val backPressedTime = System.currentTimeMillis()
                 val lastFragmentInBackStack = supportFragmentManager.fragments.last()
+                if (lastFragmentInBackStack is MoviesListFragment) {
+                    lastFragmentInBackStack.hideSearchView()
+                }
                 if (supportFragmentManager.backStackEntryCount <= ONE_FRAGMENT_IN_STACK) {
                     if (backPressedLastTime + BACK_DOUBLE_TAP_THRESHOLD >= backPressedTime) {
                         finish()

@@ -22,7 +22,6 @@ import com.sandev.moviesearcher.movieListRecyclerView.itemAnimator.MovieItemAnim
 class FavoritesFragment : MoviesListFragment() {
 
     private var favoriteMoviesRecyclerManager: RecyclerView.LayoutManager? = null
-    private var favoriteMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
     private var isMovieNowNotFavorite: Boolean = false
     override var lastSearch: CharSequence? = null
 
@@ -38,10 +37,12 @@ class FavoritesFragment : MoviesListFragment() {
     }
 
     companion object {
-        const val DETAILS_RESULT_KEY = "DETAILS_RESULT"
+        const val FAVORITES_DETAILS_RESULT_KEY = "FAVORITES_DETAILS_RESULT"
         const val MOVIE_NOW_NOT_FAVORITE_KEY = "MOVIE_NOW_NOT_FAVORITE"
 
         private const val FAVORITE_MOVIES_RECYCLER_VIEW_STATE = "FavoriteMoviesRecylerViewState"
+
+        private var favoriteMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
     }
 
 
@@ -62,7 +63,7 @@ class FavoritesFragment : MoviesListFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        parentFragmentManager.setFragmentResultListener(DETAILS_RESULT_KEY, this) { _, bundle ->
+        requireActivity().supportFragmentManager.setFragmentResultListener(FAVORITES_DETAILS_RESULT_KEY, this) { _, bundle ->
             isMovieNowNotFavorite = bundle.getBoolean(MOVIE_NOW_NOT_FAVORITE_KEY)
         }
 
