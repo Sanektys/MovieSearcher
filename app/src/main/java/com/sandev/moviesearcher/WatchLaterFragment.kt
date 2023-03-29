@@ -61,10 +61,10 @@ class WatchLaterFragment : MoviesListFragment() {
         mainActivity = activity as MainActivity
         val previousFragmentName = mainActivity.previousFragmentName
         if (previousFragmentName != DetailsFragment::class.qualifiedName) {
-            if (previousFragmentName == HomeFragment::class.qualifiedName) {
-                isLaunchedFromLeft = true
+            isLaunchedFromLeft = if (previousFragmentName == HomeFragment::class.qualifiedName) {
+                true
             } else if (previousFragmentName == FavoritesFragment::class.qualifiedName) {
-                isLaunchedFromLeft = false
+                false
             } else {
                 throw IllegalStateException("Incorrect previous fragment in WatchLaterFragment")
             }

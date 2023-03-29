@@ -27,6 +27,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var bottomNavigation: BottomNavigationView
 
+    private val dummyOnBackPressed = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {}
+    }
+
     companion object {
         const val MOVIE_DATA_KEY = "MOVIE"
         const val POSTER_TRANSITION_KEY = "POSTER_TRANSITION"
@@ -130,16 +134,20 @@ class MainActivity : AppCompatActivity() {
             }
             // Navigation bar будет отслеживать backstack чтобы вовремя переключать кнопки меню
             supportFragmentManager.addOnBackStackChangedListener {
-                when (supportFragmentManager.fragments.last()) {
-                    is HomeFragment -> {
-                        menu.findItem(R.id.bottom_navigation_all_movies_button).isChecked = true
+                if (supportFragmentManager.fragments.isNotEmpty()) {
+                    when (supportFragmentManager.fragments.last()) {
+                        is HomeFragment -> {
+                            menu.findItem(R.id.bottom_navigation_all_movies_button).isChecked = true
+                        }
+                        is WatchLaterFragment -> {
+                            menu.findItem(R.id.bottom_navigation_watch_later_button).isChecked = true
+                        }
+                        is FavoritesFragment -> {
+                            menu.findItem(R.id.bottom_navigation_favorites_button).isChecked = true
+                        }
                     }
-                    is WatchLaterFragment -> {
-                        menu.findItem(R.id.bottom_navigation_watch_later_button).isChecked = true
-                    }
-                    is FavoritesFragment -> {
-                        menu.findItem(R.id.bottom_navigation_favorites_button).isChecked = true
-                    }
+                } else {
+                    menu.forEach { it.isChecked = false }
                 }
             }
         }
@@ -230,12 +238,32 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setOnBackPressedAction() {
+        onBackPressedDispatcher.addCallback(this, dummyOnBackPressed)
         onBackPressedDispatcher.addCallback(this,  object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                val backPressedTime = System.currentTimeMillis()
                 val lastFragmentInBackStack = supportFragmentManager.fragments.last()
                 if (lastFragmentInBackStack is MoviesListFragment) {
-                    lastFragmentInBackStack.hideSearchView()
+                    if (!lastFragmentInBackStack.isSearchViewHidden()) {
+                        // Т.к. searchView не убирается сразу, то нужно ждать пока оно закроется
+                        lastFragmentInBackStack.hideSearchView()
+                        Executors.newSingleThreadExecutor().apply {
+                            execute {
+                                while (true) {
+                                    if (lastFragmentInBackStack.isSearchViewHidden()) break
+                                }
+                                isEnabled = true
+                                dummyOnBackPressed.isEnabled = false
+                                runOnUiThread {
+                                    onBackPressedDispatcher.onBackPressed()
+                                }
+                            }
+                            shutdown()
+                        }
+                        // На время закрытия searchView не обрабатывать клики
+                        dummyOnBackPressed.isEnabled = true
+                        isEnabled = false
+                        return
+                    }
 
                     if (lastFragmentInBackStack is WatchLaterFragment) {
                         val nextPopFragment = supportFragmentManager
@@ -247,6 +275,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 }
+                val backPressedTime = System.currentTimeMillis()
                 if (supportFragmentManager.backStackEntryCount <= ONE_FRAGMENT_IN_STACK) {
                     if (backPressedLastTime + BACK_DOUBLE_TAP_THRESHOLD >= backPressedTime) {
                         finish()
