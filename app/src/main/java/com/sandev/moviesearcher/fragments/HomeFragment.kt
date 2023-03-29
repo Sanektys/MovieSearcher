@@ -49,7 +49,7 @@ class HomeFragment : MoviesListFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initializeMovieRecyclerList(view)
+        initializeMovieRecyclerList()
         moviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
             MOVIES_RECYCLER_VIEW_STATE))
 
@@ -61,14 +61,14 @@ class HomeFragment : MoviesListFragment() {
         outState.putParcelable(MOVIES_RECYCLER_VIEW_STATE, moviesRecyclerManager?.onSaveInstanceState())
     }
 
-    private fun initializeMovieRecyclerList(view: View) {
+    private fun initializeMovieRecyclerList() {
         if (moviesRecyclerAdapter == null) {
             moviesRecyclerAdapter = MoviesRecyclerAdapter()
             moviesRecyclerAdapter?.setList(mockData)
         }
         moviesRecyclerAdapter?.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
             override fun onClick(movie: Movie, posterView: ImageView) {
-                resetTransitionAnimation(true)
+                resetExitReenterTransitionAnimations()
                 mainActivity.startDetailsFragment(movie, posterView)
             }
         })
@@ -112,13 +112,13 @@ class HomeFragment : MoviesListFragment() {
         if (mainActivity.previousFragmentName == DetailsFragment::class.qualifiedName) {
             // Не включать transition анимации после выхода из окна деталей
             rootView.postDelayed(resources.getInteger(R.integer.activity_main_animations_durations_poster_transition).toLong()) {
-                setTransitionAnimation(Gravity.START, true)
+                setTransitionAnimation(Gravity.START)
             }
             // LayoutAnimation для recycler включается только при возвращении с экрана деталей
             recyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
-            resetTransitionAnimation(true)
+            resetExitReenterTransitionAnimations()
         } else {
-            setTransitionAnimation(Gravity.START, true)
+            setTransitionAnimation(Gravity.START)
         }
     }
 }

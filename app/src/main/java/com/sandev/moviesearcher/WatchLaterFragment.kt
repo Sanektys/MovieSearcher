@@ -12,11 +12,15 @@ import androidx.core.view.postDelayed
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
 import com.sandev.moviesearcher.fragments.DetailsFragment
+import com.sandev.moviesearcher.fragments.FavoritesFragment
+import com.sandev.moviesearcher.fragments.HomeFragment
 import com.sandev.moviesearcher.fragments.MoviesListFragment
 import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 import com.sandev.moviesearcher.movieListRecyclerView.data.watchLaterMovies
 import com.sandev.moviesearcher.movieListRecyclerView.itemAnimator.MovieItemAnimator
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 
 class WatchLaterFragment : MoviesListFragment() {
@@ -29,6 +33,7 @@ class WatchLaterFragment : MoviesListFragment() {
 
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
         override fun onClick(movie: Movie, posterView: ImageView) {
+            resetExitReenterTransitionAnimations()
             mainActivity.startDetailsFragment(movie, posterView)
         }
     }
@@ -43,6 +48,7 @@ class WatchLaterFragment : MoviesListFragment() {
         private const val FAVORITE_MOVIES_RECYCLER_VIEW_STATE = "FavoriteMoviesRecylerViewState"
 
         private var watchLaterMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
+        private var isLaunchedFromLeft = true
     }
 
 
@@ -53,6 +59,16 @@ class WatchLaterFragment : MoviesListFragment() {
         val rootView = layoutInflater.inflate(R.layout.fragment_watch_later, container, false)
 
         mainActivity = activity as MainActivity
+        val previousFragmentName = mainActivity.previousFragmentName
+        if (previousFragmentName != DetailsFragment::class.qualifiedName) {
+            if (previousFragmentName == HomeFragment::class.qualifiedName) {
+                isLaunchedFromLeft = true
+            } else if (previousFragmentName == FavoritesFragment::class.qualifiedName) {
+                isLaunchedFromLeft = false
+            } else {
+                throw IllegalStateException("Incorrect previous fragment in WatchLaterFragment")
+            }
+        }
 
         initializeViewsReferences(rootView)
         setAllAnimationTransition()
@@ -112,13 +128,36 @@ class WatchLaterFragment : MoviesListFragment() {
     }
 
     private fun setAllAnimationTransition() {
-        setTransitionAnimation(Gravity.END, false)
+        setTransitionAnimation()
 
         sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
         if (mainActivity.previousFragmentName == DetailsFragment::class.qualifiedName) {
             recyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
+            resetExitReenterTransitionAnimations()
+            Executors.newSingleThreadScheduledExecutor().apply {
+                schedule({ setTransitionAnimation() },
+                    resources.getInteger(R.integer.activity_main_animations_durations_poster_transition).toLong(),
+                    TimeUnit.MILLISECONDS)
+                shutdown()
+            }
+        }
+    }
+
+    private fun setTransitionAnimation() {
+        if (isLaunchedFromLeft) {
+            setTransitionAnimation(Gravity.END)
+        } else {
+            setTransitionAnimation(Gravity.START)
+        }
+    }
+
+    fun prepareTransitionBeforeNewFragment(targetFragmentInLeft: Boolean) {
+        if (targetFragmentInLeft) {
+            setTransitionAnimation(Gravity.END)
+        } else {
+            setTransitionAnimation(Gravity.START)
         }
     }
 }

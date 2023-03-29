@@ -150,6 +150,9 @@ class MainActivity : AppCompatActivity() {
             R.id.bottom_navigation_all_movies_button -> {
                 if (lastFragmentInBackStack != homeFragment) {
                     previousFragmentName = lastFragmentInBackStack::class.qualifiedName
+                    if (lastFragmentInBackStack is WatchLaterFragment) {
+                        watchLaterFragment?.prepareTransitionBeforeNewFragment(true)
+                    }
                     supportFragmentManager.popBackStack(HOME_FRAGMENT_COMMIT, 0)
                 }
             }
@@ -162,6 +165,9 @@ class MainActivity : AppCompatActivity() {
             R.id.bottom_navigation_favorites_button -> {
                 if (favoritesFragment == null) {
                     favoritesFragment = FavoritesFragment()
+                }
+                if (lastFragmentInBackStack is WatchLaterFragment) {
+                    watchLaterFragment?.prepareTransitionBeforeNewFragment(false)
                 }
                 startFragmentFromNavigation(favoritesFragment!!, FAVORITES_FRAGMENT_COMMIT)
             }
@@ -230,6 +236,16 @@ class MainActivity : AppCompatActivity() {
                 val lastFragmentInBackStack = supportFragmentManager.fragments.last()
                 if (lastFragmentInBackStack is MoviesListFragment) {
                     lastFragmentInBackStack.hideSearchView()
+
+                    if (lastFragmentInBackStack is WatchLaterFragment) {
+                        val nextPopFragment = supportFragmentManager
+                            .getBackStackEntryAt(supportFragmentManager.backStackEntryCount - 2)
+                        if (nextPopFragment.name == HOME_FRAGMENT_COMMIT) {
+                            watchLaterFragment?.prepareTransitionBeforeNewFragment(true)
+                        } else if (nextPopFragment.name == FAVORITES_FRAGMENT_COMMIT) {
+                            watchLaterFragment?.prepareTransitionBeforeNewFragment(false)
+                        }
+                    }
                 }
                 if (supportFragmentManager.backStackEntryCount <= ONE_FRAGMENT_IN_STACK) {
                     if (backPressedLastTime + BACK_DOUBLE_TAP_THRESHOLD >= backPressedTime) {

@@ -38,7 +38,6 @@ abstract class MoviesListFragment : Fragment() {
     protected lateinit var recyclerView: RecyclerView
 
     private var lastSlideGravity = Gravity.TOP
-    private var isInitialFragmentForTranslation = true
 
     companion object {
         var isAppBarLifted = false
@@ -73,10 +72,8 @@ abstract class MoviesListFragment : Fragment() {
         recyclerView = rootView.findViewById(R.id.movies_list_recycler)
     }
 
-    protected fun setTransitionAnimation(slideGravity: Int = lastSlideGravity,
-                                         isInitialFragment: Boolean = isInitialFragmentForTranslation) {
+    protected fun setTransitionAnimation(slideGravity: Int = lastSlideGravity) {
         lastSlideGravity = slideGravity
-        isInitialFragmentForTranslation = isInitialFragment
         val duration = resources.getInteger(R.integer.general_animations_durations_fragment_transition).toLong()
 
         val recyclerTransition = Slide(slideGravity).apply {
@@ -94,23 +91,15 @@ abstract class MoviesListFragment : Fragment() {
             }
             transitionSet.addTransition(appBarTransition)
         }
-        if (isInitialFragment) {
-            exitTransition = transitionSet
-            reenterTransition = transitionSet
-        } else {
-            enterTransition = transitionSet
-            returnTransition = transitionSet
-        }
+        enterTransition = transitionSet
+        returnTransition = transitionSet
+        exitTransition = transitionSet
+        reenterTransition = transitionSet
     }
 
-    protected fun resetTransitionAnimation(isInitialFragment: Boolean) {
-        if (isInitialFragment) {
-            exitTransition = null
-            reenterTransition = null
-        } else {
-            enterTransition = null
-            returnTransition = null
-        }
+    protected fun resetExitReenterTransitionAnimations() {
+        exitTransition = null
+        reenterTransition = null
     }
 
     protected fun setupSearchBehavior(moviesRecyclerAdapter: MoviesRecyclerAdapter?, source: List<Movie>) {

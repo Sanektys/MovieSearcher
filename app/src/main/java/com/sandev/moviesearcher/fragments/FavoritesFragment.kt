@@ -17,6 +17,8 @@ import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdap
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 import com.sandev.moviesearcher.movieListRecyclerView.data.favoriteMovies
 import com.sandev.moviesearcher.movieListRecyclerView.itemAnimator.MovieItemAnimator
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 
 class FavoritesFragment : MoviesListFragment() {
@@ -29,6 +31,7 @@ class FavoritesFragment : MoviesListFragment() {
 
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
         override fun onClick(movie: Movie, posterView: ImageView) {
+            resetExitReenterTransitionAnimations()
             mainActivity.startDetailsFragment(movie, posterView)
         }
     }
@@ -112,13 +115,20 @@ class FavoritesFragment : MoviesListFragment() {
     }
 
     private fun setAllAnimationTransition() {
-        setTransitionAnimation(Gravity.END, false)
+        setTransitionAnimation(Gravity.END)
 
         sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
         if (mainActivity.previousFragmentName == DetailsFragment::class.qualifiedName) {
             recyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
+            resetExitReenterTransitionAnimations()
+            Executors.newSingleThreadScheduledExecutor().apply {
+                schedule({ setTransitionAnimation(Gravity.END) },
+                    resources.getInteger(R.integer.activity_main_animations_durations_poster_transition).toLong(),
+                    TimeUnit.MILLISECONDS)
+                shutdown()
+            }
         }
     }
 }
