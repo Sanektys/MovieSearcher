@@ -29,12 +29,14 @@ import com.sandev.moviesearcher.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 import com.sandev.moviesearcher.movieListRecyclerView.data.favoriteMovies
+import com.sandev.moviesearcher.movieListRecyclerView.data.watchLaterMovies
 
 
 class DetailsFragment : Fragment() {
 
     private lateinit var movie: Movie
     private var isFavoriteMovie: Boolean = false
+    private var isWatchLaterMovie: Boolean = false
     private var configurationChanged = false
 
     private lateinit var fragmentThatLaunchedDetails: String
@@ -47,6 +49,7 @@ class DetailsFragment : Fragment() {
     companion object {
         private const val FRAGMENT_LAUNCHED_KEY = "FRAGMENT_LAUNCHED"
         private const val FAVORITE_BUTTON_SELECTED_KEY = "FAVORITE_BUTTON_SELECTED"
+        private const val WATCH_LATER_BUTTON_SELECTED_KEY = "WATCH_LATER_BUTTON_SELECTED"
 
         private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
     }
@@ -77,6 +80,8 @@ class DetailsFragment : Fragment() {
         if (savedInstanceState != null) {
             fabFavorite.isSelected = savedInstanceState.getBoolean(FAVORITE_BUTTON_SELECTED_KEY)
             fabFavorite.setImageResource(R.drawable.favorite_icon_selector)
+            fabWatchLater.isSelected = savedInstanceState.getBoolean(WATCH_LATER_BUTTON_SELECTED_KEY)
+            fabWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
         }
 
         setTransitionAnimation(view)
@@ -95,6 +100,7 @@ class DetailsFragment : Fragment() {
         super.onSaveInstanceState(outState)
         outState.putString(FRAGMENT_LAUNCHED_KEY, fragmentThatLaunchedDetails)
         outState.putBoolean(FAVORITE_BUTTON_SELECTED_KEY, fabFavorite.isSelected)
+        outState.putBoolean(WATCH_LATER_BUTTON_SELECTED_KEY, fabWatchLater.isSelected)
         configurationChanged = true
     }
 
@@ -113,12 +119,12 @@ class DetailsFragment : Fragment() {
             }
             // Принятие решения о добавлении/удалении фильма в избранном
             changeFavoriteMoviesList()
+            changeWatchLaterMoviesList()
         }
     }
 
     private fun setFloatButtonOnClick(view: View) {
-
-        if (favoriteMovies.find{ it.title == movie.title } != null) {
+        if (favoriteMovies.find { it.title == movie.title } != null) {
             isFavoriteMovie = true
             fabFavorite.isSelected = true
             fabFavorite.setImageResource(R.drawable.favorite_icon_selector)
@@ -126,19 +132,30 @@ class DetailsFragment : Fragment() {
 
         fabFavorite.setOnClickListener {
             fabFavorite.isSelected = !fabFavorite.isSelected
-            if (fabFavorite.isSelected) {
-                fabFavorite.setImageResource(R.drawable.favorite_icon_selector)
-            } else {
-                fabFavorite.setImageResource(R.drawable.favorite_icon_selector)
-            }
+            fabFavorite.setImageResource(R.drawable.favorite_icon_selector)
+
             Snackbar.make(requireContext(), view,
                 if (fabFavorite.isSelected) getString(R.string.details_fragment_fab_add_favorite)
                 else getString(R.string.details_fragment_fab_remove_favorite),
                 Snackbar.LENGTH_SHORT).show()
         }
-        fabWatchLater.setOnClickListener {
-            Snackbar.make(requireContext(), view, getString(R.string.details_fragment_fab_watch_later), Snackbar.LENGTH_SHORT).show()
+
+        if (watchLaterMovies.find { it.title == movie.title } != null) {
+            isWatchLaterMovie = true
+            fabWatchLater.isSelected = true
+            fabWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
         }
+
+        fabWatchLater.setOnClickListener {
+            fabWatchLater.isSelected = !fabWatchLater.isSelected
+            fabWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
+
+            Snackbar.make(requireContext(), view,
+                if (fabWatchLater.isSelected) getString(R.string.details_fragment_fab_add_watch_later)
+                else getString(R.string.details_fragment_fab_remove_watch_later),
+                Snackbar.LENGTH_SHORT).show()
+        }
+
         fabShare.setOnClickListener {
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "text/plain"
@@ -237,6 +254,22 @@ class DetailsFragment : Fragment() {
                 requireActivity().supportFragmentManager.setFragmentResult(
                     FavoritesFragment.FAVORITES_DETAILS_RESULT_KEY,
                     bundleOf(FavoritesFragment.MOVIE_NOW_NOT_FAVORITE_KEY to true)
+                )
+            }
+        }
+    }
+
+    private fun changeWatchLaterMoviesList() {
+        if (!isWatchLaterMovie && fabWatchLater.isSelected) {
+            isWatchLaterMovie = true
+            watchLaterMovies.add(movie)
+        } else if (isWatchLaterMovie && !fabWatchLater.isSelected) {
+            isWatchLaterMovie = false
+            watchLaterMovies.remove(movie)
+            if (fragmentThatLaunchedDetails == WatchLaterFragment::class.qualifiedName) {
+                requireActivity().supportFragmentManager.setFragmentResult(
+                    WatchLaterFragment.WATCH_LATER_DETAILS_RESULT_KEY,
+                    bundleOf(WatchLaterFragment.MOVIE_NOW_NOT_WATCH_LATER_KEY to true)
                 )
             }
         }

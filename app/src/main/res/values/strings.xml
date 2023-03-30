@@ -13,7 +13,8 @@
     <string name="details_fragment.toolbar.title">Подробности о фильме</string>
     <string name="details_fragment.fab.add_favorite">Добавлено в избранное</string>
     <string name="details_fragment.fab.remove_favorite">Удалено из избранного</string>
-    <string name="details_fragment.fab.watch_later">Добавлено в \"просмотреть позже\"</string>
+    <string name="details_fragment.fab.add_watch_later">Добавлено в \"просмотреть позже\"</string>
+    <string name="details_fragment.fab.remove_watch_later">Удалено из \"просмотреть позже\"</string>
     <string name="details_fragment.fab.share.sending_text">Посмотри этот фильм: %s\n\n\t%s</string>
     <string name="details_fragment.fab.share.to">Кому отправить фильм?</string>
 

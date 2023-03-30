@@ -10,11 +10,12 @@
     <string name="activity_main.press_back_for_exit_warning">Press \"back\" again for exit</string>
     <string name="details_fragment.toolbar.title">Movie details</string>
     <string name="details_fragment.fab.add_favorite">Added to favorites</string>
-    <string name="details_fragment.fab.watch_later">Added to \\\"watch later\\\"</string>
+    <string name="details_fragment.fab.add_watch_later">Added to \\\"watch later\\\"</string>
     <string name="details_fragment.fab.remove_favorite">Removed from favorites</string>
     <string name="details_fragment.fab.share.sending_text">Watch this movie: %s\n\n\t%s</string>
     <string name="details_fragment.fab.share.to">Who to send the movie to?</string>
     <string name="activity_main.top_app_bar.search_bar.hint">Search movies</string>
     <string name="favorites_fragment.top_app_bar.search_bar.hint">Search favorite movie</string>
     <string name="watch_later_fragment.top_app_bar.search_bar.hint">Search a movie from watch later</string>
+    <string name="details_fragment.fab.remove_watch_later">Removed from \\\"watch later\\\"</string>
 </resources>

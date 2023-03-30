@@ -43,7 +43,7 @@ class WatchLaterFragment : MoviesListFragment() {
         const val WATCH_LATER_DETAILS_RESULT_KEY = "WATCH_LATER_DETAILS_RESULT"
         const val MOVIE_NOW_NOT_WATCH_LATER_KEY = "MOVIE_NOW_NOT_WATCH_LATER"
 
-        private const val FAVORITE_MOVIES_RECYCLER_VIEW_STATE = "FavoriteMoviesRecylerViewState"
+        private const val WATCH_LATER_MOVIES_RECYCLER_VIEW_STATE = "WatchLaterMoviesRecylerViewState"
 
         private var watchLaterMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
         private var isLaunchedFromLeft = true
@@ -75,13 +75,13 @@ class WatchLaterFragment : MoviesListFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        parentFragmentManager.setFragmentResultListener(WATCH_LATER_DETAILS_RESULT_KEY, this) { _, bundle ->
+        requireActivity().supportFragmentManager.setFragmentResultListener(WATCH_LATER_DETAILS_RESULT_KEY, this) { _, bundle ->
             isMovieNowNotWatchLater = bundle.getBoolean(MOVIE_NOW_NOT_WATCH_LATER_KEY)
         }
 
         initializeMovieRecyclerList()
         watchLaterMoviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
-            FAVORITE_MOVIES_RECYCLER_VIEW_STATE
+            WATCH_LATER_MOVIES_RECYCLER_VIEW_STATE
         ))
 
         setupSearchBehavior(watchLaterMoviesRecyclerAdapter, watchLaterMovies)
@@ -89,7 +89,7 @@ class WatchLaterFragment : MoviesListFragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable(FAVORITE_MOVIES_RECYCLER_VIEW_STATE, watchLaterMoviesRecyclerManager?.onSaveInstanceState())
+        outState.putParcelable(WATCH_LATER_MOVIES_RECYCLER_VIEW_STATE, watchLaterMoviesRecyclerManager?.onSaveInstanceState())
     }
 
     private fun initializeMovieRecyclerList() {
