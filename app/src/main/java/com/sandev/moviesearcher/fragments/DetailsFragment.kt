@@ -101,7 +101,11 @@ class DetailsFragment : Fragment() {
         outState.putString(FRAGMENT_LAUNCHED_KEY, fragmentThatLaunchedDetails)
         outState.putBoolean(FAVORITE_BUTTON_SELECTED_KEY, fabFavorite.isSelected)
         outState.putBoolean(WATCH_LATER_BUTTON_SELECTED_KEY, fabWatchLater.isSelected)
-        configurationChanged = true
+    }
+
+    override fun onStop() {
+        super.onStop()
+        configurationChanged = requireActivity().isChangingConfigurations
     }
 
     override fun onDestroyView() {
