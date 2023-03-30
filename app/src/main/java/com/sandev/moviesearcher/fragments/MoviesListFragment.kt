@@ -38,6 +38,8 @@ abstract class MoviesListFragment : Fragment() {
     protected lateinit var recyclerView: RecyclerView
 
     private var lastSlideGravity = Gravity.TOP
+    private val fragmentsTransitionDuration by lazy {
+        resources.getInteger(R.integer.general_animations_durations_fragment_transition).toLong() }
 
     companion object {
         var isAppBarLifted = false
@@ -74,10 +76,9 @@ abstract class MoviesListFragment : Fragment() {
 
     protected fun setTransitionAnimation(slideGravity: Int = lastSlideGravity) {
         lastSlideGravity = slideGravity
-        val duration = resources.getInteger(R.integer.general_animations_durations_fragment_transition).toLong()
 
         val recyclerTransition = Slide(slideGravity).apply {
-            this.duration = duration
+            this.duration = fragmentsTransitionDuration
             interpolator = FastOutLinearInInterpolator()
             addTarget(recyclerView)
         }
@@ -85,7 +86,7 @@ abstract class MoviesListFragment : Fragment() {
 
         if (!isAppBarLifted) {
             val appBarTransition = Fade().apply {
-                this.duration = duration
+                this.duration = fragmentsTransitionDuration
                 interpolator = AccelerateInterpolator()
                 addTarget(searchBar)
             }

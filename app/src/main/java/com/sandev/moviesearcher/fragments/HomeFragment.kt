@@ -28,7 +28,8 @@ class HomeFragment : MoviesListFragment() {
     private lateinit var mainActivity: MainActivity
 
     companion object {
-        private var isFragmentClassOnceCreated = false
+        var isFragmentClassOnceCreated = false
+            private set
         
         private const val MOVIES_RECYCLER_VIEW_STATE = "MoviesRecylerViewState"
     }

@@ -1,4 +1,4 @@
-package com.sandev.moviesearcher
+package com.sandev.moviesearcher.fragments
 
 import android.os.Bundle
 import android.view.Gravity
@@ -11,10 +11,8 @@ import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
-import com.sandev.moviesearcher.fragments.DetailsFragment
-import com.sandev.moviesearcher.fragments.FavoritesFragment
-import com.sandev.moviesearcher.fragments.HomeFragment
-import com.sandev.moviesearcher.fragments.MoviesListFragment
+import com.sandev.moviesearcher.MainActivity
+import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 import com.sandev.moviesearcher.movieListRecyclerView.data.watchLaterMovies
@@ -61,12 +59,10 @@ class WatchLaterFragment : MoviesListFragment() {
         mainActivity = activity as MainActivity
         val previousFragmentName = mainActivity.previousFragmentName
         if (previousFragmentName != DetailsFragment::class.qualifiedName) {
-            isLaunchedFromLeft = if (previousFragmentName == HomeFragment::class.qualifiedName) {
-                true
+            if (previousFragmentName == HomeFragment::class.qualifiedName) {
+                isLaunchedFromLeft = true
             } else if (previousFragmentName == FavoritesFragment::class.qualifiedName) {
-                false
-            } else {
-                throw IllegalStateException("Incorrect previous fragment in WatchLaterFragment")
+                isLaunchedFromLeft = false
             }
         }
 
@@ -85,7 +81,8 @@ class WatchLaterFragment : MoviesListFragment() {
 
         initializeMovieRecyclerList()
         watchLaterMoviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
-            FAVORITE_MOVIES_RECYCLER_VIEW_STATE))
+            FAVORITE_MOVIES_RECYCLER_VIEW_STATE
+        ))
 
         setupSearchBehavior(watchLaterMoviesRecyclerAdapter, watchLaterMovies)
     }
@@ -134,7 +131,9 @@ class WatchLaterFragment : MoviesListFragment() {
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
         if (mainActivity.previousFragmentName == DetailsFragment::class.qualifiedName) {
-            recyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
+            recyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(),
+                R.anim.posters_appearance
+            )
             resetExitReenterTransitionAnimations()
             Executors.newSingleThreadScheduledExecutor().apply {
                 schedule({ setTransitionAnimation() },

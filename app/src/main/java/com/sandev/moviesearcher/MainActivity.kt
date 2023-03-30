@@ -13,6 +13,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.sandev.moviesearcher.fragments.*
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
@@ -39,9 +40,9 @@ class MainActivity : AppCompatActivity() {
         private const val FAVORITES_FRAGMENT_COMMIT = "FAVORITES_FRAGMENT_COMMIT"
         private const val WATCH_LATER_FRAGMENT_COMMIT = "WATCH_LATER_FRAGMENT_COMMIT"
 
-        private var homeFragment: HomeFragment? = null
-        private var favoritesFragment: FavoritesFragment? = null
-        private var watchLaterFragment: WatchLaterFragment? = null
+        private var homeFragment = HomeFragment()
+        private var favoritesFragment = FavoritesFragment()
+        private var watchLaterFragment = WatchLaterFragment()
 
         private const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
         private const val ONE_FRAGMENT_IN_STACK = 1
@@ -64,7 +65,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun startHomeFragment() {
-        if (homeFragment == null) {
+        if (!HomeFragment.isFragmentClassOnceCreated) {
             bottomNavigation.animate()
                 .setDuration(
                     resources.getInteger(
@@ -75,12 +76,10 @@ class MainActivity : AppCompatActivity() {
                 .setInterpolator(DecelerateInterpolator())
                 .withEndAction { bottomNavigation.menu.forEach { it.isEnabled = true } }
                 .start()
-
-            homeFragment = HomeFragment()
         }
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.fragment, homeFragment!!)
+            .add(R.id.fragment, homeFragment)
             .addToBackStack(HOME_FRAGMENT_COMMIT)
             .commit()
     }
@@ -156,28 +155,21 @@ class MainActivity : AppCompatActivity() {
     private fun navigationMenuItemClick(lastFragmentInBackStack: Fragment, menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_all_movies_button -> {
-                if (lastFragmentInBackStack != homeFragment) {
-                    previousFragmentName = lastFragmentInBackStack::class.qualifiedName
+                if (lastFragmentInBackStack !is HomeFragment) {
                     if (lastFragmentInBackStack is WatchLaterFragment) {
-                        watchLaterFragment?.prepareTransitionBeforeNewFragment(true)
+                        lastFragmentInBackStack.prepareTransitionBeforeNewFragment(true)
                     }
-                    supportFragmentManager.popBackStack(HOME_FRAGMENT_COMMIT, 0)
+                    supportFragmentManager.popBackStackWithSavingFragments(HOME_FRAGMENT_COMMIT)
                 }
             }
             R.id.bottom_navigation_watch_later_button -> {
-                if (watchLaterFragment == null) {
-                    watchLaterFragment = WatchLaterFragment()
-                }
-                startFragmentFromNavigation(watchLaterFragment!!, WATCH_LATER_FRAGMENT_COMMIT)
+                startFragmentFromNavigation(watchLaterFragment, WATCH_LATER_FRAGMENT_COMMIT)
             }
             R.id.bottom_navigation_favorites_button -> {
-                if (favoritesFragment == null) {
-                    favoritesFragment = FavoritesFragment()
-                }
                 if (lastFragmentInBackStack is WatchLaterFragment) {
-                    watchLaterFragment?.prepareTransitionBeforeNewFragment(false)
+                    lastFragmentInBackStack.prepareTransitionBeforeNewFragment(false)
                 }
-                startFragmentFromNavigation(favoritesFragment!!, FAVORITES_FRAGMENT_COMMIT)
+                startFragmentFromNavigation(favoritesFragment, FAVORITES_FRAGMENT_COMMIT)
             }
         }
     }
@@ -199,7 +191,7 @@ class MainActivity : AppCompatActivity() {
                     .addToBackStack(commitName)
                     .commit()
             } else {
-                supportFragmentManager.popBackStack(commitName, 0)
+                supportFragmentManager.popBackStackWithSavingFragments(commitName)
             }
         }
     }
@@ -237,6 +229,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun FragmentManager.popBackStackWithSavingFragments(commitName: String = "") {
+        fun saveAndPop() {
+            val lastFragmentInBackStack = fragments.last()
+            when (lastFragmentInBackStack) {
+                is HomeFragment       -> homeFragment       = lastFragmentInBackStack
+                is WatchLaterFragment -> watchLaterFragment = lastFragmentInBackStack
+                is FavoritesFragment  -> favoritesFragment  = lastFragmentInBackStack
+            }
+            previousFragmentName = lastFragmentInBackStack::class.qualifiedName
+            popBackStack()
+        }
+
+        if (commitName.isNotEmpty()) {
+            for (i in (0 until backStackEntryCount).reversed()) {
+                if (getBackStackEntryAt(i).name == commitName) return
+                saveAndPop()
+            }
+        } else {
+            saveAndPop()
+        }
+    }
+
     private fun setOnBackPressedAction() {
         onBackPressedDispatcher.addCallback(this, dummyOnBackPressed)
         onBackPressedDispatcher.addCallback(this,  object : OnBackPressedCallback(true) {
@@ -269,9 +283,9 @@ class MainActivity : AppCompatActivity() {
                         val nextPopFragment = supportFragmentManager
                             .getBackStackEntryAt(supportFragmentManager.backStackEntryCount - 2)
                         if (nextPopFragment.name == HOME_FRAGMENT_COMMIT) {
-                            watchLaterFragment?.prepareTransitionBeforeNewFragment(true)
+                            lastFragmentInBackStack.prepareTransitionBeforeNewFragment(true)
                         } else if (nextPopFragment.name == FAVORITES_FRAGMENT_COMMIT) {
-                            watchLaterFragment?.prepareTransitionBeforeNewFragment(false)
+                            lastFragmentInBackStack.prepareTransitionBeforeNewFragment(false)
                         }
                     }
                 }
@@ -286,12 +300,10 @@ class MainActivity : AppCompatActivity() {
                     backPressedLastTime = backPressedTime
                 } else if (lastFragmentInBackStack is DetailsFragment) {
                     if (lastFragmentInBackStack.collapsingToolbarExpanded()) {
-                        previousFragmentName = lastFragmentInBackStack::class.qualifiedName
-                        supportFragmentManager.popBackStack()
+                        supportFragmentManager.popBackStackWithSavingFragments()
                     }
                 } else {
-                    previousFragmentName = lastFragmentInBackStack::class.qualifiedName
-                    supportFragmentManager.popBackStack()
+                    supportFragmentManager.popBackStackWithSavingFragments()
                 }
             }
         })
