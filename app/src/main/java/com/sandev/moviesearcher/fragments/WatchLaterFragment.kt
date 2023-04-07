@@ -15,16 +15,16 @@ import com.sandev.moviesearcher.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
-import com.sandev.moviesearcher.movieListRecyclerView.data.favoriteMovies
+import com.sandev.moviesearcher.movieListRecyclerView.data.watchLaterMovies
 import com.sandev.moviesearcher.movieListRecyclerView.itemAnimator.MovieItemAnimator
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 
-class FavoritesFragment : MoviesListFragment() {
+class WatchLaterFragment : MoviesListFragment() {
 
-    private var favoriteMoviesRecyclerManager: RecyclerView.LayoutManager? = null
-    private var isMovieNowNotFavorite: Boolean = false
+    private var watchLaterMoviesRecyclerManager: RecyclerView.LayoutManager? = null
+    private var isMovieNowNotWatchLater: Boolean = false
     override var lastSearch: CharSequence? = null
 
     private lateinit var mainActivity: MainActivity
@@ -40,12 +40,13 @@ class FavoritesFragment : MoviesListFragment() {
     }
 
     companion object {
-        const val FAVORITES_DETAILS_RESULT_KEY = "FAVORITES_DETAILS_RESULT"
-        const val MOVIE_NOW_NOT_FAVORITE_KEY = "MOVIE_NOW_NOT_FAVORITE"
+        const val WATCH_LATER_DETAILS_RESULT_KEY = "WATCH_LATER_DETAILS_RESULT"
+        const val MOVIE_NOW_NOT_WATCH_LATER_KEY = "MOVIE_NOW_NOT_WATCH_LATER"
 
-        private const val FAVORITE_MOVIES_RECYCLER_VIEW_STATE = "FavoriteMoviesRecylerViewState"
+        private const val WATCH_LATER_MOVIES_RECYCLER_VIEW_STATE = "WatchLaterMoviesRecylerViewState"
 
-        private var favoriteMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
+        private var watchLaterMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
+        private var isLaunchedFromLeft = true
     }
 
 
@@ -53,9 +54,17 @@ class FavoritesFragment : MoviesListFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val rootView = layoutInflater.inflate(R.layout.fragment_favorites, container, false)
+        val rootView = layoutInflater.inflate(R.layout.fragment_watch_later, container, false)
 
         mainActivity = activity as MainActivity
+        val previousFragmentName = mainActivity.previousFragmentName
+        if (previousFragmentName != DetailsFragment::class.qualifiedName) {
+            if (previousFragmentName == HomeFragment::class.qualifiedName) {
+                isLaunchedFromLeft = true
+            } else if (previousFragmentName == FavoritesFragment::class.qualifiedName) {
+                isLaunchedFromLeft = false
+            }
+        }
 
         initializeViewsReferences(rootView)
         setAllAnimationTransition()
@@ -66,69 +75,88 @@ class FavoritesFragment : MoviesListFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireActivity().supportFragmentManager.setFragmentResultListener(FAVORITES_DETAILS_RESULT_KEY, this) { _, bundle ->
-            isMovieNowNotFavorite = bundle.getBoolean(MOVIE_NOW_NOT_FAVORITE_KEY)
+        requireActivity().supportFragmentManager.setFragmentResultListener(WATCH_LATER_DETAILS_RESULT_KEY, this) { _, bundle ->
+            isMovieNowNotWatchLater = bundle.getBoolean(MOVIE_NOW_NOT_WATCH_LATER_KEY)
         }
 
         initializeMovieRecyclerList()
-        favoriteMoviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
-            FAVORITE_MOVIES_RECYCLER_VIEW_STATE))
+        watchLaterMoviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
+            WATCH_LATER_MOVIES_RECYCLER_VIEW_STATE
+        ))
 
-        setupSearchBehavior(favoriteMoviesRecyclerAdapter, favoriteMovies)
+        setupSearchBehavior(watchLaterMoviesRecyclerAdapter, watchLaterMovies)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable(FAVORITE_MOVIES_RECYCLER_VIEW_STATE, favoriteMoviesRecyclerManager?.onSaveInstanceState())
+        outState.putParcelable(WATCH_LATER_MOVIES_RECYCLER_VIEW_STATE, watchLaterMoviesRecyclerManager?.onSaveInstanceState())
     }
 
     private fun initializeMovieRecyclerList() {
-        if (favoriteMoviesRecyclerAdapter == null) {
-            favoriteMoviesRecyclerAdapter = MoviesRecyclerAdapter()
-            favoriteMoviesRecyclerAdapter?.setList(favoriteMovies)
+        if (watchLaterMoviesRecyclerAdapter == null) {
+            watchLaterMoviesRecyclerAdapter = MoviesRecyclerAdapter()
+            watchLaterMoviesRecyclerAdapter?.setList(watchLaterMovies)
         }
         // Пока не прошла анимация не обрабатывать клики на постеры
-        favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClickDummy)
+        watchLaterMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClickDummy)
 
         recyclerView.setHasFixedSize(true)
         recyclerView.isNestedScrollingEnabled = true
-        recyclerView.adapter = favoriteMoviesRecyclerAdapter
+        recyclerView.adapter = watchLaterMoviesRecyclerAdapter
 
-        favoriteMoviesRecyclerManager = recyclerView.layoutManager!!
+        watchLaterMoviesRecyclerManager = recyclerView.layoutManager!!
 
         recyclerView.itemAnimator = MovieItemAnimator()
 
         recyclerView.postDelayed(  // Запускать удаление только после отрисовки анимации recycler
-                resources.getInteger(R.integer.fragment_favorites_delay_recyclerViewAppearance).toLong()) {
-            if (isMovieNowNotFavorite) {
-                favoriteMoviesRecyclerAdapter?.removeLastClickedMovie()
-                isMovieNowNotFavorite = false
+            resources.getInteger(R.integer.fragment_favorites_delay_recyclerViewAppearance).toLong()) {
+            if (isMovieNowNotWatchLater) {
+                watchLaterMoviesRecyclerAdapter?.removeLastClickedMovie()
+                isMovieNowNotWatchLater = false
                 recyclerView.postDelayed((recyclerView.itemAnimator?.removeDuration ?: 0) +
                         (recyclerView.itemAnimator?.moveDuration ?: 0)) {
-                    favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
+                    watchLaterMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
                 }
             } else {
-                favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
+                watchLaterMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
             }
         }
         recyclerView.doOnPreDraw { startPostponedEnterTransition() }
     }
 
     private fun setAllAnimationTransition() {
-        setTransitionAnimation(Gravity.END)
+        setTransitionAnimation()
 
         sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
         if (mainActivity.previousFragmentName == DetailsFragment::class.qualifiedName) {
-            recyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
+            recyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(),
+                R.anim.posters_appearance
+            )
             resetExitReenterTransitionAnimations()
             Executors.newSingleThreadScheduledExecutor().apply {
-                schedule({ setTransitionAnimation(Gravity.END) },
+                schedule({ setTransitionAnimation() },
                     resources.getInteger(R.integer.activity_main_animations_durations_poster_transition).toLong(),
                     TimeUnit.MILLISECONDS)
                 shutdown()
             }
+        }
+    }
+
+    private fun setTransitionAnimation() {
+        if (isLaunchedFromLeft) {
+            setTransitionAnimation(Gravity.END)
+        } else {
+            setTransitionAnimation(Gravity.START)
+        }
+    }
+
+    fun prepareTransitionBeforeNewFragment(targetFragmentInLeft: Boolean) {
+        if (targetFragmentInLeft) {
+            setTransitionAnimation(Gravity.END)
+        } else {
+            setTransitionAnimation(Gravity.START)
         }
     }
 }
