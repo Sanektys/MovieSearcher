@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RatingDonutView">
+        <attr name="background_color" format="color" />
+        <attr name="progress" format="integer" />
+        <attr name="stroke_width" format="dimension" />
+        <attr name="stroke_offset" format="float" />
+        <attr name="digits_size" format="dimension" />
+        <attr name="elements_shadow_color" format="color" />
+    </declare-styleable>
+</resources>

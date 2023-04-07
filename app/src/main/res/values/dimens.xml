@@ -26,6 +26,12 @@
     <dimen name="activity_main.movies_recycler.movie_card.separator.margin_horizontal">12dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.description.margin_horizontal">10dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.description.margin_top">4dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.rating_donut.width">50dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.rating_donut.height">50dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.rating_donut.margin_end">-8dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.rating_donut.digit_size">20dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.rating_donut.stroke_width">3dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.rating_donut.stroke_offset">0.8</dimen>
 
     <dimen name="activity_main.bottom_navigation_bar.height">64dp</dimen>
     <dimen name="activity_main.bottom_navigation_bar.padding_top">10dp</dimen>
