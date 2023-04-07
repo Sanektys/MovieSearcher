@@ -19,7 +19,8 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
     private var strokeWidthAttr = 10f
     private var strokeOffsetAttr = 0.8f
     private var digitsSizeAttr = 60f
-    private var backgroundColorAttr = Color.DKGRAY
+    private var outerBackgroundColorAttr = Color.DKGRAY
+    private var innerBackgroundColorAttr = Color.LTGRAY
     private var elementsShadowColorAttr = Color.LTGRAY
 
     private var progress = 50
@@ -28,7 +29,8 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
 
     private lateinit var strokePaint: Paint
     private lateinit var digitPaint: Paint
-    private lateinit var circlePaint: Paint
+    private lateinit var outerCirclePaint: Paint
+    private lateinit var innerCirclePaint: Paint
 
     private lateinit var viewBitmap: Bitmap
 
@@ -43,7 +45,8 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         val attributes = context.theme.obtainStyledAttributes(attrs, R.styleable.RatingDonutView,
             0, 0)
         try {
-            backgroundColorAttr = attributes.getColor(R.styleable.RatingDonutView_background_color, backgroundColorAttr)
+            outerBackgroundColorAttr = attributes.getColor(R.styleable.RatingDonutView_outer_background_color, outerBackgroundColorAttr)
+            innerBackgroundColorAttr = attributes.getColor(R.styleable.RatingDonutView_inner_background_color, innerBackgroundColorAttr)
             elementsShadowColorAttr = attributes.getColor(R.styleable.RatingDonutView_elements_shadow_color, elementsShadowColorAttr)
             strokeWidthAttr = attributes.getDimension(R.styleable.RatingDonutView_stroke_width, strokeWidthAttr)
             strokeOffsetAttr = attributes.getFloat(R.styleable.RatingDonutView_stroke_offset, strokeOffsetAttr)
@@ -102,10 +105,11 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
             val bitmapCanvas = Canvas(viewBitmap)
             bitmapCanvas.translate(centerX, centerY)
 
-            val ringOffset = radius * strokeOffsetAttr
-            oval.set(0f - ringOffset, 0f - ringOffset, ringOffset, ringOffset)
+            val innerRing = radius * strokeOffsetAttr
+            oval.set(0f - innerRing, 0f - innerRing, innerRing, innerRing)
 
-            bitmapCanvas.drawCircle(0f, 0f, radius, circlePaint)
+            bitmapCanvas.drawCircle(0f, 0f, radius, outerCirclePaint)
+            bitmapCanvas.drawCircle(0f, 0f, innerRing, innerCirclePaint)
 
             isStaticElementsDrawn = true
         }
@@ -151,9 +155,13 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
             color = getPaintColor(progress)
             isAntiAlias = true
         }
-        circlePaint = Paint().apply {
+        outerCirclePaint = Paint().apply {
             style = Paint.Style.FILL
-            color = backgroundColorAttr
+            color = outerBackgroundColorAttr
+        }
+        innerCirclePaint = Paint().apply {
+            style = Paint.Style.FILL
+            color = innerBackgroundColorAttr
         }
     }
 

@@ -36,10 +36,10 @@
     <!-- rating view colors -->
     <color name="rating_color_awful">#E65747</color>
     <color name="rating_color_bad">#EDAB3B</color>
-    <color name="rating_color_neutral">#DDDD07</color>
-    <color name="rating_color_good">#9FDF57</color>
+    <color name="rating_color_neutral">#E8E820</color>
+    <color name="rating_color_good">#A5E346</color>
     <color name="rating_color_excellent">#56EC51</color>
-    <color name="rating_view_shadow">#40000000</color>
+    <color name="rating_view_shadow">#48000000</color>
 
     <!-- other colors -->
     <color name="transparent_status_bar">#32000000</color>
