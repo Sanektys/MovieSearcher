@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
+import android.view.animation.DecelerateInterpolator
+import androidx.core.view.postDelayed
 import com.sandev.moviesearcher.R
 
 
@@ -19,25 +21,34 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
     private var strokeWidthAttr = 10f
     private var strokeOffsetAttr = 0.8f
     private var digitsSizeAttr = 60f
+
     private var outerBackgroundColorAttr = Color.DKGRAY
     private var innerBackgroundColorAttr = Color.LTGRAY
     private var elementsShadowColorAttr = Color.LTGRAY
 
-    private var progress = 50
+    private var factualProgress = 0
+    private var displayingProgress = 0
+    private var interpolatedProgress = 0f
+
     private var isStaticElementsDrawn = false
     private var isAllElementsDrawn = false
+    private var isAnimationRunning = false
 
     private lateinit var strokePaint: Paint
     private lateinit var digitPaint: Paint
     private lateinit var outerCirclePaint: Paint
     private lateinit var innerCirclePaint: Paint
 
-    private lateinit var viewBitmap: Bitmap
+    private lateinit var staticPartBitmap: Bitmap
+    private lateinit var dynamicPartBitmap: Bitmap
 
     companion object {
-        const val DEGREES_PER_ONE_POINT: Float = 360f / 100
-        const val DIGITS_VERTICAL_POSITION_CORRECTION = 1F
-        const val DIGITS_HORIZONTAL_POSITION_CORRECTION = 0.95F
+        private val decelerateInterpolator = DecelerateInterpolator(3.0f)
+
+        private const val ANIMATION_ITERATION_DELAY = 16L
+        private const val DEGREES_PER_ONE_POINT: Float = 360f / 100
+        private const val DIGITS_VERTICAL_POSITION_CORRECTION = 1F
+        private const val DIGITS_HORIZONTAL_POSITION_CORRECTION = 0.95F
     }
 
 
@@ -51,10 +62,13 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
             strokeWidthAttr = attributes.getDimension(R.styleable.RatingDonutView_stroke_width, strokeWidthAttr)
             strokeOffsetAttr = attributes.getFloat(R.styleable.RatingDonutView_stroke_offset, strokeOffsetAttr)
             digitsSizeAttr = attributes.getDimension(R.styleable.RatingDonutView_digits_size, digitsSizeAttr)
-            progress = attributes.getInt(R.styleable.RatingDonutView_progress, progress)
+            factualProgress = attributes.getInt(R.styleable.RatingDonutView_progress, factualProgress)
         } finally {
             attributes.recycle()
         }
+
+        displayingProgress = factualProgress
+        interpolatedProgress = factualProgress.toFloat()
 
         initPaint()
     }
@@ -86,10 +100,18 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
     }
 
     fun setProgress(progress: Int) {
-        this.progress = progress
+        post {
+            factualProgress = progress
+            displayingProgress = 0
+            interpolatedProgress = 0f
 
-        updatePaintsColors()
-        invalidate()
+            isAllElementsDrawn = false
+
+            if (!isAnimationRunning) {
+                isAnimationRunning = true
+                loadingProgressAnimation()
+            }
+        }
     }
 
     private fun chooseDimension(mode: Int, size: Int) = when (mode) {
@@ -101,8 +123,8 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         canvas.save()
 
         if (!isStaticElementsDrawn) {
-            viewBitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888)
-            val bitmapCanvas = Canvas(viewBitmap)
+            staticPartBitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888)
+            val bitmapCanvas = Canvas(staticPartBitmap)
             bitmapCanvas.translate(centerX, centerY)
 
             val innerRing = radius * strokeOffsetAttr
@@ -113,19 +135,19 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
 
             isStaticElementsDrawn = true
         }
-        canvas.drawBitmap(viewBitmap, 0f, 0f, null)
+        canvas.drawBitmap(staticPartBitmap, 0f, 0f, null)
 
         canvas.translate(centerX, centerY)
-        canvas.drawArc(oval, -90f, convertProgressToDegrees(progress), false, strokePaint)
+        canvas.drawArc(oval, -90f, convertProgressToDegrees(interpolatedProgress), false, strokePaint)
 
         canvas.restore()
     }
 
-    private fun convertProgressToDegrees(progress: Int) = progress * DEGREES_PER_ONE_POINT
+    private fun convertProgressToDegrees(progress: Float) = progress * DEGREES_PER_ONE_POINT
 
     private fun drawText(canvas: Canvas) {
-        val message = if (progress < 100) {
-            String.format("%.1f", progress / 10f)
+        val message = if (displayingProgress < 100) {
+            String.format("%.1f", interpolatedProgress / 10f)
         } else {
             "10"
         }
@@ -139,12 +161,30 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         )
     }
 
+    private fun loadingProgressAnimation() {
+        fun increaseProgress() {
+            ++displayingProgress
+            interpolatedProgress = decelerateInterpolator
+                .getInterpolation(displayingProgress / factualProgress.toFloat()) * factualProgress
+            updatePaintsColors()
+            invalidate()
+
+            if (displayingProgress < factualProgress) {
+                postDelayed(ANIMATION_ITERATION_DELAY) { increaseProgress() }
+            } else {
+                isAnimationRunning = false
+            }
+        }
+
+        increaseProgress()
+    }
+
     private fun initPaint() {
         strokePaint = Paint().apply {
             style = Paint.Style.STROKE
             strokeWidth = strokeWidthAttr
             setShadowLayer(1f, 0f, 0f, elementsShadowColorAttr)
-            color = getPaintColor(progress)
+            color = getPaintColor(interpolatedProgress.toInt())
             isAntiAlias = true
         }
         digitPaint = Paint().apply {
@@ -152,7 +192,7 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
             setShadowLayer(2f, 0f, 0f, elementsShadowColorAttr)
             textSize = digitsSizeAttr
             typeface = Typeface.DEFAULT_BOLD
-            color = getPaintColor(progress)
+            color = getPaintColor(interpolatedProgress.toInt())
             isAntiAlias = true
         }
         outerCirclePaint = Paint().apply {
@@ -166,8 +206,8 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
     }
 
     private fun updatePaintsColors() {
-        strokePaint.color = getPaintColor(progress)
-        digitPaint.color = getPaintColor(progress)
+        strokePaint.color = getPaintColor(interpolatedProgress.toInt())
+        digitPaint.color = getPaintColor(interpolatedProgress.toInt())
     }
 
     private fun getPaintColor(progress: Int) = when (progress) {
