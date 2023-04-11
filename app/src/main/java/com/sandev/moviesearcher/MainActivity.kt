@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
 
     private var backPressedLastTime: Long = 0
 
-    private lateinit var bottomNavigation: BottomNavigationView
+    private var bottomNavigation: BottomNavigationView? = null
 
     private val dummyOnBackPressed = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {}
@@ -66,7 +66,8 @@ class MainActivity : AppCompatActivity() {
 
     fun startHomeFragment() {
         if (!HomeFragment.isFragmentClassOnceCreated) {
-            bottomNavigation.animate()
+            bottomNavigation?.run {
+                animate()
                 .setDuration(
                     resources.getInteger(
                         R.integer.activity_main_animations_durations_first_appearance_navigation_bar
@@ -74,8 +75,9 @@ class MainActivity : AppCompatActivity() {
                 )
                 .translationY(0f)
                 .setInterpolator(DecelerateInterpolator())
-                .withEndAction { bottomNavigation.menu.forEach { it.isEnabled = true } }
+                .withEndAction { bottomNavigation?.menu?.forEach { it.isEnabled = true } }
                 .start()
+            }
         }
         supportFragmentManager
             .beginTransaction()
@@ -93,8 +95,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun startSplashScreen() {
         if (!SplashScreenFragment.isSplashWasCreated) {
-            bottomNavigation.doOnLayout { it.translationY = it.height.toFloat() }
-            bottomNavigation.menu.forEach { it.isEnabled = false }
+            bottomNavigation?.doOnLayout { it.translationY = it.height.toFloat() }
+            bottomNavigation?.menu?.forEach { it.isEnabled = false }
 
             supportFragmentManager
                 .beginTransaction()
@@ -106,7 +108,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun menuButtonsInitial() {
-        bottomNavigation.apply {
+        bottomNavigation?.apply {
             setOnItemSelectedListener { menuItem ->
                 val lastFragmentInBackStack = supportFragmentManager.fragments.last()
                 if (lastFragmentInBackStack is MoviesListFragment) {
@@ -310,7 +312,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setNavigationBarAppearance() {
-        bottomNavigation.apply {
+        bottomNavigation?.apply {
             ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
                 updatePadding(bottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom)
                 updateLayoutParams {

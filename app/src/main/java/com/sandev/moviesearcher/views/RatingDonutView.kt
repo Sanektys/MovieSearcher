@@ -2,7 +2,6 @@ package com.sandev.moviesearcher.views
 
 import android.content.Context
 import android.graphics.*
-import android.text.style.LineHeightSpan
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.AccelerateInterpolator
@@ -37,15 +36,15 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
     private var isAllElementsDrawn = false
     private var isAnimationRunning = false
 
-    private lateinit var strokePaint: Paint
-    private lateinit var digitPaint: Paint
-    private lateinit var outerCirclePaint: Paint
-    private lateinit var innerCirclePaint: Paint
+    private val strokePaint = Paint()
+    private val digitPaint  = Paint()
+    private val outerCirclePaint = Paint()
+    private val innerCirclePaint = Paint()
 
-    private lateinit var staticPartBitmap: Bitmap
-    private lateinit var allPartsBitmap: Bitmap
-    private lateinit var staticPartCanvas: Canvas
-    private lateinit var allPartsCanvas: Canvas
+    private val staticPartBitmap by lazy(LazyThreadSafetyMode.NONE) { Bitmap.createBitmap(width, height ,Bitmap.Config.ARGB_8888) }
+    private val allPartsBitmap   by lazy(LazyThreadSafetyMode.NONE) { Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888) }
+    private val staticPartCanvas by lazy(LazyThreadSafetyMode.NONE) { Canvas(staticPartBitmap) }
+    private val allPartsCanvas   by lazy(LazyThreadSafetyMode.NONE) { Canvas(allPartsBitmap) }
 
     companion object {
         private val decelerateInterpolator = DecelerateInterpolator(1.6f)
@@ -104,13 +103,13 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
             width / DIVIDER_TO_CENTER
         }
 
-        staticPartBitmap = Bitmap.createBitmap(width, height ,Bitmap.Config.ARGB_8888)
-        staticPartCanvas = Canvas(staticPartBitmap)
-        isStaticElementsDrawn = false
-
-        allPartsBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        allPartsCanvas = Canvas(allPartsBitmap)
-        isAllElementsDrawn = false
+//        staticPartBitmap = Bitmap.createBitmap(width, height ,Bitmap.Config.ARGB_8888)
+//        staticPartCanvas = Canvas(staticPartBitmap)
+//        isStaticElementsDrawn = false
+//
+//        allPartsBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+//        allPartsCanvas = Canvas(allPartsBitmap)
+//        isAllElementsDrawn = false
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -235,14 +234,14 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
     }
 
     private fun initPaint() {
-        strokePaint = Paint().apply {
+        strokePaint.apply {
             style = Paint.Style.STROKE
             strokeWidth = strokeWidthAttr
             setShadowLayer(PROGRESS_LINE_SHADOW_RADIUS, 0f, 0f, elementsShadowColorAttr)
             color = getPaintColor(displayingProgress.toInt())
             isAntiAlias = true
         }
-        digitPaint = Paint().apply {
+        digitPaint.apply {
             style = Paint.Style.FILL
             setShadowLayer(DIGITS_SHADOW_RADIUS, 0f, 0f, elementsShadowColorAttr)
             textSize = digitsSizeAttr
@@ -250,11 +249,11 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
             color = getPaintColor(displayingProgress.toInt())
             isAntiAlias = true
         }
-        outerCirclePaint = Paint().apply {
+        outerCirclePaint.apply {
             style = Paint.Style.FILL
             color = outerBackgroundColorAttr
         }
-        innerCirclePaint = Paint().apply {
+        innerCirclePaint.apply {
             style = Paint.Style.FILL
             color = innerBackgroundColorAttr
         }

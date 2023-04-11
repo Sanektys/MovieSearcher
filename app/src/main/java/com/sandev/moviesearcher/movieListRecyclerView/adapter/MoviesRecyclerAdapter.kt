@@ -15,7 +15,7 @@ import com.sandev.moviesearcher.movieListRecyclerView.viewHolder.MovieViewHolder
 class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
 
     private val moviesList: MutableList<Movie> = mutableListOf()
-    private lateinit var clickListener: OnClickListener
+    private var clickListener: OnClickListener? = null
     var lastMovieClickedPosition = -1
         private set
 
@@ -30,7 +30,7 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
             lastMovieClickedPosition = holder.bindingAdapterPosition
             it.transitionName = it.resources.getString(R.string.movie_view_holder_transition_name,
                 lastMovieClickedPosition)
-            clickListener.onClick(moviesList[lastMovieClickedPosition], holder.poster)
+            clickListener?.onClick(moviesList[lastMovieClickedPosition], holder.poster)
         }
     }
 

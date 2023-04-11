@@ -27,12 +27,12 @@ class FavoritesFragment : MoviesListFragment() {
     private var isMovieNowNotFavorite: Boolean = false
     override var lastSearch: CharSequence? = null
 
-    private lateinit var mainActivity: MainActivity
+    private var mainActivity: MainActivity? = null
 
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
         override fun onClick(movie: Movie, posterView: ImageView) {
             resetExitReenterTransitionAnimations()
-            mainActivity.startDetailsFragment(movie, posterView)
+            mainActivity?.startDetailsFragment(movie, posterView)
         }
     }
     private val posterOnClickDummy = object : MoviesRecyclerAdapter.OnClickListener {
@@ -120,7 +120,7 @@ class FavoritesFragment : MoviesListFragment() {
         sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
-        if (mainActivity.previousFragmentName == DetailsFragment::class.qualifiedName) {
+        if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {
             recyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
             resetExitReenterTransitionAnimations()
             Executors.newSingleThreadScheduledExecutor().apply {
