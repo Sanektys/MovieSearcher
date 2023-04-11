@@ -27,12 +27,12 @@ class WatchLaterFragment : MoviesListFragment() {
     private var isMovieNowNotWatchLater: Boolean = false
     override var lastSearch: CharSequence? = null
 
-    private lateinit var mainActivity: MainActivity
+    private var mainActivity: MainActivity? = null
 
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
         override fun onClick(movie: Movie, posterView: ImageView) {
             resetExitReenterTransitionAnimations()
-            mainActivity.startDetailsFragment(movie, posterView)
+            mainActivity?.startDetailsFragment(movie, posterView)
         }
     }
     private val posterOnClickDummy = object : MoviesRecyclerAdapter.OnClickListener {
@@ -57,7 +57,7 @@ class WatchLaterFragment : MoviesListFragment() {
         val rootView = layoutInflater.inflate(R.layout.fragment_watch_later, container, false)
 
         mainActivity = activity as MainActivity
-        val previousFragmentName = mainActivity.previousFragmentName
+        val previousFragmentName = mainActivity?.previousFragmentName
         if (previousFragmentName != DetailsFragment::class.qualifiedName) {
             if (previousFragmentName == HomeFragment::class.qualifiedName) {
                 isLaunchedFromLeft = true
@@ -130,7 +130,7 @@ class WatchLaterFragment : MoviesListFragment() {
         sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
-        if (mainActivity.previousFragmentName == DetailsFragment::class.qualifiedName) {
+        if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {
             recyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(),
                 R.anim.posters_appearance
             )

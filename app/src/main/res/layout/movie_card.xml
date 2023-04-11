@@ -61,5 +61,20 @@
             android:breakStrategy="simple"
             android:ellipsize="end"
             tools:text="@tools:sample/lorem/random" />
+
+        <com.sandev.moviesearcher.views.RatingDonutView
+            android:id="@+id/rating_donut"
+            android:layout_width="@dimen/activity_main.movies_recycler.movie_card.rating_donut.width"
+            android:layout_height="@dimen/activity_main.movies_recycler.movie_card.rating_donut.height"
+            android:layout_alignEnd="@id/movie_card.poster"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="@dimen/activity_main.movies_recycler.movie_card.rating_donut.margin_end"
+            app:outer_background_color="?attr/colorPrimaryContainer"
+            app:inner_background_color="?attr/colorSecondaryContainer"
+            app:elements_shadow_color="@color/rating_view_shadow"
+            app:digits_size="@dimen/activity_main.movies_recycler.movie_card.rating_donut.digit_size"
+            app:stroke_width="@dimen/activity_main.movies_recycler.movie_card.rating_donut.stroke_width"
+            app:stroke_offset="@dimen/activity_main.movies_recycler.movie_card.rating_donut.stroke_offset"
+            tools:progress="64" />
     </RelativeLayout>
 </com.google.android.material.card.MaterialCardView>

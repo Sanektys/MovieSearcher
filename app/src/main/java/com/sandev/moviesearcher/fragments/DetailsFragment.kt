@@ -34,12 +34,13 @@ import com.sandev.moviesearcher.movieListRecyclerView.data.watchLaterMovies
 
 class DetailsFragment : Fragment() {
 
-    private lateinit var movie: Movie
+    private val movie by lazy(LazyThreadSafetyMode.NONE) { arguments?.getParcelable<Movie>(MainActivity.MOVIE_DATA_KEY)!! }
+
     private var isFavoriteMovie: Boolean = false
     private var isWatchLaterMovie: Boolean = false
     private var configurationChanged = false
 
-    private lateinit var fragmentThatLaunchedDetails: String
+    private var fragmentThatLaunchedDetails: String? = null
 
     private lateinit var appBar: AppBarLayout
     private lateinit var fabFavorite: FloatingActionButton
@@ -72,7 +73,7 @@ class DetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         fragmentThatLaunchedDetails = savedInstanceState?.getString(FRAGMENT_LAUNCHED_KEY) ?:
-                (activity as MainActivity).previousFragmentName!!
+                (activity as MainActivity).previousFragmentName
 
         initializeContent(view)
         setToolbarBackButton(view)
@@ -170,8 +171,6 @@ class DetailsFragment : Fragment() {
     }
 
     private fun initializeContent(view: View) {
-        movie = arguments?.getParcelable(MainActivity.MOVIE_DATA_KEY)!!
-
         view.findViewById<ImageView>(R.id.collapsing_toolbar_image).apply {
             Glide.with(this@DetailsFragment).load(movie.poster).centerCrop().into(this)
             transitionName = arguments?.getString(MainActivity.POSTER_TRANSITION_KEY)

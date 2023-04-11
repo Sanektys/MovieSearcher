@@ -25,7 +25,7 @@ class HomeFragment : MoviesListFragment() {
     private var moviesRecyclerAdapter: MoviesRecyclerAdapter? = null
     override var lastSearch: CharSequence? = null
 
-    private lateinit var mainActivity: MainActivity
+    private var mainActivity: MainActivity? = null
 
     companion object {
         var isFragmentClassOnceCreated = false
@@ -41,7 +41,6 @@ class HomeFragment : MoviesListFragment() {
         val rootView = layoutInflater.inflate(R.layout.fragment_home, container, false)
 
         mainActivity = activity as MainActivity
-
         setAllTransitionAnimation(rootView)
 
         return rootView
@@ -70,7 +69,7 @@ class HomeFragment : MoviesListFragment() {
         moviesRecyclerAdapter?.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
             override fun onClick(movie: Movie, posterView: ImageView) {
                 resetExitReenterTransitionAnimations()
-                mainActivity.startDetailsFragment(movie, posterView)
+                mainActivity?.startDetailsFragment(movie, posterView)
             }
         })
 
@@ -110,7 +109,7 @@ class HomeFragment : MoviesListFragment() {
         }
         initializeViewsReferences(rootView)
 
-        if (mainActivity.previousFragmentName == DetailsFragment::class.qualifiedName) {
+        if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {
             // Не включать transition анимации после выхода из окна деталей
             rootView.postDelayed(resources.getInteger(R.integer.activity_main_animations_durations_poster_transition).toLong()) {
                 setTransitionAnimation(Gravity.START)

@@ -32,4 +32,11 @@
     <color name="md_theme_surfaceTint">#A2C9FF</color>
     <color name="md_theme_outlineVariant">#43474E</color>
     <color name="md_theme_scrim">#000000</color>
+
+    <!-- rating view colors -->
+    <color name="rating_color_awful">#C54B3E</color>
+    <color name="rating_color_bad">#BD882F</color>
+    <color name="rating_color_neutral">#AEAB0C</color>
+    <color name="rating_color_good">#7BA835</color>
+    <color name="rating_color_excellent">#37AA32</color>
 </resources>

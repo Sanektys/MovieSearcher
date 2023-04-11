@@ -57,7 +57,7 @@ class SplashScreenFragment : Fragment() {
                             .setInterpolator(AccelerateInterpolator())
                             .setDuration(resources.getInteger(R.integer.activity_main_animations_durations_splash_screen_disappearing).toLong())
                             .withEndAction {
-                                (activity as MainActivity).removeSplashScreen(this@SplashScreenFragment)
+                                (activity as? MainActivity)?.removeSplashScreen(this@SplashScreenFragment)
                             }
                             .start()
                     }

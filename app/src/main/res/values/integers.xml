@@ -15,4 +15,8 @@
 
     <!-- Favorites fragment -->
     <integer name="fragment_favorites.delay.recyclerViewAppearance">400</integer>
+
+
+    <!-- Rating view -->
+    <integer name="rating_view.minimum_size">300</integer>
 </resources>
