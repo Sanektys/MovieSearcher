@@ -2,6 +2,7 @@ package com.sandev.moviesearcher.views
 
 import android.content.Context
 import android.graphics.*
+import android.text.style.LineHeightSpan
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.AccelerateInterpolator
@@ -54,9 +55,24 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         private const val PROGRESS_ANIMATION_START_OFFSET = 25
         private const val ANIMATION_INTERPOLATION_THRESHOLD = FULL_PROGRESS - PROGRESS_ANIMATION_START_OFFSET
         private const val ANIMATION_ITERATION_DELAY = 25L
+
         private const val DEGREES_PER_ONE_POINT: Float = 360f / FULL_PROGRESS
+
         private const val DIGITS_VERTICAL_POSITION_CORRECTION = 1F
         private const val DIGITS_HORIZONTAL_POSITION_CORRECTION = 0.95F
+
+        private const val DIVIDER_TO_CENTER = 2F
+        private const val DIVIDER_TO_DECIMAL = 10F
+        private const val CIRCLE_START_ANGLE = -90F
+
+        private const val PROGRESS_LINE_SHADOW_RADIUS = 1F
+        private const val DIGITS_SHADOW_RADIUS = 2F
+
+        private val RATING_RANGE_AWFUL      = 0 .. 19
+        private val RATING_RANGE_BAD       = 20 .. 39
+        private val RATING_RANGE_NEUTRAL   = 40 .. 59
+        private val RATING_RANGE_GOOD      = 60 .. 79
+        private val RATING_RANGE_EXCELLENT = 80 .. FULL_PROGRESS
     }
 
 
@@ -81,14 +97,18 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         initPaint()
     }
 
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        radius = if (w > h) h / 2f else w / 2f
+    override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
+        radius = if (width > height) {
+            height / DIVIDER_TO_CENTER
+        } else {
+            width / DIVIDER_TO_CENTER
+        }
 
-        staticPartBitmap = Bitmap.createBitmap(w, h ,Bitmap.Config.ARGB_8888)
+        staticPartBitmap = Bitmap.createBitmap(width, height ,Bitmap.Config.ARGB_8888)
         staticPartCanvas = Canvas(staticPartBitmap)
         isStaticElementsDrawn = false
 
-        allPartsBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        allPartsBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         allPartsCanvas = Canvas(allPartsBitmap)
         isAllElementsDrawn = false
     }
@@ -104,8 +124,8 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         val chosenHeight = chooseDimension(heightMode, heightSize)
 
         val minSide = chosenWidth.coerceAtMost(chosenHeight)
-        centerX = minSide / 2f
-        centerY = minSide / 2f
+        centerX = minSide / DIVIDER_TO_CENTER
+        centerY = minSide / DIVIDER_TO_CENTER
 
         setMeasuredDimension(minSide, minSide)
     }
@@ -168,7 +188,7 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         canvas.drawBitmap(staticPartBitmap, 0f, 0f, null)
 
         canvas.translate(centerX, centerY)
-        canvas.drawArc(oval, -90f, convertProgressToDegrees(displayingProgress),
+        canvas.drawArc(oval, CIRCLE_START_ANGLE, convertProgressToDegrees(displayingProgress),
             false, strokePaint)
 
         canvas.restore()
@@ -178,7 +198,7 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
 
     private fun drawText(canvas: Canvas) {
         val message = if (progressAnimation < FULL_PROGRESS) {
-            String.format("%.1f", displayingProgress / 10f)
+            String.format("%.1f", displayingProgress / DIVIDER_TO_DECIMAL)
         } else {
             "10"
         }
@@ -186,8 +206,8 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         digitPaint.getTextBounds(message, 0, message.length, textRect)
         canvas.drawText(
             message,
-            (centerX - textRect.width() / 2f) * DIGITS_HORIZONTAL_POSITION_CORRECTION,
-            (centerY + textRect.height() / 2f) * DIGITS_VERTICAL_POSITION_CORRECTION,
+            (centerX - textRect.width() / DIVIDER_TO_CENTER) * DIGITS_HORIZONTAL_POSITION_CORRECTION,
+            (centerY + textRect.height() / DIVIDER_TO_CENTER) * DIGITS_VERTICAL_POSITION_CORRECTION,
             digitPaint
         )
     }
@@ -218,13 +238,13 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         strokePaint = Paint().apply {
             style = Paint.Style.STROKE
             strokeWidth = strokeWidthAttr
-            setShadowLayer(1f, 0f, 0f, elementsShadowColorAttr)
+            setShadowLayer(PROGRESS_LINE_SHADOW_RADIUS, 0f, 0f, elementsShadowColorAttr)
             color = getPaintColor(displayingProgress.toInt())
             isAntiAlias = true
         }
         digitPaint = Paint().apply {
             style = Paint.Style.FILL
-            setShadowLayer(2f, 0f, 0f, elementsShadowColorAttr)
+            setShadowLayer(DIGITS_SHADOW_RADIUS, 0f, 0f, elementsShadowColorAttr)
             textSize = digitsSizeAttr
             typeface = Typeface.DEFAULT_BOLD
             color = getPaintColor(displayingProgress.toInt())
@@ -246,11 +266,11 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
     }
 
     private fun getPaintColor(progress: Int) = when (progress) {
-        in 0 .. 19 -> resources.getColor(R.color.rating_color_awful, context.theme)
-        in 20 .. 39 -> resources.getColor(R.color.rating_color_bad, context.theme)
-        in 40 .. 59 -> resources.getColor(R.color.rating_color_neutral, context.theme)
-        in 60 .. 79 -> resources.getColor(R.color.rating_color_good, context.theme)
-        in 80 .. FULL_PROGRESS -> resources.getColor(R.color.rating_color_excellent, context.theme)
+        in RATING_RANGE_AWFUL     -> resources.getColor(R.color.rating_color_awful, context.theme)
+        in RATING_RANGE_BAD       -> resources.getColor(R.color.rating_color_bad, context.theme)
+        in RATING_RANGE_NEUTRAL   -> resources.getColor(R.color.rating_color_neutral, context.theme)
+        in RATING_RANGE_GOOD      -> resources.getColor(R.color.rating_color_good, context.theme)
+        in RATING_RANGE_EXCELLENT -> resources.getColor(R.color.rating_color_excellent, context.theme)
         else -> Color.DKGRAY
     }
 }
