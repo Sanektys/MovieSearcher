@@ -92,6 +92,13 @@ class FavoritesFragment : MoviesListFragment() {
         favoriteMoviesRecyclerManager = null
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        if (activity?.isChangingConfigurations == false) {
+            favoriteMoviesRecyclerAdapter = null
+        }
+    }
+
     private fun initializeMovieRecyclerList() {
         if (favoriteMoviesRecyclerAdapter == null) {
             favoriteMoviesRecyclerAdapter = MoviesRecyclerAdapter()

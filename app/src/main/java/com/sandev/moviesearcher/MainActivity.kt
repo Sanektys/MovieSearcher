@@ -28,6 +28,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
+    private var homeFragment = HomeFragment()
+    private var favoritesFragment = FavoritesFragment()
+    private var watchLaterFragment = WatchLaterFragment()
+
     private val dummyOnBackPressed = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {}
     }
@@ -39,10 +43,6 @@ class MainActivity : AppCompatActivity() {
         private const val HOME_FRAGMENT_COMMIT = "HOME_FRAGMENT_COMMIT"
         private const val FAVORITES_FRAGMENT_COMMIT = "FAVORITES_FRAGMENT_COMMIT"
         private const val WATCH_LATER_FRAGMENT_COMMIT = "WATCH_LATER_FRAGMENT_COMMIT"
-
-        private var homeFragment = HomeFragment()
-        private var favoritesFragment = FavoritesFragment()
-        private var watchLaterFragment = WatchLaterFragment()
 
         private const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
         private const val ONE_FRAGMENT_IN_STACK = 1

@@ -39,6 +39,7 @@ class WatchLaterFragment : MoviesListFragment() {
             mainActivity?.startDetailsFragment(movie, posterView)
         }
     }
+
     private val posterOnClickDummy = object : MoviesRecyclerAdapter.OnClickListener {
         override fun onClick(movie: Movie, posterView: ImageView) {}
     }
@@ -50,6 +51,7 @@ class WatchLaterFragment : MoviesListFragment() {
         private const val WATCH_LATER_MOVIES_RECYCLER_VIEW_STATE = "WatchLaterMoviesRecylerViewState"
 
         private var watchLaterMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
+
         private var isLaunchedFromLeft = true
     }
 
@@ -100,6 +102,13 @@ class WatchLaterFragment : MoviesListFragment() {
         super.onDestroyView()
         _binding = null
         watchLaterMoviesRecyclerManager = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (activity?.isChangingConfigurations == false) {
+            watchLaterMoviesRecyclerAdapter = null
+        }
     }
 
     private fun initializeMovieRecyclerList() {
