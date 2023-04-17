@@ -7,6 +7,7 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.databinding.MovieCardBinding
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 import com.sandev.moviesearcher.movieListRecyclerView.diffUtil.MoviesListDiff
 import com.sandev.moviesearcher.movieListRecyclerView.viewHolder.MovieViewHolder
@@ -16,17 +17,22 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
 
     private val moviesList: MutableList<Movie> = mutableListOf()
     private var clickListener: OnClickListener? = null
-    var lastMovieClickedPosition = -1
+    var lastMovieClickedPosition = DEFAULT_NON_CLICKED_POSITION
         private set
 
+    companion object {
+        const val DEFAULT_NON_CLICKED_POSITION = -1
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        MovieViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.movie_card, parent, false))
+        MovieViewHolder(MovieCardBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
     override fun getItemCount() = moviesList.size
 
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
         holder.onBind(moviesList[position], position)
-        holder.itemView.findViewById<View>(R.id.movie_card_poster).setOnClickListener {
+
+        holder.poster.setOnClickListener {
             lastMovieClickedPosition = holder.bindingAdapterPosition
             it.transitionName = it.resources.getString(R.string.movie_view_holder_transition_name,
                 lastMovieClickedPosition)
@@ -79,7 +85,7 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
         if (lastMovieClickedPosition >= 0) {
             moviesList.removeAt(lastMovieClickedPosition)
             notifyItemRemoved(lastMovieClickedPosition)
-            lastMovieClickedPosition = -1
+            lastMovieClickedPosition = DEFAULT_NON_CLICKED_POSITION
         }
     }
 }

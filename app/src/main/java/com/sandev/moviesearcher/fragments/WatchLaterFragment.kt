@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
 import com.sandev.moviesearcher.MainActivity
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.databinding.FragmentWatchLaterBinding
 import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 import com.sandev.moviesearcher.movieListRecyclerView.data.watchLaterMovies
@@ -23,11 +24,14 @@ import java.util.concurrent.TimeUnit
 
 class WatchLaterFragment : MoviesListFragment() {
 
-    private var watchLaterMoviesRecyclerManager: RecyclerView.LayoutManager? = null
     private var isMovieNowNotWatchLater: Boolean = false
     override var lastSearch: CharSequence? = null
 
+    private var _binding: FragmentWatchLaterBinding? = null
+    private val binding: FragmentWatchLaterBinding
+        get() = _binding!!
     private var mainActivity: MainActivity? = null
+    private var watchLaterMoviesRecyclerManager: RecyclerView.LayoutManager? = null
 
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
         override fun onClick(movie: Movie, posterView: ImageView) {
@@ -53,8 +57,8 @@ class WatchLaterFragment : MoviesListFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val rootView = layoutInflater.inflate(R.layout.fragment_watch_later, container, false)
+    ): View {
+        _binding = FragmentWatchLaterBinding.inflate(inflater, container, false)
 
         mainActivity = activity as MainActivity
         val previousFragmentName = mainActivity?.previousFragmentName
@@ -66,10 +70,10 @@ class WatchLaterFragment : MoviesListFragment() {
             }
         }
 
-        initializeViewsReferences(rootView)
+        initializeViewsReferences(binding.root)
         setAllAnimationTransition()
 
-        return rootView
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -92,6 +96,12 @@ class WatchLaterFragment : MoviesListFragment() {
         outState.putParcelable(WATCH_LATER_MOVIES_RECYCLER_VIEW_STATE, watchLaterMoviesRecyclerManager?.onSaveInstanceState())
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        watchLaterMoviesRecyclerManager = null
+    }
+
     private fun initializeMovieRecyclerList() {
         if (watchLaterMoviesRecyclerAdapter == null) {
             watchLaterMoviesRecyclerAdapter = MoviesRecyclerAdapter()
@@ -100,28 +110,33 @@ class WatchLaterFragment : MoviesListFragment() {
         // Пока не прошла анимация не обрабатывать клики на постеры
         watchLaterMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClickDummy)
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.isNestedScrollingEnabled = true
-        recyclerView.adapter = watchLaterMoviesRecyclerAdapter
+        binding.moviesListRecycler.apply {
+            setHasFixedSize(true)
+            isNestedScrollingEnabled = true
+            adapter = watchLaterMoviesRecyclerAdapter
 
-        watchLaterMoviesRecyclerManager = recyclerView.layoutManager!!
+            watchLaterMoviesRecyclerManager = layoutManager!!
 
-        recyclerView.itemAnimator = MovieItemAnimator()
+            itemAnimator = MovieItemAnimator()
 
-        recyclerView.postDelayed(  // Запускать удаление только после отрисовки анимации recycler
-            resources.getInteger(R.integer.fragment_favorites_delay_recyclerViewAppearance).toLong()) {
-            if (isMovieNowNotWatchLater) {
-                watchLaterMoviesRecyclerAdapter?.removeLastClickedMovie()
-                isMovieNowNotWatchLater = false
-                recyclerView.postDelayed((recyclerView.itemAnimator?.removeDuration ?: 0) +
-                        (recyclerView.itemAnimator?.moveDuration ?: 0)) {
+            postDelayed(  // Запускать удаление только после отрисовки анимации recycler
+                resources.getInteger(R.integer.fragment_favorites_delay_recyclerViewAppearance)
+                    .toLong()
+            ) {
+                if (isMovieNowNotWatchLater) {
+                    watchLaterMoviesRecyclerAdapter?.removeLastClickedMovie()
+                    isMovieNowNotWatchLater = false
+                    postDelayed(
+                        (itemAnimator?.removeDuration ?: 0) + (itemAnimator?.moveDuration ?: 0)
+                    ) {
+                        watchLaterMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
+                    }
+                } else {
                     watchLaterMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
                 }
-            } else {
-                watchLaterMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
             }
+            doOnPreDraw { startPostponedEnterTransition() }
         }
-        recyclerView.doOnPreDraw { startPostponedEnterTransition() }
     }
 
     private fun setAllAnimationTransition() {
@@ -131,7 +146,7 @@ class WatchLaterFragment : MoviesListFragment() {
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
         if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {
-            recyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(),
+            binding.moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(),
                 R.anim.posters_appearance
             )
             resetExitReenterTransitionAnimations()

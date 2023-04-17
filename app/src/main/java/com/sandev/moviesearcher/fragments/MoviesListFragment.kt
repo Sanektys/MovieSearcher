@@ -32,10 +32,18 @@ abstract class MoviesListFragment : Fragment() {
 
     protected abstract var lastSearch: CharSequence?
 
-    protected lateinit var appBar: AppBarLayout
-    protected lateinit var searchBar: SearchBar
-    protected lateinit var searchView: SearchView
-    protected lateinit var recyclerView: RecyclerView
+    protected var _appBar: AppBarLayout? = null
+    private val appBar: AppBarLayout
+        get() = _appBar!!
+    protected var _searchBar: SearchBar? = null
+    private val searchBar: SearchBar
+        get() = _searchBar!!
+    protected var _searchView: SearchView? = null
+    private val searchView: SearchView
+        get() = _searchView!!
+    protected var _recyclerView: RecyclerView? = null
+    private val recyclerView: RecyclerView
+        get() = _recyclerView!!
 
     private var lastSlideGravity = Gravity.TOP
     private val fragmentsTransitionDuration by lazy {
@@ -61,6 +69,11 @@ abstract class MoviesListFragment : Fragment() {
         recyclerView.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View?, outline: Outline?) {}
         }
+
+        _appBar = null
+        _searchBar = null
+        _searchView = null
+        _recyclerView = null
     }
 
     fun hideSearchView() = searchView.hide()
@@ -68,10 +81,10 @@ abstract class MoviesListFragment : Fragment() {
     fun isSearchViewHidden() = searchView.currentTransitionState == SearchView.TransitionState.HIDDEN
 
     protected fun initializeViewsReferences(rootView: View) {
-        appBar = rootView.findViewById(R.id.app_bar)
-        searchBar = rootView.findViewById(R.id.search_bar)
-        searchView = rootView.findViewById(R.id.search_view)
-        recyclerView = rootView.findViewById(R.id.movies_list_recycler)
+        _appBar = rootView.findViewById(R.id.app_bar)
+        _searchBar = rootView.findViewById(R.id.search_bar)
+        _searchView = rootView.findViewById(R.id.search_view)
+        _recyclerView = rootView.findViewById(R.id.movies_list_recycler)
     }
 
     protected fun setTransitionAnimation(slideGravity: Int = lastSlideGravity) {
