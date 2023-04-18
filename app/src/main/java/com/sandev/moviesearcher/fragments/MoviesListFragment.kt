@@ -55,6 +55,7 @@ abstract class MoviesListFragment : Fragment() {
         var isAppBarLifted = false
 
         private const val MAX_ALPHA = 255F
+        private const val SEARCH_SYMBOLS_THRESHOLD = 2
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -87,6 +88,17 @@ abstract class MoviesListFragment : Fragment() {
         _searchBar = rootView.findViewById(R.id.search_bar)
         _searchView = rootView.findViewById(R.id.search_view)
         _recyclerView = rootView.findViewById(R.id.movies_list_recycler)
+    }
+
+    protected fun searchInDatabase(query: CharSequence, source: List<Movie>, moviesRecyclerAdapter: MoviesRecyclerAdapter?) {
+        if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
+            val result = source.filter {
+                it.title.lowercase().contains(query.toString().lowercase())
+            }
+            moviesRecyclerAdapter?.setList(result)
+        } else if (query.isEmpty()) {
+            moviesRecyclerAdapter?.setList(source)
+        }
     }
 
     protected fun setTransitionAnimation(slideGravity: Int = lastSlideGravity) {
@@ -124,38 +136,27 @@ abstract class MoviesListFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {}
 
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if (s.length >= 2) {
-                    val result = source.filter {
-                        it.title.lowercase().contains(s.toString().lowercase())
-                    }
-                    moviesRecyclerAdapter?.setList(result)
-                } else if (s.isEmpty()) {
-                    moviesRecyclerAdapter?.setList(source)
-                }
+                searchInDatabase(s, source, moviesRecyclerAdapter)
                 lastSearch = s
             }
         }
         searchView.apply {
-            editText.text = lastSearch as? Editable
-            editText.addTextChangedListener(textChangeListener)
             addTransitionListener { _, previousState, newState ->
-                if (previousState == SearchView.TransitionState.SHOWING &&
+                if (previousState == SearchView.TransitionState.HIDDEN &&
+                    newState == SearchView.TransitionState.SHOWING) {
+                    requestFocusAndShowKeyboard()
+                } else if (previousState == SearchView.TransitionState.SHOWING &&
                         newState == SearchView.TransitionState.SHOWN) {
-                    editText.text = lastSearch as? Editable
+                    editText.setText(lastSearch)
                     editText.addTextChangedListener(textChangeListener)
-                // При скрытии и начале открытия search view удалять обработчик для избежания
-                // промежуточных загрузок полной базы при временно пустом поле при анимации
                 } else if (previousState == SearchView.TransitionState.SHOWN &&
                         newState == SearchView.TransitionState.HIDING) {
                     editText.removeTextChangedListener(textChangeListener)
+                    // Принудительно убрать системную панель навигации на старых андроидах
                     if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         WindowInsetsControllerCompat(requireActivity().window, requireView())
                             .hide(WindowInsetsCompat.Type.navigationBars())
                     }
-                } else if (previousState == SearchView.TransitionState.HIDDEN &&
-                        newState == SearchView.TransitionState.SHOWING) {
-                    editText.removeTextChangedListener(textChangeListener)
-                    requestFocusAndShowKeyboard()
                 }
             }
             editText.setOnEditorActionListener { _, actionId, _ ->

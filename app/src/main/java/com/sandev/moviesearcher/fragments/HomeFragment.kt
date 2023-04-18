@@ -23,7 +23,9 @@ import com.sandev.moviesearcher.movieListRecyclerView.data.mockData
 
 class HomeFragment : MoviesListFragment() {
 
-    override var lastSearch: CharSequence? = null
+    override var lastSearch: CharSequence?
+        set(value) { Companion.lastSearch = value }
+        get() = Companion.lastSearch
 
     private var _bindingFull: MergeFragmentHomeContentBinding? = null
     private val bindingFull: MergeFragmentHomeContentBinding
@@ -38,8 +40,10 @@ class HomeFragment : MoviesListFragment() {
     companion object {
         var isFragmentClassOnceCreated = false
             private set
-        
+
         private const val MOVIES_RECYCLER_VIEW_STATE = "MoviesRecylerViewState"
+
+        private var lastSearch: CharSequence? = null
     }
 
     override fun onCreateView(
@@ -80,7 +84,8 @@ class HomeFragment : MoviesListFragment() {
     private fun initializeMovieRecyclerList() {
         if (moviesRecyclerAdapter == null) {
             moviesRecyclerAdapter = MoviesRecyclerAdapter()
-            moviesRecyclerAdapter?.setList(mockData)
+            // Загрузить в recycler прошлый результат поиска
+            searchInDatabase(lastSearch ?: "", mockData, moviesRecyclerAdapter)
         }
         moviesRecyclerAdapter?.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
             override fun onClick(movie: Movie, posterView: ImageView) {

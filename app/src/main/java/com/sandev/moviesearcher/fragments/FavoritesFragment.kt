@@ -25,7 +25,9 @@ import java.util.concurrent.TimeUnit
 class FavoritesFragment : MoviesListFragment() {
 
     private var isMovieNowNotFavorite: Boolean = false
-    override var lastSearch: CharSequence? = null
+    override var lastSearch: CharSequence?
+        set(value) { Companion.lastSearch = value }
+        get() = Companion.lastSearch
 
     private var _binding: FragmentFavoritesBinding? = null
     private val binding: FragmentFavoritesBinding
@@ -50,6 +52,7 @@ class FavoritesFragment : MoviesListFragment() {
         private const val FAVORITE_MOVIES_RECYCLER_VIEW_STATE = "FavoriteMoviesRecylerViewState"
 
         private var favoriteMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
+        private var lastSearch: CharSequence? = null
     }
 
 
@@ -102,7 +105,8 @@ class FavoritesFragment : MoviesListFragment() {
     private fun initializeMovieRecyclerList() {
         if (favoriteMoviesRecyclerAdapter == null) {
             favoriteMoviesRecyclerAdapter = MoviesRecyclerAdapter()
-            favoriteMoviesRecyclerAdapter?.setList(favoriteMovies)
+            // Загрузить в recycler прошлый результат поиска
+            searchInDatabase(lastSearch ?: "", favoriteMovies, favoriteMoviesRecyclerAdapter)
         }
         // Пока не прошла анимация не обрабатывать клики на постеры
         favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClickDummy)

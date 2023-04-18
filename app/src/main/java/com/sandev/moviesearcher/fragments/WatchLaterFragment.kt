@@ -25,7 +25,9 @@ import java.util.concurrent.TimeUnit
 class WatchLaterFragment : MoviesListFragment() {
 
     private var isMovieNowNotWatchLater: Boolean = false
-    override var lastSearch: CharSequence? = null
+    override var lastSearch: CharSequence?
+        set(value) { Companion.lastSearch = value }
+        get() = Companion.lastSearch
 
     private var _binding: FragmentWatchLaterBinding? = null
     private val binding: FragmentWatchLaterBinding
@@ -51,6 +53,7 @@ class WatchLaterFragment : MoviesListFragment() {
         private const val WATCH_LATER_MOVIES_RECYCLER_VIEW_STATE = "WatchLaterMoviesRecylerViewState"
 
         private var watchLaterMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
+        private var lastSearch: CharSequence? = null
 
         private var isLaunchedFromLeft = true
     }
@@ -114,7 +117,8 @@ class WatchLaterFragment : MoviesListFragment() {
     private fun initializeMovieRecyclerList() {
         if (watchLaterMoviesRecyclerAdapter == null) {
             watchLaterMoviesRecyclerAdapter = MoviesRecyclerAdapter()
-            watchLaterMoviesRecyclerAdapter?.setList(watchLaterMovies)
+            // Загрузить в recycler прошлый результат поиска
+            searchInDatabase(lastSearch ?: "", watchLaterMovies, watchLaterMoviesRecyclerAdapter)
         }
         // Пока не прошла анимация не обрабатывать клики на постеры
         watchLaterMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClickDummy)
