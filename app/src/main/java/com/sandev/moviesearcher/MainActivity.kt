@@ -326,6 +326,7 @@ class MainActivity : AppCompatActivity() {
                         view!!.width, (view.height + resources.getDimensionPixelSize(R.dimen.general_corner_radius_extra_large)),
                         resources.getDimensionPixelSize(R.dimen.general_corner_radius_extra_large).toFloat()
                     )
+                    outline?.alpha = 0f
                 }
             }
             clipToOutline = true

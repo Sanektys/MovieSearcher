@@ -11,13 +11,15 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/movies_list_recycler"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/activity_main.movies_recycler.movie_card.height"
+        android:layout_height="match_parent"
         android:layout_marginHorizontal="@dimen/activity_main.movies_recycler.margin_horizontal"
         android:layout_marginVertical="@dimen/activity_main.movies_recycler.margin_vertical"
+        android:paddingHorizontal="@dimen/activity_main.movies_recycler.padding_horizontal"
+        android:clipToPadding="false"
         android:background="?attr/colorSecondaryContainer"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:spanCount="@integer/activity_main.movies_recycler.span_count"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:orientation="horizontal"
         android:layout_below="@id/app_bar"
         tools:listitem="@layout/movie_card" />
 
@@ -25,8 +27,7 @@
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimaryContainer"
-        app:layout_behavior=".behaviors.UnshiftedAppBar">
+        android:background="?attr/colorPrimaryContainer">
 
         <com.google.android.material.search.SearchBar
             android:id="@+id/search_bar"

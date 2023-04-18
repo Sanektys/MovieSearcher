@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main activity -->
+    <integer name="activity_main.movies_recycler.span_count">2</integer>
+
+    <integer name="activity_main.animations_durations.posters_appearance">220</integer>
+</resources>

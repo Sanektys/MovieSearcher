@@ -7,7 +7,9 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.*
+import android.view.Gravity
+import android.view.View
+import android.view.ViewOutlineProvider
 import android.view.animation.AccelerateInterpolator
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
@@ -32,16 +34,16 @@ abstract class MoviesListFragment : Fragment() {
 
     protected abstract var lastSearch: CharSequence?
 
-    protected var _appBar: AppBarLayout? = null
+    private var _appBar: AppBarLayout? = null
     private val appBar: AppBarLayout
         get() = _appBar!!
-    protected var _searchBar: SearchBar? = null
+    private var _searchBar: SearchBar? = null
     private val searchBar: SearchBar
         get() = _searchBar!!
-    protected var _searchView: SearchView? = null
+    private var _searchView: SearchView? = null
     private val searchView: SearchView
         get() = _searchView!!
-    protected var _recyclerView: RecyclerView? = null
+    private var _recyclerView: RecyclerView? = null
     private val recyclerView: RecyclerView
         get() = _recyclerView!!
 
@@ -56,7 +58,7 @@ abstract class MoviesListFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        setAppBarAppearance(view)
+        setAppBarAppearance()
         setSearchViewAppearance()
         setRecyclerViewAppearance()
         initializeToolbar(view)
@@ -146,6 +148,10 @@ abstract class MoviesListFragment : Fragment() {
                 } else if (previousState == SearchView.TransitionState.SHOWN &&
                         newState == SearchView.TransitionState.HIDING) {
                     editText.removeTextChangedListener(textChangeListener)
+                    if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        WindowInsetsControllerCompat(requireActivity().window, requireView())
+                            .hide(WindowInsetsCompat.Type.navigationBars())
+                    }
                 } else if (previousState == SearchView.TransitionState.HIDDEN &&
                         newState == SearchView.TransitionState.SHOWING) {
                     editText.removeTextChangedListener(textChangeListener)
@@ -176,7 +182,7 @@ abstract class MoviesListFragment : Fragment() {
         }
     }
 
-    private fun setAppBarAppearance(rootView: View) {
+    private fun setAppBarAppearance() {
         appBar.apply {
             ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
                 updatePadding(top = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top)
@@ -194,6 +200,7 @@ abstract class MoviesListFragment : Fragment() {
                             resources.getDimensionPixelSize(R.dimen.general_corner_radius_extra_large)
                                 .toFloat() * deltaHeight  // Чем больше раскрыт app bar, тем больше скругление углов
                         )
+                        outline?.alpha = 0f
                     }
                 }
                 clipToOutline = true
@@ -202,11 +209,7 @@ abstract class MoviesListFragment : Fragment() {
             foreground = ColorDrawable(context.getColor(R.color.md_theme_secondaryContainer))
             foreground.alpha = 0
 
-            if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                setExpanded(true, false)
-            } else {
-                setExpanded(!isAppBarLifted, false)
-            }
+            setExpanded(!isAppBarLifted, false)
 
             doOnLayout {
                 // Слушатель смещения app bar закрашивающий search bar и обновляющий размеры recycler
@@ -270,28 +273,17 @@ abstract class MoviesListFragment : Fragment() {
                 val bottomNavigation =
                     requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bar)
                 val margin = resources.getDimensionPixelSize(R.dimen.activity_main_movies_recycler_margin_vertical)
-                val freeSpace = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    bottomNavigation.top - appBar.height - margin - margin
-                } else {
-                    it.height
-                }
+                val freeSpace = bottomNavigation.top - appBar.height - margin - margin
 
                 override fun getOutline(view: View?, outline: Outline?) {
                     // Прямо в методе закругления краёв обновляем высоту recycler, всё равно этот метод
                     // вызывается при каждом изменении размеров вьюхи
                     view?.updateLayoutParams {
-                        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                            if (searchView.isShowing) {
-                                it.top = searchView.height + margin
-                                it.bottom = bottomNavigation.top - margin
-                            } else {
-                                height = freeSpace - appBar.top
-                            }
+                        if (searchView.isShowing) {
+                            it.top = searchView.height + margin
+                            it.bottom = bottomNavigation.top - margin
                         } else {
-                            if (searchView.isShowing) {
-                                it.top = searchView.height + margin
-                                it.bottom = searchView.height + margin + height
-                            }
+                            height = freeSpace - appBar.top
                         }
                     }
                     outline?.setRoundRect(
@@ -299,6 +291,7 @@ abstract class MoviesListFragment : Fragment() {
                         resources.getDimensionPixelSize(R.dimen.general_corner_radius_large)
                             .toFloat()
                     )
+                    outline?.alpha = 0f
                 }
             }
             it.clipToOutline = true
