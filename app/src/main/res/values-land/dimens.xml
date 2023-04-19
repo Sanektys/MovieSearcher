@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- main activity -->
-    <dimen name="activity_main.movies_recycler.movie_card.height">180dp</dimen>
-    <dimen name="activity_main.movies_recycler.movie_card.width">350dp</dimen>
-    <dimen name="activity_main.movies_recycler.movie_card.margin_horizontal">12dp</dimen>
-    <dimen name="activity_main.movies_recycler.movie_card.margin_bottom">0dp</dimen>
-    <dimen name="activity_main.movies_recycler.movie_card.poster.width">120dp</dimen>
+    <dimen name="activity_main.movies_recycler.padding_horizontal">-6dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.height">150dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.margin_horizontal">6dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.margin_bottom">12dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.poster.width">100dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.rating_donut.width">45dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.rating_donut.height">45dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.rating_donut.digit_size">18dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.rating_donut.stroke_width">2.5dp</dimen>
 </resources>

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
 import com.sandev.moviesearcher.MainActivity
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.databinding.FragmentFavoritesBinding
 import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 import com.sandev.moviesearcher.movieListRecyclerView.data.favoriteMovies
@@ -23,11 +24,16 @@ import java.util.concurrent.TimeUnit
 
 class FavoritesFragment : MoviesListFragment() {
 
-    private var favoriteMoviesRecyclerManager: RecyclerView.LayoutManager? = null
     private var isMovieNowNotFavorite: Boolean = false
-    override var lastSearch: CharSequence? = null
+    override var lastSearch: CharSequence?
+        set(value) { Companion.lastSearch = value }
+        get() = Companion.lastSearch
 
+    private var _binding: FragmentFavoritesBinding? = null
+    private val binding: FragmentFavoritesBinding
+        get() = _binding!!
     private var mainActivity: MainActivity? = null
+    private var favoriteMoviesRecyclerManager: RecyclerView.LayoutManager? = null
 
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
         override fun onClick(movie: Movie, posterView: ImageView) {
@@ -46,21 +52,22 @@ class FavoritesFragment : MoviesListFragment() {
         private const val FAVORITE_MOVIES_RECYCLER_VIEW_STATE = "FavoriteMoviesRecylerViewState"
 
         private var favoriteMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
+        private var lastSearch: CharSequence? = null
     }
 
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val rootView = layoutInflater.inflate(R.layout.fragment_favorites, container, false)
+    ): View {
+        _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
 
         mainActivity = activity as MainActivity
 
-        initializeViewsReferences(rootView)
+        initializeViewsReferences(binding.root)
         setAllAnimationTransition()
 
-        return rootView
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -82,36 +89,55 @@ class FavoritesFragment : MoviesListFragment() {
         outState.putParcelable(FAVORITE_MOVIES_RECYCLER_VIEW_STATE, favoriteMoviesRecyclerManager?.onSaveInstanceState())
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        favoriteMoviesRecyclerManager = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (activity?.isChangingConfigurations == false) {
+            favoriteMoviesRecyclerAdapter = null
+        }
+    }
+
     private fun initializeMovieRecyclerList() {
         if (favoriteMoviesRecyclerAdapter == null) {
             favoriteMoviesRecyclerAdapter = MoviesRecyclerAdapter()
-            favoriteMoviesRecyclerAdapter?.setList(favoriteMovies)
+            // Загрузить в recycler прошлый результат поиска
+            searchInDatabase(lastSearch ?: "", favoriteMovies, favoriteMoviesRecyclerAdapter)
         }
         // Пока не прошла анимация не обрабатывать клики на постеры
         favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClickDummy)
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.isNestedScrollingEnabled = true
-        recyclerView.adapter = favoriteMoviesRecyclerAdapter
+        binding.moviesListRecycler.apply {
+            setHasFixedSize(true)
+            isNestedScrollingEnabled = true
+            adapter = favoriteMoviesRecyclerAdapter
 
-        favoriteMoviesRecyclerManager = recyclerView.layoutManager!!
+            favoriteMoviesRecyclerManager = layoutManager!!
 
-        recyclerView.itemAnimator = MovieItemAnimator()
+            itemAnimator = MovieItemAnimator()
 
-        recyclerView.postDelayed(  // Запускать удаление только после отрисовки анимации recycler
-                resources.getInteger(R.integer.fragment_favorites_delay_recyclerViewAppearance).toLong()) {
-            if (isMovieNowNotFavorite) {
-                favoriteMoviesRecyclerAdapter?.removeLastClickedMovie()
-                isMovieNowNotFavorite = false
-                recyclerView.postDelayed((recyclerView.itemAnimator?.removeDuration ?: 0) +
-                        (recyclerView.itemAnimator?.moveDuration ?: 0)) {
+            postDelayed(  // Запускать удаление только после отрисовки анимации recycler
+                resources.getInteger(R.integer.fragment_favorites_delay_recyclerViewAppearance)
+                    .toLong()
+            ) {
+                if (isMovieNowNotFavorite) {
+                    favoriteMoviesRecyclerAdapter?.removeLastClickedMovie()
+                    isMovieNowNotFavorite = false
+                    postDelayed(
+                        (itemAnimator?.removeDuration ?: 0) + (itemAnimator?.moveDuration ?: 0)
+                    ) {
+                        favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
+                    }
+                } else {
                     favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
                 }
-            } else {
-                favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
             }
+            doOnPreDraw { startPostponedEnterTransition() }
         }
-        recyclerView.doOnPreDraw { startPostponedEnterTransition() }
     }
 
     private fun setAllAnimationTransition() {
@@ -121,7 +147,8 @@ class FavoritesFragment : MoviesListFragment() {
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
         if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {
-            recyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
+            binding.moviesListRecycler.layoutAnimation =
+                AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
             resetExitReenterTransitionAnimations()
             Executors.newSingleThreadScheduledExecutor().apply {
                 schedule({ setTransitionAnimation(Gravity.END) },

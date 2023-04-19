@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.*
 import com.sandev.moviesearcher.MainActivity
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.databinding.FragmentHomeBinding
+import com.sandev.moviesearcher.databinding.MergeFragmentHomeContentBinding
 import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 import com.sandev.moviesearcher.movieListRecyclerView.data.mockData
@@ -21,29 +23,39 @@ import com.sandev.moviesearcher.movieListRecyclerView.data.mockData
 
 class HomeFragment : MoviesListFragment() {
 
+    override var lastSearch: CharSequence?
+        set(value) { Companion.lastSearch = value }
+        get() = Companion.lastSearch
+
+    private var _bindingFull: MergeFragmentHomeContentBinding? = null
+    private val bindingFull: MergeFragmentHomeContentBinding
+        get() = _bindingFull!!
+    private var _bindingBlank: FragmentHomeBinding? = null
+    private val bindingBlank: FragmentHomeBinding
+        get() = _bindingBlank!!
+    private var mainActivity: MainActivity? = null
     private var moviesRecyclerManager: RecyclerView.LayoutManager? = null
     private var moviesRecyclerAdapter: MoviesRecyclerAdapter? = null
-    override var lastSearch: CharSequence? = null
-
-    private var mainActivity: MainActivity? = null
 
     companion object {
         var isFragmentClassOnceCreated = false
             private set
-        
+
         private const val MOVIES_RECYCLER_VIEW_STATE = "MoviesRecylerViewState"
+
+        private var lastSearch: CharSequence? = null
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val rootView = layoutInflater.inflate(R.layout.fragment_home, container, false)
+        _bindingBlank = FragmentHomeBinding.inflate(inflater, container, false)
 
         mainActivity = activity as MainActivity
-        setAllTransitionAnimation(rootView)
+        setAllTransitionAnimation()
 
-        return rootView
+        return bindingBlank.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -61,10 +73,19 @@ class HomeFragment : MoviesListFragment() {
         outState.putParcelable(MOVIES_RECYCLER_VIEW_STATE, moviesRecyclerManager?.onSaveInstanceState())
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _bindingFull = null
+        _bindingBlank = null
+        moviesRecyclerManager = null
+        moviesRecyclerAdapter = null
+    }
+
     private fun initializeMovieRecyclerList() {
         if (moviesRecyclerAdapter == null) {
             moviesRecyclerAdapter = MoviesRecyclerAdapter()
-            moviesRecyclerAdapter?.setList(mockData)
+            // Загрузить в recycler прошлый результат поиска
+            searchInDatabase(lastSearch ?: "", mockData, moviesRecyclerAdapter)
         }
         moviesRecyclerAdapter?.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
             override fun onClick(movie: Movie, posterView: ImageView) {
@@ -73,20 +94,22 @@ class HomeFragment : MoviesListFragment() {
             }
         })
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.isNestedScrollingEnabled = true
-        recyclerView.adapter = moviesRecyclerAdapter
+        bindingFull.moviesListRecycler.apply {
+            setHasFixedSize(true)
+            isNestedScrollingEnabled = true
+            adapter = moviesRecyclerAdapter
 
-        moviesRecyclerManager = recyclerView.layoutManager!!
+            moviesRecyclerManager = layoutManager!!
 
-        recyclerView.doOnPreDraw { startPostponedEnterTransition() }
+            doOnPreDraw { startPostponedEnterTransition() }
+        }
     }
 
-    private fun setAllTransitionAnimation(rootView: View) {
+    private fun setAllTransitionAnimation() {
         sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
-        val scene = Scene.getSceneForLayout(rootView as ViewGroup, R.layout.merge_fragment_home_content, requireContext())
+        val scene = Scene.getSceneForLayout(bindingBlank.root as ViewGroup, R.layout.merge_fragment_home_content, requireContext())
         if (!isFragmentClassOnceCreated) {  // запускать анимацию появления только при первой загрузке класса фрагмента
             val appBarSlideTransition = Slide(Gravity.TOP)
                 .setDuration(resources.getInteger(
@@ -107,15 +130,18 @@ class HomeFragment : MoviesListFragment() {
         } else {
             scene.enter()
         }
-        initializeViewsReferences(rootView)
+        initializeViewsReferences(bindingBlank.root)
+
+        _bindingFull = MergeFragmentHomeContentBinding.bind(bindingBlank.root)
 
         if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {
             // Не включать transition анимации после выхода из окна деталей
-            rootView.postDelayed(resources.getInteger(R.integer.activity_main_animations_durations_poster_transition).toLong()) {
+            bindingFull.root.postDelayed(resources.getInteger(R.integer.activity_main_animations_durations_poster_transition).toLong()) {
                 setTransitionAnimation(Gravity.START)
             }
             // LayoutAnimation для recycler включается только при возвращении с экрана деталей
-            recyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
+            bindingFull.moviesListRecycler.layoutAnimation =
+                AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
             resetExitReenterTransitionAnimations()
         } else {
             setTransitionAnimation(Gravity.START)

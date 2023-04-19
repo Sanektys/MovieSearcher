@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.sandev.moviesearcher.databinding.ActivityMainBinding
 import com.sandev.moviesearcher.fragments.*
 import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
 import java.util.concurrent.Executors
@@ -26,7 +26,11 @@ class MainActivity : AppCompatActivity() {
 
     private var backPressedLastTime: Long = 0
 
-    private var bottomNavigation: BottomNavigationView? = null
+    private lateinit var binding: ActivityMainBinding
+
+    private var homeFragment = HomeFragment()
+    private var favoritesFragment = FavoritesFragment()
+    private var watchLaterFragment = WatchLaterFragment()
 
     private val dummyOnBackPressed = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {}
@@ -40,19 +44,14 @@ class MainActivity : AppCompatActivity() {
         private const val FAVORITES_FRAGMENT_COMMIT = "FAVORITES_FRAGMENT_COMMIT"
         private const val WATCH_LATER_FRAGMENT_COMMIT = "WATCH_LATER_FRAGMENT_COMMIT"
 
-        private var homeFragment = HomeFragment()
-        private var favoritesFragment = FavoritesFragment()
-        private var watchLaterFragment = WatchLaterFragment()
-
         private const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
         private const val ONE_FRAGMENT_IN_STACK = 1
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        bottomNavigation = findViewById(R.id.navigation_bar)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         setSystemBarsAppearanceAndBehavior()
         setNavigationBarAppearance()
@@ -66,7 +65,7 @@ class MainActivity : AppCompatActivity() {
 
     fun startHomeFragment() {
         if (!HomeFragment.isFragmentClassOnceCreated) {
-            bottomNavigation?.run {
+            binding.navigationBar.run {
                 animate()
                 .setDuration(
                     resources.getInteger(
@@ -75,7 +74,7 @@ class MainActivity : AppCompatActivity() {
                 )
                 .translationY(0f)
                 .setInterpolator(DecelerateInterpolator())
-                .withEndAction { bottomNavigation?.menu?.forEach { it.isEnabled = true } }
+                .withEndAction { binding.navigationBar.menu.forEach { it.isEnabled = true } }
                 .start()
             }
         }
@@ -95,8 +94,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun startSplashScreen() {
         if (!SplashScreenFragment.isSplashWasCreated) {
-            bottomNavigation?.doOnLayout { it.translationY = it.height.toFloat() }
-            bottomNavigation?.menu?.forEach { it.isEnabled = false }
+            binding.navigationBar.doOnLayout { it.translationY = it.height.toFloat() }
+            binding.navigationBar.menu.forEach { it.isEnabled = false }
 
             supportFragmentManager
                 .beginTransaction()
@@ -108,7 +107,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun menuButtonsInitial() {
-        bottomNavigation?.apply {
+        binding.navigationBar.apply {
             setOnItemSelectedListener { menuItem ->
                 val lastFragmentInBackStack = supportFragmentManager.fragments.last()
                 if (lastFragmentInBackStack is MoviesListFragment) {
@@ -221,10 +220,9 @@ class MainActivity : AppCompatActivity() {
         // Отменяем коллизию status & navigation bars, чтобы наши вьюхи проходили под ними
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        val view: View = findViewById(R.id.navigation_bar)
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // Для альбомной ориентации убираем системные кнопки навигации с возможностью вытащить их по жесту
-            WindowInsetsControllerCompat(window, view).apply {
+            WindowInsetsControllerCompat(window, binding.root).apply {
                 hide(WindowInsetsCompat.Type.navigationBars())
                 systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }
@@ -312,7 +310,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setNavigationBarAppearance() {
-        bottomNavigation?.apply {
+        binding.navigationBar.apply {
             ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
                 updatePadding(bottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom)
                 updateLayoutParams {
@@ -328,6 +326,7 @@ class MainActivity : AppCompatActivity() {
                         view!!.width, (view.height + resources.getDimensionPixelSize(R.dimen.general_corner_radius_extra_large)),
                         resources.getDimensionPixelSize(R.dimen.general_corner_radius_extra_large).toFloat()
                     )
+                    outline?.alpha = 0f
                 }
             }
             clipToOutline = true

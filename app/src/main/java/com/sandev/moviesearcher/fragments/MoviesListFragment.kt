@@ -7,7 +7,9 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.*
+import android.view.Gravity
+import android.view.View
+import android.view.ViewOutlineProvider
 import android.view.animation.AccelerateInterpolator
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
@@ -32,10 +34,18 @@ abstract class MoviesListFragment : Fragment() {
 
     protected abstract var lastSearch: CharSequence?
 
-    protected lateinit var appBar: AppBarLayout
-    protected lateinit var searchBar: SearchBar
-    protected lateinit var searchView: SearchView
-    protected lateinit var recyclerView: RecyclerView
+    private var _appBar: AppBarLayout? = null
+    private val appBar: AppBarLayout
+        get() = _appBar!!
+    private var _searchBar: SearchBar? = null
+    private val searchBar: SearchBar
+        get() = _searchBar!!
+    private var _searchView: SearchView? = null
+    private val searchView: SearchView
+        get() = _searchView!!
+    private var _recyclerView: RecyclerView? = null
+    private val recyclerView: RecyclerView
+        get() = _recyclerView!!
 
     private var lastSlideGravity = Gravity.TOP
     private val fragmentsTransitionDuration by lazy {
@@ -45,10 +55,11 @@ abstract class MoviesListFragment : Fragment() {
         var isAppBarLifted = false
 
         private const val MAX_ALPHA = 255F
+        private const val SEARCH_SYMBOLS_THRESHOLD = 2
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        setAppBarAppearance(view)
+        setAppBarAppearance()
         setSearchViewAppearance()
         setRecyclerViewAppearance()
         initializeToolbar(view)
@@ -61,6 +72,11 @@ abstract class MoviesListFragment : Fragment() {
         recyclerView.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View?, outline: Outline?) {}
         }
+
+        _appBar = null
+        _searchBar = null
+        _searchView = null
+        _recyclerView = null
     }
 
     fun hideSearchView() = searchView.hide()
@@ -68,10 +84,21 @@ abstract class MoviesListFragment : Fragment() {
     fun isSearchViewHidden() = searchView.currentTransitionState == SearchView.TransitionState.HIDDEN
 
     protected fun initializeViewsReferences(rootView: View) {
-        appBar = rootView.findViewById(R.id.app_bar)
-        searchBar = rootView.findViewById(R.id.search_bar)
-        searchView = rootView.findViewById(R.id.search_view)
-        recyclerView = rootView.findViewById(R.id.movies_list_recycler)
+        _appBar = rootView.findViewById(R.id.app_bar)
+        _searchBar = rootView.findViewById(R.id.search_bar)
+        _searchView = rootView.findViewById(R.id.search_view)
+        _recyclerView = rootView.findViewById(R.id.movies_list_recycler)
+    }
+
+    protected fun searchInDatabase(query: CharSequence, source: List<Movie>, moviesRecyclerAdapter: MoviesRecyclerAdapter?) {
+        if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
+            val result = source.filter {
+                it.title.lowercase().contains(query.toString().lowercase())
+            }
+            moviesRecyclerAdapter?.setList(result)
+        } else if (query.isEmpty()) {
+            moviesRecyclerAdapter?.setList(source)
+        }
     }
 
     protected fun setTransitionAnimation(slideGravity: Int = lastSlideGravity) {
@@ -109,34 +136,27 @@ abstract class MoviesListFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {}
 
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if (s.length >= 2) {
-                    val result = source.filter {
-                        it.title.lowercase().contains(s.toString().lowercase())
-                    }
-                    moviesRecyclerAdapter?.setList(result)
-                } else if (s.isEmpty()) {
-                    moviesRecyclerAdapter?.setList(source)
-                }
+                searchInDatabase(s, source, moviesRecyclerAdapter)
                 lastSearch = s
             }
         }
         searchView.apply {
-            editText.text = lastSearch as? Editable
-            editText.addTextChangedListener(textChangeListener)
             addTransitionListener { _, previousState, newState ->
-                if (previousState == SearchView.TransitionState.SHOWING &&
+                if (previousState == SearchView.TransitionState.HIDDEN &&
+                    newState == SearchView.TransitionState.SHOWING) {
+                    requestFocusAndShowKeyboard()
+                } else if (previousState == SearchView.TransitionState.SHOWING &&
                         newState == SearchView.TransitionState.SHOWN) {
-                    editText.text = lastSearch as? Editable
+                    editText.setText(lastSearch)
                     editText.addTextChangedListener(textChangeListener)
-                // При скрытии и начале открытия search view удалять обработчик для избежания
-                // промежуточных загрузок полной базы при временно пустом поле при анимации
                 } else if (previousState == SearchView.TransitionState.SHOWN &&
                         newState == SearchView.TransitionState.HIDING) {
                     editText.removeTextChangedListener(textChangeListener)
-                } else if (previousState == SearchView.TransitionState.HIDDEN &&
-                        newState == SearchView.TransitionState.SHOWING) {
-                    editText.removeTextChangedListener(textChangeListener)
-                    requestFocusAndShowKeyboard()
+                    // Принудительно убрать системную панель навигации на старых андроидах
+                    if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        WindowInsetsControllerCompat(requireActivity().window, requireView())
+                            .hide(WindowInsetsCompat.Type.navigationBars())
+                    }
                 }
             }
             editText.setOnEditorActionListener { _, actionId, _ ->
@@ -163,7 +183,7 @@ abstract class MoviesListFragment : Fragment() {
         }
     }
 
-    private fun setAppBarAppearance(rootView: View) {
+    private fun setAppBarAppearance() {
         appBar.apply {
             ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
                 updatePadding(top = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top)
@@ -181,6 +201,7 @@ abstract class MoviesListFragment : Fragment() {
                             resources.getDimensionPixelSize(R.dimen.general_corner_radius_extra_large)
                                 .toFloat() * deltaHeight  // Чем больше раскрыт app bar, тем больше скругление углов
                         )
+                        outline?.alpha = 0f
                     }
                 }
                 clipToOutline = true
@@ -189,11 +210,7 @@ abstract class MoviesListFragment : Fragment() {
             foreground = ColorDrawable(context.getColor(R.color.md_theme_secondaryContainer))
             foreground.alpha = 0
 
-            if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                setExpanded(true, false)
-            } else {
-                setExpanded(!isAppBarLifted, false)
-            }
+            setExpanded(!isAppBarLifted, false)
 
             doOnLayout {
                 // Слушатель смещения app bar закрашивающий search bar и обновляющий размеры recycler
@@ -257,28 +274,17 @@ abstract class MoviesListFragment : Fragment() {
                 val bottomNavigation =
                     requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bar)
                 val margin = resources.getDimensionPixelSize(R.dimen.activity_main_movies_recycler_margin_vertical)
-                val freeSpace = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    bottomNavigation.top - appBar.height - margin - margin
-                } else {
-                    it.height
-                }
+                val freeSpace = bottomNavigation.top - appBar.height - margin - margin
 
                 override fun getOutline(view: View?, outline: Outline?) {
                     // Прямо в методе закругления краёв обновляем высоту recycler, всё равно этот метод
                     // вызывается при каждом изменении размеров вьюхи
                     view?.updateLayoutParams {
-                        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                            if (searchView.isShowing) {
-                                it.top = searchView.height + margin
-                                it.bottom = bottomNavigation.top - margin
-                            } else {
-                                height = freeSpace - appBar.top
-                            }
+                        if (searchView.isShowing) {
+                            it.top = searchView.height + margin
+                            it.bottom = bottomNavigation.top - margin
                         } else {
-                            if (searchView.isShowing) {
-                                it.top = searchView.height + margin
-                                it.bottom = searchView.height + margin + height
-                            }
+                            height = freeSpace - appBar.top
                         }
                     }
                     outline?.setRoundRect(
@@ -286,6 +292,7 @@ abstract class MoviesListFragment : Fragment() {
                         resources.getDimensionPixelSize(R.dimen.general_corner_radius_large)
                             .toFloat()
                     )
+                    outline?.alpha = 0f
                 }
             }
             it.clipToOutline = true

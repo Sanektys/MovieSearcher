@@ -102,14 +102,6 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         } else {
             width / DIVIDER_TO_CENTER
         }
-
-//        staticPartBitmap = Bitmap.createBitmap(width, height ,Bitmap.Config.ARGB_8888)
-//        staticPartCanvas = Canvas(staticPartBitmap)
-//        isStaticElementsDrawn = false
-//
-//        allPartsBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-//        allPartsCanvas = Canvas(allPartsBitmap)
-//        isAllElementsDrawn = false
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -252,6 +244,7 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         outerCirclePaint.apply {
             style = Paint.Style.FILL
             color = outerBackgroundColorAttr
+            isAntiAlias = true
         }
         innerCirclePaint.apply {
             style = Paint.Style.FILL
