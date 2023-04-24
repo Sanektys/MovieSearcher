@@ -1,4 +1,4 @@
-package com.sandev.moviesearcher.views
+package com.sandev.moviesearcher.view.customviews
 
 import android.content.Context
 import android.graphics.*

@@ -1,4 +1,4 @@
-package com.sandev.moviesearcher.fragments
+package com.sandev.moviesearcher.view.fragments
 
 import android.content.Intent
 import android.graphics.Outline
@@ -20,17 +20,18 @@ import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.sandev.moviesearcher.MainActivity
+import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
-import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
-import com.sandev.moviesearcher.movieListRecyclerView.data.favoriteMovies
-import com.sandev.moviesearcher.movieListRecyclerView.data.watchLaterMovies
+import com.sandev.moviesearcher.data.Movie
+import com.sandev.moviesearcher.data.favoriteMovies
+import com.sandev.moviesearcher.data.watchLaterMovies
 
 
 class DetailsFragment : Fragment() {
 
-    private val movie by lazy(LazyThreadSafetyMode.NONE) { arguments?.getParcelable<Movie>(MainActivity.MOVIE_DATA_KEY)!! }
+    private val movie by lazy(LazyThreadSafetyMode.NONE) { arguments?.getParcelable<Movie>(
+        MainActivity.MOVIE_DATA_KEY)!! }
 
     private var isFavoriteMovie: Boolean = false
     private var isWatchLaterMovie: Boolean = false
@@ -69,9 +70,13 @@ class DetailsFragment : Fragment() {
         setToolbarBackButton()
         setFloatButtonOnClick()
         if (savedInstanceState != null) {
-            binding.fabToFavorite.isSelected = savedInstanceState.getBoolean(FAVORITE_BUTTON_SELECTED_KEY)
+            binding.fabToFavorite.isSelected = savedInstanceState.getBoolean(
+                FAVORITE_BUTTON_SELECTED_KEY
+            )
             binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
-            binding.fabToWatchLater.isSelected = savedInstanceState.getBoolean(WATCH_LATER_BUTTON_SELECTED_KEY)
+            binding.fabToWatchLater.isSelected = savedInstanceState.getBoolean(
+                WATCH_LATER_BUTTON_SELECTED_KEY
+            )
             binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
         }
 

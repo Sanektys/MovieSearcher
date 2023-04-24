@@ -1,4 +1,4 @@
-package com.sandev.moviesearcher.movieListRecyclerView.data
+package com.sandev.moviesearcher.data
 
 import android.os.Parcelable
 import com.sandev.moviesearcher.R

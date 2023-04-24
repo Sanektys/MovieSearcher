@@ -1,4 +1,4 @@
-package com.sandev.moviesearcher.fragments
+package com.sandev.moviesearcher.view.fragments
 
 import android.os.Bundle
 import android.view.Gravity
@@ -11,13 +11,13 @@ import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
-import com.sandev.moviesearcher.MainActivity
+import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentWatchLaterBinding
-import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
-import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
-import com.sandev.moviesearcher.movieListRecyclerView.data.watchLaterMovies
-import com.sandev.moviesearcher.movieListRecyclerView.itemAnimator.MovieItemAnimator
+import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
+import com.sandev.moviesearcher.data.Movie
+import com.sandev.moviesearcher.data.watchLaterMovies
+import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -84,7 +84,8 @@ class WatchLaterFragment : MoviesListFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireActivity().supportFragmentManager.setFragmentResultListener(WATCH_LATER_DETAILS_RESULT_KEY, this) { _, bundle ->
+        requireActivity().supportFragmentManager.setFragmentResultListener(
+            WATCH_LATER_DETAILS_RESULT_KEY, this) { _, bundle ->
             isMovieNowNotWatchLater = bundle.getBoolean(MOVIE_NOW_NOT_WATCH_LATER_KEY)
         }
 

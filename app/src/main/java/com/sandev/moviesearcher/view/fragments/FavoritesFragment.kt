@@ -1,4 +1,4 @@
-package com.sandev.moviesearcher.fragments
+package com.sandev.moviesearcher.view.fragments
 
 import android.os.Bundle
 import android.view.Gravity
@@ -11,13 +11,13 @@ import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
-import com.sandev.moviesearcher.MainActivity
+import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentFavoritesBinding
-import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
-import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
-import com.sandev.moviesearcher.movieListRecyclerView.data.favoriteMovies
-import com.sandev.moviesearcher.movieListRecyclerView.itemAnimator.MovieItemAnimator
+import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
+import com.sandev.moviesearcher.data.Movie
+import com.sandev.moviesearcher.data.favoriteMovies
+import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -73,13 +73,15 @@ class FavoritesFragment : MoviesListFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireActivity().supportFragmentManager.setFragmentResultListener(FAVORITES_DETAILS_RESULT_KEY, this) { _, bundle ->
+        requireActivity().supportFragmentManager.setFragmentResultListener(
+            FAVORITES_DETAILS_RESULT_KEY, this) { _, bundle ->
             isMovieNowNotFavorite = bundle.getBoolean(MOVIE_NOW_NOT_FAVORITE_KEY)
         }
 
         initializeMovieRecyclerList()
         favoriteMoviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
-            FAVORITE_MOVIES_RECYCLER_VIEW_STATE))
+            FAVORITE_MOVIES_RECYCLER_VIEW_STATE
+        ))
 
         setupSearchBehavior(favoriteMoviesRecyclerAdapter, favoriteMovies)
     }

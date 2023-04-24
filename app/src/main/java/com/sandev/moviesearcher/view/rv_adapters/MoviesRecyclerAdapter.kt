@@ -1,16 +1,15 @@
-package com.sandev.moviesearcher.movieListRecyclerView.adapter
+package com.sandev.moviesearcher.view.rv_adapters
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.MovieCardBinding
-import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
-import com.sandev.moviesearcher.movieListRecyclerView.diffUtil.MoviesListDiff
-import com.sandev.moviesearcher.movieListRecyclerView.viewHolder.MovieViewHolder
+import com.sandev.moviesearcher.data.Movie
+import com.sandev.moviesearcher.utils.rv_diffutils.MoviesListDiff
+import com.sandev.moviesearcher.view.rv_viewholders.MovieViewHolder
 
 
 class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {

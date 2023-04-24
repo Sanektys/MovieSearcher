@@ -1,4 +1,4 @@
-package com.sandev.moviesearcher
+package com.sandev.moviesearcher.view
 
 import android.content.res.Configuration
 import android.graphics.Outline
@@ -14,9 +14,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.ActivityMainBinding
-import com.sandev.moviesearcher.fragments.*
-import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
+import com.sandev.moviesearcher.data.Movie
+import com.sandev.moviesearcher.view.fragments.*
 import java.util.concurrent.Executors
 
 
@@ -233,9 +234,9 @@ class MainActivity : AppCompatActivity() {
         fun saveAndPop() {
             val lastFragmentInBackStack = fragments.last()
             when (lastFragmentInBackStack) {
-                is HomeFragment       -> homeFragment       = lastFragmentInBackStack
+                is HomeFragment -> homeFragment       = lastFragmentInBackStack
                 is WatchLaterFragment -> watchLaterFragment = lastFragmentInBackStack
-                is FavoritesFragment  -> favoritesFragment  = lastFragmentInBackStack
+                is FavoritesFragment -> favoritesFragment  = lastFragmentInBackStack
             }
             previousFragmentName = lastFragmentInBackStack::class.qualifiedName
             popBackStack()

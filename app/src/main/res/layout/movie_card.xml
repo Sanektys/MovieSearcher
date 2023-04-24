@@ -62,7 +62,7 @@
             android:ellipsize="end"
             tools:text="@tools:sample/lorem/random" />
 
-        <com.sandev.moviesearcher.views.RatingDonutView
+        <com.sandev.moviesearcher.view.customviews.RatingDonutView
             android:id="@+id/rating_donut"
             android:layout_width="@dimen/activity_main.movies_recycler.movie_card.rating_donut.width"
             android:layout_height="@dimen/activity_main.movies_recycler.movie_card.rating_donut.height"

@@ -1,4 +1,4 @@
-package com.sandev.moviesearcher.fragments
+package com.sandev.moviesearcher.view.fragments
 
 import android.os.Bundle
 import android.view.Gravity
@@ -12,13 +12,13 @@ import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.*
-import com.sandev.moviesearcher.MainActivity
+import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentHomeBinding
 import com.sandev.moviesearcher.databinding.MergeFragmentHomeContentBinding
-import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
-import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
-import com.sandev.moviesearcher.movieListRecyclerView.data.mockData
+import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
+import com.sandev.moviesearcher.data.Movie
+import com.sandev.moviesearcher.data.mockData
 
 
 class HomeFragment : MoviesListFragment() {
@@ -63,7 +63,8 @@ class HomeFragment : MoviesListFragment() {
 
         initializeMovieRecyclerList()
         moviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
-            MOVIES_RECYCLER_VIEW_STATE))
+            MOVIES_RECYCLER_VIEW_STATE
+        ))
 
         setupSearchBehavior(moviesRecyclerAdapter, mockData)
     }

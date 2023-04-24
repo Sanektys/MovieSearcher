@@ -1,4 +1,4 @@
-package com.sandev.moviesearcher.fragments
+package com.sandev.moviesearcher.view.fragments
 
 import android.animation.Animator
 import android.os.Bundle
@@ -11,7 +11,7 @@ import androidx.core.view.postDelayed
 import androidx.fragment.app.Fragment
 import com.airbnb.lottie.LottieAnimationView
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.sandev.moviesearcher.MainActivity
+import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
 
 

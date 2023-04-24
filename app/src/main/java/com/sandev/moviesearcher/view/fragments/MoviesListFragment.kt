@@ -1,4 +1,4 @@
-package com.sandev.moviesearcher.fragments
+package com.sandev.moviesearcher.view.fragments
 
 import android.animation.AnimatorInflater
 import android.content.res.Configuration
@@ -26,8 +26,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.search.SearchBar
 import com.google.android.material.search.SearchView
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
-import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
+import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
+import com.sandev.moviesearcher.data.Movie
 
 
 abstract class MoviesListFragment : Fragment() {
