@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.MovieCardBinding
-import com.sandev.moviesearcher.data.Movie
+import com.sandev.moviesearcher.domain.Movie
 import com.sandev.moviesearcher.utils.rv_diffutils.MoviesListDiff
 import com.sandev.moviesearcher.view.rv_viewholders.MovieViewHolder
 
@@ -16,7 +16,7 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
 
     private val moviesList: MutableList<Movie> = mutableListOf()
     private var clickListener: OnClickListener? = null
-    var lastMovieClickedPosition = DEFAULT_NON_CLICKED_POSITION
+    var lastClickedMoviePosition = DEFAULT_NON_CLICKED_POSITION
         private set
 
     companion object {
@@ -32,10 +32,10 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
         holder.onBind(moviesList[position], position)
 
         holder.poster.setOnClickListener {
-            lastMovieClickedPosition = holder.bindingAdapterPosition
+            lastClickedMoviePosition = holder.bindingAdapterPosition
             it.transitionName = it.resources.getString(R.string.movie_view_holder_transition_name,
-                lastMovieClickedPosition)
-            clickListener?.onClick(moviesList[lastMovieClickedPosition], holder.poster)
+                lastClickedMoviePosition)
+            clickListener?.onClick(moviesList[lastClickedMoviePosition], holder.poster)
         }
     }
 
@@ -51,9 +51,13 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
 
     fun findMovie(movie: Movie): Movie? = moviesList.find { it.title == movie.title }
 
-    fun setList(newList: List<Movie>) {
+    fun setList(list: List<Movie>?) {
+        if (list == moviesList) {
+            return
+        }
         val oldList = moviesList.toList()
         moviesList.clear()
+        val newList = list ?: emptyList()
         moviesList.addAll(newList)
         DiffUtil.calculateDiff(MoviesListDiff(oldList, newList)).dispatchUpdatesTo(this)
     }
@@ -81,10 +85,10 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
     }
 
     fun removeLastClickedMovie() {
-        if (lastMovieClickedPosition >= 0) {
-            moviesList.removeAt(lastMovieClickedPosition)
-            notifyItemRemoved(lastMovieClickedPosition)
-            lastMovieClickedPosition = DEFAULT_NON_CLICKED_POSITION
+        if (lastClickedMoviePosition >= 0) {
+            moviesList.removeAt(lastClickedMoviePosition)
+            notifyItemRemoved(lastClickedMoviePosition)
+            lastClickedMoviePosition = DEFAULT_NON_CLICKED_POSITION
         }
     }
 }

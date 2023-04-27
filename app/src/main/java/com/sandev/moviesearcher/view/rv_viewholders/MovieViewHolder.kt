@@ -4,7 +4,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.MovieCardBinding
-import com.sandev.moviesearcher.data.Movie
+import com.sandev.moviesearcher.domain.Movie
 
 
 class MovieViewHolder(private val binding: MovieCardBinding) : RecyclerView.ViewHolder(binding.root) {

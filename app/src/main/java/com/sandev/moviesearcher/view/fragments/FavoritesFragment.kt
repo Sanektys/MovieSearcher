@@ -9,35 +9,44 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentFavoritesBinding
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
-import com.sandev.moviesearcher.data.Movie
-import com.sandev.moviesearcher.data.favoriteMovies
+import com.sandev.moviesearcher.domain.Movie
 import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
+import com.sandev.moviesearcher.view.viewmodels.FavoritesFragmentViewModel
+import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
 
 
 class FavoritesFragment : MoviesListFragment() {
 
-    private var isMovieNowNotFavorite: Boolean = false
-    override var lastSearch: CharSequence?
-        set(value) { Companion.lastSearch = value }
-        get() = Companion.lastSearch
+    override val viewModel: FavoritesFragmentViewModel by lazy {
+        ViewModelProvider(requireActivity())[FavoritesFragmentViewModel::class.java]
+    }
 
     private var _binding: FragmentFavoritesBinding? = null
     private val binding: FragmentFavoritesBinding
         get() = _binding!!
+
     private var mainActivity: MainActivity? = null
     private var favoriteMoviesRecyclerManager: RecyclerView.LayoutManager? = null
+    override var recyclerAdapter: MoviesRecyclerAdapter?
+        set(value) {
+            Companion.recyclerAdapter = value
+        }
+        get() = Companion.recyclerAdapter
 
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
         override fun onClick(movie: Movie, posterView: ImageView) {
             resetExitReenterTransitionAnimations()
+            viewModel.lastClickedMovie = movie
             mainActivity?.startDetailsFragment(movie, posterView)
         }
     }
@@ -47,14 +56,13 @@ class FavoritesFragment : MoviesListFragment() {
 
     companion object {
         const val FAVORITES_DETAILS_RESULT_KEY = "FAVORITES_DETAILS_RESULT"
+
         const val MOVIE_NOW_NOT_FAVORITE_KEY = "MOVIE_NOW_NOT_FAVORITE"
 
         private const val FAVORITE_MOVIES_RECYCLER_VIEW_STATE = "FavoriteMoviesRecylerViewState"
 
-        private var favoriteMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
-        private var lastSearch: CharSequence? = null
+        private var recyclerAdapter: MoviesRecyclerAdapter? = null
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,17 +81,19 @@ class FavoritesFragment : MoviesListFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.moviesListLiveData.observe(viewLifecycleOwner) { favoriteMovies ->
+            moviesDatabase = favoriteMovies
+        }
+
         requireActivity().supportFragmentManager.setFragmentResultListener(
             FAVORITES_DETAILS_RESULT_KEY, this) { _, bundle ->
-            isMovieNowNotFavorite = bundle.getBoolean(MOVIE_NOW_NOT_FAVORITE_KEY)
+            viewModel.isMovieMoreNotFavorite = bundle.getBoolean(MOVIE_NOW_NOT_FAVORITE_KEY)
         }
 
         initializeMovieRecyclerList()
         favoriteMoviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
             FAVORITE_MOVIES_RECYCLER_VIEW_STATE
         ))
-
-        setupSearchBehavior(favoriteMoviesRecyclerAdapter, favoriteMovies)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -100,23 +110,22 @@ class FavoritesFragment : MoviesListFragment() {
     override fun onDestroy() {
         super.onDestroy()
         if (activity?.isChangingConfigurations == false) {
-            favoriteMoviesRecyclerAdapter = null
+            recyclerAdapter = null
         }
     }
 
     private fun initializeMovieRecyclerList() {
-        if (favoriteMoviesRecyclerAdapter == null) {
-            favoriteMoviesRecyclerAdapter = MoviesRecyclerAdapter()
-            // Загрузить в recycler прошлый результат поиска
-            searchInDatabase(lastSearch ?: "", favoriteMovies, favoriteMoviesRecyclerAdapter)
+        if (recyclerAdapter == null) {
+            recyclerAdapter = MoviesRecyclerAdapter()
+            initializeRecyclerAdapter()
         }
         // Пока не прошла анимация не обрабатывать клики на постеры
-        favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClickDummy)
+        recyclerAdapter?.setPosterOnClickListener(posterOnClickDummy)
 
         binding.moviesListRecycler.apply {
             setHasFixedSize(true)
             isNestedScrollingEnabled = true
-            adapter = favoriteMoviesRecyclerAdapter
+            adapter = recyclerAdapter
 
             favoriteMoviesRecyclerManager = layoutManager!!
 
@@ -126,16 +135,19 @@ class FavoritesFragment : MoviesListFragment() {
                 resources.getInteger(R.integer.fragment_favorites_delay_recyclerViewAppearance)
                     .toLong()
             ) {
-                if (isMovieNowNotFavorite) {
-                    favoriteMoviesRecyclerAdapter?.removeLastClickedMovie()
-                    isMovieNowNotFavorite = false
+                if (viewModel.isMovieMoreNotFavorite) {
+                    if (viewModel.lastClickedMovie != null) {
+                        viewModel.removeFromFavorite(viewModel.lastClickedMovie!!)
+                        viewModel.lastClickedMovie = null
+                    }
+                    viewModel.isMovieMoreNotFavorite = false
                     postDelayed(
-                        (itemAnimator?.removeDuration ?: 0) + (itemAnimator?.moveDuration ?: 0)
+                        max(itemAnimator?.removeDuration ?: 0, itemAnimator?.moveDuration ?: 0)
                     ) {
-                        favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
+                        recyclerAdapter?.setPosterOnClickListener(posterOnClick)
                     }
                 } else {
-                    favoriteMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
+                    recyclerAdapter?.setPosterOnClickListener(posterOnClick)
                 }
             }
             doOnPreDraw { startPostponedEnterTransition() }
