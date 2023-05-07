@@ -1,4 +1,4 @@
-package com.sandev.moviesearcher.fragments
+package com.sandev.moviesearcher.view.fragments
 
 import android.content.Intent
 import android.graphics.Outline
@@ -12,6 +12,7 @@ import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
+import androidx.lifecycle.ViewModelProvider
 import androidx.transition.Fade
 import androidx.transition.Slide
 import androidx.transition.TransitionInflater
@@ -20,17 +21,25 @@ import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.sandev.moviesearcher.MainActivity
+import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
-import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
-import com.sandev.moviesearcher.movieListRecyclerView.data.favoriteMovies
-import com.sandev.moviesearcher.movieListRecyclerView.data.watchLaterMovies
+import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.view.viewmodels.FavoritesFragmentViewModel
+import com.sandev.moviesearcher.view.viewmodels.WatchLaterFragmentViewModel
 
 
 class DetailsFragment : Fragment() {
 
-    private val movie by lazy(LazyThreadSafetyMode.NONE) { arguments?.getParcelable<Movie>(MainActivity.MOVIE_DATA_KEY)!! }
+    private val movie by lazy(LazyThreadSafetyMode.NONE) { arguments?.getParcelable<Movie>(
+        MainActivity.MOVIE_DATA_KEY)!! }
+
+    private val favoritesFragmentViewModel by lazy {
+        ViewModelProvider(requireActivity())[FavoritesFragmentViewModel::class.java]
+    }
+    private val watchLaterFragmentViewModel by lazy {
+        ViewModelProvider(requireActivity())[WatchLaterFragmentViewModel::class.java]
+    }
 
     private var isFavoriteMovie: Boolean = false
     private var isWatchLaterMovie: Boolean = false
@@ -69,9 +78,13 @@ class DetailsFragment : Fragment() {
         setToolbarBackButton()
         setFloatButtonOnClick()
         if (savedInstanceState != null) {
-            binding.fabToFavorite.isSelected = savedInstanceState.getBoolean(FAVORITE_BUTTON_SELECTED_KEY)
+            binding.fabToFavorite.isSelected = savedInstanceState.getBoolean(
+                FAVORITE_BUTTON_SELECTED_KEY
+            )
             binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
-            binding.fabToWatchLater.isSelected = savedInstanceState.getBoolean(WATCH_LATER_BUTTON_SELECTED_KEY)
+            binding.fabToWatchLater.isSelected = savedInstanceState.getBoolean(
+                WATCH_LATER_BUTTON_SELECTED_KEY
+            )
             binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
         }
 
@@ -120,7 +133,7 @@ class DetailsFragment : Fragment() {
     }
 
     private fun setFloatButtonOnClick() {
-        if (favoriteMovies.find { it.title == movie.title } != null) {
+        if (favoritesFragmentViewModel.moviesListLiveData.value?.find { it.title == movie.title } != null) {
             isFavoriteMovie = true
             binding.fabToFavorite.isSelected = true
             binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
@@ -136,7 +149,7 @@ class DetailsFragment : Fragment() {
                 Snackbar.LENGTH_SHORT).show()
         }
 
-        if (watchLaterMovies.find { it.title == movie.title } != null) {
+        if (watchLaterFragmentViewModel.moviesListLiveData.value?.find { it.title == movie.title } != null) {
             isWatchLaterMovie = true
             binding.fabToWatchLater.isSelected = true
             binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
@@ -239,32 +252,30 @@ class DetailsFragment : Fragment() {
 
     private fun changeFavoriteMoviesList() {
         if (!isFavoriteMovie && binding.fabToFavorite.isSelected) {
-            isFavoriteMovie = true
-            favoriteMovies.add(movie)
+            favoritesFragmentViewModel.addToFavorite(movie)
         } else if (isFavoriteMovie && !binding.fabToFavorite.isSelected) {
-            isFavoriteMovie = false
-            favoriteMovies.remove(movie)
             if (fragmentThatLaunchedDetails == FavoritesFragment::class.qualifiedName) {
                 requireActivity().supportFragmentManager.setFragmentResult(
                     FavoritesFragment.FAVORITES_DETAILS_RESULT_KEY,
                     bundleOf(FavoritesFragment.MOVIE_NOW_NOT_FAVORITE_KEY to true)
                 )
+            } else {
+                favoritesFragmentViewModel.removeFromFavorite(movie)
             }
         }
     }
 
     private fun changeWatchLaterMoviesList() {
         if (!isWatchLaterMovie && binding.fabToWatchLater.isSelected) {
-            isWatchLaterMovie = true
-            watchLaterMovies.add(movie)
+            watchLaterFragmentViewModel.addToWatchLater(movie)
         } else if (isWatchLaterMovie && !binding.fabToWatchLater.isSelected) {
-            isWatchLaterMovie = false
-            watchLaterMovies.remove(movie)
             if (fragmentThatLaunchedDetails == WatchLaterFragment::class.qualifiedName) {
                 requireActivity().supportFragmentManager.setFragmentResult(
                     WatchLaterFragment.WATCH_LATER_DETAILS_RESULT_KEY,
                     bundleOf(WatchLaterFragment.MOVIE_NOW_NOT_WATCH_LATER_KEY to true)
                 )
+            } else {
+                watchLaterFragmentViewModel.removeFromWatchLater(movie)
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.sandev.moviesearcher.fragments
+package com.sandev.moviesearcher.view.fragments
 
 import android.os.Bundle
 import android.view.Gravity
@@ -9,39 +9,47 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
-import com.sandev.moviesearcher.MainActivity
+import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentWatchLaterBinding
-import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
-import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
-import com.sandev.moviesearcher.movieListRecyclerView.data.watchLaterMovies
-import com.sandev.moviesearcher.movieListRecyclerView.itemAnimator.MovieItemAnimator
+import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
+import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
+import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
+import com.sandev.moviesearcher.view.viewmodels.WatchLaterFragmentViewModel
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
 
 
 class WatchLaterFragment : MoviesListFragment() {
 
-    private var isMovieNowNotWatchLater: Boolean = false
-    override var lastSearch: CharSequence?
-        set(value) { Companion.lastSearch = value }
-        get() = Companion.lastSearch
+    override val viewModel: WatchLaterFragmentViewModel by lazy {
+        ViewModelProvider(requireActivity())[WatchLaterFragmentViewModel::class.java]
+    }
 
     private var _binding: FragmentWatchLaterBinding? = null
     private val binding: FragmentWatchLaterBinding
         get() = _binding!!
+
     private var mainActivity: MainActivity? = null
     private var watchLaterMoviesRecyclerManager: RecyclerView.LayoutManager? = null
+    override var recyclerAdapter: MoviesRecyclerAdapter?
+        set(value) {
+            Companion.recyclerAdapter = value
+        }
+        get() = Companion.recyclerAdapter
 
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
         override fun onClick(movie: Movie, posterView: ImageView) {
             resetExitReenterTransitionAnimations()
+            viewModel.lastClickedMovie = movie
             mainActivity?.startDetailsFragment(movie, posterView)
         }
     }
-
     private val posterOnClickDummy = object : MoviesRecyclerAdapter.OnClickListener {
         override fun onClick(movie: Movie, posterView: ImageView) {}
     }
@@ -52,12 +60,10 @@ class WatchLaterFragment : MoviesListFragment() {
 
         private const val WATCH_LATER_MOVIES_RECYCLER_VIEW_STATE = "WatchLaterMoviesRecylerViewState"
 
-        private var watchLaterMoviesRecyclerAdapter: MoviesRecyclerAdapter? = null
-        private var lastSearch: CharSequence? = null
-
         private var isLaunchedFromLeft = true
-    }
 
+        private var recyclerAdapter: MoviesRecyclerAdapter? = null
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -84,16 +90,19 @@ class WatchLaterFragment : MoviesListFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireActivity().supportFragmentManager.setFragmentResultListener(WATCH_LATER_DETAILS_RESULT_KEY, this) { _, bundle ->
-            isMovieNowNotWatchLater = bundle.getBoolean(MOVIE_NOW_NOT_WATCH_LATER_KEY)
+        viewModel.moviesListLiveData.observe(viewLifecycleOwner) { watchLaterMovies ->
+            moviesDatabase = watchLaterMovies
+        }
+
+        requireActivity().supportFragmentManager.setFragmentResultListener(
+            WATCH_LATER_DETAILS_RESULT_KEY, this) { _, bundle ->
+            viewModel.isMovieMoreNotWatchLater = bundle.getBoolean(MOVIE_NOW_NOT_WATCH_LATER_KEY)
         }
 
         initializeMovieRecyclerList()
         watchLaterMoviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
             WATCH_LATER_MOVIES_RECYCLER_VIEW_STATE
         ))
-
-        setupSearchBehavior(watchLaterMoviesRecyclerAdapter, watchLaterMovies)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -110,23 +119,22 @@ class WatchLaterFragment : MoviesListFragment() {
     override fun onDestroy() {
         super.onDestroy()
         if (activity?.isChangingConfigurations == false) {
-            watchLaterMoviesRecyclerAdapter = null
+            recyclerAdapter = null
         }
     }
 
     private fun initializeMovieRecyclerList() {
-        if (watchLaterMoviesRecyclerAdapter == null) {
-            watchLaterMoviesRecyclerAdapter = MoviesRecyclerAdapter()
-            // Загрузить в recycler прошлый результат поиска
-            searchInDatabase(lastSearch ?: "", watchLaterMovies, watchLaterMoviesRecyclerAdapter)
+        if (recyclerAdapter == null) {
+            recyclerAdapter = MoviesRecyclerAdapter()
+            initializeRecyclerAdapter()
         }
         // Пока не прошла анимация не обрабатывать клики на постеры
-        watchLaterMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClickDummy)
+        recyclerAdapter?.setPosterOnClickListener(posterOnClickDummy)
 
         binding.moviesListRecycler.apply {
             setHasFixedSize(true)
             isNestedScrollingEnabled = true
-            adapter = watchLaterMoviesRecyclerAdapter
+            adapter = recyclerAdapter
 
             watchLaterMoviesRecyclerManager = layoutManager!!
 
@@ -136,16 +144,19 @@ class WatchLaterFragment : MoviesListFragment() {
                 resources.getInteger(R.integer.fragment_favorites_delay_recyclerViewAppearance)
                     .toLong()
             ) {
-                if (isMovieNowNotWatchLater) {
-                    watchLaterMoviesRecyclerAdapter?.removeLastClickedMovie()
-                    isMovieNowNotWatchLater = false
+                if (viewModel.isMovieMoreNotWatchLater) {
+                    if (viewModel.lastClickedMovie != null) {
+                        viewModel.removeFromWatchLater(viewModel.lastClickedMovie!!)
+                        viewModel.lastClickedMovie = null
+                    }
+                    viewModel.isMovieMoreNotWatchLater = false
                     postDelayed(
-                        (itemAnimator?.removeDuration ?: 0) + (itemAnimator?.moveDuration ?: 0)
+                        max(itemAnimator?.removeDuration ?: 0, itemAnimator?.moveDuration ?: 0)
                     ) {
-                        watchLaterMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
+                        recyclerAdapter?.setPosterOnClickListener(posterOnClick)
                     }
                 } else {
-                    watchLaterMoviesRecyclerAdapter?.setPosterOnClickListener(posterOnClick)
+                    recyclerAdapter?.setPosterOnClickListener(posterOnClick)
                 }
             }
             doOnPreDraw { startPostponedEnterTransition() }

@@ -1,4 +1,4 @@
-package com.sandev.moviesearcher.fragments
+package com.sandev.moviesearcher.view.fragments
 
 import android.animation.AnimatorInflater
 import android.content.res.Configuration
@@ -26,13 +26,22 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.search.SearchBar
 import com.google.android.material.search.SearchView
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
-import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
+import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
+import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
 
 
 abstract class MoviesListFragment : Fragment() {
 
-    protected abstract var lastSearch: CharSequence?
+    protected abstract val viewModel: MoviesListFragmentViewModel
+    protected abstract var recyclerAdapter: MoviesRecyclerAdapter?
+
+    protected var moviesDatabase: List<Movie> = emptyList()
+        set(value) {
+            if (value == field) return
+            field = value
+            initializeRecyclerAdapter()
+        }
 
     private var _appBar: AppBarLayout? = null
     private val appBar: AppBarLayout
@@ -47,7 +56,6 @@ abstract class MoviesListFragment : Fragment() {
     private val recyclerView: RecyclerView
         get() = _recyclerView!!
 
-    private var lastSlideGravity = Gravity.TOP
     private val fragmentsTransitionDuration by lazy {
         resources.getInteger(R.integer.general_animations_durations_fragment_transition).toLong() }
 
@@ -63,6 +71,7 @@ abstract class MoviesListFragment : Fragment() {
         setSearchViewAppearance()
         setRecyclerViewAppearance()
         initializeToolbar(view)
+        setupSearchBehavior()
     }
 
     override fun onDestroyView() {
@@ -83,6 +92,11 @@ abstract class MoviesListFragment : Fragment() {
 
     fun isSearchViewHidden() = searchView.currentTransitionState == SearchView.TransitionState.HIDDEN
 
+    protected fun initializeRecyclerAdapter() {
+        // Загрузить в recycler результат по прошлому запросу в поиск
+        searchInSearchView(viewModel.lastSearch ?: "")
+    }
+
     protected fun initializeViewsReferences(rootView: View) {
         _appBar = rootView.findViewById(R.id.app_bar)
         _searchBar = rootView.findViewById(R.id.search_bar)
@@ -90,19 +104,8 @@ abstract class MoviesListFragment : Fragment() {
         _recyclerView = rootView.findViewById(R.id.movies_list_recycler)
     }
 
-    protected fun searchInDatabase(query: CharSequence, source: List<Movie>, moviesRecyclerAdapter: MoviesRecyclerAdapter?) {
-        if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
-            val result = source.filter {
-                it.title.lowercase().contains(query.toString().lowercase())
-            }
-            moviesRecyclerAdapter?.setList(result)
-        } else if (query.isEmpty()) {
-            moviesRecyclerAdapter?.setList(source)
-        }
-    }
-
-    protected fun setTransitionAnimation(slideGravity: Int = lastSlideGravity) {
-        lastSlideGravity = slideGravity
+    protected fun setTransitionAnimation(slideGravity: Int = viewModel.lastSlideGravity) {
+        viewModel.lastSlideGravity = slideGravity
 
         val recyclerTransition = Slide(slideGravity).apply {
             this.duration = fragmentsTransitionDuration
@@ -130,14 +133,14 @@ abstract class MoviesListFragment : Fragment() {
         reenterTransition = null
     }
 
-    protected fun setupSearchBehavior(moviesRecyclerAdapter: MoviesRecyclerAdapter?, source: List<Movie>) {
+    private fun setupSearchBehavior() {
         val textChangeListener = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun afterTextChanged(s: Editable?) {}
 
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                searchInDatabase(s, source, moviesRecyclerAdapter)
-                lastSearch = s
+                searchInSearchView(s)
+                viewModel.lastSearch = s
             }
         }
         searchView.apply {
@@ -147,7 +150,7 @@ abstract class MoviesListFragment : Fragment() {
                     requestFocusAndShowKeyboard()
                 } else if (previousState == SearchView.TransitionState.SHOWING &&
                         newState == SearchView.TransitionState.SHOWN) {
-                    editText.setText(lastSearch)
+                    editText.setText(viewModel.lastSearch)
                     editText.addTextChangedListener(textChangeListener)
                 } else if (previousState == SearchView.TransitionState.SHOWN &&
                         newState == SearchView.TransitionState.HIDING) {
@@ -157,6 +160,10 @@ abstract class MoviesListFragment : Fragment() {
                         WindowInsetsControllerCompat(requireActivity().window, requireView())
                             .hide(WindowInsetsCompat.Type.navigationBars())
                     }
+                } else if (previousState == SearchView.TransitionState.HIDDEN &&
+                        newState == SearchView.TransitionState.SHOWN) {
+                    // Поставить слушатель при смене конфигурации
+                    editText.addTextChangedListener(textChangeListener)
                 }
             }
             editText.setOnEditorActionListener { _, actionId, _ ->
@@ -165,6 +172,14 @@ abstract class MoviesListFragment : Fragment() {
                 }
                 true
             }
+        }
+    }
+
+    private fun searchInSearchView(query: CharSequence) {
+        if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
+            recyclerAdapter?.setList(viewModel.searchInDatabase(query))
+        } else {
+            recyclerAdapter?.setList(viewModel.moviesListLiveData.value)
         }
     }
 
@@ -219,7 +234,7 @@ abstract class MoviesListFragment : Fragment() {
                     val halfExpandedOffset = (height - paddingTop) / 2
 
                     override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
-                        isLiftOnScroll = !searchView.isShowing  // Не убирать app bar при открытом поиске
+                        isLiftOnScroll = _searchView?.isShowing != true // Не убирать app bar при открытом поиске
 
                         foreground.alpha = (LinearOutSlowInInterpolator()
                             .getInterpolation(-verticalOffset / expandedOffset) * MAX_ALPHA).toInt()
@@ -235,7 +250,7 @@ abstract class MoviesListFragment : Fragment() {
                             }
                         }
 
-                        recyclerView.invalidateOutline()
+                        _recyclerView?.invalidateOutline()
                     }
                 })
             }

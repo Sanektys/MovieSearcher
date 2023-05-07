@@ -1,4 +1,4 @@
-package com.sandev.moviesearcher.movieListRecyclerView.itemAnimator
+package com.sandev.moviesearcher.utils.rv_animators
 
 import android.content.res.Configuration
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator

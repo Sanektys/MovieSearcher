@@ -1,7 +1,7 @@
-package com.sandev.moviesearcher.movieListRecyclerView.diffUtil
+package com.sandev.moviesearcher.utils.rv_diffutils
 
 import androidx.recyclerview.widget.DiffUtil
-import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
+import com.sandev.moviesearcher.domain.Movie
 
 
 class MoviesListDiff(private val oldList: List<Movie>, private val newList: List<Movie>) : DiffUtil.Callback() {

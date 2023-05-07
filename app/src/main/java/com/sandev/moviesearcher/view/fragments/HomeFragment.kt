@@ -1,4 +1,4 @@
-package com.sandev.moviesearcher.fragments
+package com.sandev.moviesearcher.view.fragments
 
 import android.os.Bundle
 import android.view.Gravity
@@ -10,22 +10,24 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.*
-import com.sandev.moviesearcher.MainActivity
+import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentHomeBinding
 import com.sandev.moviesearcher.databinding.MergeFragmentHomeContentBinding
-import com.sandev.moviesearcher.movieListRecyclerView.adapter.MoviesRecyclerAdapter
-import com.sandev.moviesearcher.movieListRecyclerView.data.Movie
-import com.sandev.moviesearcher.movieListRecyclerView.data.mockData
+import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
+import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
+import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
 
 
 class HomeFragment : MoviesListFragment() {
 
-    override var lastSearch: CharSequence?
-        set(value) { Companion.lastSearch = value }
-        get() = Companion.lastSearch
+    override val viewModel: MoviesListFragmentViewModel by lazy {
+        ViewModelProvider.NewInstanceFactory().create(HomeFragmentViewModel::class.java)
+    }
 
     private var _bindingFull: MergeFragmentHomeContentBinding? = null
     private val bindingFull: MergeFragmentHomeContentBinding
@@ -33,9 +35,14 @@ class HomeFragment : MoviesListFragment() {
     private var _bindingBlank: FragmentHomeBinding? = null
     private val bindingBlank: FragmentHomeBinding
         get() = _bindingBlank!!
+
     private var mainActivity: MainActivity? = null
     private var moviesRecyclerManager: RecyclerView.LayoutManager? = null
-    private var moviesRecyclerAdapter: MoviesRecyclerAdapter? = null
+    override var recyclerAdapter: MoviesRecyclerAdapter?
+        set(value) {
+            Companion.recyclerAdapter = value
+        }
+        get() = Companion.recyclerAdapter
 
     companion object {
         var isFragmentClassOnceCreated = false
@@ -43,7 +50,7 @@ class HomeFragment : MoviesListFragment() {
 
         private const val MOVIES_RECYCLER_VIEW_STATE = "MoviesRecylerViewState"
 
-        private var lastSearch: CharSequence? = null
+        private var recyclerAdapter: MoviesRecyclerAdapter? = null
     }
 
     override fun onCreateView(
@@ -61,11 +68,14 @@ class HomeFragment : MoviesListFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.moviesListLiveData.observe(viewLifecycleOwner) { database ->
+            moviesDatabase = database
+        }
+
         initializeMovieRecyclerList()
         moviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
-            MOVIES_RECYCLER_VIEW_STATE))
-
-        setupSearchBehavior(moviesRecyclerAdapter, mockData)
+            MOVIES_RECYCLER_VIEW_STATE
+        ))
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -78,16 +88,21 @@ class HomeFragment : MoviesListFragment() {
         _bindingFull = null
         _bindingBlank = null
         moviesRecyclerManager = null
-        moviesRecyclerAdapter = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (activity?.isChangingConfigurations == false) {
+            recyclerAdapter = null
+        }
     }
 
     private fun initializeMovieRecyclerList() {
-        if (moviesRecyclerAdapter == null) {
-            moviesRecyclerAdapter = MoviesRecyclerAdapter()
-            // Загрузить в recycler прошлый результат поиска
-            searchInDatabase(lastSearch ?: "", mockData, moviesRecyclerAdapter)
+        if (recyclerAdapter == null) {
+            recyclerAdapter = MoviesRecyclerAdapter()
+            initializeRecyclerAdapter()
         }
-        moviesRecyclerAdapter?.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
+        recyclerAdapter?.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
             override fun onClick(movie: Movie, posterView: ImageView) {
                 resetExitReenterTransitionAnimations()
                 mainActivity?.startDetailsFragment(movie, posterView)
@@ -97,7 +112,7 @@ class HomeFragment : MoviesListFragment() {
         bindingFull.moviesListRecycler.apply {
             setHasFixedSize(true)
             isNestedScrollingEnabled = true
-            adapter = moviesRecyclerAdapter
+            adapter = recyclerAdapter
 
             moviesRecyclerManager = layoutManager!!
 
