@@ -11,13 +11,25 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.*
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.doOnLayout
+import androidx.core.view.forEach
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.ActivityMainBinding
 import com.sandev.moviesearcher.domain.Movie
-import com.sandev.moviesearcher.view.fragments.*
+import com.sandev.moviesearcher.view.fragments.DetailsFragment
+import com.sandev.moviesearcher.view.fragments.FavoritesFragment
+import com.sandev.moviesearcher.view.fragments.HomeFragment
+import com.sandev.moviesearcher.view.fragments.MoviesListFragment
+import com.sandev.moviesearcher.view.fragments.SplashScreenFragment
+import com.sandev.moviesearcher.view.fragments.WatchLaterFragment
 import java.util.concurrent.Executors
 
 

@@ -12,7 +12,11 @@ import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
-import androidx.transition.*
+import androidx.transition.Scene
+import androidx.transition.Slide
+import androidx.transition.TransitionInflater
+import androidx.transition.TransitionManager
+import androidx.transition.TransitionSet
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentHomeBinding

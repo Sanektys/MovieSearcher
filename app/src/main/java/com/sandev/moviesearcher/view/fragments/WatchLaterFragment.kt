@@ -18,7 +18,6 @@ import com.sandev.moviesearcher.databinding.FragmentWatchLaterBinding
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.domain.Movie
 import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
-import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
 import com.sandev.moviesearcher.view.viewmodels.WatchLaterFragmentViewModel
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
