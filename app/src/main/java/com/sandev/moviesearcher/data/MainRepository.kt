@@ -15,4 +15,7 @@ class MainRepository {
         Movie(R.drawable.poster_7, "Stranger Things", "When a young boy disappears, his mother, a police chief and his friends must confront terrifying supernatural forces in order to get him back.", 8.7f),
         Movie(R.drawable.poster_8, "A Man Called Otto", "Otto is a grump who's given up on life following the loss of his wife and wants to end it all. When a young family moves in nearby, he meets his match in quick-witted Marisol, leading to a friendship that will turn his world around.", 7.4f)
     )
+
+    val favoritesMovies = mutableListOf<Movie>()
+    val watchLaterMovies = mutableListOf<Movie>()
 }
