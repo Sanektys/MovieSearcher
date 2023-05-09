@@ -16,6 +16,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.forEach
+import androidx.core.view.postDelayed
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
@@ -35,22 +36,16 @@ import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
 import com.sandev.moviesearcher.domain.Movie
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
+import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_HIGH_SIZE
+import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_MEDIUM_SIZE
+import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGES_URL
 
 
 class DetailsFragment : Fragment() {
 
-    private val movie by lazy(LazyThreadSafetyMode.NONE) { arguments?.getParcelable<Movie>(
-        MainActivity.MOVIE_DATA_KEY)!! }
-
-    private val detailsFragmentViewModel by lazy {
+    private val viewModel by lazy {
         ViewModelProvider(requireActivity())[DetailsFragmentViewModel::class.java]
     }
-
-    private var isFavoriteMovie: Boolean = false
-    private var isWatchLaterMovie: Boolean = false
-    private var configurationChanged = false
-
-    private var fragmentThatLaunchedDetails: String? = null
 
     private var _binding: FragmentDetailsBinding? = null
     private val binding: FragmentDetailsBinding
@@ -62,6 +57,7 @@ class DetailsFragment : Fragment() {
         private const val WATCH_LATER_BUTTON_SELECTED_KEY = "WATCH_LATER_BUTTON_SELECTED"
 
         private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
+        private const val DELAY_BEFORE_LOAD_HIGH_QUALITY_IMAGE = 300L
     }
 
     override fun onCreateView(
@@ -72,12 +68,19 @@ class DetailsFragment : Fragment() {
 
         setToolbarAppearance()
 
+        viewModel.isFavoriteMovie = false
+        viewModel.isWatchLaterMovie = false
+        viewModel.isConfigurationChanged = false
+        viewModel.isLowQualityPosterDownloaded = false
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        fragmentThatLaunchedDetails = savedInstanceState?.getString(FRAGMENT_LAUNCHED_KEY) ?:
-                (activity as MainActivity).previousFragmentName
+        viewModel._movie = arguments?.getParcelable<Movie>(MainActivity.MOVIE_DATA_KEY)!!
+
+        viewModel.fragmentThatLaunchedDetails = savedInstanceState
+            ?.getString(FRAGMENT_LAUNCHED_KEY) ?: (activity as MainActivity).previousFragmentName
 
         initializeContent()
         setToolbarBackButton()
@@ -107,19 +110,19 @@ class DetailsFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString(FRAGMENT_LAUNCHED_KEY, fragmentThatLaunchedDetails)
+        outState.putString(FRAGMENT_LAUNCHED_KEY, viewModel.fragmentThatLaunchedDetails)
         outState.putBoolean(FAVORITE_BUTTON_SELECTED_KEY, binding.fabToFavorite.isSelected)
         outState.putBoolean(WATCH_LATER_BUTTON_SELECTED_KEY, binding.fabToWatchLater.isSelected)
     }
 
     override fun onStop() {
         super.onStop()
-        configurationChanged = requireActivity().isChangingConfigurations
+        viewModel.isConfigurationChanged = requireActivity().isChangingConfigurations
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (!configurationChanged) {
+        if (!viewModel.isConfigurationChanged) {
             activity?.findViewById<BottomNavigationView>(R.id.navigation_bar)?.run {
                 animate()
                     .translationY(0f)
@@ -137,9 +140,15 @@ class DetailsFragment : Fragment() {
         _binding = null
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel._movie = null
+        viewModel.fragmentThatLaunchedDetails = null
+    }
+
     private fun setFloatButtonOnClick() {
-        if (detailsFragmentViewModel.favoritesMoviesLiveData.value?.find { it.title == movie.title } != null) {
-            isFavoriteMovie = true
+        if (viewModel.favoritesMoviesLiveData.value?.find { it.title == viewModel.movie.title } != null) {
+            viewModel.isFavoriteMovie = true
             binding.fabToFavorite.isSelected = true
             binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
         }
@@ -154,8 +163,8 @@ class DetailsFragment : Fragment() {
                 Snackbar.LENGTH_SHORT).show()
         }
 
-        if (detailsFragmentViewModel.watchLaterMoviesLiveData.value?.find { it.title == movie.title } != null) {
-            isWatchLaterMovie = true
+        if (viewModel.watchLaterMoviesLiveData.value?.find { it.title == viewModel.movie.title } != null) {
+            viewModel.isWatchLaterMovie = true
             binding.fabToWatchLater.isSelected = true
             binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
         }
@@ -174,18 +183,29 @@ class DetailsFragment : Fragment() {
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "text/plain"
             intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.details_fragment_fab_share_sending_text,
-                movie.title, movie.description))
+                viewModel.movie.title, viewModel.movie.description))
             startActivity(Intent.createChooser(intent, getString(R.string.details_fragment_fab_share_to)))
         }
     }
 
     private fun initializeContent() {
-        binding.collapsingToolbarImage.apply {
-            Glide.with(this@DetailsFragment).load(movie.poster).centerCrop().into(this)
-            transitionName = arguments?.getString(MainActivity.POSTER_TRANSITION_KEY)
+        if (!viewModel.isLowQualityPosterDownloaded) {
+            binding.collapsingToolbarImage.apply {
+                Glide.with(this@DetailsFragment)
+                    .load("${IMAGES_URL}${IMAGE_MEDIUM_SIZE}${viewModel.movie.poster}")
+                    .into(this)
+                transitionName = arguments?.getString(MainActivity.POSTER_TRANSITION_KEY)
+            }
+            viewModel.isLowQualityPosterDownloaded = true
         }
-        binding.title.text = movie.title
-        binding.description.text = movie.description
+        binding.collapsingToolbarImage.postDelayed(DELAY_BEFORE_LOAD_HIGH_QUALITY_IMAGE) {
+            Glide.with(this@DetailsFragment)
+                .load("${IMAGES_URL}${IMAGE_HIGH_SIZE}${viewModel.movie.poster}")
+                .placeholder(binding.collapsingToolbarImage.drawable)
+                .into(binding.collapsingToolbarImage)
+        }
+        binding.title.text = viewModel.movie.title
+        binding.description.text = viewModel.movie.description
     }
 
     private fun setToolbarAppearance() {
@@ -256,31 +276,31 @@ class DetailsFragment : Fragment() {
     }
 
     private fun changeFavoriteMoviesList() {
-        if (!isFavoriteMovie && binding.fabToFavorite.isSelected) {
-            detailsFragmentViewModel.addToFavorite(movie)
-        } else if (isFavoriteMovie && !binding.fabToFavorite.isSelected) {
-            if (fragmentThatLaunchedDetails == FavoritesFragment::class.qualifiedName) {
+        if (!viewModel.isFavoriteMovie && binding.fabToFavorite.isSelected) {
+            viewModel.addToFavorite(viewModel.movie)
+        } else if (viewModel.isFavoriteMovie && !binding.fabToFavorite.isSelected) {
+            if (viewModel.fragmentThatLaunchedDetails == FavoritesFragment::class.qualifiedName) {
                 requireActivity().supportFragmentManager.setFragmentResult(
                     FavoritesFragment.FAVORITES_DETAILS_RESULT_KEY,
                     bundleOf(FavoritesFragment.MOVIE_NOW_NOT_FAVORITE_KEY to true)
                 )
             } else {
-                detailsFragmentViewModel.removeFromFavorite(movie)
+                viewModel.removeFromFavorite(viewModel.movie)
             }
         }
     }
 
     private fun changeWatchLaterMoviesList() {
-        if (!isWatchLaterMovie && binding.fabToWatchLater.isSelected) {
-            detailsFragmentViewModel.addToWatchLater(movie)
-        } else if (isWatchLaterMovie && !binding.fabToWatchLater.isSelected) {
-            if (fragmentThatLaunchedDetails == WatchLaterFragment::class.qualifiedName) {
+        if (!viewModel.isWatchLaterMovie && binding.fabToWatchLater.isSelected) {
+            viewModel.addToWatchLater(viewModel.movie)
+        } else if (viewModel.isWatchLaterMovie && !binding.fabToWatchLater.isSelected) {
+            if (viewModel.fragmentThatLaunchedDetails == WatchLaterFragment::class.qualifiedName) {
                 requireActivity().supportFragmentManager.setFragmentResult(
                     WatchLaterFragment.WATCH_LATER_DETAILS_RESULT_KEY,
                     bundleOf(WatchLaterFragment.MOVIE_NOW_NOT_WATCH_LATER_KEY to true)
                 )
             } else {
-                detailsFragmentViewModel.removeFromWatchLater(movie)
+                viewModel.removeFromWatchLater(viewModel.movie)
             }
         }
     }

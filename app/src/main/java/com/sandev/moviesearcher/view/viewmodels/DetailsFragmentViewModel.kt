@@ -14,6 +14,18 @@ class DetailsFragmentViewModel : ViewModel() {
 
     private val interactor = App.instance.interactor
 
+    var _movie: Movie? = null
+    val movie: Movie
+        get() = _movie!!
+
+    var isFavoriteMovie: Boolean = false
+    var isWatchLaterMovie: Boolean = false
+
+    var isConfigurationChanged: Boolean = false
+    var isLowQualityPosterDownloaded: Boolean = false
+
+    var fragmentThatLaunchedDetails: String? = null
+
 
     fun addToFavorite(movie: Movie) = interactor.addToFavorite(movie)
 

@@ -8,6 +8,7 @@
     <string name="activity_main.bottom_navigation.watch_later.title">VIEW LATER</string>
     <string name="activity_main.top_app_bar.settings.title">SETTINGS</string>
     <string name="activity_main.press_back_for_exit_warning">Press \"back\" again for exit</string>
+    <string name="activity_main.failure_on_load_data">Problem downloading the movie list, check Internet connection</string>
     <string name="details_fragment.toolbar.title">Movie details</string>
     <string name="details_fragment.fab.add_favorite">Added to favorites</string>
     <string name="details_fragment.fab.add_watch_later">Added to \"watch later\"</string>

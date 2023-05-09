@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
 import androidx.lifecycle.ViewModelProvider
@@ -29,8 +30,8 @@ import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
 
 class HomeFragment : MoviesListFragment() {
 
-    override val viewModel: MoviesListFragmentViewModel by lazy {
-        ViewModelProvider.NewInstanceFactory().create(HomeFragmentViewModel::class.java)
+    override val viewModel: HomeFragmentViewModel by lazy {
+        ViewModelProvider(requireActivity())[HomeFragmentViewModel::class.java]
     }
 
     private var _bindingFull: MergeFragmentHomeContentBinding? = null
@@ -74,6 +75,16 @@ class HomeFragment : MoviesListFragment() {
 
         viewModel.moviesListLiveData.observe(viewLifecycleOwner) { database ->
             moviesDatabase = database
+        }
+        viewModel.onFailureFlagLiveData.observe(viewLifecycleOwner) {
+            if (viewModel.onFailureFlag != viewModel.onFailureFlagLiveData.value) {
+                Toast.makeText(
+                    context,
+                    R.string.activity_main_failure_on_load_data,
+                    Toast.LENGTH_LONG
+                ).show()
+                viewModel.onFailureFlag = viewModel.onFailureFlagLiveData.value!!
+            }
         }
 
         initializeMovieRecyclerList()
