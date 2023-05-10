@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.view.fragments
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -25,7 +26,6 @@ import com.sandev.moviesearcher.databinding.MergeFragmentHomeContentBinding
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.domain.Movie
 import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
-import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
 
 
 class HomeFragment : MoviesListFragment() {
@@ -56,6 +56,9 @@ class HomeFragment : MoviesListFragment() {
         private const val MOVIES_RECYCLER_VIEW_STATE = "MoviesRecylerViewState"
 
         private var recyclerAdapter: MoviesRecyclerAdapter? = null
+
+        private const val RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD = 5
+        private const val LOADING_THRESHOLD_MULTIPLIER_FOR_LANDSCAPE = 2
     }
 
     override fun onCreateView(
@@ -84,10 +87,12 @@ class HomeFragment : MoviesListFragment() {
                     Toast.LENGTH_LONG
                 ).show()
                 viewModel.onFailureFlag = viewModel.onFailureFlagLiveData.value!!
+                viewModel.isLoadingOnProcess = false
             }
         }
 
         initializeMovieRecyclerList()
+        setupRecyclerUpdateOnScroll()
         moviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
             MOVIES_RECYCLER_VIEW_STATE
         ))
@@ -100,6 +105,7 @@ class HomeFragment : MoviesListFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        bindingFull.moviesListRecycler.clearOnChildAttachStateChangeListeners()
         _bindingFull = null
         _bindingBlank = null
         moviesRecyclerManager = null
@@ -112,10 +118,14 @@ class HomeFragment : MoviesListFragment() {
         }
     }
 
+    override fun initializeRecyclerAdapter() {
+        recyclerAdapter?.addMovieCards(viewModel.moviesListLiveData.value)
+        viewModel.isLoadingOnProcess = false
+    }
+
     private fun initializeMovieRecyclerList() {
         if (recyclerAdapter == null) {
             recyclerAdapter = MoviesRecyclerAdapter()
-            initializeRecyclerAdapter()
         }
         recyclerAdapter?.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
             override fun onClick(movie: Movie, posterView: ImageView) {
@@ -133,6 +143,31 @@ class HomeFragment : MoviesListFragment() {
 
             doOnPreDraw { startPostponedEnterTransition() }
         }
+    }
+
+    private fun setupRecyclerUpdateOnScroll() {
+        bindingFull.moviesListRecycler.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
+            override fun onChildViewAttachedToWindow(view: View) {
+                val itemPosition = bindingFull.moviesListRecycler.getChildAdapterPosition(view)
+
+                if (itemPosition > viewModel.latestShowedMovieCard) {
+                    viewModel.latestShowedMovieCard = itemPosition
+                    val loadingThreshold =
+                        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                            RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD * LOADING_THRESHOLD_MULTIPLIER_FOR_LANDSCAPE
+                        } else {
+                            RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD
+                        }
+
+                    val itemsRemainingInList = (bindingFull.moviesListRecycler.adapter?.itemCount?.minus(1) ?: 0) - itemPosition
+                    if (itemsRemainingInList <= loadingThreshold && !viewModel.isLoadingOnProcess) {
+                        viewModel.isLoadingOnProcess = true
+                        viewModel.getMoviesFromApi()
+                    }
+                }
+            }
+            override fun onChildViewDetachedFromWindow(view: View) {}
+        })
     }
 
     private fun setAllTransitionAnimation() {

@@ -14,6 +14,9 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     override val interactor: Interactor = App.instance.interactor
 
     var onFailureFlag: Boolean = false
+    var isLoadingOnProcess: Boolean = false
+    var latestShowedMovieCard: Int = 0
+    private var lastPage: Int = 1
 
     override var lastSearch: CharSequence?
         set(value) { Companion.lastSearch = value }
@@ -24,7 +27,19 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     }
 
     init {
-        interactor.getMoviesFromApi(1, object : ApiCallback {
+        getMoviesFromApi()
+    }
+
+    override fun searchInDatabase(query: CharSequence): List<Movie>? {
+        return searchInDatabase(query, moviesListLiveData.value)
+    }
+
+    fun getMoviesFromApi(page: Int = lastPage) {
+        if (page != lastPage) {
+            lastPage = page
+            latestShowedMovieCard = 0
+        }
+        interactor.getMoviesFromApi(lastPage++, object : ApiCallback {
             override fun onSuccess(movies: List<Movie>) {
                 moviesListLiveData.postValue(movies)
             }
@@ -33,10 +48,6 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
                 onFailureFlagLiveData.postValue(!onFailureFlagLiveData.value!!)
             }
         })
-    }
-
-    override fun searchInDatabase(query: CharSequence): List<Movie>? {
-        return searchInDatabase(query, moviesListLiveData.value)
     }
 
     interface ApiCallback {

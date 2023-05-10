@@ -67,10 +67,12 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
         notifyItemInserted(moviesList.size - 1)
     }
 
-    fun addMovieCards(newCards: List<Movie>) {
-        val oldList = moviesList.toList()
-        moviesList.addAll(newCards)
-        DiffUtil.calculateDiff(MoviesListDiff(oldList, moviesList)).dispatchUpdatesTo(this)
+    fun addMovieCards(newCards: List<Movie>?) {
+        if (newCards?.isNotEmpty() == true) {
+            val oldList = moviesList.toList()
+            moviesList.addAll(newCards)
+            DiffUtil.calculateDiff(MoviesListDiff(oldList, moviesList)).dispatchUpdatesTo(this)
+        }
     }
 
     fun removeMovieCard(movie: Movie) {

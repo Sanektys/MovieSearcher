@@ -97,7 +97,7 @@ abstract class MoviesListFragment : Fragment() {
 
     fun isSearchViewHidden() = searchView.currentTransitionState == SearchView.TransitionState.HIDDEN
 
-    protected fun initializeRecyclerAdapter() {
+    protected open fun initializeRecyclerAdapter() {
         // Загрузить в recycler результат по прошлому запросу в поиск
         searchInSearchView(viewModel.lastSearch ?: "")
     }
