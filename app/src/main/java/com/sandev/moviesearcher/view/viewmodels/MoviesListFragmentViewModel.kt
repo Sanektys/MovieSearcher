@@ -16,10 +16,17 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
 
     var lastSlideGravity = Gravity.TOP
 
+
     abstract fun searchInDatabase(query: CharSequence): List<Movie>?
     protected fun searchInDatabase(query: CharSequence, source: List<Movie>?): List<Movie>? {
         return source?.filter {
             it.title.lowercase().contains(query.toString().lowercase())
         }
+    }
+
+
+    interface ApiCallback {
+        fun onSuccess(movies: List<Movie>)
+        fun onFailure()
     }
 }

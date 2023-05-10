@@ -59,6 +59,7 @@ class HomeFragment : MoviesListFragment() {
 
         private const val RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD = 5
         private const val LOADING_THRESHOLD_MULTIPLIER_FOR_LANDSCAPE = 2
+        private const val INITIAL_PAGE_IN_RECYCLER = 1
     }
 
     override fun onCreateView(
@@ -76,22 +77,9 @@ class HomeFragment : MoviesListFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.moviesListLiveData.observe(viewLifecycleOwner) { database ->
-            moviesDatabase = database
-        }
-        viewModel.onFailureFlagLiveData.observe(viewLifecycleOwner) {
-            if (viewModel.onFailureFlag != viewModel.onFailureFlagLiveData.value) {
-                Toast.makeText(
-                    context,
-                    R.string.activity_main_failure_on_load_data,
-                    Toast.LENGTH_LONG
-                ).show()
-                viewModel.onFailureFlag = viewModel.onFailureFlagLiveData.value!!
-                viewModel.isLoadingOnProcess = false
-            }
-        }
+        setupViewModelObserving()
 
-        initializeMovieRecyclerList()
+        initializeMovieRecycler()
         setupRecyclerUpdateOnScroll()
         moviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
             MOVIES_RECYCLER_VIEW_STATE
@@ -118,12 +106,30 @@ class HomeFragment : MoviesListFragment() {
         }
     }
 
-    override fun initializeRecyclerAdapter() {
+    override fun searchInSearchView() {
+        if ((viewModel.lastSearch?.length ?: 0) >= SEARCH_SYMBOLS_THRESHOLD) {
+            if (!viewModel.isInSearchMode) {
+                viewModel.isInSearchMode = true
+            }
+            recyclerAdapter?.clearList()
+            viewModel.isLoadingOnProcess = true
+            viewModel.getSearchedMoviesFromApi(INITIAL_PAGE_IN_RECYCLER)
+        } else if (viewModel.lastSearch == null || viewModel.lastSearch!!.isEmpty()) {
+            if (viewModel.isInSearchMode) {
+                viewModel.isInSearchMode = false
+            }
+            recyclerAdapter?.clearList()
+            viewModel.isLoadingOnProcess = true
+            viewModel.getMoviesFromApi(INITIAL_PAGE_IN_RECYCLER)
+        }
+    }
+
+    override fun initializeRecyclerAdapterList() {
         recyclerAdapter?.addMovieCards(viewModel.moviesListLiveData.value)
         viewModel.isLoadingOnProcess = false
     }
 
-    private fun initializeMovieRecyclerList() {
+    private fun initializeMovieRecycler() {
         if (recyclerAdapter == null) {
             recyclerAdapter = MoviesRecyclerAdapter()
         }
@@ -150,8 +156,8 @@ class HomeFragment : MoviesListFragment() {
             override fun onChildViewAttachedToWindow(view: View) {
                 val itemPosition = bindingFull.moviesListRecycler.getChildAdapterPosition(view)
 
-                if (itemPosition > viewModel.latestShowedMovieCard) {
-                    viewModel.latestShowedMovieCard = itemPosition
+                if (itemPosition > viewModel.latestAttachedMovieCard) {
+                    viewModel.latestAttachedMovieCard = itemPosition
                     val loadingThreshold =
                         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                             RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD * LOADING_THRESHOLD_MULTIPLIER_FOR_LANDSCAPE
@@ -162,12 +168,31 @@ class HomeFragment : MoviesListFragment() {
                     val itemsRemainingInList = (bindingFull.moviesListRecycler.adapter?.itemCount?.minus(1) ?: 0) - itemPosition
                     if (itemsRemainingInList <= loadingThreshold && !viewModel.isLoadingOnProcess) {
                         viewModel.isLoadingOnProcess = true
-                        viewModel.getMoviesFromApi()
+                        if (viewModel.isInSearchMode) {
+                            viewModel.getSearchedMoviesFromApi()
+                        } else {
+                            viewModel.getMoviesFromApi()
+                        }
                     }
                 }
             }
             override fun onChildViewDetachedFromWindow(view: View) {}
         })
+    }
+
+    private fun setupViewModelObserving() {
+        viewModel.moviesListLiveData.observe(viewLifecycleOwner) { database ->
+            moviesDatabase = database
+        }
+        viewModel.onFailureFlagLiveData.observe(viewLifecycleOwner) {
+            viewModel.onFailureFlag = false
+            viewModel.isLoadingOnProcess = false
+            Toast.makeText(
+                context,
+                R.string.activity_main_failure_on_load_data,
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 
     private fun setAllTransitionAnimation() {

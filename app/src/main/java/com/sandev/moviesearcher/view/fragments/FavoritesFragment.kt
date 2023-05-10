@@ -116,7 +116,7 @@ class FavoritesFragment : MoviesListFragment() {
     private fun initializeMovieRecyclerList() {
         if (recyclerAdapter == null) {
             recyclerAdapter = MoviesRecyclerAdapter()
-            initializeRecyclerAdapter()
+            initializeRecyclerAdapterList()
         }
         // Пока не прошла анимация не обрабатывать клики на постеры
         recyclerAdapter?.setPosterOnClickListener(posterOnClickDummy)

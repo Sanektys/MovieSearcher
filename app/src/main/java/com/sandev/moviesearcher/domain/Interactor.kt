@@ -6,7 +6,7 @@ import com.sandev.moviesearcher.data.themoviedatabase.TmdbApi
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiKey
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbResultDto
 import com.sandev.moviesearcher.utils.TmdbConverter
-import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
+import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -18,27 +18,29 @@ class Interactor(private val repo: MainRepository, private val retrofitService: 
     val favoritesMoviesLiveData = MutableLiveData<List<Movie>>()
     val watchLaterMoviesLiveData = MutableLiveData<List<Movie>>()
 
+    private val systemLanguage = Locale.getDefault().toLanguageTag()
+
     init {
         favoritesMoviesLiveData.postValue(repo.favoritesMovies.toList())
         watchLaterMoviesLiveData.postValue(repo.watchLaterMovies.toList())
     }
 
-    fun getMoviesFromApi(page: Int, callback: HomeFragmentViewModel.ApiCallback) {
-        retrofitService.getMovies(
-            apiKey = TmdbApiKey.KEY,
-            language = Locale.getDefault().toLanguageTag(),
-            page = page)
-            .enqueue(object : Callback<TmdbResultDto>{
-            override fun onResponse(call: Call<TmdbResultDto>, response: Response<TmdbResultDto>) {
-                if (response.isSuccessful) {
-                    callback.onSuccess(TmdbConverter.convertApiListToDtoList(response.body()?.results))
-                }
-            }
 
-            override fun onFailure(call: Call<TmdbResultDto>, t: Throwable) {
-                callback.onFailure()
-            }
-        })
+    fun getMoviesFromApi(page: Int, callback: MoviesListFragmentViewModel.ApiCallback) {
+        retrofitService.getPopularMovies(
+            apiKey = TmdbApiKey.KEY,
+            language = systemLanguage,
+            page = page)
+            .enqueue(RetrofitTmdbCallback(callback))
+    }
+
+    fun getSearchedMoviesFromApi(query: String, page: Int, callback: MoviesListFragmentViewModel.ApiCallback) {
+        retrofitService.getSearchedMovies(
+            apiKey = TmdbApiKey.KEY,
+            query = query,
+            language = systemLanguage,
+            page = page)
+            .enqueue(RetrofitTmdbCallback(callback))
     }
 
     fun addToFavorite(movie: Movie) {
@@ -59,5 +61,20 @@ class Interactor(private val repo: MainRepository, private val retrofitService: 
     fun removeFromWatchLater(movie: Movie) {
         repo.watchLaterMovies.remove(movie)
         watchLaterMoviesLiveData.postValue(repo.watchLaterMovies.toList())
+    }
+
+
+    private class RetrofitTmdbCallback(val viewModelCallback: MoviesListFragmentViewModel.ApiCallback)
+        : Callback<TmdbResultDto> {
+
+        override fun onResponse(call: Call<TmdbResultDto>, response: Response<TmdbResultDto>) {
+            if (response.isSuccessful) {
+                viewModelCallback.onSuccess(TmdbConverter.convertApiListToDtoList(response.body()?.results))
+            }
+        }
+
+        override fun onFailure(call: Call<TmdbResultDto>, t: Throwable) {
+            viewModelCallback.onFailure()
+        }
     }
 }

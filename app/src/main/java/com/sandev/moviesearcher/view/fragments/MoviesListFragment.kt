@@ -45,7 +45,7 @@ abstract class MoviesListFragment : Fragment() {
         set(value) {
             if (value == field) return
             field = value
-            initializeRecyclerAdapter()
+            initializeRecyclerAdapterList()
         }
 
     private var _appBar: AppBarLayout? = null
@@ -67,8 +67,8 @@ abstract class MoviesListFragment : Fragment() {
     companion object {
         var isAppBarLifted = false
 
+        const val SEARCH_SYMBOLS_THRESHOLD = 2
         private const val MAX_ALPHA = 255F
-        private const val SEARCH_SYMBOLS_THRESHOLD = 2
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -97,9 +97,9 @@ abstract class MoviesListFragment : Fragment() {
 
     fun isSearchViewHidden() = searchView.currentTransitionState == SearchView.TransitionState.HIDDEN
 
-    protected open fun initializeRecyclerAdapter() {
+    protected open fun initializeRecyclerAdapterList() {
         // Загрузить в recycler результат по прошлому запросу в поиск
-        searchInSearchView(viewModel.lastSearch ?: "")
+        searchInSearchView()
     }
 
     protected fun initializeViewsReferences(rootView: View) {
@@ -144,8 +144,8 @@ abstract class MoviesListFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {}
 
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                searchInSearchView(s)
                 viewModel.lastSearch = s
+                searchInSearchView()
             }
         }
         searchView.apply {
@@ -180,9 +180,9 @@ abstract class MoviesListFragment : Fragment() {
         }
     }
 
-    private fun searchInSearchView(query: CharSequence) {
-        if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
-            recyclerAdapter?.setList(viewModel.searchInDatabase(query))
+    protected open fun searchInSearchView() {
+        if ((viewModel.lastSearch?.length ?: 0) >= SEARCH_SYMBOLS_THRESHOLD) {
+            recyclerAdapter?.setList(viewModel.searchInDatabase(viewModel.lastSearch!!))
         } else {
             recyclerAdapter?.setList(viewModel.moviesListLiveData.value)
         }
