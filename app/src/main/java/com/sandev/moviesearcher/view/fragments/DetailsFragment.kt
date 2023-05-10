@@ -191,18 +191,26 @@ class DetailsFragment : Fragment() {
     private fun initializeContent() {
         if (!viewModel.isLowQualityPosterDownloaded) {
             binding.collapsingToolbarImage.apply {
-                Glide.with(this@DetailsFragment)
-                    .load("${IMAGES_URL}${IMAGE_MEDIUM_SIZE}${viewModel.movie.poster}")
-                    .into(this)
+                if (viewModel.movie.poster != null) {
+                    Glide.with(this@DetailsFragment)
+                        .load("${IMAGES_URL}${IMAGE_MEDIUM_SIZE}${viewModel.movie.poster}")
+                        .into(this)
+                } else {
+                    Glide.with(this@DetailsFragment)
+                        .load(R.drawable.dummy_poster)
+                        .into(this)
+                }
                 transitionName = arguments?.getString(MainActivity.POSTER_TRANSITION_KEY)
             }
             viewModel.isLowQualityPosterDownloaded = true
         }
-        binding.collapsingToolbarImage.postDelayed(DELAY_BEFORE_LOAD_HIGH_QUALITY_IMAGE) {
-            Glide.with(this@DetailsFragment)
-                .load("${IMAGES_URL}${IMAGE_HIGH_SIZE}${viewModel.movie.poster}")
-                .placeholder(binding.collapsingToolbarImage.drawable)
-                .into(binding.collapsingToolbarImage)
+        if (viewModel.movie.poster != null) {
+            binding.collapsingToolbarImage.postDelayed(DELAY_BEFORE_LOAD_HIGH_QUALITY_IMAGE) {
+                Glide.with(this@DetailsFragment)
+                    .load("${IMAGES_URL}${IMAGE_HIGH_SIZE}${viewModel.movie.poster}")
+                    .placeholder(binding.collapsingToolbarImage.drawable)
+                    .into(binding.collapsingToolbarImage)
+            }
         }
         binding.title.text = viewModel.movie.title
         binding.description.text = viewModel.movie.description
