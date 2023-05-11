@@ -4,8 +4,6 @@ import androidx.lifecycle.MutableLiveData
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.domain.Interactor
 import com.sandev.moviesearcher.domain.Movie
-import java.net.URLEncoder
-import kotlin.text.Charsets.UTF_8
 
 
 class HomeFragmentViewModel : MoviesListFragmentViewModel() {
@@ -15,31 +13,39 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
     override val interactor: Interactor = App.instance.interactor
 
-    var isLoadingOnProcess: Boolean = false
-    var isInSearchMode: Boolean = false
+    var isInSearchMode: Boolean
+        set(value) {
+            Companion.isInSearchMode = value
+        }
+        get() = Companion.isInSearchMode
+    var isPaginationLoadingOnProcess: Boolean = false
     var latestAttachedMovieCard: Int = 0
     var onFailureFlag: Boolean = false
         set(value) {
-            if (value == field) return
             field = value
             if (value) {
                 onFailureFlagLiveData.postValue(value)
             }
         }
     private var lastPage: Int = 1
-
-    override var lastSearch: CharSequence?
+    private var totalPagesInLastQuery = 1
+    override var lastSearch: String?
         set(value) {
             Companion.lastSearch = value
         }
         get() = Companion.lastSearch
 
     companion object {
-        private var lastSearch: CharSequence? = null
+        private var isInSearchMode: Boolean = false
+        private var lastSearch: String? = null
     }
 
     init {
-        getMoviesFromApi()
+        if (isInSearchMode) {
+            getSearchedMoviesFromApi()
+        } else {
+            getMoviesFromApi()
+        }
     }
 
 
@@ -47,7 +53,11 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         return searchInDatabase(query, moviesListLiveData.value)
     }
 
+    fun isNextPageCanBeDownloaded() = lastPage <= totalPagesInLastQuery
+
     fun getMoviesFromApi(page: Int = lastPage) {
+        if (page > totalPagesInLastQuery) return
+
         if (page != lastPage) {
             lastPage = page
             latestAttachedMovieCard = 0
@@ -55,18 +65,20 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         interactor.getMoviesFromApi(lastPage++, HomeFragmentApiCallback())
     }
 
-    fun getSearchedMoviesFromApi(page: Int = lastPage) {
+    fun getSearchedMoviesFromApi(query: CharSequence = lastSearch ?: "", page: Int = lastPage) {
+        if (page > totalPagesInLastQuery) return
+
         if (page != lastPage) {
             lastPage = page
             latestAttachedMovieCard = 0
         }
-        //val uriEncodedQuery = URLEncoder.encode(lastSearch.toString(), UTF_8.toString())
-        interactor.getSearchedMoviesFromApi(lastSearch.toString(), lastPage++, HomeFragmentApiCallback())
+        interactor.getSearchedMoviesFromApi(query.toString(), lastPage++, HomeFragmentApiCallback())
     }
 
 
     private inner class HomeFragmentApiCallback : ApiCallback {
-        override fun onSuccess(movies: List<Movie>) {
+        override fun onSuccess(movies: List<Movie>, totalPages: Int) {
+            totalPagesInLastQuery = totalPages
             moviesListLiveData.postValue(movies)
         }
 

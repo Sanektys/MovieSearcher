@@ -33,7 +33,7 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
 
         holder.poster.setOnClickListener {
             lastClickedMoviePosition = holder.bindingAdapterPosition
-            it.transitionName = it.resources.getString(R.string.movie_view_holder_transition_name,
+            holder.poster.transitionName = it.resources.getString(R.string.movie_view_holder_transition_name,
                 lastClickedMoviePosition)
             clickListener?.onClick(moviesList[lastClickedMoviePosition], holder.poster)
         }
@@ -51,13 +51,12 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
 
     fun findMovie(movie: Movie): Movie? = moviesList.find { it.title == movie.title }
 
-    fun setList(list: List<Movie>?) {
-        if (list == moviesList) {
+    fun setList(newList: List<Movie>?) {
+        if (newList == null || newList == moviesList) {
             return
         }
         val oldList = moviesList.toList()
         moviesList.clear()
-        val newList = list ?: emptyList()
         moviesList.addAll(newList)
         DiffUtil.calculateDiff(MoviesListDiff(oldList, newList)).dispatchUpdatesTo(this)
     }
@@ -75,9 +74,9 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
 
     fun addMovieCards(newCards: List<Movie>?) {
         if (newCards?.isNotEmpty() == true) {
-            val oldList = moviesList.toList()
+            val oldSize = moviesList.size
             moviesList.addAll(newCards)
-            DiffUtil.calculateDiff(MoviesListDiff(oldList, moviesList)).dispatchUpdatesTo(this)
+            notifyItemRangeInserted(oldSize, newCards.size)
         }
     }
 

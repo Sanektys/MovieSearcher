@@ -99,7 +99,7 @@ abstract class MoviesListFragment : Fragment() {
 
     protected open fun initializeRecyclerAdapterList() {
         // Загрузить в recycler результат по прошлому запросу в поиск
-        searchInSearchView()
+        searchInSearchView(viewModel.lastSearch ?: "")
     }
 
     protected fun initializeViewsReferences(rootView: View) {
@@ -143,9 +143,8 @@ abstract class MoviesListFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun afterTextChanged(s: Editable?) {}
 
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                viewModel.lastSearch = s
-                searchInSearchView()
+            override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
+                searchInSearchView(text.toString())
             }
         }
         searchView.apply {
@@ -180,12 +179,13 @@ abstract class MoviesListFragment : Fragment() {
         }
     }
 
-    protected open fun searchInSearchView() {
-        if ((viewModel.lastSearch?.length ?: 0) >= SEARCH_SYMBOLS_THRESHOLD) {
-            recyclerAdapter?.setList(viewModel.searchInDatabase(viewModel.lastSearch!!))
+    protected open fun searchInSearchView(query: String) {
+        if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
+            recyclerAdapter?.setList(viewModel.searchInDatabase(query))
         } else {
             recyclerAdapter?.setList(viewModel.moviesListLiveData.value)
         }
+        viewModel.lastSearch = query
     }
 
     private fun initializeToolbar(view: View) {

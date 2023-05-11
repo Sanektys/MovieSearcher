@@ -12,7 +12,7 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
 
     protected abstract val interactor: Interactor
 
-    abstract var lastSearch: CharSequence?
+    abstract var lastSearch: String?
 
     var lastSlideGravity = Gravity.TOP
 
@@ -26,7 +26,7 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
 
 
     interface ApiCallback {
-        fun onSuccess(movies: List<Movie>)
+        fun onSuccess(movies: List<Movie>, totalPages: Int)
         fun onFailure()
     }
 }

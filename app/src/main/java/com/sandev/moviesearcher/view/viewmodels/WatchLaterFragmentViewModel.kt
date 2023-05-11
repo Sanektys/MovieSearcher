@@ -12,7 +12,7 @@ class WatchLaterFragmentViewModel : MoviesListFragmentViewModel() {
 
     override val interactor: Interactor = App.instance.interactor
 
-    override var lastSearch: CharSequence?
+    override var lastSearch: String?
         set(value) { Companion.lastSearch = value }
         get() = Companion.lastSearch
 
@@ -20,7 +20,7 @@ class WatchLaterFragmentViewModel : MoviesListFragmentViewModel() {
     var lastClickedMovie: Movie? = null
 
     companion object {
-        private var lastSearch: CharSequence? = null
+        private var lastSearch: String? = null
     }
 
     override fun searchInDatabase(query: CharSequence): List<Movie>? {

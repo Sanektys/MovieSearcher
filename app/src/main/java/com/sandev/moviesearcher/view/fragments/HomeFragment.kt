@@ -19,12 +19,12 @@ import androidx.transition.Slide
 import androidx.transition.TransitionInflater
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
-import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentHomeBinding
 import com.sandev.moviesearcher.databinding.MergeFragmentHomeContentBinding
-import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.view.MainActivity
+import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
 
 
@@ -106,27 +106,40 @@ class HomeFragment : MoviesListFragment() {
         }
     }
 
-    override fun searchInSearchView() {
-        if ((viewModel.lastSearch?.length ?: 0) >= SEARCH_SYMBOLS_THRESHOLD) {
+    override fun searchInSearchView(query: String) {
+        if (query == viewModel.lastSearch) return
+
+        if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
             if (!viewModel.isInSearchMode) {
                 viewModel.isInSearchMode = true
+                recyclerAdapter?.clearList()
             }
-            recyclerAdapter?.clearList()
-            viewModel.isLoadingOnProcess = true
-            viewModel.getSearchedMoviesFromApi(INITIAL_PAGE_IN_RECYCLER)
-        } else if (viewModel.lastSearch == null || viewModel.lastSearch!!.isEmpty()) {
+            viewModel.getSearchedMoviesFromApi(query, INITIAL_PAGE_IN_RECYCLER)
+        } else if (query.isEmpty()) {
             if (viewModel.isInSearchMode) {
                 viewModel.isInSearchMode = false
+                recyclerAdapter?.clearList()
             }
-            recyclerAdapter?.clearList()
-            viewModel.isLoadingOnProcess = true
             viewModel.getMoviesFromApi(INITIAL_PAGE_IN_RECYCLER)
         }
+        viewModel.lastSearch = query
     }
 
     override fun initializeRecyclerAdapterList() {
-        recyclerAdapter?.addMovieCards(viewModel.moviesListLiveData.value)
-        viewModel.isLoadingOnProcess = false
+        if (viewModel.isInSearchMode) {
+            if (viewModel.isPaginationLoadingOnProcess) {
+                // Если строка поиска не пуста (isInSearchMode = true) и происходит подгрузка
+                // при скролле - добавлять новые списки в конец
+                recyclerAdapter?.addMovieCards(viewModel.moviesListLiveData.value)
+            } else {
+                // Если в поле поиска был произведён ввод, то устанавливается новый список
+                recyclerAdapter?.setList(viewModel.moviesListLiveData.value)
+            }
+        } else {
+            // Если строка поиска пуста - просто добавлять приходящие новые списки в конец
+            recyclerAdapter?.addMovieCards(viewModel.moviesListLiveData.value)
+        }
+        viewModel.isPaginationLoadingOnProcess = false
     }
 
     private fun initializeMovieRecycler() {
@@ -166,8 +179,10 @@ class HomeFragment : MoviesListFragment() {
                         }
 
                     val itemsRemainingInList = (bindingFull.moviesListRecycler.adapter?.itemCount?.minus(1) ?: 0) - itemPosition
-                    if (itemsRemainingInList <= loadingThreshold && !viewModel.isLoadingOnProcess) {
-                        viewModel.isLoadingOnProcess = true
+                    if (itemsRemainingInList <= loadingThreshold
+                            && !viewModel.isPaginationLoadingOnProcess
+                            && viewModel.isNextPageCanBeDownloaded()) {
+                        viewModel.isPaginationLoadingOnProcess = true
                         if (viewModel.isInSearchMode) {
                             viewModel.getSearchedMoviesFromApi()
                         } else {
@@ -186,7 +201,7 @@ class HomeFragment : MoviesListFragment() {
         }
         viewModel.onFailureFlagLiveData.observe(viewLifecycleOwner) {
             viewModel.onFailureFlag = false
-            viewModel.isLoadingOnProcess = false
+            viewModel.isPaginationLoadingOnProcess = false
             Toast.makeText(
                 context,
                 R.string.activity_main_failure_on_load_data,

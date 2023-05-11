@@ -69,7 +69,9 @@ class Interactor(private val repo: MainRepository, private val retrofitService: 
 
         override fun onResponse(call: Call<TmdbResultDto>, response: Response<TmdbResultDto>) {
             if (response.isSuccessful) {
-                viewModelCallback.onSuccess(TmdbConverter.convertApiListToDtoList(response.body()?.results))
+                viewModelCallback.onSuccess(
+                    TmdbConverter.convertApiListToDtoList(response.body()?.results),
+                response.body()?.totalPages ?: 0)
             }
         }
 
