@@ -78,6 +78,7 @@ class HomeFragment : MoviesListFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupViewModelObserving()
+        initializeSwipeRefreshLayout()
 
         initializeMovieRecycler()
         setupRecyclerUpdateOnScroll()
@@ -126,6 +127,10 @@ class HomeFragment : MoviesListFragment() {
     }
 
     override fun initializeRecyclerAdapterList() {
+        if (bindingFull.swipeRefresh.isRefreshing) {
+            recyclerAdapter?.clearList()
+            bindingFull.swipeRefresh.isRefreshing = false
+        }
         if (viewModel.isInSearchMode) {
             if (viewModel.isPaginationLoadingOnProcess) {
                 // Если строка поиска не пуста (isInSearchMode = true) и происходит подгрузка
@@ -140,6 +145,10 @@ class HomeFragment : MoviesListFragment() {
             recyclerAdapter?.addMovieCards(viewModel.moviesListLiveData.value)
         }
         viewModel.isPaginationLoadingOnProcess = false
+    }
+
+    override fun setRecyclerViewAppearance(view: View) {
+        super.setRecyclerViewAppearance(bindingFull.swipeRefresh)
     }
 
     private fun initializeMovieRecycler() {
@@ -195,6 +204,17 @@ class HomeFragment : MoviesListFragment() {
         })
     }
 
+    private fun initializeSwipeRefreshLayout() {
+        bindingFull.swipeRefresh.setOnRefreshListener {
+            moviesDatabase = emptyList()
+            if (viewModel.isInSearchMode) {
+                viewModel.getSearchedMoviesFromApi(page = INITIAL_PAGE_IN_RECYCLER)
+            } else {
+                viewModel.getMoviesFromApi(page = INITIAL_PAGE_IN_RECYCLER)
+            }
+        }
+    }
+
     private fun setupViewModelObserving() {
         viewModel.moviesListLiveData.observe(viewLifecycleOwner) { database ->
             moviesDatabase = database
@@ -202,6 +222,9 @@ class HomeFragment : MoviesListFragment() {
         viewModel.onFailureFlagLiveData.observe(viewLifecycleOwner) {
             viewModel.onFailureFlag = false
             viewModel.isPaginationLoadingOnProcess = false
+            if (bindingFull.swipeRefresh.isRefreshing) {
+                bindingFull.swipeRefresh.isRefreshing = false
+            }
             Toast.makeText(
                 context,
                 R.string.activity_main_failure_on_load_data,
@@ -225,7 +248,7 @@ class HomeFragment : MoviesListFragment() {
                 .setDuration(resources.getInteger(
                     R.integer.activity_main_animations_durations_first_appearance_recycler).toLong())
                 .setInterpolator(DecelerateInterpolator())
-                .addTarget(R.id.movies_list_recycler)
+                .addTarget(R.id.swipeRefresh)
             val appearingTransition = TransitionSet().apply {
                 addTransition(appBarSlideTransition)
                 addTransition(moviesRecyclerTransition)
@@ -242,14 +265,14 @@ class HomeFragment : MoviesListFragment() {
         if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {
             // Не включать transition анимации после выхода из окна деталей
             bindingFull.root.postDelayed(resources.getInteger(R.integer.activity_main_animations_durations_poster_transition).toLong()) {
-                setTransitionAnimation(Gravity.START)
+                setTransitionAnimation(Gravity.START, bindingFull.swipeRefresh)
             }
             // LayoutAnimation для recycler включается только при возвращении с экрана деталей
             bindingFull.moviesListRecycler.layoutAnimation =
                 AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
             resetExitReenterTransitionAnimations()
         } else {
-            setTransitionAnimation(Gravity.START)
+            setTransitionAnimation(Gravity.START, bindingFull.swipeRefresh)
         }
     }
 }

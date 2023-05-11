@@ -8,16 +8,24 @@
     tools:parentTag="androidx.coordinatorlayout.widget.CoordinatorLayout"
     tools:context=".view.fragments.HomeFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/movies_list_recycler"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginHorizontal="@dimen/activity_main.movies_recycler.margin_horizontal"
         android:layout_marginVertical="@dimen/activity_main.movies_recycler.margin_vertical"
-        android:background="?attr/colorSecondaryContainer"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:listitem="@layout/movie_card" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/movies_list_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="@dimen/activity_main.movies_recycler.margin_horizontal"
+            android:layout_marginVertical="@dimen/activity_main.movies_recycler.margin_vertical"
+            android:background="?attr/colorSecondaryContainer"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/movie_card" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"

@@ -64,6 +64,9 @@ abstract class MoviesListFragment : Fragment() {
     private val fragmentsTransitionDuration by lazy {
         resources.getInteger(R.integer.general_animations_durations_fragment_transition).toLong() }
 
+    private var recyclerShapeInvalidator: RecyclerShapeInvalidator? = null
+    private var recyclerShapeView: View? = null
+
     companion object {
         var isAppBarLifted = false
 
@@ -74,7 +77,7 @@ abstract class MoviesListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setAppBarAppearance()
         setSearchViewAppearance()
-        setRecyclerViewAppearance()
+        setRecyclerViewAppearance(recyclerView)
         initializeToolbar(view)
         setupSearchBehavior()
     }
@@ -83,10 +86,12 @@ abstract class MoviesListFragment : Fragment() {
         super.onDestroyView()
 
         // Если не обнулить метод провайдера, то будет exception при обращении к resources когда фрагмент уже detached
-        recyclerView.outlineProvider = object : ViewOutlineProvider() {
+        recyclerShapeView?.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View?, outline: Outline?) {}
         }
 
+        recyclerShapeView = null
+        recyclerShapeInvalidator = null
         _appBar = null
         _searchBar = null
         _searchView = null
@@ -109,13 +114,13 @@ abstract class MoviesListFragment : Fragment() {
         _recyclerView = rootView.findViewById(R.id.movies_list_recycler)
     }
 
-    protected fun setTransitionAnimation(slideGravity: Int = viewModel.lastSlideGravity) {
+    protected fun setTransitionAnimation(slideGravity: Int = viewModel.lastSlideGravity, recycler: View = recyclerView) {
         viewModel.lastSlideGravity = slideGravity
 
         val recyclerTransition = Slide(slideGravity).apply {
             this.duration = fragmentsTransitionDuration
             interpolator = FastOutLinearInInterpolator()
-            addTarget(recyclerView)
+            addTarget(recycler)
         }
         val transitionSet = TransitionSet().addTransition(recyclerTransition)
 
@@ -254,8 +259,7 @@ abstract class MoviesListFragment : Fragment() {
                                 setTransitionAnimation()
                             }
                         }
-
-                        _recyclerView?.invalidateOutline()
+                        recyclerShapeInvalidator?.invalidateShape()
                     }
                 })
             }
@@ -288,8 +292,11 @@ abstract class MoviesListFragment : Fragment() {
         }
     }
 
-    private fun setRecyclerViewAppearance() {
-        recyclerView.doOnPreDraw {
+    protected open fun setRecyclerViewAppearance(view: View) {
+        view.doOnPreDraw {
+            recyclerShapeView = view
+            recyclerShapeInvalidator = RecyclerShapeInvalidator(view)
+
             it.outlineProvider = object : ViewOutlineProvider() {
                 val bottomNavigation =
                     requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bar)
@@ -317,5 +324,9 @@ abstract class MoviesListFragment : Fragment() {
             }
             it.clipToOutline = true
         }
+    }
+
+    private class RecyclerShapeInvalidator(private val view: View) {
+        fun invalidateShape() = view.invalidateOutline()
     }
 }
