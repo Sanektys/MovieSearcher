@@ -135,14 +135,14 @@ class HomeFragment : MoviesListFragment() {
             if (viewModel.isPaginationLoadingOnProcess) {
                 // Если строка поиска не пуста (isInSearchMode = true) и происходит подгрузка
                 // при скролле - добавлять новые списки в конец
-                recyclerAdapter?.addMovieCards(viewModel.moviesListLiveData.value)
+                recyclerAdapter?.addMovieCards(moviesDatabase)
             } else {
                 // Если в поле поиска был произведён ввод, то устанавливается новый список
-                recyclerAdapter?.setList(viewModel.moviesListLiveData.value)
+                recyclerAdapter?.setList(moviesDatabase)
             }
         } else {
             // Если строка поиска пуста - просто добавлять приходящие новые списки в конец
-            recyclerAdapter?.addMovieCards(viewModel.moviesListLiveData.value)
+            recyclerAdapter?.addMovieCards(moviesDatabase)
         }
         viewModel.isPaginationLoadingOnProcess = false
     }
@@ -176,6 +176,8 @@ class HomeFragment : MoviesListFragment() {
     private fun setupRecyclerUpdateOnScroll() {
         bindingFull.moviesListRecycler.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
             override fun onChildViewAttachedToWindow(view: View) {
+                if (viewModel.onFailureFlag) return
+                
                 val itemPosition = bindingFull.moviesListRecycler.getChildAdapterPosition(view)
 
                 if (itemPosition > viewModel.latestAttachedMovieCard) {
@@ -219,17 +221,23 @@ class HomeFragment : MoviesListFragment() {
         viewModel.moviesListLiveData.observe(viewLifecycleOwner) { database ->
             moviesDatabase = database
         }
-        viewModel.onFailureFlagLiveData.observe(viewLifecycleOwner) {
-            viewModel.onFailureFlag = false
-            viewModel.isPaginationLoadingOnProcess = false
-            if (bindingFull.swipeRefresh.isRefreshing) {
-                bindingFull.swipeRefresh.isRefreshing = false
+        viewModel.onFailureFlagLiveData.observe(viewLifecycleOwner) { failureFlag ->
+            if (failureFlag) {
+                viewModel.isPaginationLoadingOnProcess = false
+                if (bindingFull.swipeRefresh.isRefreshing) {
+                    bindingFull.swipeRefresh.isRefreshing = false
+                }
+                Toast.makeText(
+                    context,
+                    R.string.activity_main_failure_on_load_data,
+                    Toast.LENGTH_LONG
+                ).show()
+                bindingFull.messageText.visibility = View.VISIBLE
+            } else {
+                if (bindingFull.messageText.visibility == View.VISIBLE) {
+                    bindingFull.messageText.visibility = View.GONE
+                }
             }
-            Toast.makeText(
-                context,
-                R.string.activity_main_failure_on_load_data,
-                Toast.LENGTH_LONG
-            ).show()
         }
     }
 

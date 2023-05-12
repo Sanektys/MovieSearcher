@@ -147,7 +147,9 @@ class DetailsFragment : Fragment() {
     }
 
     private fun setFloatButtonOnClick() {
-        if (viewModel.favoritesMoviesLiveData.value?.find { it.title == viewModel.movie.title } != null) {
+        if (viewModel.favoritesMoviesLiveData.value?.find {
+                it.title == viewModel.movie.title
+                        && it.description == viewModel.movie.description } != null) {
             viewModel.isFavoriteMovie = true
             binding.fabToFavorite.isSelected = true
             binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
@@ -163,7 +165,9 @@ class DetailsFragment : Fragment() {
                 Snackbar.LENGTH_SHORT).show()
         }
 
-        if (viewModel.watchLaterMoviesLiveData.value?.find { it.title == viewModel.movie.title } != null) {
+        if (viewModel.watchLaterMoviesLiveData.value?.find {
+                it.title == viewModel.movie.title
+                        && it.description == viewModel.movie.description } != null) {
             viewModel.isWatchLaterMovie = true
             binding.fabToWatchLater.isSelected = true
             binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)

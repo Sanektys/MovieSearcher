@@ -23,9 +23,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     var onFailureFlag: Boolean = false
         set(value) {
             field = value
-            if (value) {
-                onFailureFlagLiveData.postValue(value)
-            }
+            onFailureFlagLiveData.postValue(value)
         }
     private var lastPage: Int = 1
     private var totalPagesInLastQuery = 1
@@ -78,6 +76,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
     private inner class HomeFragmentApiCallback : ApiCallback {
         override fun onSuccess(movies: List<Movie>, totalPages: Int) {
+            onFailureFlag = false
             totalPagesInLastQuery = totalPages
             moviesListLiveData.postValue(movies)
         }
