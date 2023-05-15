@@ -1,16 +1,16 @@
 package com.sandev.moviesearcher.view.viewmodels
 
-import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.domain.Interactor
 import com.sandev.moviesearcher.domain.Movie
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 
-class WatchLaterFragmentViewModel : MoviesListFragmentViewModel() {
+@HiltViewModel
+class WatchLaterFragmentViewModel @Inject constructor(interactor: Interactor) : MoviesListFragmentViewModel(interactor) {
 
     override val moviesListLiveData
         get() = interactor.watchLaterMoviesLiveData
-
-    override val interactor: Interactor = App.instance.interactor
 
     override var lastSearch: String?
         set(value) { Companion.lastSearch = value }

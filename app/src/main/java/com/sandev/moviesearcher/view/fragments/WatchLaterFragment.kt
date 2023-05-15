@@ -19,11 +19,13 @@ import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.domain.Movie
 import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import com.sandev.moviesearcher.view.viewmodels.WatchLaterFragmentViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.math.max
 
 
+@AndroidEntryPoint
 class WatchLaterFragment : MoviesListFragment() {
 
     override val viewModel: WatchLaterFragmentViewModel by lazy {

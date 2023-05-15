@@ -26,8 +26,10 @@ import com.sandev.moviesearcher.domain.Movie
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
 
+@AndroidEntryPoint
 class HomeFragment : MoviesListFragment() {
 
     override val viewModel: HomeFragmentViewModel by lazy {
@@ -177,7 +179,7 @@ class HomeFragment : MoviesListFragment() {
         bindingFull.moviesListRecycler.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
             override fun onChildViewAttachedToWindow(view: View) {
                 if (viewModel.onFailureFlag) return
-                
+
                 val itemPosition = bindingFull.moviesListRecycler.getChildAdapterPosition(view)
 
                 if (itemPosition > viewModel.latestAttachedMovieCard) {

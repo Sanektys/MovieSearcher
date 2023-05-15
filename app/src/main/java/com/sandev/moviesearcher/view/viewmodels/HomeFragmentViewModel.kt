@@ -1,17 +1,17 @@
 package com.sandev.moviesearcher.view.viewmodels
 
 import androidx.lifecycle.MutableLiveData
-import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.domain.Interactor
 import com.sandev.moviesearcher.domain.Movie
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 
-class HomeFragmentViewModel : MoviesListFragmentViewModel() {
+@HiltViewModel
+class HomeFragmentViewModel @Inject constructor(interactor: Interactor): MoviesListFragmentViewModel(interactor) {
 
     override val moviesListLiveData = MutableLiveData<List<Movie>>()
     val onFailureFlagLiveData = MutableLiveData<Boolean>()
-
-    override val interactor: Interactor = App.instance.interactor
 
     var isInSearchMode: Boolean
         set(value) {

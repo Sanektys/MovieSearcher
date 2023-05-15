@@ -1,16 +1,16 @@
 package com.sandev.moviesearcher.view.viewmodels
 
-import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.domain.Interactor
 import com.sandev.moviesearcher.domain.Movie
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 
-class FavoritesFragmentViewModel : MoviesListFragmentViewModel() {
+@HiltViewModel
+class FavoritesFragmentViewModel @Inject constructor(interactor: Interactor) : MoviesListFragmentViewModel(interactor) {
 
     override val moviesListLiveData
         get() = interactor.favoritesMoviesLiveData
-
-    override val interactor: Interactor = App.instance.interactor
 
     override var lastSearch: String?
         set(value) { Companion.lastSearch = value }
@@ -29,5 +29,5 @@ class FavoritesFragmentViewModel : MoviesListFragmentViewModel() {
 
     fun addToFavorite(movie: Movie) = interactor.addToFavorite((movie))
 
-    fun removeFromFavorite(movie: Movie) = interactor.removeFromFavorite((movie))
+    fun removeFromFavorite(movie: Movie) = interactor.removeFromFavorite(movie)
 }

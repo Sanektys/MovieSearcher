@@ -30,9 +30,11 @@ import com.sandev.moviesearcher.view.fragments.HomeFragment
 import com.sandev.moviesearcher.view.fragments.MoviesListFragment
 import com.sandev.moviesearcher.view.fragments.SplashScreenFragment
 import com.sandev.moviesearcher.view.fragments.WatchLaterFragment
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.Executors
 
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     var previousFragmentName: String? = null

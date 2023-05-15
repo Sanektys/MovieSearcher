@@ -1,18 +1,19 @@
 package com.sandev.moviesearcher.view.viewmodels
 
 import androidx.lifecycle.ViewModel
-import com.sandev.moviesearcher.App
+import com.sandev.moviesearcher.domain.Interactor
 import com.sandev.moviesearcher.domain.Movie
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 
-class DetailsFragmentViewModel : ViewModel() {
+@HiltViewModel
+class DetailsFragmentViewModel @Inject constructor(var interactor: Interactor) : ViewModel() {
 
     val favoritesMoviesLiveData
         get() = interactor.favoritesMoviesLiveData
     val watchLaterMoviesLiveData
         get() = interactor.watchLaterMoviesLiveData
-
-    private val interactor = App.instance.interactor
 
     var _movie: Movie? = null
     val movie: Movie

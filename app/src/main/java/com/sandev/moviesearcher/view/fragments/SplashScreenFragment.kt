@@ -15,8 +15,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
 
+@AndroidEntryPoint
 class SplashScreenFragment : Fragment() {
 
     private val preloadViewModel: HomeFragmentViewModel by lazy {

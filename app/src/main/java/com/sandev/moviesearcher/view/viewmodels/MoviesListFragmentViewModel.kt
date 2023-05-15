@@ -7,15 +7,18 @@ import com.sandev.moviesearcher.domain.Interactor
 import com.sandev.moviesearcher.domain.Movie
 
 
-abstract class MoviesListFragmentViewModel : ViewModel() {
+abstract class MoviesListFragmentViewModel(interactor: Interactor): ViewModel() {
     abstract val moviesListLiveData: MutableLiveData<List<Movie>>
-
-    protected abstract val interactor: Interactor
 
     abstract var lastSearch: String?
 
+    protected val interactor: Interactor
+
     var lastSlideGravity = Gravity.TOP
 
+    init {
+        this.interactor = interactor
+    }
 
     abstract fun searchInDatabase(query: CharSequence): List<Movie>?
     protected fun searchInDatabase(query: CharSequence, source: List<Movie>?): List<Movie>? {
