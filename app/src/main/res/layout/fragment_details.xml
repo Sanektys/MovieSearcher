@@ -32,7 +32,7 @@
                 app:layout_collapseMode="parallax"
                 app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.ExtraLarge"
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Bottom"
-                tools:src="@drawable/poster_8" />
+                tools:src="@drawable/dummy_poster" />
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/collapsing_toolbar.toolbar"

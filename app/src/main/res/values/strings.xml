@@ -8,6 +8,8 @@
     <string name="activity_main.top_app_bar.settings.title">НАСТРОЙКИ</string>
     <string name="activity_main.top_app_bar.search_bar.hint">Найти фильмы</string>
     <string name="activity_main.press_back_for_exit_warning">Чтобы выйти, нажмите \"назад\" ещё раз</string>
+    <string name="activity_main.failure_on_load_data">Ошибка загрузки, проверьте интернет-соединение и/или VPN</string>
+    <string name="activity_main.recycler.fail_on_load_data">Невозможно загрузить список фильмов, проверьте интернет-соединение и/или VPN</string>
 
     <!-- Details fragment -->
     <string name="details_fragment.toolbar.title">Подробности о фильме</string>

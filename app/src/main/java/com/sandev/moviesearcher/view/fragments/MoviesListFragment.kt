@@ -7,13 +7,18 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.Gravity
 import android.view.View
 import android.view.ViewOutlineProvider
 import android.view.animation.AccelerateInterpolator
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
-import androidx.core.view.*
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.doOnLayout
+import androidx.core.view.doOnPreDraw
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
@@ -40,7 +45,7 @@ abstract class MoviesListFragment : Fragment() {
         set(value) {
             if (value == field) return
             field = value
-            initializeRecyclerAdapter()
+            initializeRecyclerAdapterList()
         }
 
     private var _appBar: AppBarLayout? = null
@@ -59,17 +64,20 @@ abstract class MoviesListFragment : Fragment() {
     private val fragmentsTransitionDuration by lazy {
         resources.getInteger(R.integer.general_animations_durations_fragment_transition).toLong() }
 
+    private var recyclerShapeInvalidator: RecyclerShapeInvalidator? = null
+    private var recyclerShapeView: View? = null
+
     companion object {
         var isAppBarLifted = false
 
+        const val SEARCH_SYMBOLS_THRESHOLD = 2
         private const val MAX_ALPHA = 255F
-        private const val SEARCH_SYMBOLS_THRESHOLD = 2
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setAppBarAppearance()
         setSearchViewAppearance()
-        setRecyclerViewAppearance()
+        setRecyclerViewAppearance(recyclerView)
         initializeToolbar(view)
         setupSearchBehavior()
     }
@@ -78,10 +86,12 @@ abstract class MoviesListFragment : Fragment() {
         super.onDestroyView()
 
         // Если не обнулить метод провайдера, то будет exception при обращении к resources когда фрагмент уже detached
-        recyclerView.outlineProvider = object : ViewOutlineProvider() {
+        recyclerShapeView?.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View?, outline: Outline?) {}
         }
 
+        recyclerShapeView = null
+        recyclerShapeInvalidator = null
         _appBar = null
         _searchBar = null
         _searchView = null
@@ -92,7 +102,7 @@ abstract class MoviesListFragment : Fragment() {
 
     fun isSearchViewHidden() = searchView.currentTransitionState == SearchView.TransitionState.HIDDEN
 
-    protected fun initializeRecyclerAdapter() {
+    protected open fun initializeRecyclerAdapterList() {
         // Загрузить в recycler результат по прошлому запросу в поиск
         searchInSearchView(viewModel.lastSearch ?: "")
     }
@@ -104,13 +114,13 @@ abstract class MoviesListFragment : Fragment() {
         _recyclerView = rootView.findViewById(R.id.movies_list_recycler)
     }
 
-    protected fun setTransitionAnimation(slideGravity: Int = viewModel.lastSlideGravity) {
+    protected fun setTransitionAnimation(slideGravity: Int = viewModel.lastSlideGravity, recycler: View = recyclerView) {
         viewModel.lastSlideGravity = slideGravity
 
         val recyclerTransition = Slide(slideGravity).apply {
             this.duration = fragmentsTransitionDuration
             interpolator = FastOutLinearInInterpolator()
-            addTarget(recyclerView)
+            addTarget(recycler)
         }
         val transitionSet = TransitionSet().addTransition(recyclerTransition)
 
@@ -138,9 +148,8 @@ abstract class MoviesListFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun afterTextChanged(s: Editable?) {}
 
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                searchInSearchView(s)
-                viewModel.lastSearch = s
+            override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
+                searchInSearchView(text.toString())
             }
         }
         searchView.apply {
@@ -175,12 +184,13 @@ abstract class MoviesListFragment : Fragment() {
         }
     }
 
-    private fun searchInSearchView(query: CharSequence) {
+    protected open fun searchInSearchView(query: String) {
         if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
             recyclerAdapter?.setList(viewModel.searchInDatabase(query))
         } else {
             recyclerAdapter?.setList(viewModel.moviesListLiveData.value)
         }
+        viewModel.lastSearch = query
     }
 
     private fun initializeToolbar(view: View) {
@@ -249,8 +259,7 @@ abstract class MoviesListFragment : Fragment() {
                                 setTransitionAnimation()
                             }
                         }
-
-                        _recyclerView?.invalidateOutline()
+                        recyclerShapeInvalidator?.invalidateShape()
                     }
                 })
             }
@@ -283,8 +292,11 @@ abstract class MoviesListFragment : Fragment() {
         }
     }
 
-    private fun setRecyclerViewAppearance() {
-        recyclerView.doOnPreDraw {
+    protected open fun setRecyclerViewAppearance(view: View) {
+        view.doOnPreDraw {
+            recyclerShapeView = view
+            recyclerShapeInvalidator = RecyclerShapeInvalidator(view)
+
             it.outlineProvider = object : ViewOutlineProvider() {
                 val bottomNavigation =
                     requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bar)
@@ -312,5 +324,9 @@ abstract class MoviesListFragment : Fragment() {
             }
             it.clipToOutline = true
         }
+    }
+
+    private class RecyclerShapeInvalidator(private val view: View) {
+        fun invalidateShape() = view.invalidateOutline()
     }
 }

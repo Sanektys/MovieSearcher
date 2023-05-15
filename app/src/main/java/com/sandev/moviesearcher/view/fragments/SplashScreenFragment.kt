@@ -9,13 +9,19 @@ import android.view.animation.AccelerateInterpolator
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.airbnb.lottie.LottieAnimationView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
 
 
 class SplashScreenFragment : Fragment() {
+
+    private val preloadViewModel: HomeFragmentViewModel by lazy {
+        ViewModelProvider(requireActivity())[HomeFragmentViewModel::class.java]
+    }
 
     companion object {
         private const val REMOVING_DELAY = 100L
@@ -29,6 +35,7 @@ class SplashScreenFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        preloadViewModel
         if (!isSplashWasCreated) {
             initializeSplashScreen()
         } else {

@@ -1,6 +1,5 @@
 package com.sandev.moviesearcher.view.viewmodels
 
-import androidx.lifecycle.MutableLiveData
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.domain.Interactor
 import com.sandev.moviesearcher.domain.Movie
@@ -8,11 +7,12 @@ import com.sandev.moviesearcher.domain.Movie
 
 class WatchLaterFragmentViewModel : MoviesListFragmentViewModel() {
 
-    override val moviesListLiveData = MutableLiveData<List<Movie>>()
+    override val moviesListLiveData
+        get() = interactor.watchLaterMoviesLiveData
 
     override val interactor: Interactor = App.instance.interactor
 
-    override var lastSearch: CharSequence?
+    override var lastSearch: String?
         set(value) { Companion.lastSearch = value }
         get() = Companion.lastSearch
 
@@ -20,31 +20,14 @@ class WatchLaterFragmentViewModel : MoviesListFragmentViewModel() {
     var lastClickedMovie: Movie? = null
 
     companion object {
-        private var lastSearch: CharSequence? = null
-
-        private val watchLaterMovies = mutableListOf<Movie>()
-    }
-
-    init {
-        moviesListLiveData.postValue(watchLaterMovies.toList())
+        private var lastSearch: String? = null
     }
 
     override fun searchInDatabase(query: CharSequence): List<Movie>? {
         return searchInDatabase(query, moviesListLiveData.value)
     }
 
-    fun addToWatchLater(movie: Movie) {
-        watchLaterMovies.add(movie)
-        moviesListLiveData.postValue(watchLaterMovies.toList())
-    }
+    fun addToWatchLater(movie: Movie) = interactor.addToWatchLater(movie)
 
-    fun removeFromWatchLater(movie: Movie) {
-        watchLaterMovies.remove(movie)
-        moviesListLiveData.postValue(watchLaterMovies.toList())
-    }
-
-    fun removeFromWatchLaterAt(position: Int) {
-        watchLaterMovies.removeAt(position)
-        moviesListLiveData.postValue(watchLaterMovies.toList())
-    }
+    fun removeFromWatchLater(movie: Movie) = interactor.removeFromWatchLater(movie)
 }

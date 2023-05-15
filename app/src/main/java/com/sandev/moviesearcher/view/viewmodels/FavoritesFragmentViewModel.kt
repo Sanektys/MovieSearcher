@@ -1,6 +1,5 @@
 package com.sandev.moviesearcher.view.viewmodels
 
-import androidx.lifecycle.MutableLiveData
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.domain.Interactor
 import com.sandev.moviesearcher.domain.Movie
@@ -8,11 +7,12 @@ import com.sandev.moviesearcher.domain.Movie
 
 class FavoritesFragmentViewModel : MoviesListFragmentViewModel() {
 
-    override val moviesListLiveData = MutableLiveData<List<Movie>>()
+    override val moviesListLiveData
+        get() = interactor.favoritesMoviesLiveData
 
     override val interactor: Interactor = App.instance.interactor
 
-    override var lastSearch: CharSequence?
+    override var lastSearch: String?
         set(value) { Companion.lastSearch = value }
         get() = Companion.lastSearch
 
@@ -20,31 +20,14 @@ class FavoritesFragmentViewModel : MoviesListFragmentViewModel() {
     var lastClickedMovie: Movie? = null
 
     companion object {
-        private var lastSearch: CharSequence? = null
-
-        private val favoritesMovies = mutableListOf<Movie>()
-    }
-
-    init {
-        moviesListLiveData.postValue(favoritesMovies.toList())
+        private var lastSearch: String? = null
     }
 
     override fun searchInDatabase(query: CharSequence): List<Movie>? {
         return searchInDatabase(query, moviesListLiveData.value)
     }
 
-    fun addToFavorite(movie: Movie) {
-        favoritesMovies.add(movie)
-        moviesListLiveData.postValue(favoritesMovies.toList())
-    }
+    fun addToFavorite(movie: Movie) = interactor.addToFavorite((movie))
 
-    fun removeFromFavorite(movie: Movie) {
-        favoritesMovies.remove(movie)
-        moviesListLiveData.postValue(favoritesMovies.toList())
-    }
-
-    fun removeFromFavoriteAt(position: Int) {
-        favoritesMovies.removeAt(position)
-        moviesListLiveData.postValue(favoritesMovies.toList())
-    }
+    fun removeFromFavorite(movie: Movie) = interactor.removeFromFavorite((movie))
 }
