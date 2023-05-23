@@ -10,8 +10,6 @@ class FavoritesFragmentViewModel : MoviesListFragmentViewModel() {
     override val moviesListLiveData
         get() = interactor.favoritesMoviesLiveData
 
-    override val interactor: Interactor = App.instance.interactor
-
     override var lastSearch: String?
         set(value) { Companion.lastSearch = value }
         get() = Companion.lastSearch

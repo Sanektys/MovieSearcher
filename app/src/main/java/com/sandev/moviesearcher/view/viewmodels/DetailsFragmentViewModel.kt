@@ -2,7 +2,9 @@ package com.sandev.moviesearcher.view.viewmodels
 
 import androidx.lifecycle.ViewModel
 import com.sandev.moviesearcher.App
+import com.sandev.moviesearcher.domain.Interactor
 import com.sandev.moviesearcher.domain.Movie
+import javax.inject.Inject
 
 
 class DetailsFragmentViewModel : ViewModel() {
@@ -12,7 +14,8 @@ class DetailsFragmentViewModel : ViewModel() {
     val watchLaterMoviesLiveData
         get() = interactor.watchLaterMoviesLiveData
 
-    private val interactor = App.instance.interactor
+    @Inject
+    lateinit var interactor: Interactor
 
     var _movie: Movie? = null
     val movie: Movie

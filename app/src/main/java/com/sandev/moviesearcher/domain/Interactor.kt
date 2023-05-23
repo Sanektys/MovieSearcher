@@ -1,7 +1,7 @@
 package com.sandev.moviesearcher.domain
 
 import androidx.lifecycle.MutableLiveData
-import com.sandev.moviesearcher.data.MainRepository
+import com.sandev.moviesearcher.data.Repository
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApi
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiKey
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbResultDto
@@ -10,10 +10,11 @@ import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.Locale
+import java.util.*
+import javax.inject.Inject
 
 
-class Interactor(private val repo: MainRepository, private val retrofitService: TmdbApi) {
+class Interactor @Inject constructor(private val repo: Repository, private val retrofitService: TmdbApi) {
 
     val favoritesMoviesLiveData = MutableLiveData<List<Movie>>()
     val watchLaterMoviesLiveData = MutableLiveData<List<Movie>>()

@@ -5,12 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.sandev.moviesearcher.domain.Interactor
 import com.sandev.moviesearcher.domain.Movie
+import javax.inject.Inject
 
 
 abstract class MoviesListFragmentViewModel : ViewModel() {
     abstract val moviesListLiveData: MutableLiveData<List<Movie>>
 
-    protected abstract val interactor: Interactor
+    @Inject
+    lateinit var interactor: Interactor
 
     abstract var lastSearch: String?
 

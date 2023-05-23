@@ -1,9 +1,10 @@
 package com.sandev.moviesearcher.data
 
 import com.sandev.moviesearcher.domain.Movie
+import javax.inject.Inject
 
 
-class MainRepository {
-    val favoritesMovies = mutableListOf<Movie>()
-    val watchLaterMovies = mutableListOf<Movie>()
+class MainRepository @Inject constructor() : Repository {
+    override val favoritesMovies = mutableListOf<Movie>()
+    override val watchLaterMovies = mutableListOf<Movie>()
 }
