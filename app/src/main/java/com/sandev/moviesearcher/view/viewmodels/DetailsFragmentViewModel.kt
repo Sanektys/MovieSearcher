@@ -2,20 +2,25 @@ package com.sandev.moviesearcher.view.viewmodels
 
 import androidx.lifecycle.ViewModel
 import com.sandev.moviesearcher.App
-import com.sandev.moviesearcher.domain.Interactor
 import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
 import javax.inject.Inject
 
 
 class DetailsFragmentViewModel : ViewModel() {
 
+    @Inject
+    lateinit var favoritesMoviesComponent: FavoritesMoviesComponentViewModel
+    @Inject
+    lateinit var watchLaterMoviesComponent: WatchLaterMoviesComponentViewModel
+
     val favoritesMoviesLiveData
-        get() = interactor.favoritesMoviesLiveData
+        get() = favoritesMoviesComponent.interactor.moviesListLiveData
     val watchLaterMoviesLiveData
-        get() = interactor.watchLaterMoviesLiveData
+        get() = watchLaterMoviesComponent.interactor.moviesListLiveData
 
     @Inject
-    lateinit var interactor: Interactor
+    lateinit var interactor: TmdbInteractor
 
     var _movie: Movie? = null
     val movie: Movie
@@ -29,12 +34,16 @@ class DetailsFragmentViewModel : ViewModel() {
 
     var fragmentThatLaunchedDetails: String? = null
 
+    init {
+        App.instance.getAppComponent().inject(this)
+    }
 
-    fun addToFavorite(movie: Movie) = interactor.addToFavorite(movie)
 
-    fun removeFromFavorite(movie: Movie) = interactor.removeFromFavorite(movie)
+    fun addToFavorite(movie: Movie) = favoritesMoviesComponent.interactor.addToList(movie)
 
-    fun addToWatchLater(movie: Movie) = interactor.addToWatchLater(movie)
+    fun removeFromFavorite(movie: Movie) = favoritesMoviesComponent.interactor.removeFromList(movie)
 
-    fun removeFromWatchLater(movie: Movie) = interactor.removeFromWatchLater(movie)
+    fun addToWatchLater(movie: Movie) = watchLaterMoviesComponent.interactor.addToList(movie)
+
+    fun removeFromWatchLater(movie: Movie) = watchLaterMoviesComponent.interactor.removeFromList(movie)
 }

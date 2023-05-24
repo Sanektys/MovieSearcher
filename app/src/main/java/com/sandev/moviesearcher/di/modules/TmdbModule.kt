@@ -10,5 +10,5 @@ import javax.inject.Singleton
 @Module
 class TmdbModule {
     @[Provides Singleton]
-    fun provideTmdbApi(retrofit: Retrofit) = retrofit.create(TmdbApi::class.java)
+    fun provideTmdbApi(retrofit: Retrofit): TmdbApi = retrofit.create(TmdbApi::class.java)
 }

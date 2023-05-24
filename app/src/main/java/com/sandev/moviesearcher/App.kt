@@ -1,8 +1,8 @@
 package com.sandev.moviesearcher
 
 import android.app.Application
-import com.sandev.moviesearcher.di.AppComponent
-import com.sandev.moviesearcher.di.DaggerAppComponent
+import com.sandev.moviesearcher.di.components.AppComponent
+import com.sandev.moviesearcher.di.components.DaggerAppComponent
 
 
 class App : Application() {
