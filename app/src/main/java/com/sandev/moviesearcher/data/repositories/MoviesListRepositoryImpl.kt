@@ -4,6 +4,6 @@ import com.sandev.moviesearcher.domain.Movie
 import javax.inject.Inject
 
 
-class FavoritesMoviesRepository @Inject constructor() : MoviesListRepository {
+class MoviesListRepositoryImpl @Inject constructor() : MoviesListRepository {
     override val moviesList = mutableListOf<Movie>()
 }

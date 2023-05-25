@@ -1,7 +1,7 @@
 package com.sandev.moviesearcher.di.modules
 
-import com.sandev.moviesearcher.view.viewmodels.FavoritesMoviesComponentViewModel
-import com.sandev.moviesearcher.view.viewmodels.WatchLaterMoviesComponentViewModel
+import com.sandev.moviesearcher.domain.components_holders.FavoritesMoviesComponentHolder
+import com.sandev.moviesearcher.domain.components_holders.WatchLaterMoviesComponentHolder
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -11,8 +11,8 @@ import javax.inject.Singleton
 class ViewModelModule {
 
     @[Provides Singleton]
-    fun provideFavoritesMoviesComponentViewModel() = FavoritesMoviesComponentViewModel()
+    fun provideFavoritesMoviesComponentViewModel() = FavoritesMoviesComponentHolder()
 
     @[Provides Singleton]
-    fun provideWatchLaterMoviesComponentViewModel() = WatchLaterMoviesComponentViewModel()
+    fun provideWatchLaterMoviesComponentViewModel() = WatchLaterMoviesComponentHolder()
 }

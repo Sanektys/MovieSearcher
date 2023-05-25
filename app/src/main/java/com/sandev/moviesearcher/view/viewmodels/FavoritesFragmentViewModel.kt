@@ -1,6 +1,7 @@
 package com.sandev.moviesearcher.view.viewmodels
 
 import com.sandev.moviesearcher.App
+import com.sandev.moviesearcher.domain.components_holders.FavoritesMoviesComponentHolder
 import com.sandev.moviesearcher.domain.Movie
 import javax.inject.Inject
 
@@ -8,7 +9,7 @@ import javax.inject.Inject
 class FavoritesFragmentViewModel : MoviesListFragmentViewModel() {
 
     @Inject
-    lateinit var favoritesMoviesComponent: FavoritesMoviesComponentViewModel
+    lateinit var favoritesMoviesComponent: FavoritesMoviesComponentHolder
 
     override val moviesListLiveData
         get() = favoritesMoviesComponent.interactor.moviesListLiveData

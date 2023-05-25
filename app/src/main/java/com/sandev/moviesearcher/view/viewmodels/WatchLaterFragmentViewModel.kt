@@ -2,13 +2,14 @@ package com.sandev.moviesearcher.view.viewmodels
 
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.domain.components_holders.WatchLaterMoviesComponentHolder
 import javax.inject.Inject
 
 
 class WatchLaterFragmentViewModel : MoviesListFragmentViewModel() {
 
     @Inject
-    lateinit var watchLaterMoviesComponent: WatchLaterMoviesComponentViewModel
+    lateinit var watchLaterMoviesComponent: WatchLaterMoviesComponentHolder
 
     override val moviesListLiveData
         get() = watchLaterMoviesComponent.interactor.moviesListLiveData

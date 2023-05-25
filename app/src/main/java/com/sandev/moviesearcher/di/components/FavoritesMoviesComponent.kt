@@ -1,18 +1,19 @@
 package com.sandev.moviesearcher.di.components
 
 import com.sandev.moviesearcher.di.FavoriteFragmentScope
-import com.sandev.moviesearcher.view.viewmodels.FavoritesMoviesComponentViewModel
+import com.sandev.moviesearcher.di.modules.FavoriteMoviesListModule
+import com.sandev.moviesearcher.domain.components_holders.FavoritesMoviesComponentHolder
 import dagger.Component
 
 
 @FavoriteFragmentScope
-@Component(dependencies = [AppComponent::class])
+@Component(modules = [FavoriteMoviesListModule::class])
 interface FavoritesMoviesComponent {
 
-    fun inject(favoritesMoviesComponentViewModel: FavoritesMoviesComponentViewModel)
+    fun inject(favoritesMoviesComponentViewModel: FavoritesMoviesComponentHolder)
 
     @Component.Factory
     interface Factory {
-        fun create(appComponent: AppComponent): FavoritesMoviesComponent
+        fun create(): FavoritesMoviesComponent
     }
 }

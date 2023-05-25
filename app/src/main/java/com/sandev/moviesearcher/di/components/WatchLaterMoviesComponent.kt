@@ -1,18 +1,19 @@
 package com.sandev.moviesearcher.di.components
 
 import com.sandev.moviesearcher.di.WatchLaterFragmentScope
-import com.sandev.moviesearcher.view.viewmodels.WatchLaterMoviesComponentViewModel
+import com.sandev.moviesearcher.di.modules.WatchLaterMoviesListModule
+import com.sandev.moviesearcher.domain.components_holders.WatchLaterMoviesComponentHolder
 import dagger.Component
 
 
 @WatchLaterFragmentScope
-@Component(dependencies = [AppComponent::class])
+@Component(modules = [WatchLaterMoviesListModule::class])
 interface WatchLaterMoviesComponent {
 
-    fun inject(watchLaterMoviesComponentViewModel: WatchLaterMoviesComponentViewModel)
+    fun inject(watchLaterMoviesComponentViewModel: WatchLaterMoviesComponentHolder)
 
     @Component.Factory
     interface Factory {
-        fun create(appComponent: AppComponent): WatchLaterMoviesComponent
+        fun create(): WatchLaterMoviesComponent
     }
 }
