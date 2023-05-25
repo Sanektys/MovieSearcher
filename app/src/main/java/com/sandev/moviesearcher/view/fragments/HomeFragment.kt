@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
 import androidx.lifecycle.ViewModelProvider
@@ -19,6 +18,9 @@ import androidx.transition.Slide
 import androidx.transition.TransitionInflater
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.BaseTransientBottomBar.ANIMATION_MODE_FADE
+import com.google.android.material.snackbar.Snackbar
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentHomeBinding
 import com.sandev.moviesearcher.databinding.MergeFragmentHomeContentBinding
@@ -48,6 +50,8 @@ class HomeFragment : MoviesListFragment() {
             Companion.recyclerAdapter = value
         }
         get() = Companion.recyclerAdapter
+
+    private var snackbar: Snackbar? = null
 
     companion object {
         var isFragmentClassOnceCreated = false
@@ -208,12 +212,16 @@ class HomeFragment : MoviesListFragment() {
 
     private fun initializeSwipeRefreshLayout() {
         bindingFull.swipeRefresh.setOnRefreshListener {
-            moviesDatabase = emptyList()
-            if (viewModel.isInSearchMode) {
-                viewModel.getSearchedMoviesFromApi(page = INITIAL_PAGE_IN_RECYCLER)
-            } else {
-                viewModel.getMoviesFromApi(page = INITIAL_PAGE_IN_RECYCLER)
-            }
+            refreshMoviesList()
+        }
+    }
+
+    private fun refreshMoviesList() {
+        moviesDatabase = emptyList()
+        if (viewModel.isInSearchMode) {
+            viewModel.getSearchedMoviesFromApi(page = INITIAL_PAGE_IN_RECYCLER)
+        } else {
+            viewModel.getMoviesFromApi(page = INITIAL_PAGE_IN_RECYCLER)
         }
     }
 
@@ -227,15 +235,25 @@ class HomeFragment : MoviesListFragment() {
                 if (bindingFull.swipeRefresh.isRefreshing) {
                     bindingFull.swipeRefresh.isRefreshing = false
                 }
-                Toast.makeText(
-                    context,
-                    R.string.activity_main_failure_on_load_data,
-                    Toast.LENGTH_LONG
-                ).show()
-                bindingFull.messageText.visibility = View.VISIBLE
+                snackbar = Snackbar.make(
+                    bindingFull.root,
+                    getString(R.string.activity_main_snackbar_message_failure_on_load_data),
+                    Snackbar.LENGTH_INDEFINITE
+                ).apply {
+                    animationMode = ANIMATION_MODE_FADE
+                    behavior = object : BaseTransientBottomBar.Behavior() {
+                        override fun canSwipeDismissView(child: View) = false
+                    }
+                    setAction(getString(R.string.activity_main_snackbar_button_retry)) {
+                        bindingFull.swipeRefresh.isRefreshing = true
+                        refreshMoviesList()
+                    }
+                }
+                snackbar?.show()
             } else {
-                if (bindingFull.messageText.visibility == View.VISIBLE) {
-                    bindingFull.messageText.visibility = View.GONE
+                if (snackbar?.isShown == true) {
+                    snackbar?.dismiss()
+                    snackbar = null
                 }
             }
         }

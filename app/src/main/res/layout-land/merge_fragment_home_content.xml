@@ -29,18 +29,6 @@
             tools:listitem="@layout/movie_card" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <TextView
-        android:id="@+id/messageText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/activity_main.movies_recycler.message.margin_horizontal"
-        android:layout_gravity="center"
-        android:textAlignment="center"
-        android:visibility="gone"
-        android:alpha="@dimen/activity_main.movies_recycler.message.alpha"
-        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-        android:text="@string/activity_main.recycler.fail_on_load_data" />
-
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"

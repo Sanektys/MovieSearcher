@@ -16,8 +16,6 @@
     <dimen name="activity_main.movies_recycler.margin_horizontal">12dp</dimen>
     <dimen name="activity_main.movies_recycler.margin_vertical">12dp</dimen>
     <dimen name="activity_main.movies_recycler.padding_horizontal">0dp</dimen>
-    <dimen name="activity_main.movies_recycler.message.margin_horizontal">40dp</dimen>
-    <dimen name="activity_main.movies_recycler.message.alpha">0.6</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.height">180dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.width">0dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.margin_horizontal">0dp</dimen>
