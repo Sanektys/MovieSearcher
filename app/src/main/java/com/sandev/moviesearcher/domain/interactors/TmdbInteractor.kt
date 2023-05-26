@@ -1,7 +1,5 @@
-package com.sandev.moviesearcher.domain
+package com.sandev.moviesearcher.domain.interactors
 
-import androidx.lifecycle.MutableLiveData
-import com.sandev.moviesearcher.data.MainRepository
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApi
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiKey
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbResultDto
@@ -10,20 +8,15 @@ import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.Locale
+import java.util.*
+import javax.inject.Inject
+import javax.inject.Singleton
 
 
-class Interactor(private val repo: MainRepository, private val retrofitService: TmdbApi) {
-
-    val favoritesMoviesLiveData = MutableLiveData<List<Movie>>()
-    val watchLaterMoviesLiveData = MutableLiveData<List<Movie>>()
+@Singleton
+class TmdbInteractor @Inject constructor(private val retrofitService: TmdbApi) {
 
     private val systemLanguage = Locale.getDefault().toLanguageTag()
-
-    init {
-        favoritesMoviesLiveData.postValue(repo.favoritesMovies.toList())
-        watchLaterMoviesLiveData.postValue(repo.watchLaterMovies.toList())
-    }
 
 
     fun getMoviesFromApi(page: Int, callback: MoviesListFragmentViewModel.ApiCallback) {
@@ -41,26 +34,6 @@ class Interactor(private val repo: MainRepository, private val retrofitService: 
             language = systemLanguage,
             page = page)
             .enqueue(RetrofitTmdbCallback(callback))
-    }
-
-    fun addToFavorite(movie: Movie) {
-        repo.favoritesMovies.add(movie)
-        favoritesMoviesLiveData.postValue(repo.favoritesMovies.toList())
-    }
-
-    fun removeFromFavorite(movie: Movie) {
-        repo.favoritesMovies.remove(movie)
-        favoritesMoviesLiveData.postValue(repo.favoritesMovies.toList())
-    }
-
-    fun addToWatchLater(movie: Movie) {
-        repo.watchLaterMovies.add(movie)
-        watchLaterMoviesLiveData.postValue(repo.watchLaterMovies.toList())
-    }
-
-    fun removeFromWatchLater(movie: Movie) {
-        repo.watchLaterMovies.remove(movie)
-        watchLaterMoviesLiveData.postValue(repo.watchLaterMovies.toList())
     }
 
 

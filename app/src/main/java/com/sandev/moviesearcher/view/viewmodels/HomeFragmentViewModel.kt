@@ -2,16 +2,18 @@ package com.sandev.moviesearcher.view.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import com.sandev.moviesearcher.App
-import com.sandev.moviesearcher.domain.Interactor
 import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
+import javax.inject.Inject
 
 
 class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
+    @Inject
+    lateinit var interactor: TmdbInteractor
+
     override val moviesListLiveData = MutableLiveData<List<Movie>>()
     val onFailureFlagLiveData = MutableLiveData<Boolean>()
-
-    override val interactor: Interactor = App.instance.interactor
 
     var isInSearchMode: Boolean
         set(value) {
@@ -39,6 +41,8 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     }
 
     init {
+        App.instance.getAppComponent().inject(this)
+
         if (isInSearchMode) {
             getSearchedMoviesFromApi()
         } else {
