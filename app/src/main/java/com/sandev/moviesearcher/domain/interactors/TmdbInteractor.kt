@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.domain.interactors
 
+import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApi
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiKey
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbResultDto
@@ -14,14 +15,16 @@ import javax.inject.Singleton
 
 
 @Singleton
-class TmdbInteractor @Inject constructor(private val retrofitService: TmdbApi) {
+class TmdbInteractor @Inject constructor(private val retrofitService: TmdbApi,
+                                         private val sharedPreferences: SharedPreferencesProvider) {
 
     private val systemLanguage = Locale.getDefault().toLanguageTag()
 
 
     fun getMoviesFromApi(page: Int, callback: MoviesListFragmentViewModel.ApiCallback) {
-        retrofitService.getPopularMovies(
+        retrofitService.getMovies(
             apiKey = TmdbApiKey.KEY,
+            category = sharedPreferences.getDefaultCategory(),
             language = systemLanguage,
             page = page)
             .enqueue(RetrofitTmdbCallback(callback))

@@ -28,4 +28,10 @@
 
     <!-- Movie view holder -->
     <string name="movie_view_holder.transition_name" translatable="false">MOVIE_POSTER_TRANSITION%d</string>
+
+    <!-- SharedPreferences -->
+    <string name="shared_preferences.settings" translatable="false">settings</string>
+    <string name="shared_preferences.settings.default.category" translatable="false">popular</string>
+    <string name="shared_preferences.settings.key.category" translatable="false">category</string>
+    <string name="shared_preferences.settings.key.first_launch" translatable="false">first_launch</string>
 </resources>
