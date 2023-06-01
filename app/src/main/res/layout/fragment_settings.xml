@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    tools:context=".view.fragments.SettingsFragment">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.search.SearchBar
+            android:id="@+id/search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/fragment_settings.search_bar.height"
+            android:layout_margin="@dimen/fragment_settings.search_bar.margin"
+            android:theme="@style/Theme.MovieSearcher.Search"
+            style="@style/Widget.Material3.SearchBar.Outlined"
+            app:navigationIcon="@drawable/sharp_arrow_back"
+            app:menu="@menu/top_app_bar_menu"
+            android:hint="@string/settings_fragment.app_bar.search_bar.hint" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/appBarLayout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/fragment_settings.radio_group.title.marginStart"
+                    android:layout_marginTop="@dimen/fragment_settings.radio_group.title.marginTop"
+                    android:layout_marginBottom="@dimen/fragment_settings.radio_group.title.marginBottom"
+                    android:alpha="@dimen/fragment_settings.radio_group.title.alpha"
+                    android:text="@string/settings_fragment.radio_group.category.title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/RadioButton1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
+                    android:layout_marginStart="@dimen/fragment_settings.radio_group.radio_button.marginStart"
+                    android:text="@string/settings_fragment.radio_group.category.top_rated" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/RadioButton2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
+                    android:layout_marginStart="@dimen/fragment_settings.radio_group.radio_button.marginStart"
+                    android:text="@string/settings_fragment.radio_group.category.popular" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/RadioButton3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
+                    android:layout_marginStart="@dimen/fragment_settings.radio_group.radio_button.marginStart"
+                    android:text="@string/settings_fragment.radio_group.category.upcoming" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/RadioButton4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
+                    android:layout_marginStart="@dimen/fragment_settings.radio_group.radio_button.marginStart"
+                    android:text="@string/settings_fragment.radio_group.category.playing" />
+            </RadioGroup>
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

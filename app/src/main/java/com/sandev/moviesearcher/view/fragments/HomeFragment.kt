@@ -11,6 +11,10 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentManager.OnBackStackChangedListener
+import androidx.fragment.app.FragmentOnAttachListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Scene
@@ -53,6 +57,8 @@ class HomeFragment : MoviesListFragment() {
 
     private var snackbar: Snackbar? = null
 
+    private val backStackChangedListener: OnBackStackChangedListener
+
     companion object {
         var isFragmentClassOnceCreated = false
             private set
@@ -65,6 +71,11 @@ class HomeFragment : MoviesListFragment() {
         private const val LOADING_THRESHOLD_MULTIPLIER_FOR_LANDSCAPE = 2
         private const val INITIAL_PAGE_IN_RECYCLER = 1
     }
+
+    init {
+        backStackChangedListener = createChildFragmentsChangeListener()
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -79,10 +90,14 @@ class HomeFragment : MoviesListFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        initializeSwipeRefreshLayout()
+        prepareErrorConnectionSnackbar()
+
+        childFragmentManager.addOnBackStackChangedListener(backStackChangedListener)
+
         super.onViewCreated(view, savedInstanceState)
 
         setupViewModelObserving()
-        initializeSwipeRefreshLayout()
 
         initializeMovieRecycler()
         setupRecyclerUpdateOnScroll()
@@ -99,6 +114,7 @@ class HomeFragment : MoviesListFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         bindingFull.moviesListRecycler.clearOnChildAttachStateChangeListeners()
+        childFragmentManager.removeOnBackStackChangedListener(backStackChangedListener)
         _bindingFull = null
         _bindingBlank = null
         moviesRecyclerManager = null
@@ -210,6 +226,33 @@ class HomeFragment : MoviesListFragment() {
         })
     }
 
+    private fun prepareErrorConnectionSnackbar() {
+        snackbar = Snackbar.make(
+            bindingFull.root,
+            getString(R.string.activity_main_snackbar_message_failure_on_load_data),
+            Snackbar.LENGTH_INDEFINITE
+        ).apply {
+            animationMode = ANIMATION_MODE_FADE
+            behavior = object : BaseTransientBottomBar.Behavior() {
+                override fun canSwipeDismissView(child: View) = false
+            }
+            setAction(getString(R.string.activity_main_snackbar_button_retry)) {
+                bindingFull.swipeRefresh.isRefreshing = true
+                refreshMoviesList()
+            }
+        }
+    }
+
+    private fun createChildFragmentsChangeListener() = OnBackStackChangedListener {
+        if (childFragmentManager.fragments.size == 0) {
+            if (viewModel.onFailureFlag) {
+                snackbar?.show()
+            }
+        } else {
+            snackbar?.dismiss()
+        }
+    }
+
     private fun initializeSwipeRefreshLayout() {
         bindingFull.swipeRefresh.setOnRefreshListener {
             refreshMoviesList()
@@ -235,25 +278,12 @@ class HomeFragment : MoviesListFragment() {
                 if (bindingFull.swipeRefresh.isRefreshing) {
                     bindingFull.swipeRefresh.isRefreshing = false
                 }
-                snackbar = Snackbar.make(
-                    bindingFull.root,
-                    getString(R.string.activity_main_snackbar_message_failure_on_load_data),
-                    Snackbar.LENGTH_INDEFINITE
-                ).apply {
-                    animationMode = ANIMATION_MODE_FADE
-                    behavior = object : BaseTransientBottomBar.Behavior() {
-                        override fun canSwipeDismissView(child: View) = false
-                    }
-                    setAction(getString(R.string.activity_main_snackbar_button_retry)) {
-                        bindingFull.swipeRefresh.isRefreshing = true
-                        refreshMoviesList()
-                    }
+                if (childFragmentManager.fragments.size == 0) {
+                    snackbar?.show()
                 }
-                snackbar?.show()
             } else {
                 if (snackbar?.isShown == true) {
                     snackbar?.dismiss()
-                    snackbar = null
                 }
             }
         }

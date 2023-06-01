@@ -1,6 +1,5 @@
 package com.sandev.moviesearcher.view.fragments
 
-import android.animation.AnimatorInflater
 import android.content.res.Configuration
 import android.graphics.Outline
 import android.graphics.drawable.ColorDrawable
@@ -11,15 +10,19 @@ import android.view.View
 import android.view.ViewOutlineProvider
 import android.view.animation.AccelerateInterpolator
 import android.view.inputmethod.EditorInfo
-import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.doOnAttach
 import androidx.core.view.doOnLayout
+import androidx.core.view.doOnNextLayout
 import androidx.core.view.doOnPreDraw
+import androidx.core.view.forEach
+import androidx.core.view.postDelayed
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
 import androidx.recyclerview.widget.RecyclerView
@@ -30,8 +33,10 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.search.SearchBar
 import com.google.android.material.search.SearchView
+import com.google.android.material.snackbar.Snackbar
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.utils.CircularRevealAnimator
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
 
@@ -60,6 +65,13 @@ abstract class MoviesListFragment : Fragment() {
     private var _recyclerView: RecyclerView? = null
     private val recyclerView: RecyclerView
         get() = _recyclerView!!
+    private var _childFragment: FragmentContainerView? = null
+    private val childFragment: FragmentContainerView
+        get() = _childFragment!!
+
+    private var circularRevealAnimator: CircularRevealAnimator? = null
+
+    private val settingsButtonCenterCoords = IntArray(2)
 
     private val fragmentsTransitionDuration by lazy {
         resources.getInteger(R.integer.general_animations_durations_fragment_transition).toLong() }
@@ -72,14 +84,19 @@ abstract class MoviesListFragment : Fragment() {
 
         const val SEARCH_SYMBOLS_THRESHOLD = 2
         private const val MAX_ALPHA = 255F
+        private const val DIVIDER_TO_CENTER = 2
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setAppBarAppearance()
         setSearchViewAppearance()
         setRecyclerViewAppearance(recyclerView)
-        initializeToolbar(view)
+        initializeToolbar()
         setupSearchBehavior()
+
+        if (childFragmentManager.fragments.size != 0) {
+            createSettingsFragment()
+        }
     }
 
     override fun onDestroyView() {
@@ -96,6 +113,8 @@ abstract class MoviesListFragment : Fragment() {
         _searchBar = null
         _searchView = null
         _recyclerView = null
+        _childFragment = null
+        circularRevealAnimator = null
     }
 
     fun hideSearchView() = searchView.hide()
@@ -112,6 +131,7 @@ abstract class MoviesListFragment : Fragment() {
         _searchBar = rootView.findViewById(R.id.search_bar)
         _searchView = rootView.findViewById(R.id.search_view)
         _recyclerView = rootView.findViewById(R.id.movies_list_recycler)
+        _childFragment = rootView.findViewById(R.id.settingsFragment)
     }
 
     protected fun setTransitionAnimation(slideGravity: Int = viewModel.lastSlideGravity, recycler: View = recyclerView) {
@@ -193,14 +213,71 @@ abstract class MoviesListFragment : Fragment() {
         viewModel.lastSearch = query
     }
 
-    private fun initializeToolbar(view: View) {
+    private fun createCircularRevealAnimator(view: View): CircularRevealAnimator {
         val settingsButton: View = view.findViewById(R.id.top_toolbar_settings_button)
-        settingsButton.stateListAnimator = AnimatorInflater.loadStateListAnimator(requireContext(), R.animator.settings_button_spin)
 
-        searchBar.setOnMenuItemClickListener {
-            when (it.itemId) {
+        settingsButton.getLocationInWindow(settingsButtonCenterCoords)
+        settingsButtonCenterCoords[0] = settingsButtonCenterCoords[0] + settingsButton.width / DIVIDER_TO_CENTER
+        settingsButtonCenterCoords[1] = settingsButtonCenterCoords[1] + settingsButton.height / DIVIDER_TO_CENTER
+
+        return CircularRevealAnimator(
+            view.height, view.width,
+            settingsButtonCenterCoords[0], settingsButtonCenterCoords[1],
+            childFragment
+        )
+    }
+
+    private fun createSettingsFragment() {
+        requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bar).let {
+            it.menu.forEach { item -> item.isEnabled = false }
+        }
+        searchBar.menu.forEach { menuItem -> menuItem.isEnabled = false }
+
+        if (childFragmentManager.fragments.size == 0) {
+            circularRevealAnimator ?: createCircularRevealAnimator(requireView()).also { circularRevealAnimator = it }
+
+            childFragmentManager.beginTransaction()
+                .add(R.id.settingsFragment, SettingsFragment())
+                .addToBackStack(null)
+                .commit()
+
+            circularRevealAnimator?.revealView()
+        } else {  // Возвращение фрагмента после смены конфигурации
+            childFragment.visibility = View.VISIBLE
+        }
+
+        appBar.postDelayed(circularRevealAnimator?.animationDuration ?: 0) {
+            appBar.visibility = View.GONE
+            searchView.visibility = View.GONE
+            recyclerView.visibility = View.GONE
+        }
+    }
+
+    fun destroySettingsFragment() {
+        if (childFragmentManager.fragments[0] is SettingsFragment) {
+            appBar.visibility = View.VISIBLE
+            searchView.visibility = View.VISIBLE
+            recyclerView.visibility = View.VISIBLE
+
+            circularRevealAnimator ?: createCircularRevealAnimator(requireView()).also { circularRevealAnimator = it }
+            circularRevealAnimator?.revealView()
+
+            appBar.postDelayed(circularRevealAnimator?.animationDuration ?: 0) {
+                childFragmentManager.popBackStack()
+
+                requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bar).let {
+                    it.menu.forEach { item -> item.isEnabled = true }
+                }
+                searchBar.menu.forEach { menuItem -> menuItem.isEnabled = true }
+            }
+        }
+    }
+
+    private fun initializeToolbar() {
+        searchBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
                 R.id.top_toolbar_settings_button -> {
-                    Toast.makeText(requireContext(), R.string.activity_main_top_app_bar_settings_title, Toast.LENGTH_SHORT).show()
+                    createSettingsFragment()
                     true
                 }
                 else -> false
