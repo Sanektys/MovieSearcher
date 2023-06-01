@@ -12,21 +12,20 @@ class SharedPreferencesProvider(context: Context) {
     private val sharedPreferences = appContext.getSharedPreferences(
         appContext.getString(R.string.shared_preferences_settings), Context.MODE_PRIVATE)
 
+    private val keyFirstLaunch = appContext.getString(R.string.shared_preferences_settings_key_first_launch)
+    private val keyCategory = appContext.getString(R.string.shared_preferences_settings_key_category)
+
+    private val defaultCategory = appContext.getString(R.string.shared_preferences_settings_default_category)
+
     init {
-        if (sharedPreferences.getBoolean(appContext.getString(R.string.shared_preferences_settings_key_first_launch), false)) {
-            sharedPreferences.edit { putBoolean(appContext.getString(R.string.shared_preferences_settings_key_first_launch), false) }
-            sharedPreferences.edit { putString(appContext.getString(R.string.shared_preferences_settings_key_category), appContext.getString(R.string.shared_preferences_settings_default_category)) }
+        if (sharedPreferences.getBoolean(keyFirstLaunch, true)) {
+            sharedPreferences.edit { putBoolean(keyFirstLaunch, false) }
+            sharedPreferences.edit { putString(keyCategory, defaultCategory) }
         }
     }
 
 
-    fun setDefaultCategory(category: String) {
-        sharedPreferences.edit {
-            putString(appContext.getString(R.string.shared_preferences_settings_key_category), category)
-        }
-    }
+    fun setDefaultCategory(category: String) = sharedPreferences.edit { putString(keyCategory, category) }
 
-    fun getDefaultCategory() = sharedPreferences.getString(
-        appContext.getString(R.string.shared_preferences_settings_key_category),
-        appContext.getString(R.string.shared_preferences_settings_default_category))!!
+    fun getDefaultCategory() = sharedPreferences.getString(keyCategory, defaultCategory)!!
 }

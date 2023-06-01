@@ -41,7 +41,11 @@
 
     <!-- SharedPreferences -->
     <string name="shared_preferences.settings" translatable="false">settings</string>
-    <string name="shared_preferences.settings.default.category" translatable="false">popular</string>
-    <string name="shared_preferences.settings.key.category" translatable="false">category</string>
     <string name="shared_preferences.settings.key.first_launch" translatable="false">first_launch</string>
+    <string name="shared_preferences.settings.default.category" translatable="false">@string/shared_preferences.settings.value.category.popular</string>
+    <string name="shared_preferences.settings.key.category" translatable="false">category</string>
+    <string name="shared_preferences.settings.value.category.popular" translatable="false">popular</string>
+    <string name="shared_preferences.settings.value.category.top_rated" translatable="false">top_rated</string>
+    <string name="shared_preferences.settings.value.category.upcoming" translatable="false">upcoming</string>
+    <string name="shared_preferences.settings.value.category.now_playing" translatable="false">now_playing</string>
 </resources>

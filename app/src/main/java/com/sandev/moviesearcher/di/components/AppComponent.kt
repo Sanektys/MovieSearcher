@@ -8,6 +8,7 @@ import com.sandev.moviesearcher.di.modules.ViewModelModule
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
 import com.sandev.moviesearcher.view.viewmodels.FavoritesFragmentViewModel
 import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
+import com.sandev.moviesearcher.view.viewmodels.SettingsFragmentViewModel
 import com.sandev.moviesearcher.view.viewmodels.WatchLaterFragmentViewModel
 import dagger.BindsInstance
 import dagger.Component
@@ -27,6 +28,7 @@ interface AppComponent {
     fun inject(detailsFragmentViewModel: DetailsFragmentViewModel)
     fun inject(favoritesFragmentViewModel: FavoritesFragmentViewModel)
     fun inject(watchLaterFragmentViewModel: WatchLaterFragmentViewModel)
+    fun inject(settingsFragmentViewModel: SettingsFragmentViewModel)
 
     @Component.Builder
     interface Builder {
