@@ -1,6 +1,7 @@
 package com.sandev.moviesearcher.data
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.sandev.moviesearcher.R
 
@@ -28,4 +29,10 @@ class SharedPreferencesProvider(context: Context) {
     fun setDefaultCategory(category: String) = sharedPreferences.edit { putString(keyCategory, category) }
 
     fun getDefaultCategory() = sharedPreferences.getString(keyCategory, defaultCategory)!!
+
+    fun registerSharedPreferencesChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) =
+        sharedPreferences.registerOnSharedPreferenceChangeListener(listener)
+
+    fun unregisterSharedPreferencesChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) =
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(listener)
 }

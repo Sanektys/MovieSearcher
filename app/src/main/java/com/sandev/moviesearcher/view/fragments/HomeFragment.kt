@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.view.fragments
 
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Gravity
@@ -11,10 +12,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentManager.OnBackStackChangedListener
-import androidx.fragment.app.FragmentOnAttachListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Scene
@@ -58,6 +56,7 @@ class HomeFragment : MoviesListFragment() {
     private var snackbar: Snackbar? = null
 
     private val backStackChangedListener: OnBackStackChangedListener
+    private var sharedPreferencesChangeListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
 
     companion object {
         var isFragmentClassOnceCreated = false
@@ -94,6 +93,7 @@ class HomeFragment : MoviesListFragment() {
         prepareErrorConnectionSnackbar()
 
         childFragmentManager.addOnBackStackChangedListener(backStackChangedListener)
+        initializeOnSharedPreferenceChangeListener()
 
         super.onViewCreated(view, savedInstanceState)
 
@@ -113,8 +113,11 @@ class HomeFragment : MoviesListFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+
         bindingFull.moviesListRecycler.clearOnChildAttachStateChangeListeners()
         childFragmentManager.removeOnBackStackChangedListener(backStackChangedListener)
+        removeOnSharedPreferenceChangeListener()
+
         _bindingFull = null
         _bindingBlank = null
         moviesRecyclerManager = null
@@ -257,6 +260,27 @@ class HomeFragment : MoviesListFragment() {
         bindingFull.swipeRefresh.setOnRefreshListener {
             refreshMoviesList()
         }
+    }
+
+    private fun initializeOnSharedPreferenceChangeListener() {
+        sharedPreferencesChangeListener =
+            SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                when (key) {
+                    getString(R.string.shared_preferences_settings_key_category) -> {
+                        bindingFull.swipeRefresh.isRefreshing = true
+                        refreshMoviesList()
+                    }
+                }
+            }
+        viewModel.sharedPreferencesInteractor.addSharedPreferencesChangeListener(
+            sharedPreferencesChangeListener ?: return
+        )
+    }
+
+    private fun removeOnSharedPreferenceChangeListener() {
+        viewModel.sharedPreferencesInteractor.removeSharedPreferencesChangeListener(
+            sharedPreferencesChangeListener ?: return
+        )
     }
 
     private fun refreshMoviesList() {
