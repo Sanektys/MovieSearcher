@@ -2,6 +2,7 @@ package com.sandev.moviesearcher.view.fragments
 
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -23,6 +24,7 @@ import androidx.transition.TransitionSet
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.BaseTransientBottomBar.ANIMATION_MODE_FADE
 import com.google.android.material.snackbar.Snackbar
+import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentHomeBinding
 import com.sandev.moviesearcher.databinding.MergeFragmentHomeContentBinding
@@ -116,7 +118,6 @@ class HomeFragment : MoviesListFragment() {
 
         bindingFull.moviesListRecycler.clearOnChildAttachStateChangeListeners()
         childFragmentManager.removeOnBackStackChangedListener(backStackChangedListener)
-        removeOnSharedPreferenceChangeListener()
 
         _bindingFull = null
         _bindingBlank = null
@@ -125,7 +126,10 @@ class HomeFragment : MoviesListFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+
         if (activity?.isChangingConfigurations == false) {
+            removeOnSharedPreferenceChangeListener()
+
             recyclerAdapter = null
         }
     }
@@ -150,7 +154,9 @@ class HomeFragment : MoviesListFragment() {
     }
 
     override fun initializeRecyclerAdapterList() {
-        if (bindingFull.swipeRefresh.isRefreshing) {
+        if (_bindingFull == null) {  // Обновление адаптера когда сам фрагмент прошёл onDestroyedView
+            recyclerAdapter?.clearList()
+        } else if (bindingFull.swipeRefresh.isRefreshing) {
             recyclerAdapter?.clearList()
             bindingFull.swipeRefresh.isRefreshing = false
         }
@@ -266,8 +272,8 @@ class HomeFragment : MoviesListFragment() {
         sharedPreferencesChangeListener =
             SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
                 when (key) {
-                    getString(R.string.shared_preferences_settings_key_category) -> {
-                        bindingFull.swipeRefresh.isRefreshing = true
+                    App.instance.getString(R.string.shared_preferences_settings_key_category) -> {
+                        _bindingFull?.swipeRefresh?.isRefreshing = true
                         refreshMoviesList()
                     }
                 }
