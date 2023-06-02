@@ -60,4 +60,11 @@
         android:hint="@string/activity_main.top_app_bar.search_bar.hint"
         app:useDrawerArrowDrawable="true"
         app:autoShowKeyboard="false" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/settingsFragment"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout="@layout/fragment_settings" />
 </merge>

@@ -21,5 +21,5 @@ class App : Application() {
         getAppComponent()
     }
 
-    fun getAppComponent() = appComponent ?: DaggerAppComponent.builder().build().also { appComponent = it }
+    fun getAppComponent() = appComponent ?: DaggerAppComponent.builder().context(this).build().also { appComponent = it }
 }

@@ -3,6 +3,7 @@ package com.sandev.moviesearcher.view.viewmodels
 import androidx.lifecycle.MutableLiveData
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.domain.interactors.SharedPreferencesInteractor
 import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
 import javax.inject.Inject
 
@@ -11,6 +12,9 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
     @Inject
     lateinit var interactor: TmdbInteractor
+
+    @Inject
+    lateinit var sharedPreferencesInteractor: SharedPreferencesInteractor
 
     override val moviesListLiveData = MutableLiveData<List<Movie>>()
     val onFailureFlagLiveData = MutableLiveData<Boolean>()

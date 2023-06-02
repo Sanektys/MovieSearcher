@@ -11,6 +11,16 @@
     <string name="activity_main.snackbar.message.failure_on_load_data">Ошибка загрузки, проверьте интернет-соединение и/или VPN</string>
     <string name="activity_main.snackbar.button.retry">Повторить</string>
 
+
+    <!-- Settings fragment -->
+    <string name="settings_fragment.app_bar.search_bar.hint">Настройки</string>
+    <string name="settings_fragment.radio_group.category.title">Выбор категории фильмов в списке \"Все Фильмы\"</string>
+    <string name="settings_fragment.radio_group.category.top_rated">С высоким рейтингом</string>
+    <string name="settings_fragment.radio_group.category.popular">Популярное</string>
+    <string name="settings_fragment.radio_group.category.upcoming">Скоро в прокате</string>
+    <string name="settings_fragment.radio_group.category.playing">В прокате</string>
+
+
     <!-- Details fragment -->
     <string name="details_fragment.toolbar.title">Подробности о фильме</string>
     <string name="details_fragment.fab.add_favorite">Добавлено в избранное</string>
@@ -28,4 +38,14 @@
 
     <!-- Movie view holder -->
     <string name="movie_view_holder.transition_name" translatable="false">MOVIE_POSTER_TRANSITION%d</string>
+
+    <!-- SharedPreferences -->
+    <string name="shared_preferences.settings" translatable="false">settings</string>
+    <string name="shared_preferences.settings.key.first_launch" translatable="false">first_launch</string>
+    <string name="shared_preferences.settings.default.category" translatable="false">@string/shared_preferences.settings.value.category.popular</string>
+    <string name="shared_preferences.settings.key.category" translatable="false">category</string>
+    <string name="shared_preferences.settings.value.category.popular" translatable="false">popular</string>
+    <string name="shared_preferences.settings.value.category.top_rated" translatable="false">top_rated</string>
+    <string name="shared_preferences.settings.value.category.upcoming" translatable="false">upcoming</string>
+    <string name="shared_preferences.settings.value.category.now_playing" translatable="false">now_playing</string>
 </resources>
