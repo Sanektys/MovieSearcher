@@ -58,6 +58,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
                     android:layout_marginStart="@dimen/fragment_settings.radio_group.radio_button.marginStart"
+                    android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
                     android:text="@string/settings_fragment.radio_group.category.popular" />
 
                 <com.google.android.material.radiobutton.MaterialRadioButton
@@ -65,6 +66,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
                     android:layout_marginStart="@dimen/fragment_settings.radio_group.radio_button.marginStart"
+                    android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
                     android:text="@string/settings_fragment.radio_group.category.top_rated" />
 
                 <com.google.android.material.radiobutton.MaterialRadioButton
@@ -72,6 +74,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
                     android:layout_marginStart="@dimen/fragment_settings.radio_group.radio_button.marginStart"
+                    android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
                     android:text="@string/settings_fragment.radio_group.category.upcoming" />
 
                 <com.google.android.material.radiobutton.MaterialRadioButton
@@ -79,6 +82,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
                     android:layout_marginStart="@dimen/fragment_settings.radio_group.radio_button.marginStart"
+                    android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
                     android:text="@string/settings_fragment.radio_group.category.playing" />
             </RadioGroup>
         </LinearLayout>

@@ -47,7 +47,8 @@
     <dimen name="fragment_settings.radio_group.title.marginBottom">8dp</dimen>
     <dimen name="fragment_settings.radio_group.title.alpha">0.5</dimen>
     <dimen name="fragment_settings.radio_group.radio_button.height">44dp</dimen>
-    <dimen name="fragment_settings.radio_group.radio_button.marginStart">16dp</dimen>
+    <dimen name="fragment_settings.radio_group.radio_button.marginStart">12dp</dimen>
+    <dimen name="fragment_settings.radio_group.radio_button.paddingHorizontal">12dp</dimen>
 
 
     <!-- details fragment -->
