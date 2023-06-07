@@ -1,6 +1,7 @@
 package com.sandev.moviesearcher.di.components
 
 import android.content.Context
+import com.sandev.moviesearcher.di.modules.AllMoviesListModule
 import com.sandev.moviesearcher.di.modules.RemoteModule
 import com.sandev.moviesearcher.di.modules.SharedPreferenceModule
 import com.sandev.moviesearcher.di.modules.TmdbModule
@@ -21,6 +22,7 @@ import javax.inject.Singleton
     RemoteModule::class,
     TmdbModule::class,
     ViewModelModule::class,
+    AllMoviesListModule::class,
 ])
 interface AppComponent {
 

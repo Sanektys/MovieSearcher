@@ -91,6 +91,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
         override fun onFailure() {
             onFailureFlag = true
+            moviesListLiveData.postValue(interactor.getMoviesFromDB())
         }
     }
 }

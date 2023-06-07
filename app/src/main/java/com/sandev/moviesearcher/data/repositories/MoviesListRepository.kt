@@ -4,5 +4,10 @@ import com.sandev.moviesearcher.domain.Movie
 
 
 interface MoviesListRepository {
-    val moviesList: MutableList<Movie>
+
+    fun putToDB(movie: Movie)
+
+    fun getAllFromDB(): List<Movie>
+
+    fun getSearchedFromDB(query: String): List<Movie>
 }

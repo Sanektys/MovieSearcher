@@ -1,8 +1,10 @@
 package com.sandev.moviesearcher.di.components
 
+import android.content.Context
 import com.sandev.moviesearcher.di.WatchLaterFragmentScope
 import com.sandev.moviesearcher.di.modules.WatchLaterMoviesListModule
 import com.sandev.moviesearcher.domain.components_holders.WatchLaterMoviesComponentHolder
+import dagger.BindsInstance
 import dagger.Component
 
 
@@ -14,6 +16,6 @@ interface WatchLaterMoviesComponent {
 
     @Component.Factory
     interface Factory {
-        fun create(): WatchLaterMoviesComponent
+        fun create(@BindsInstance context: Context): WatchLaterMoviesComponent
     }
 }
