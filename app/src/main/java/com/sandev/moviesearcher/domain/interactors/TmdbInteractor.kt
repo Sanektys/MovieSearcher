@@ -44,6 +44,8 @@ class TmdbInteractor @Inject constructor(private val retrofitService: TmdbApi,
 
     fun getMoviesFromDB() = moviesListRepository.getAllFromDB()
 
+    fun getSearchedMoviesFromDB(query: String) = moviesListRepository.getSearchedFromDB(query)
+
 
     private class RetrofitTmdbCallback(
         private val viewModelCallback: MoviesListFragmentViewModel.ApiCallback,

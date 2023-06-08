@@ -2,13 +2,14 @@ package com.sandev.moviesearcher.data.repositories
 
 import android.content.ContentValues
 import android.database.Cursor
+import android.database.sqlite.SQLiteDatabase
 import com.sandev.moviesearcher.data.db.MoviesDatabase
 import com.sandev.moviesearcher.domain.Movie
 
 
-class MoviesListRepositoryImpl(private val moviesDatabase: MoviesDatabase) : MoviesListRepository {
+open class MoviesListRepositoryImpl(protected val moviesDatabase: MoviesDatabase) : MoviesListRepository {
 
-    private val sqlDB = moviesDatabase.readableDatabase
+    protected val sqlDB: SQLiteDatabase = moviesDatabase.readableDatabase
 
 
     override fun putToDB(movie: Movie) {
@@ -18,12 +19,13 @@ class MoviesListRepositoryImpl(private val moviesDatabase: MoviesDatabase) : Mov
             put(MoviesDatabase.COLUMN_POSTER, movie.poster)
             put(MoviesDatabase.COLUMN_RATING, movie.rating)
         }
-        sqlDB.insert(moviesDatabase.getTableName(), null, cv)
+        sqlDB.insertWithOnConflict(moviesDatabase.getTableName(), null, cv, SQLiteDatabase.CONFLICT_IGNORE)
     }
 
     override fun getAllFromDB(): List<Movie> {
         return sqlDB.rawQuery(
-            "SELECT * FROM ${moviesDatabase.getTableName()}",
+            "SELECT * " +
+                    "FROM ${moviesDatabase.getTableName()}",
             null
         ).use { cursor -> readResultTable(cursor) }
     }
@@ -32,13 +34,13 @@ class MoviesListRepositoryImpl(private val moviesDatabase: MoviesDatabase) : Mov
         return sqlDB.rawQuery(
             "SELECT * " +
                     "FROM ${moviesDatabase.getTableName()} " +
-                    "WHERE ${MoviesDatabase.COLUMN_TITLE}=? " +
+                    "WHERE ${MoviesDatabase.COLUMN_TITLE} LIKE '%${query.lowercase()}%' " +
                     "ORDER BY ${MoviesDatabase.COLUMN_ID} ASC",
-            arrayOf(query)
+            null
         ).use { cursor -> readResultTable(cursor) }
     }
 
-    protected fun readResultTable(cursor: Cursor): List<Movie> {
+    private fun readResultTable(cursor: Cursor): List<Movie> {
         val result = mutableListOf<Movie>()
 
         if (cursor.moveToFirst()) {

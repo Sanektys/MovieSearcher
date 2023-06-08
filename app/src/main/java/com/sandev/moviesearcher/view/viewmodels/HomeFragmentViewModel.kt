@@ -91,7 +91,11 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
         override fun onFailure() {
             onFailureFlag = true
-            moviesListLiveData.postValue(interactor.getMoviesFromDB())
+            if (isInSearchMode) {
+                moviesListLiveData.postValue(interactor.getSearchedMoviesFromDB(lastSearch ?: ""))
+            } else {
+                moviesListLiveData.postValue(interactor.getMoviesFromDB())
+            }
         }
     }
 }

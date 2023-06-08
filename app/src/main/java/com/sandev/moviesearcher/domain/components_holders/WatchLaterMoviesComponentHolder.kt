@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.domain.components_holders
 
+import android.content.Context
 import com.sandev.moviesearcher.di.components.DaggerWatchLaterMoviesComponent
 import com.sandev.moviesearcher.domain.interactors.MoviesListInteractor
 import javax.inject.Inject
@@ -7,12 +8,12 @@ import javax.inject.Singleton
 
 
 @Singleton
-class WatchLaterMoviesComponentHolder {
+class WatchLaterMoviesComponentHolder(context: Context) {
 
     @Inject
     lateinit var interactor: MoviesListInteractor
 
-    private val watchLaterMoviesComponent = DaggerWatchLaterMoviesComponent.factory().create()
+    private val watchLaterMoviesComponent = DaggerWatchLaterMoviesComponent.factory().create(context)
 
     init {
         watchLaterMoviesComponent.inject(this)

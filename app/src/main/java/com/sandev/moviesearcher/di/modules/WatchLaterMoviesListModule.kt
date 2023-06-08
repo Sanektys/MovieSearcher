@@ -4,6 +4,7 @@ import android.content.Context
 import com.sandev.moviesearcher.data.db.WatchLaterMoviesDatabase
 import com.sandev.moviesearcher.data.repositories.MoviesListRepository
 import com.sandev.moviesearcher.data.repositories.MoviesListRepositoryImpl
+import com.sandev.moviesearcher.data.repositories.MoviesListRepositoryImplWithList
 import com.sandev.moviesearcher.di.WatchLaterFragmentScope
 import dagger.Binds
 import dagger.Module
@@ -18,12 +19,12 @@ class WatchLaterMoviesListModule {
             = WatchLaterMoviesDatabase(context)
 
     @[Provides WatchLaterFragmentScope]
-    fun provideWatchLaterMoviesRepository(moviesDatabase: WatchLaterMoviesDatabase) : MoviesListRepositoryImpl
-            = MoviesListRepositoryImpl(moviesDatabase)
+    fun provideWatchLaterMoviesRepository(moviesDatabase: WatchLaterMoviesDatabase) : MoviesListRepositoryImplWithList
+            = MoviesListRepositoryImplWithList(moviesDatabase)
 }
 
 @Module
 interface WatchLaterMoviesListRepositoryModule {
     @[Binds WatchLaterFragmentScope]
-    fun bindFavoriteMoviesList(moviesListRepository: MoviesListRepositoryImpl): MoviesListRepository
+    fun bindFavoriteMoviesList(moviesListRepository: MoviesListRepositoryImplWithList): MoviesListRepository
 }
