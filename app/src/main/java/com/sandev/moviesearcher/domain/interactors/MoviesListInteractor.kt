@@ -16,18 +16,7 @@ class MoviesListInteractor @Inject constructor(private val repo: MoviesListRepos
     val moviesListLiveData = MutableLiveData<List<Movie>>()
 
     init {
-        if (repo.getAllFromDB().isEmpty()) {
-            Executors.newSingleThreadExecutor().apply {
-                execute {
-                    while (repo.getAllFromDB().isEmpty()) {
-                        Thread.sleep(POLL_DELAY)
-                    }
-                    moviesListLiveData.postValue(repo.getAllFromDB())
-                }
-            }
-        } else {
-            moviesListLiveData.postValue(repo.getAllFromDB())
-        }
+        moviesListLiveData.postValue(repo.getAllFromDB())
     }
 
 
@@ -40,6 +29,9 @@ class MoviesListInteractor @Inject constructor(private val repo: MoviesListRepos
         (repo as MoviesListRepositoryImplWithList).deleteFromDB(movie)
         moviesListLiveData.postValue(repo.getAllFromDB())
     }
+
+    fun isListAndDbSameSize() =
+        (repo as MoviesListRepositoryImplWithList).getMoviesCountInList() == repo.getMoviesCountInDB()
 
 
     companion object {

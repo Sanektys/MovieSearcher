@@ -12,14 +12,14 @@ open class MoviesListRepositoryImpl(protected val moviesDatabase: MoviesDatabase
     protected val sqlDB: SQLiteDatabase = moviesDatabase.readableDatabase
 
 
-    override fun putToDB(movie: Movie) {
+    override fun putToDB(movie: Movie): Long {
         val cv = ContentValues().apply {
             put(MoviesDatabase.COLUMN_TITLE, movie.title)
             put(MoviesDatabase.COLUMN_DESCRIPTION, movie.description)
             put(MoviesDatabase.COLUMN_POSTER, movie.poster)
             put(MoviesDatabase.COLUMN_RATING, movie.rating)
         }
-        sqlDB.insertWithOnConflict(moviesDatabase.getTableName(), null, cv, SQLiteDatabase.CONFLICT_IGNORE)
+        return sqlDB.insertWithOnConflict(moviesDatabase.getTableName(), null, cv, SQLiteDatabase.CONFLICT_IGNORE)
     }
 
     override fun getAllFromDB(): List<Movie> {

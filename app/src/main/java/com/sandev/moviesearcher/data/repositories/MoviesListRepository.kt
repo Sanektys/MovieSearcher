@@ -5,7 +5,7 @@ import com.sandev.moviesearcher.domain.Movie
 
 interface MoviesListRepository {
 
-    fun putToDB(movie: Movie)
+    fun putToDB(movie: Movie): Long
 
     fun getAllFromDB(): List<Movie>
 

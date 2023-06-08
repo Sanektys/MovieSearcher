@@ -77,6 +77,9 @@ class DetailsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        binding.fabToFavorite.isEnabled = false
+        binding.fabToWatchLater.isEnabled = false
+
         viewModel._movie = arguments?.getParcelable<Movie>(MainActivity.MOVIE_DATA_KEY)!!
 
         viewModel.fragmentThatLaunchedDetails = savedInstanceState
@@ -85,6 +88,8 @@ class DetailsFragment : Fragment() {
         initializeContent()
         setToolbarBackButton()
         setFloatButtonOnClick()
+        setFloatButtonsState()
+
         if (savedInstanceState != null) {
             binding.fabToFavorite.isSelected = savedInstanceState.getBoolean(
                 FAVORITE_BUTTON_SELECTED_KEY
@@ -146,15 +151,49 @@ class DetailsFragment : Fragment() {
         viewModel.fragmentThatLaunchedDetails = null
     }
 
-    private fun setFloatButtonOnClick() {
-        if (viewModel.favoritesMoviesLiveData.value?.find {
-                it.title == viewModel.movie.title
-                        && it.description == viewModel.movie.description } != null) {
-            viewModel.isFavoriteMovie = true
-            binding.fabToFavorite.isSelected = true
-            binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
+    private fun setFloatButtonsState() {
+        checkFavoriteFloatButtonState()
+        viewModel.favoritesMoviesLiveData.observe(viewLifecycleOwner) { movies ->
+            checkFavoriteFloatButtonState(movies)
         }
 
+        checkWatchLaterFloatButtonState()
+        viewModel.watchLaterMoviesLiveData.observe(viewLifecycleOwner) { movies ->
+            checkWatchLaterFloatButtonState(movies)
+        }
+    }
+
+    private fun checkFavoriteFloatButtonState(movies: List<Movie>? = null) {
+        val list = movies ?: viewModel.favoritesMoviesLiveData.value
+        if (list != null && viewModel.favoritesMoviesComponent.interactor.isListAndDbSameSize()) {
+            if (list.find { it.title == viewModel.movie.title
+                        && it.description == viewModel.movie.description } != null) {
+                viewModel.isFavoriteMovie = true
+                binding.fabToFavorite.isSelected = true
+                binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
+            }
+            binding.fabToFavorite.isEnabled = true
+        } else {
+            binding.fabToFavorite.isEnabled = false
+        }
+    }
+
+    private fun checkWatchLaterFloatButtonState(movies: List<Movie>? = null) {
+        val list = movies ?: viewModel.watchLaterMoviesLiveData.value
+        if (list != null && viewModel.watchLaterMoviesComponent.interactor.isListAndDbSameSize()) {
+            if (list.find { it.title == viewModel.movie.title
+                        && it.description == viewModel.movie.description } != null) {
+                viewModel.isWatchLaterMovie = true
+                binding.fabToWatchLater.isSelected = true
+                binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
+            }
+            binding.fabToWatchLater.isEnabled = true
+        } else {
+            binding.fabToWatchLater.isEnabled = false
+        }
+    }
+
+    private fun setFloatButtonOnClick() {
         binding.fabToFavorite.setOnClickListener {
             binding.fabToFavorite.isSelected = !binding.fabToFavorite.isSelected
             binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
@@ -163,14 +202,6 @@ class DetailsFragment : Fragment() {
                 if (binding.fabToFavorite.isSelected) getString(R.string.details_fragment_fab_add_favorite)
                 else getString(R.string.details_fragment_fab_remove_favorite),
                 Snackbar.LENGTH_SHORT).show()
-        }
-
-        if (viewModel.watchLaterMoviesLiveData.value?.find {
-                it.title == viewModel.movie.title
-                        && it.description == viewModel.movie.description } != null) {
-            viewModel.isWatchLaterMovie = true
-            binding.fabToWatchLater.isSelected = true
-            binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
         }
 
         binding.fabToWatchLater.setOnClickListener {
