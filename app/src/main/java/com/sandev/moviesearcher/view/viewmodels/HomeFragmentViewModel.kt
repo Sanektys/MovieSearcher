@@ -17,27 +17,34 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     lateinit var sharedPreferencesInteractor: SharedPreferencesInteractor
 
     override val moviesListLiveData = MutableLiveData<List<Movie>>()
+
     val onFailureFlagLiveData = MutableLiveData<Boolean>()
 
-    var isInSearchMode: Boolean
-        set(value) {
-            Companion.isInSearchMode = value
-        }
-        get() = Companion.isInSearchMode
+    var isOffline: Boolean = false
+
     var isPaginationLoadingOnProcess: Boolean = false
     var latestAttachedMovieCard: Int = 0
+    private var lastPage: Int = 1
+    private var totalPagesInLastQuery = 1
+
     var onFailureFlag: Boolean = false
         set(value) {
             field = value
             onFailureFlagLiveData.postValue(value)
         }
-    private var lastPage: Int = 1
-    private var totalPagesInLastQuery = 1
+
     override var lastSearch: String?
         set(value) {
             Companion.lastSearch = value
         }
         get() = Companion.lastSearch
+    var isInSearchMode: Boolean
+        set(value) {
+            Companion.isInSearchMode = value
+        }
+        get() = Companion.isInSearchMode
+
+    private val homeFragmentApiCallback = HomeFragmentApiCallback()
 
     companion object {
         private var isInSearchMode: Boolean = false
@@ -62,23 +69,33 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     fun isNextPageCanBeDownloaded() = lastPage <= totalPagesInLastQuery
 
     fun getMoviesFromApi(page: Int = lastPage) {
+        if (isOffline) {
+            homeFragmentApiCallback.onFailure()
+            return
+        }
+
         if (page > totalPagesInLastQuery) return
 
         if (page != lastPage) {
             lastPage = page
             latestAttachedMovieCard = 0
         }
-        interactor.getMoviesFromApi(lastPage++, HomeFragmentApiCallback())
+        interactor.getMoviesFromApi(lastPage++, homeFragmentApiCallback)
     }
 
     fun getSearchedMoviesFromApi(query: CharSequence = lastSearch ?: "", page: Int = lastPage) {
+        if (isOffline) {
+            homeFragmentApiCallback.onFailure()
+            return
+        }
+
         if (page > totalPagesInLastQuery) return
 
         if (page != lastPage) {
             lastPage = page
             latestAttachedMovieCard = 0
         }
-        interactor.getSearchedMoviesFromApi(query.toString(), lastPage++, HomeFragmentApiCallback())
+        interactor.getSearchedMoviesFromApi(query.toString(), lastPage++, homeFragmentApiCallback)
     }
 
 
@@ -90,7 +107,9 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
 
         override fun onFailure() {
+            isOffline = true
             onFailureFlag = true
+
             if (isInSearchMode) {
                 moviesListLiveData.postValue(interactor.getSearchedMoviesFromDB(lastSearch ?: ""))
             } else {

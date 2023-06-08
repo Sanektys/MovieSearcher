@@ -160,7 +160,6 @@ class HomeFragment : MoviesListFragment() {
             recyclerAdapter?.clearList()
         } else if (bindingFull.swipeRefresh.isRefreshing) {
             recyclerAdapter?.clearList()
-            bindingFull.swipeRefresh.isRefreshing = false
         }
         if (viewModel.isInSearchMode) {
             if (viewModel.isPaginationLoadingOnProcess) {
@@ -249,6 +248,7 @@ class HomeFragment : MoviesListFragment() {
             }
             setAction(getString(R.string.activity_main_snackbar_button_retry)) {
                 bindingFull.swipeRefresh.isRefreshing = true
+                viewModel.isOffline = false
                 refreshMoviesList()
             }
         }
@@ -266,6 +266,7 @@ class HomeFragment : MoviesListFragment() {
 
     private fun initializeSwipeRefreshLayout() {
         bindingFull.swipeRefresh.setOnRefreshListener {
+            viewModel.isOffline = false
             refreshMoviesList()
         }
     }
@@ -305,16 +306,16 @@ class HomeFragment : MoviesListFragment() {
             moviesDatabase = database
         }
         viewModel.onFailureFlagLiveData.observe(viewLifecycleOwner) { failureFlag ->
+            if (bindingFull.swipeRefresh.isRefreshing) {
+                bindingFull.swipeRefresh.isRefreshing = false
+            }
             if (failureFlag) {
                 viewModel.isPaginationLoadingOnProcess = false
-                if (bindingFull.swipeRefresh.isRefreshing) {
-                    bindingFull.swipeRefresh.isRefreshing = false
-                }
 
                 if (childFragmentManager.fragments.size == 0) {
                     if (snackbar?.isShown == false) {
                         snackbar?.show()
-                    } else {  // Невозможно моментально показать snackbar после его скрытия, делаем паузу хотя бы 300мс
+                    } else if (snackbar != null) {  // Невозможно моментально показать snackbar после его скрытия, делаем паузу хотя бы 300мс
                         Executors.newSingleThreadExecutor().execute {
                             Thread.sleep(SNACKBAR_RESHOW_TIMEOUT)
                             snackbar?.show()
@@ -327,6 +328,7 @@ class HomeFragment : MoviesListFragment() {
                 }
             }
         }
+        bindingFull.swipeRefresh.isRefreshing = true
     }
 
     private fun setAllTransitionAnimation() {
