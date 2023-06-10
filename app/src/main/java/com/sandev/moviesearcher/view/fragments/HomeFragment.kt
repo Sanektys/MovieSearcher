@@ -2,7 +2,6 @@ package com.sandev.moviesearcher.view.fragments
 
 import android.content.SharedPreferences
 import android.content.res.Configuration
-import android.content.res.Resources
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -32,6 +31,7 @@ import com.sandev.moviesearcher.domain.Movie
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
+import java.util.concurrent.Executors
 
 
 class HomeFragment : MoviesListFragment() {
@@ -71,6 +71,8 @@ class HomeFragment : MoviesListFragment() {
         private const val RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD = 5
         private const val LOADING_THRESHOLD_MULTIPLIER_FOR_LANDSCAPE = 2
         private const val INITIAL_PAGE_IN_RECYCLER = 1
+
+        private const val SNACKBAR_RESHOW_TIMEOUT = 400L
     }
 
     init {
@@ -158,7 +160,6 @@ class HomeFragment : MoviesListFragment() {
             recyclerAdapter?.clearList()
         } else if (bindingFull.swipeRefresh.isRefreshing) {
             recyclerAdapter?.clearList()
-            bindingFull.swipeRefresh.isRefreshing = false
         }
         if (viewModel.isInSearchMode) {
             if (viewModel.isPaginationLoadingOnProcess) {
@@ -247,6 +248,7 @@ class HomeFragment : MoviesListFragment() {
             }
             setAction(getString(R.string.activity_main_snackbar_button_retry)) {
                 bindingFull.swipeRefresh.isRefreshing = true
+                viewModel.isOffline = false
                 refreshMoviesList()
             }
         }
@@ -264,6 +266,7 @@ class HomeFragment : MoviesListFragment() {
 
     private fun initializeSwipeRefreshLayout() {
         bindingFull.swipeRefresh.setOnRefreshListener {
+            viewModel.isOffline = false
             refreshMoviesList()
         }
     }
@@ -303,13 +306,21 @@ class HomeFragment : MoviesListFragment() {
             moviesDatabase = database
         }
         viewModel.onFailureFlagLiveData.observe(viewLifecycleOwner) { failureFlag ->
+            if (bindingFull.swipeRefresh.isRefreshing) {
+                bindingFull.swipeRefresh.isRefreshing = false
+            }
             if (failureFlag) {
                 viewModel.isPaginationLoadingOnProcess = false
-                if (bindingFull.swipeRefresh.isRefreshing) {
-                    bindingFull.swipeRefresh.isRefreshing = false
-                }
+
                 if (childFragmentManager.fragments.size == 0) {
-                    snackbar?.show()
+                    if (snackbar?.isShown == false) {
+                        snackbar?.show()
+                    } else if (snackbar != null) {  // Невозможно моментально показать snackbar после его скрытия, делаем паузу хотя бы 300мс
+                        Executors.newSingleThreadExecutor().execute {
+                            Thread.sleep(SNACKBAR_RESHOW_TIMEOUT)
+                            snackbar?.show()
+                        }
+                    }
                 }
             } else {
                 if (snackbar?.isShown == true) {
@@ -317,6 +328,7 @@ class HomeFragment : MoviesListFragment() {
                 }
             }
         }
+        bindingFull.swipeRefresh.isRefreshing = true
     }
 
     private fun setAllTransitionAnimation() {
