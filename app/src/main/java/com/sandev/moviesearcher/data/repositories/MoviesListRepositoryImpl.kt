@@ -4,7 +4,7 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import com.sandev.moviesearcher.data.db.MoviesDatabase
-import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.data.db.entities.PopularMovie
 
 
 open class MoviesListRepositoryImpl(protected val moviesDatabase: MoviesDatabase) : MoviesListRepository {
@@ -12,7 +12,7 @@ open class MoviesListRepositoryImpl(protected val moviesDatabase: MoviesDatabase
     protected val sqlDB: SQLiteDatabase = moviesDatabase.readableDatabase
 
 
-    override fun putToDB(movie: Movie): Long {
+    override fun putToDB(movie: PopularMovie): Long {
         val cv = ContentValues().apply {
             put(MoviesDatabase.COLUMN_TITLE, movie.title)
             put(MoviesDatabase.COLUMN_DESCRIPTION, movie.description)
@@ -22,7 +22,7 @@ open class MoviesListRepositoryImpl(protected val moviesDatabase: MoviesDatabase
         return sqlDB.insertWithOnConflict(moviesDatabase.getTableName(), null, cv, SQLiteDatabase.CONFLICT_IGNORE)
     }
 
-    override fun getAllFromDB(): List<Movie> {
+    override fun getAllFromDB(): List<PopularMovie> {
         return sqlDB.rawQuery(
             "SELECT * " +
                     "FROM ${moviesDatabase.getTableName()}",
@@ -30,7 +30,7 @@ open class MoviesListRepositoryImpl(protected val moviesDatabase: MoviesDatabase
         ).use { cursor -> readResultTable(cursor) }
     }
 
-    override fun getSearchedFromDB(query: String): List<Movie> {
+    override fun getSearchedFromDB(query: String): List<PopularMovie> {
         return sqlDB.rawQuery(
             "SELECT * " +
                     "FROM ${moviesDatabase.getTableName()} " +
@@ -40,12 +40,12 @@ open class MoviesListRepositoryImpl(protected val moviesDatabase: MoviesDatabase
         ).use { cursor -> readResultTable(cursor) }
     }
 
-    private fun readResultTable(cursor: Cursor): List<Movie> {
-        val result = mutableListOf<Movie>()
+    private fun readResultTable(cursor: Cursor): List<PopularMovie> {
+        val result = mutableListOf<PopularMovie>()
 
         if (cursor.moveToFirst()) {
             do {
-                val movie = Movie(
+                val movie = PopularMovie(
                     title = cursor.getString(cursor.getColumnIndexOrThrow(MoviesDatabase.COLUMN_TITLE)),
                     description = cursor.getString(cursor.getColumnIndexOrThrow(MoviesDatabase.COLUMN_DESCRIPTION)),
                     poster = cursor.getString(cursor.getColumnIndexOrThrow(MoviesDatabase.COLUMN_POSTER)),

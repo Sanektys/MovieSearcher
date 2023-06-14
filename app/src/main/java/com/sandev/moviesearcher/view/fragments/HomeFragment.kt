@@ -27,7 +27,7 @@ import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentHomeBinding
 import com.sandev.moviesearcher.databinding.MergeFragmentHomeContentBinding
-import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.data.db.entities.PopularMovie
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
@@ -186,7 +186,7 @@ class HomeFragment : MoviesListFragment() {
             recyclerAdapter = MoviesRecyclerAdapter()
         }
         recyclerAdapter?.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
-            override fun onClick(movie: Movie, posterView: ImageView) {
+            override fun onClick(movie: PopularMovie, posterView: ImageView) {
                 resetExitReenterTransitionAnimations()
                 mainActivity?.startDetailsFragment(movie, posterView)
             }

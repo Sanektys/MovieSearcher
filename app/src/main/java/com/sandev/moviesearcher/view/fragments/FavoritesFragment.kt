@@ -16,7 +16,7 @@ import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentFavoritesBinding
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
-import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.data.db.entities.PopularMovie
 import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import com.sandev.moviesearcher.view.viewmodels.FavoritesFragmentViewModel
 import java.util.concurrent.Executors
@@ -43,14 +43,14 @@ class FavoritesFragment : MoviesListFragment() {
         get() = Companion.recyclerAdapter
 
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
-        override fun onClick(movie: Movie, posterView: ImageView) {
+        override fun onClick(movie: PopularMovie, posterView: ImageView) {
             resetExitReenterTransitionAnimations()
             viewModel.lastClickedMovie = movie
             mainActivity?.startDetailsFragment(movie, posterView)
         }
     }
     private val posterOnClickDummy = object : MoviesRecyclerAdapter.OnClickListener {
-        override fun onClick(movie: Movie, posterView: ImageView) {}
+        override fun onClick(movie: PopularMovie, posterView: ImageView) {}
     }
 
     companion object {

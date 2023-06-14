@@ -4,7 +4,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.MovieCardBinding
-import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.data.db.entities.PopularMovie
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGES_URL
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_MEDIUM_SIZE
 
@@ -16,7 +16,7 @@ class MovieViewHolder(private val binding: MovieCardBinding) : RecyclerView.View
         const val MOVIE_RATING_MULTIPLIER = 10
     }
 
-    fun onBind(movieData: Movie, position: Int) {
+    fun onBind(movieData: PopularMovie, position: Int) {
         if (movieData.poster != null) {
             Glide.with(binding.root)
                 .load("${IMAGES_URL}${IMAGE_MEDIUM_SIZE}${movieData.poster}")

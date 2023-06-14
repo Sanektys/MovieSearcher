@@ -1,13 +1,13 @@
 package com.sandev.moviesearcher.data.repositories
 
 import com.sandev.moviesearcher.data.db.MoviesDatabase
-import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.data.db.entities.PopularMovie
 
 
 class MoviesListRepositoryImplWithList(moviesDatabase: MoviesDatabase)
     : MoviesListRepositoryImpl(moviesDatabase) {
 
-    private val moviesList = mutableListOf<Movie>()
+    private val moviesList = mutableListOf<PopularMovie>()
     private var moviesCountInDB: Int = 0
 
     init {
@@ -16,7 +16,7 @@ class MoviesListRepositoryImplWithList(moviesDatabase: MoviesDatabase)
     }
 
 
-    override fun putToDB(movie: Movie): Long {
+    override fun putToDB(movie: PopularMovie): Long {
         val result = super.putToDB(movie)
         if (result != -1L) {
             ++moviesCountInDB
@@ -26,9 +26,9 @@ class MoviesListRepositoryImplWithList(moviesDatabase: MoviesDatabase)
         return result
     }
 
-    override fun getAllFromDB(): List<Movie> = moviesList.toList()
+    override fun getAllFromDB(): List<PopularMovie> = moviesList.toList()
 
-    fun deleteFromDB(movie: Movie) {
+    fun deleteFromDB(movie: PopularMovie) {
         val numberOfDeletions = sqlDB.delete(
             moviesDatabase.getTableName(),
             "${MoviesDatabase.COLUMN_TITLE}=? AND ${MoviesDatabase.COLUMN_DESCRIPTION}=?",
