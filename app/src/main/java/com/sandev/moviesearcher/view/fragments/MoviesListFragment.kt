@@ -32,7 +32,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.search.SearchBar
 import com.google.android.material.search.SearchView
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.data.db.entities.PopularMovie
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.utils.CircularRevealAnimator
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
@@ -43,7 +43,7 @@ abstract class MoviesListFragment : Fragment() {
     protected abstract val viewModel: MoviesListFragmentViewModel
     protected abstract var recyclerAdapter: MoviesRecyclerAdapter?
 
-    protected var moviesDatabase: List<PopularMovie> = emptyList()
+    protected var moviesDatabase: List<Movie> = emptyList()
         set(value) {
             if (value == field) return
             field = value

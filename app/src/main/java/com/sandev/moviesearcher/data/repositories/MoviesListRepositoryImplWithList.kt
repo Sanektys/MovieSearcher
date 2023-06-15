@@ -11,7 +11,7 @@ import java.util.concurrent.Executors
 class MoviesListRepositoryImplWithList(moviesDao: MovieDao) : MoviesListRepositoryImpl(moviesDao) {
 
     private val moviesList = mutableListOf<Movie>()
-    private var moviesCountInDbLiveData = MutableLiveData<Int>(0)
+    val moviesCountInDbLiveData = MutableLiveData<Int>(0)
 
     init {
         Executors.newSingleThreadExecutor().execute {

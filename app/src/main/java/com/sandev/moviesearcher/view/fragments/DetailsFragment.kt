@@ -32,13 +32,13 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
-import com.sandev.moviesearcher.data.db.entities.PopularMovie
-import com.sandev.moviesearcher.view.MainActivity
-import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
+import com.sandev.moviesearcher.data.db.entities.Movie
+import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGES_URL
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_HIGH_SIZE
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_MEDIUM_SIZE
-import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGES_URL
+import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
+import com.sandev.moviesearcher.view.MainActivity
+import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
 
 
 class DetailsFragment : Fragment() {
@@ -80,7 +80,7 @@ class DetailsFragment : Fragment() {
         binding.fabToFavorite.isEnabled = false
         binding.fabToWatchLater.isEnabled = false
 
-        viewModel._movie = arguments?.getParcelable<PopularMovie>(MainActivity.MOVIE_DATA_KEY)!!
+        viewModel._movie = arguments?.getParcelable<Movie>(MainActivity.MOVIE_DATA_KEY)!!
 
         viewModel.fragmentThatLaunchedDetails = savedInstanceState
             ?.getString(FRAGMENT_LAUNCHED_KEY) ?: (activity as MainActivity).previousFragmentName
@@ -163,7 +163,7 @@ class DetailsFragment : Fragment() {
         }
     }
 
-    private fun checkFavoriteFloatButtonState(movies: List<PopularMovie>? = null) {
+    private fun checkFavoriteFloatButtonState(movies: List<Movie>? = null) {
         val list = movies ?: viewModel.favoritesMoviesLiveData.value
         if (list != null && viewModel.favoritesMoviesComponent.interactor.isListAndDbSameSize()) {
             if (list.find { it.title == viewModel.movie.title
@@ -178,7 +178,7 @@ class DetailsFragment : Fragment() {
         }
     }
 
-    private fun checkWatchLaterFloatButtonState(movies: List<PopularMovie>? = null) {
+    private fun checkWatchLaterFloatButtonState(movies: List<Movie>? = null) {
         val list = movies ?: viewModel.watchLaterMoviesLiveData.value
         if (list != null && viewModel.watchLaterMoviesComponent.interactor.isListAndDbSameSize()) {
             if (list.find { it.title == viewModel.movie.title

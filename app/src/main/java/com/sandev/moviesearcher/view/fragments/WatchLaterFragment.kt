@@ -12,12 +12,12 @@ import androidx.core.view.postDelayed
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
-import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.databinding.FragmentWatchLaterBinding
-import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
-import com.sandev.moviesearcher.data.db.entities.PopularMovie
 import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
+import com.sandev.moviesearcher.view.MainActivity
+import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.WatchLaterFragmentViewModel
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -43,14 +43,14 @@ class WatchLaterFragment : MoviesListFragment() {
         get() = Companion.recyclerAdapter
 
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
-        override fun onClick(movie: PopularMovie, posterView: ImageView) {
+        override fun onClick(movie: Movie, posterView: ImageView) {
             resetExitReenterTransitionAnimations()
             viewModel.lastClickedMovie = movie
             mainActivity?.startDetailsFragment(movie, posterView)
         }
     }
     private val posterOnClickDummy = object : MoviesRecyclerAdapter.OnClickListener {
-        override fun onClick(movie: PopularMovie, posterView: ImageView) {}
+        override fun onClick(movie: Movie, posterView: ImageView) {}
     }
 
     companion object {

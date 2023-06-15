@@ -6,15 +6,15 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.databinding.MovieCardBinding
-import com.sandev.moviesearcher.data.db.entities.PopularMovie
 import com.sandev.moviesearcher.utils.rv_diffutils.MoviesListDiff
 import com.sandev.moviesearcher.view.rv_viewholders.MovieViewHolder
 
 
 class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
 
-    private val moviesList: MutableList<PopularMovie> = mutableListOf()
+    private val moviesList: MutableList<Movie> = mutableListOf()
     private var clickListener: OnClickListener? = null
     var lastClickedMoviePosition = DEFAULT_NON_CLICKED_POSITION
         private set
@@ -40,18 +40,18 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
     }
 
     interface OnClickListener {
-        fun onClick(movie: PopularMovie, posterView: ImageView)
+        fun onClick(movie: Movie, posterView: ImageView)
     }
 
     fun setPosterOnClickListener(onClickListener: OnClickListener) {
         clickListener = onClickListener
     }
 
-    fun getMovieAt(position: Int): PopularMovie? = moviesList.getOrNull(position)
+    fun getMovieAt(position: Int): Movie? = moviesList.getOrNull(position)
 
-    fun findMovie(movie: PopularMovie): PopularMovie? = moviesList.find { it.title == movie.title }
+    fun findMovie(movie: Movie): Movie? = moviesList.find { it.title == movie.title }
 
-    fun setList(newList: List<PopularMovie>?) {
+    fun setList(newList: List<Movie>?) {
         if (newList == null || newList == moviesList) {
             return
         }
@@ -67,12 +67,12 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
         notifyItemRangeRemoved(0, listSize)
     }
 
-    fun addMovieCard(movie: PopularMovie) {
+    fun addMovieCard(movie: Movie) {
         moviesList.add(movie)
         notifyItemInserted(moviesList.size - 1)
     }
 
-    fun addMovieCards(newCards: List<PopularMovie>?) {
+    fun addMovieCards(newCards: List<Movie>?) {
         if (newCards?.isNotEmpty() == true) {
             val oldSize = moviesList.size
             moviesList.addAll(newCards)
@@ -80,7 +80,7 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
         }
     }
 
-    fun removeMovieCard(movie: PopularMovie) {
+    fun removeMovieCard(movie: Movie) {
         val index = moviesList.indexOf(movie)
         moviesList.removeAt(index)
         notifyItemRemoved(index)

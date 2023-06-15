@@ -2,6 +2,7 @@ package com.sandev.moviesearcher.view.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import com.sandev.moviesearcher.App
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.data.db.entities.PopularMovie
 import com.sandev.moviesearcher.domain.interactors.SharedPreferencesInteractor
 import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
@@ -16,7 +17,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     @Inject
     lateinit var sharedPreferencesInteractor: SharedPreferencesInteractor
 
-    override val moviesListLiveData = MutableLiveData<List<PopularMovie>>()
+    override val moviesListLiveData = MutableLiveData<List<Movie>>()
 
     val onFailureFlagLiveData = MutableLiveData<Boolean>()
 
@@ -62,7 +63,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     }
 
 
-    override fun searchInDatabase(query: CharSequence): List<PopularMovie>? {
+    override fun searchInDatabase(query: CharSequence): List<Movie>? {
         return searchInDatabase(query, moviesListLiveData.value)
     }
 
@@ -100,7 +101,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
 
     private inner class HomeFragmentApiCallback : ApiCallback {
-        override fun onSuccess(movies: List<PopularMovie>, totalPages: Int) {
+        override fun onSuccess(movies: List<Movie>, totalPages: Int) {
             onFailureFlag = false
             totalPagesInLastQuery = totalPages
             moviesListLiveData.postValue(movies)
