@@ -20,9 +20,9 @@ import javax.inject.Singleton
 
 
 @Singleton
-class TmdbInteractor @Inject constructor(private val retrofitService: TmdbApi,
-                                         private val sharedPreferences: SharedPreferencesProvider,
-                                         private vararg val moviesListRepositories: MoviesListRepository
+class TmdbInteractor(private val retrofitService: TmdbApi,
+                     private val sharedPreferences: SharedPreferencesProvider,
+                     private vararg val moviesListRepositories: MoviesListRepository
 ) {
 
     private val systemLanguage = Locale.getDefault().toLanguageTag()

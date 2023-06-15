@@ -1,7 +1,9 @@
 package com.sandev.moviesearcher.data.db.entities
 
+import android.os.Parcelable
 
-interface Movie {
+
+interface Movie : Parcelable {
 
     val id: Int
     val poster: String?

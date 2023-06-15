@@ -2,10 +2,11 @@ package com.sandev.moviesearcher.view.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import com.sandev.moviesearcher.App
+import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.data.db.entities.Movie
-import com.sandev.moviesearcher.data.db.entities.PopularMovie
 import com.sandev.moviesearcher.domain.interactors.SharedPreferencesInteractor
 import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
+import java.util.concurrent.Executors
 import javax.inject.Inject
 
 
@@ -81,7 +82,13 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
             lastPage = page
             latestAttachedMovieCard = 0
         }
-        interactor.getMoviesFromApi(lastPage++, homeFragmentApiCallback)
+        Executors.newSingleThreadExecutor().execute {
+            interactor.getMoviesFromApi(
+                page = lastPage++,
+                callback = homeFragmentApiCallback,
+                repositoryType = provideCurrentMovieListTypeByCategoryInSettings()
+            )
+        }
     }
 
     fun getSearchedMoviesFromApi(query: CharSequence = lastSearch ?: "", page: Int = lastPage) {
@@ -96,7 +103,23 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
             lastPage = page
             latestAttachedMovieCard = 0
         }
-        interactor.getSearchedMoviesFromApi(query.toString(), lastPage++, homeFragmentApiCallback)
+        Executors.newSingleThreadExecutor().execute {
+            interactor.getSearchedMoviesFromApi(
+                query = query.toString(),
+                page = lastPage++,
+                callback = homeFragmentApiCallback
+            )
+        }
+    }
+
+    private fun provideCurrentMovieListTypeByCategoryInSettings(): TmdbInteractor.RepositoryType {
+        return when (sharedPreferencesInteractor.getDefaultMoviesCategoryInMainList()) {
+            SharedPreferencesProvider.CATEGORY_POPULAR  -> TmdbInteractor.RepositoryType.POPULAR_MOVIES
+            SharedPreferencesProvider.CATEGORY_TOP      -> TmdbInteractor.RepositoryType.TOP_MOVIES
+            SharedPreferencesProvider.CATEGORY_UPCOMING -> TmdbInteractor.RepositoryType.UPCOMING_MOVIES
+            SharedPreferencesProvider.CATEGORY_PLAYING  -> TmdbInteractor.RepositoryType.PLAYING_MOVIES
+            else -> throw java.lang.IllegalStateException("Unknown repository type")
+        }
     }
 
 
@@ -112,9 +135,16 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
             onFailureFlag = true
 
             if (isInSearchMode) {
-                moviesListLiveData.postValue(interactor.getSearchedMoviesFromDB(lastSearch ?: ""))
+                moviesListLiveData.postValue(
+                    interactor.getSearchedMoviesFromDB(
+                        query = lastSearch ?: "",
+                        repositoryType = provideCurrentMovieListTypeByCategoryInSettings()
+                    )
+                )
             } else {
-                moviesListLiveData.postValue(interactor.getMoviesFromDB())
+                moviesListLiveData.postValue(
+                    interactor.getMoviesFromDB(provideCurrentMovieListTypeByCategoryInSettings())
+                )
             }
         }
     }

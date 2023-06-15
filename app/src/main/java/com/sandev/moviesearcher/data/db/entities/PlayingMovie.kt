@@ -21,7 +21,7 @@ data class PlayingMovie(
     override val description: String,
     @ColumnInfo(name = Movie.COLUMN_RATING, defaultValue = "0")
     override var rating: Float = 0f
-) : Movie, Parcelable {
+) : Movie {
 
     companion object {
         const val TABLE_NAME = "cached_playing_movies"
