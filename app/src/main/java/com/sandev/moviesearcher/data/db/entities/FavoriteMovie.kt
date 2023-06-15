@@ -6,8 +6,8 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 
-@Entity(tableName = FavoritesMovie.TABLE_NAME, indices = [Index(value = [Movie.COLUMN_DESCRIPTION], unique = true)])
-class FavoritesMovie(
+@Entity(tableName = FavoriteMovie.TABLE_NAME, indices = [Index(value = [Movie.COLUMN_DESCRIPTION], unique = true)])
+class FavoriteMovie(
     @[ColumnInfo(name = Movie.COLUMN_ID) PrimaryKey(autoGenerate = true)]
     override val id: Int = 0,
     @ColumnInfo(name = Movie.COLUMN_POSTER)

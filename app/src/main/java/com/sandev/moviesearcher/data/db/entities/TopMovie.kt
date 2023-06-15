@@ -1,14 +1,11 @@
 package com.sandev.moviesearcher.data.db.entities
 
-import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import kotlinx.parcelize.Parcelize
 
 
-@Parcelize
 @Entity(tableName = TopMovie.TABLE_NAME, indices = [Index(value = [Movie.COLUMN_DESCRIPTION], unique = true)])
 data class TopMovie(
     @[ColumnInfo(name = Movie.COLUMN_ID) PrimaryKey(autoGenerate = true)]
@@ -21,7 +18,7 @@ data class TopMovie(
     override val description: String,
     @ColumnInfo(name = Movie.COLUMN_RATING, defaultValue = "0")
     override var rating: Float = 0f
-) : Movie {
+) :  Movie(id, poster, title, description, rating) {
 
     companion object {
         const val TABLE_NAME = "cached_top_movies"
