@@ -7,7 +7,12 @@ import com.sandev.moviesearcher.data.db.entities.WatchLaterMovie
 
 
 @Database(version = 1, exportSchema = true, entities = [WatchLaterMovie::class])
-abstract class WatchLaterDatabase : RoomDatabase() {
+abstract class WatchLaterMoviesDatabase : RoomDatabase() {
 
     abstract fun watchLaterMovieDao(): WatchLaterMovieDao
+
+
+    companion object {
+        const val DATABASE_NAME = "WatchLaterMovies.db"
+    }
 }

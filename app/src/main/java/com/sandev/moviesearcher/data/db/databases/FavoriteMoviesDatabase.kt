@@ -10,4 +10,9 @@ import com.sandev.moviesearcher.data.db.entities.FavoritesMovie
 abstract class FavoriteMoviesDatabase : RoomDatabase() {
 
     abstract fun favoriteMovieDao(): FavoriteMovieDao
+
+
+    companion object {
+        const val DATABASE_NAME = "FavoriteMovies.db"
+    }
 }
