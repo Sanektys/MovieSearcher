@@ -14,7 +14,17 @@ open class MoviesListRepositoryImpl(protected val movieDao: MovieDao) : MoviesLi
 
     override fun putToDB(movies: List<Movie>) {
         Executors.newSingleThreadExecutor().execute {
-            putToDbFlagLiveData.postValue(movieDao.putToCachedMovies(movies))
+            val results = mutableListOf<Long>()
+
+            movies.forEach { movie ->
+                results.add(movieDao.putToCachedMovies(
+                    poster = movie.poster,
+                    title = movie.title,
+                    description = movie.description,
+                    rating = movie.rating
+                ))
+            }
+            putToDbFlagLiveData.postValue(results)
         }
     }
 

@@ -20,11 +20,13 @@ class MoviesListRepositoryImplWithList(moviesDao: MovieDao) : MoviesListReposito
         }
 
         putToDbFlagLiveData.observeForever { flags ->
+            var successCount = 0
             flags.forEach { flag ->
                 if (flag != PUT_ERROR_FLAG) {
-                    moviesCountInDbLiveData.postValue(moviesCountInDbLiveData.value?.let { it + 1 })
+                    ++successCount
                 }
             }
+            moviesCountInDbLiveData.postValue(moviesCountInDbLiveData.value?.let { it + successCount })
         }
         deletedRowsCountLiveData.observeForever { count ->
             moviesCountInDbLiveData.postValue(moviesCountInDbLiveData.value?.let { it - count })
