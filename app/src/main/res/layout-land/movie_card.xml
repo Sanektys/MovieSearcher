@@ -8,6 +8,7 @@
     android:layout_height="@dimen/activity_main.movies_recycler.movie_card.height"
     android:layout_marginHorizontal="@dimen/activity_main.movies_recycler.movie_card.margin_horizontal"
     android:layout_marginBottom="@dimen/activity_main.movies_recycler.movie_card.margin_bottom"
+    app:strokeColor="?attr/colorOutline"
     app:cardBackgroundColor="?attr/colorPrimaryContainer"
     app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large">
 
