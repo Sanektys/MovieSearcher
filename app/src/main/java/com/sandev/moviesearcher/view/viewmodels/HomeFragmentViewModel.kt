@@ -135,16 +135,20 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
             onFailureFlag = true
 
             if (isInSearchMode) {
-                moviesListLiveData.postValue(
-                    interactor.getSearchedMoviesFromDB(
-                        query = lastSearch ?: "",
-                        repositoryType = provideCurrentMovieListTypeByCategoryInSettings()
+                Executors.newSingleThreadExecutor().execute {
+                    moviesListLiveData.postValue(
+                        interactor.getSearchedMoviesFromDB(
+                            query = lastSearch ?: "",
+                            repositoryType = provideCurrentMovieListTypeByCategoryInSettings()
+                        )
                     )
-                )
+                }
             } else {
-                moviesListLiveData.postValue(
-                    interactor.getMoviesFromDB(provideCurrentMovieListTypeByCategoryInSettings())
-                )
+                Executors.newSingleThreadExecutor().execute {
+                    moviesListLiveData.postValue(
+                        interactor.getMoviesFromDB(provideCurrentMovieListTypeByCategoryInSettings())
+                    )
+                }
             }
         }
     }
