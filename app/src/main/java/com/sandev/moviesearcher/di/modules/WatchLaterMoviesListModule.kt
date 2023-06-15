@@ -22,7 +22,8 @@ class WatchLaterMoviesListModule {
         .build()
 
     @[Provides WatchLaterFragmentScope]
-    fun provideWatchLaterMovieDao(): WatchLaterMovieDao = WatchLaterMoviesDatabase.watchLaterMovieDao()
+    fun provideWatchLaterMovieDao(watchLaterMoviesDatabase: WatchLaterMoviesDatabase): WatchLaterMovieDao
+            = watchLaterMoviesDatabase.watchLaterMovieDao()
 
     @[Provides WatchLaterFragmentScope]
     fun provideWatchLaterMoviesRepository(watchLaterMovieDao: WatchLaterMovieDao) : MoviesListRepositoryImplWithList

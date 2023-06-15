@@ -22,7 +22,8 @@ class FavoriteMoviesListModule {
         .build()
 
     @[Provides FavoriteFragmentScope]
-    fun provideFavoriteMovieDao(): FavoriteMovieDao = FavoriteMoviesDatabase.favoriteMovieDao()
+    fun provideFavoriteMovieDao(favoriteMoviesDatabase: FavoriteMoviesDatabase): FavoriteMovieDao
+            = favoriteMoviesDatabase.favoriteMovieDao()
 
     @[Provides FavoriteFragmentScope]
     fun provideFavoriteMoviesListRepository(favoriteMovieDao: FavoriteMovieDao): MoviesListRepositoryImplWithList

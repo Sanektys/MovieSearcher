@@ -28,17 +28,23 @@ class AllMoviesListModule {
         .databaseBuilder(context, AllMoviesDatabase::class.java, AllMoviesDatabase.DATABASE_NAME)
         .build()
 
-    @[Provides Singleton]
-    fun providePopularMovieDao(): PopularMovieDao = AllMoviesDatabase.popularMovieDao()
 
     @[Provides Singleton]
-    fun provideTopMovieDao(): TopMovieDao = AllMoviesDatabase.topMovieDao()
+    fun providePopularMovieDao(allMoviesDatabase: AllMoviesDatabase): PopularMovieDao
+            = allMoviesDatabase.popularMovieDao()
 
     @[Provides Singleton]
-    fun provideUpcomingMovieDao(): UpcomingMovieDao = AllMoviesDatabase.upcomingMovieDao()
+    fun provideTopMovieDao(allMoviesDatabase: AllMoviesDatabase): TopMovieDao
+            = allMoviesDatabase.topMovieDao()
 
     @[Provides Singleton]
-    fun providePlayingMovieDao(): PlayingMovieDao = AllMoviesDatabase.playingMovieDao()
+    fun provideUpcomingMovieDao(allMoviesDatabase: AllMoviesDatabase): UpcomingMovieDao
+            = allMoviesDatabase.upcomingMovieDao()
+
+    @[Provides Singleton]
+    fun providePlayingMovieDao(allMoviesDatabase: AllMoviesDatabase): PlayingMovieDao
+            = allMoviesDatabase.playingMovieDao()
+
 
     @[Provides Singleton]
     fun providePopularMoviesListRepository(popularMovieDao: PopularMovieDao): PopularMoviesListRepository
