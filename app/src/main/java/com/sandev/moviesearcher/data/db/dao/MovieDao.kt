@@ -9,7 +9,7 @@ interface MovieDao {
 
     fun getSearchedCachedMovies(query: String): List<Movie>
 
-    fun putToCachedMovies(movies: List<Movie>): List<Long>
+    fun putToCachedMovies(poster: String?, title: String, description: String, rating: Float): Long
 
     fun deleteAllCachedMovies(): Int
 }
