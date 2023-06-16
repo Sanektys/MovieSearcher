@@ -22,6 +22,8 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
         }
     }
 
+    open fun getAllMovies(): List<Movie>? = moviesListLiveData.value
+
 
     interface ApiCallback {
         fun onSuccess(movies: List<Movie>, totalPages: Int)

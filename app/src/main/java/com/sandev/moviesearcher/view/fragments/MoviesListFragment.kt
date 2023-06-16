@@ -205,7 +205,7 @@ abstract class MoviesListFragment : Fragment() {
         if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
             recyclerAdapter?.setList(viewModel.searchInDatabase(query))
         } else {
-            recyclerAdapter?.setList(viewModel.moviesListLiveData.value)
+            recyclerAdapter?.setList(viewModel.getAllMovies())
         }
         viewModel.lastSearch = query
     }

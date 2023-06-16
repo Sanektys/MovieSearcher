@@ -35,4 +35,6 @@ class MoviesListInteractor @Inject constructor(private val repo: MoviesListRepos
         (repo as MoviesListRepositoryImplWithList).deleteFromDB(movie)
         moviesListLiveData.postValue(repo.getAllFromDB())
     }
+
+    fun getAllFromList(): List<Movie> = repo.getAllFromDB()
 }

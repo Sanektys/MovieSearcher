@@ -42,7 +42,7 @@ class MoviesListRepositoryImplWithList(moviesDao: MovieDao) : MoviesListReposito
         moviesList.addAll(movies)
     }
 
-    override fun getAllFromDB(): List<Movie> = moviesList.toList()
+    override fun getAllFromDB(): List<Movie> = moviesList
 
     fun deleteFromDB(movie: Movie) {
         Executors.newSingleThreadExecutor().execute {

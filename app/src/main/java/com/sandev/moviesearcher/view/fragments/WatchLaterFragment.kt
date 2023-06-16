@@ -90,7 +90,7 @@ class WatchLaterFragment : MoviesListFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.moviesListLiveData.observe(viewLifecycleOwner) { watchLaterMovies ->
-            moviesDatabase = watchLaterMovies
+            moviesDatabase = watchLaterMovies.toList()
         }
 
         requireActivity().supportFragmentManager.setFragmentResultListener(

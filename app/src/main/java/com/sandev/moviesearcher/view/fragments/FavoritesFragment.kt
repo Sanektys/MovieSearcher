@@ -81,7 +81,7 @@ class FavoritesFragment : MoviesListFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.moviesListLiveData.observe(viewLifecycleOwner) { favoriteMovies ->
-            moviesDatabase = favoriteMovies
+            moviesDatabase = favoriteMovies.toList()
         }
 
         requireActivity().supportFragmentManager.setFragmentResultListener(
