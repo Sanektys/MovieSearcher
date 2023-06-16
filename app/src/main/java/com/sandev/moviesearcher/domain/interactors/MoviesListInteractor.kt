@@ -16,9 +16,11 @@ class MoviesListInteractor @Inject constructor(private val repo: MoviesListRepos
     val isListAndDbSameSizeLiveData = MutableLiveData<Boolean>()
 
     init {
-        moviesListLiveData.postValue(repo.getAllFromDB())
+        (repo as MoviesListRepositoryImplWithList).moviesListLiveData.observeForever { moviesList ->
+            moviesListLiveData.postValue(moviesList)
+        }
 
-        (repo as MoviesListRepositoryImplWithList).moviesCountInDbLiveData.observeForever { countInDb ->
+        (repo).moviesCountInDbLiveData.observeForever { countInDb ->
             isListAndDbSameSizeLiveData.postValue(repo.getMoviesCountInList() == countInDb)
         }
     }

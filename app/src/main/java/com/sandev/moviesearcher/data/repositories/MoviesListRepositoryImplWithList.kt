@@ -11,11 +11,14 @@ import java.util.concurrent.Executors
 class MoviesListRepositoryImplWithList(moviesDao: MovieDao) : MoviesListRepositoryImpl(moviesDao) {
 
     private val moviesList = mutableListOf<Movie>()
+
+    val moviesListLiveData = MutableLiveData<List<Movie>>()
     val moviesCountInDbLiveData = MutableLiveData<Int>(0)
 
     init {
         Executors.newSingleThreadExecutor().execute {
             moviesList.addAll(super.getAllFromDB())
+            moviesListLiveData.postValue(moviesList)
             moviesCountInDbLiveData.postValue(moviesList.size)
         }
 
