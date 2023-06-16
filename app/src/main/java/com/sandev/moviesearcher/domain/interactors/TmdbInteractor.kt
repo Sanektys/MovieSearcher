@@ -43,13 +43,18 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
     }
 
 
-    fun getMoviesFromApi(page: Int, callback: MoviesListFragmentViewModel.ApiCallback, repositoryType: RepositoryType) {
+    fun getMoviesFromApi(page: Int, callback: MoviesListFragmentViewModel.ApiCallback,
+                         repositoryType: RepositoryType, isNeededWipeBeforePutData: Boolean) {
         retrofitService.getMovies(
             apiKey = TmdbApiKey.KEY,
             category = sharedPreferences.getDefaultCategory(),
             language = systemLanguage,
             page = page
-        ).enqueue(RetrofitTmdbCallback(callback, getRequestedRepository(repositoryType)))
+        ).enqueue(RetrofitTmdbCallback(
+            callback,
+            getRequestedRepository(repositoryType),
+            isNeededWipeBeforePutData
+        ))
     }
 
     fun getSearchedMoviesFromApi(query: String, page: Int, callback: MoviesListFragmentViewModel.ApiCallback) {
@@ -82,14 +87,20 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
 
     private class RetrofitTmdbCallback(
         private val viewModelCallback: MoviesListFragmentViewModel.ApiCallback,
-        private val moviesListRepository: MoviesListRepository? = null
+        private val moviesListRepository: MoviesListRepository? = null,
+        private val isNeededWipeBeforePutData: Boolean = false
     ) : Callback<TmdbResultDto> {
 
         override fun onResponse(call: Call<TmdbResultDto>, response: Response<TmdbResultDto>) {
             if (response.isSuccessful) {
                 val moviesList = TmdbConverter.convertApiListToDtoList(response.body()?.results)
 
-                moviesListRepository?.putToDB(moviesList)
+                moviesListRepository?.run {
+                    if (isNeededWipeBeforePutData) {
+                        deleteAllFromDB()
+                    }
+                    putToDB(moviesList)
+                }
 
                 viewModelCallback.onSuccess(moviesList, response.body()?.totalPages ?: 0)
             }

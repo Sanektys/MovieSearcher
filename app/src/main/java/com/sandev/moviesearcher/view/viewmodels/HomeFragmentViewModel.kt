@@ -23,6 +23,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     val onFailureFlagLiveData = MutableLiveData<Boolean>()
 
     var isOffline: Boolean = false
+    var isNeedRefreshLocalDB: Boolean = false
 
     var isPaginationLoadingOnProcess: Boolean = false
     var latestAttachedMovieCard: Int = 0
@@ -86,8 +87,10 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
             interactor.getMoviesFromApi(
                 page = lastPage++,
                 callback = homeFragmentApiCallback,
-                repositoryType = provideCurrentMovieListTypeByCategoryInSettings()
+                repositoryType = provideCurrentMovieListTypeByCategoryInSettings(),
+                isNeededWipeBeforePutData = isNeedRefreshLocalDB
             )
+            isNeedRefreshLocalDB = false
         }
     }
 
@@ -111,13 +114,6 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
             )
         }
     }
-
-    fun clearCachedList() {
-        if (!isOffline) {
-            interactor.deleteAllCachedMoviesFromDB(provideCurrentMovieListTypeByCategoryInSettings())
-        }
-    }
-
 
     private fun provideCurrentMovieListTypeByCategoryInSettings(): TmdbInteractor.RepositoryType {
         return when (sharedPreferencesInteractor.getDefaultMoviesCategoryInMainList()) {

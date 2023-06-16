@@ -249,6 +249,7 @@ class HomeFragment : MoviesListFragment() {
             setAction(getString(R.string.activity_main_snackbar_button_retry)) {
                 bindingFull.swipeRefresh.isRefreshing = true
                 viewModel.isOffline = false
+                viewModel.isNeedRefreshLocalDB = true
                 refreshMoviesList()
             }
         }
@@ -267,6 +268,7 @@ class HomeFragment : MoviesListFragment() {
     private fun initializeSwipeRefreshLayout() {
         bindingFull.swipeRefresh.setOnRefreshListener {
             viewModel.isOffline = false
+            viewModel.isNeedRefreshLocalDB = true
             refreshMoviesList()
         }
     }
@@ -294,7 +296,6 @@ class HomeFragment : MoviesListFragment() {
 
     private fun refreshMoviesList() {
         moviesDatabase = emptyList()
-        viewModel.clearCachedList()
         if (viewModel.isInSearchMode) {
             viewModel.getSearchedMoviesFromApi(page = INITIAL_PAGE_IN_RECYCLER)
         } else {
