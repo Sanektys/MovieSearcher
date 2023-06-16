@@ -3,7 +3,7 @@ package com.sandev.moviesearcher.view.viewmodels
 import android.view.Gravity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.data.db.entities.Movie
 
 
 abstract class MoviesListFragmentViewModel : ViewModel() {
@@ -21,6 +21,8 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
             it.title.lowercase().contains(query.toString().lowercase())
         }
     }
+
+    open fun getAllMovies(): List<Movie>? = moviesListLiveData.value
 
 
     interface ApiCallback {

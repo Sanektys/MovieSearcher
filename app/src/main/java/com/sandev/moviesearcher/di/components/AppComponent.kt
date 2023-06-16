@@ -4,6 +4,7 @@ import android.content.Context
 import com.sandev.moviesearcher.di.modules.AllMoviesListModule
 import com.sandev.moviesearcher.di.modules.RemoteModule
 import com.sandev.moviesearcher.di.modules.SharedPreferenceModule
+import com.sandev.moviesearcher.di.modules.TmdbInteractorModule
 import com.sandev.moviesearcher.di.modules.TmdbModule
 import com.sandev.moviesearcher.di.modules.ViewModelModule
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
@@ -23,6 +24,7 @@ import javax.inject.Singleton
     TmdbModule::class,
     ViewModelModule::class,
     AllMoviesListModule::class,
+    TmdbInteractorModule::class,
 ])
 interface AppComponent {
 

@@ -32,13 +32,13 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
-import com.sandev.moviesearcher.domain.Movie
-import com.sandev.moviesearcher.view.MainActivity
-import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
+import com.sandev.moviesearcher.data.db.entities.Movie
+import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGES_URL
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_HIGH_SIZE
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_MEDIUM_SIZE
-import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGES_URL
+import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
+import com.sandev.moviesearcher.view.MainActivity
+import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
 
 
 class DetailsFragment : Fragment() {
@@ -165,14 +165,18 @@ class DetailsFragment : Fragment() {
 
     private fun checkFavoriteFloatButtonState(movies: List<Movie>? = null) {
         val list = movies ?: viewModel.favoritesMoviesLiveData.value
-        if (list != null && viewModel.favoritesMoviesComponent.interactor.isListAndDbSameSize()) {
-            if (list.find { it.title == viewModel.movie.title
-                        && it.description == viewModel.movie.description } != null) {
-                viewModel.isFavoriteMovie = true
-                binding.fabToFavorite.isSelected = true
-                binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
+        if (list != null) {
+            viewModel.favoritesMoviesComponent.interactor.isListAndDbSameSizeLiveData.observe(viewLifecycleOwner) { sameSize ->
+                if (sameSize) {
+                    if (list.find { it.title == viewModel.movie.title
+                                && it.description == viewModel.movie.description } != null) {
+                        viewModel.isFavoriteMovie = true
+                        binding.fabToFavorite.isSelected = true
+                        binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
+                    }
+                    binding.fabToFavorite.isEnabled = true
+                }
             }
-            binding.fabToFavorite.isEnabled = true
         } else {
             binding.fabToFavorite.isEnabled = false
         }
@@ -180,14 +184,18 @@ class DetailsFragment : Fragment() {
 
     private fun checkWatchLaterFloatButtonState(movies: List<Movie>? = null) {
         val list = movies ?: viewModel.watchLaterMoviesLiveData.value
-        if (list != null && viewModel.watchLaterMoviesComponent.interactor.isListAndDbSameSize()) {
-            if (list.find { it.title == viewModel.movie.title
-                        && it.description == viewModel.movie.description } != null) {
-                viewModel.isWatchLaterMovie = true
-                binding.fabToWatchLater.isSelected = true
-                binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
+        if (list != null) {
+            viewModel.watchLaterMoviesComponent.interactor.isListAndDbSameSizeLiveData.observe(viewLifecycleOwner) { sameSize ->
+                if (sameSize) {
+                    if (list.find { it.title == viewModel.movie.title
+                                && it.description == viewModel.movie.description } != null) {
+                        viewModel.isWatchLaterMovie = true
+                        binding.fabToWatchLater.isSelected = true
+                        binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
+                    }
+                    binding.fabToWatchLater.isEnabled = true
+                }
             }
-            binding.fabToWatchLater.isEnabled = true
         } else {
             binding.fabToWatchLater.isEnabled = false
         }

@@ -12,12 +12,12 @@ import androidx.core.view.postDelayed
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
-import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.databinding.FragmentWatchLaterBinding
-import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
-import com.sandev.moviesearcher.domain.Movie
 import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
+import com.sandev.moviesearcher.view.MainActivity
+import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.WatchLaterFragmentViewModel
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -90,7 +90,7 @@ class WatchLaterFragment : MoviesListFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.moviesListLiveData.observe(viewLifecycleOwner) { watchLaterMovies ->
-            moviesDatabase = watchLaterMovies
+            moviesDatabase = watchLaterMovies.toList()
         }
 
         requireActivity().supportFragmentManager.setFragmentResultListener(

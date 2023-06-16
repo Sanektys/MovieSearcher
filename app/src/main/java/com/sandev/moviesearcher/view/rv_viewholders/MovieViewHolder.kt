@@ -3,10 +3,10 @@ package com.sandev.moviesearcher.view.rv_viewholders
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.databinding.MovieCardBinding
-import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGES_URL
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_MEDIUM_SIZE
+import com.sandev.moviesearcher.databinding.MovieCardBinding
 
 
 class MovieViewHolder(private val binding: MovieCardBinding) : RecyclerView.ViewHolder(binding.root) {

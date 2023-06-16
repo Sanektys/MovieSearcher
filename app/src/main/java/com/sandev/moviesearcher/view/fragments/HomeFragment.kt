@@ -25,9 +25,9 @@ import com.google.android.material.snackbar.BaseTransientBottomBar.ANIMATION_MOD
 import com.google.android.material.snackbar.Snackbar
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.databinding.FragmentHomeBinding
 import com.sandev.moviesearcher.databinding.MergeFragmentHomeContentBinding
-import com.sandev.moviesearcher.domain.Movie
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
@@ -249,6 +249,7 @@ class HomeFragment : MoviesListFragment() {
             setAction(getString(R.string.activity_main_snackbar_button_retry)) {
                 bindingFull.swipeRefresh.isRefreshing = true
                 viewModel.isOffline = false
+                viewModel.isNeedRefreshLocalDB = true
                 refreshMoviesList()
             }
         }
@@ -267,6 +268,7 @@ class HomeFragment : MoviesListFragment() {
     private fun initializeSwipeRefreshLayout() {
         bindingFull.swipeRefresh.setOnRefreshListener {
             viewModel.isOffline = false
+            viewModel.isNeedRefreshLocalDB = true
             refreshMoviesList()
         }
     }

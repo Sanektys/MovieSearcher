@@ -3,6 +3,7 @@ package com.sandev.moviesearcher.data
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.R
 
 
@@ -14,25 +15,33 @@ class SharedPreferencesProvider(context: Context) {
         appContext.getString(R.string.shared_preferences_settings), Context.MODE_PRIVATE)
 
     private val keyFirstLaunch = appContext.getString(R.string.shared_preferences_settings_key_first_launch)
-    private val keyCategory = appContext.getString(R.string.shared_preferences_settings_key_category)
-
     private val defaultCategory = appContext.getString(R.string.shared_preferences_settings_default_category)
 
     init {
         if (sharedPreferences.getBoolean(keyFirstLaunch, true)) {
             sharedPreferences.edit { putBoolean(keyFirstLaunch, false) }
-            sharedPreferences.edit { putString(keyCategory, defaultCategory) }
+            sharedPreferences.edit { putString(KEY_CATEGORY, defaultCategory) }
         }
     }
 
 
-    fun setDefaultCategory(category: String) = sharedPreferences.edit { putString(keyCategory, category) }
+    fun setDefaultCategory(category: String) = sharedPreferences.edit { putString(KEY_CATEGORY, category) }
 
-    fun getDefaultCategory() = sharedPreferences.getString(keyCategory, defaultCategory)!!
+    fun getDefaultCategory() = sharedPreferences.getString(KEY_CATEGORY, defaultCategory)!!
 
     fun registerSharedPreferencesChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) =
         sharedPreferences.registerOnSharedPreferenceChangeListener(listener)
 
     fun unregisterSharedPreferencesChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) =
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(listener)
+
+
+    companion object {
+        val KEY_CATEGORY = App.instance.getString(R.string.shared_preferences_settings_key_category)
+
+        val CATEGORY_POPULAR  = App.instance.getString(R.string.shared_preferences_settings_value_category_popular)
+        val CATEGORY_TOP      = App.instance.getString(R.string.shared_preferences_settings_value_category_top_rated)
+        val CATEGORY_UPCOMING = App.instance.getString(R.string.shared_preferences_settings_value_category_upcoming)
+        val CATEGORY_PLAYING  = App.instance.getString(R.string.shared_preferences_settings_value_category_now_playing)
+    }
 }

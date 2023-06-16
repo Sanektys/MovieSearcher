@@ -13,9 +13,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.doOnAttach
 import androidx.core.view.doOnLayout
-import androidx.core.view.doOnNextLayout
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.forEach
 import androidx.core.view.postDelayed
@@ -33,9 +31,8 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.search.SearchBar
 import com.google.android.material.search.SearchView
-import com.google.android.material.snackbar.Snackbar
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.utils.CircularRevealAnimator
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
@@ -208,7 +205,7 @@ abstract class MoviesListFragment : Fragment() {
         if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
             recyclerAdapter?.setList(viewModel.searchInDatabase(query))
         } else {
-            recyclerAdapter?.setList(viewModel.moviesListLiveData.value)
+            recyclerAdapter?.setList(viewModel.getAllMovies())
         }
         viewModel.lastSearch = query
     }

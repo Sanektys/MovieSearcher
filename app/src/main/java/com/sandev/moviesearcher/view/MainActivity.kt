@@ -22,8 +22,8 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.databinding.ActivityMainBinding
-import com.sandev.moviesearcher.domain.Movie
 import com.sandev.moviesearcher.view.fragments.DetailsFragment
 import com.sandev.moviesearcher.view.fragments.FavoritesFragment
 import com.sandev.moviesearcher.view.fragments.HomeFragment

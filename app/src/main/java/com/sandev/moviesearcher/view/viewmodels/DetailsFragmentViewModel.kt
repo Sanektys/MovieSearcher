@@ -2,8 +2,8 @@ package com.sandev.moviesearcher.view.viewmodels
 
 import androidx.lifecycle.ViewModel
 import com.sandev.moviesearcher.App
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.components_holders.FavoritesMoviesComponentHolder
-import com.sandev.moviesearcher.domain.Movie
 import com.sandev.moviesearcher.domain.components_holders.WatchLaterMoviesComponentHolder
 import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
 import javax.inject.Inject

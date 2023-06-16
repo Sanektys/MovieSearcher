@@ -6,8 +6,8 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.databinding.MovieCardBinding
-import com.sandev.moviesearcher.domain.Movie
 import com.sandev.moviesearcher.utils.rv_diffutils.MoviesListDiff
 import com.sandev.moviesearcher.view.rv_viewholders.MovieViewHolder
 

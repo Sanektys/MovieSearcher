@@ -1,8 +1,8 @@
 package com.sandev.moviesearcher.view.viewmodels
 
 import com.sandev.moviesearcher.App
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.components_holders.FavoritesMoviesComponentHolder
-import com.sandev.moviesearcher.domain.Movie
 import javax.inject.Inject
 
 
@@ -31,10 +31,12 @@ class FavoritesFragmentViewModel : MoviesListFragmentViewModel() {
 
 
     override fun searchInDatabase(query: CharSequence): List<Movie>? {
-        return searchInDatabase(query, moviesListLiveData.value)
+        return searchInDatabase(query, getAllMovies())
     }
 
-    fun addToFavorite(movie: Movie) = favoritesMoviesComponent.interactor.addToList((movie))
+    override fun getAllMovies(): List<Movie> = favoritesMoviesComponent.interactor.getAllFromList()
 
-    fun removeFromFavorite(movie: Movie) = favoritesMoviesComponent.interactor.removeFromList((movie))
+    fun addToFavorite(movie: Movie) = favoritesMoviesComponent.interactor.addToList(movie)
+
+    fun removeFromFavorite(movie: Movie) = favoritesMoviesComponent.interactor.removeFromList(movie)
 }

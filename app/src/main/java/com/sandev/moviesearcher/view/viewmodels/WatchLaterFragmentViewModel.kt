@@ -1,7 +1,7 @@
 package com.sandev.moviesearcher.view.viewmodels
 
 import com.sandev.moviesearcher.App
-import com.sandev.moviesearcher.domain.Movie
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.components_holders.WatchLaterMoviesComponentHolder
 import javax.inject.Inject
 
@@ -31,8 +31,10 @@ class WatchLaterFragmentViewModel : MoviesListFragmentViewModel() {
 
 
     override fun searchInDatabase(query: CharSequence): List<Movie>? {
-        return searchInDatabase(query, moviesListLiveData.value)
+        return searchInDatabase(query, getAllMovies())
     }
+
+    override fun getAllMovies(): List<Movie> = watchLaterMoviesComponent.interactor.getAllFromList()
 
     fun addToWatchLater(movie: Movie) = watchLaterMoviesComponent.interactor.addToList(movie)
 

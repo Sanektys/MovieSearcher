@@ -1,11 +1,10 @@
 package com.sandev.moviesearcher.domain.interactors
 
 import androidx.lifecycle.MutableLiveData
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.data.repositories.MoviesListRepository
 import com.sandev.moviesearcher.data.repositories.MoviesListRepositoryImplWithList
-import com.sandev.moviesearcher.domain.Movie
 import java.util.*
-import java.util.concurrent.Executors
 import javax.inject.Inject
 
 
@@ -14,14 +13,21 @@ class MoviesListInteractor @Inject constructor(private val repo: MoviesListRepos
     override val systemLanguage = Locale.getDefault().toLanguageTag()
 
     val moviesListLiveData = MutableLiveData<List<Movie>>()
+    val isListAndDbSameSizeLiveData = MutableLiveData<Boolean>()
 
     init {
-        moviesListLiveData.postValue(repo.getAllFromDB())
+        (repo as MoviesListRepositoryImplWithList).moviesListLiveData.observeForever { moviesList ->
+            moviesListLiveData.postValue(moviesList)
+        }
+
+        (repo).moviesCountInDbLiveData.observeForever { countInDb ->
+            isListAndDbSameSizeLiveData.postValue(repo.getMoviesCountInList() == countInDb)
+        }
     }
 
 
     fun addToList(movie: Movie) {
-        repo.putToDB(movie)
+        repo.putToDB(listOf(movie))
         moviesListLiveData.postValue(repo.getAllFromDB())
     }
 
@@ -30,11 +36,5 @@ class MoviesListInteractor @Inject constructor(private val repo: MoviesListRepos
         moviesListLiveData.postValue(repo.getAllFromDB())
     }
 
-    fun isListAndDbSameSize() =
-        (repo as MoviesListRepositoryImplWithList).getMoviesCountInList() == repo.getMoviesCountInDB()
-
-
-    companion object {
-        const val POLL_DELAY = 50L
-    }
+    fun getAllFromList(): List<Movie> = repo.getAllFromDB()
 }

@@ -14,9 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.databinding.FragmentFavoritesBinding
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
-import com.sandev.moviesearcher.domain.Movie
 import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import com.sandev.moviesearcher.view.viewmodels.FavoritesFragmentViewModel
 import java.util.concurrent.Executors
@@ -81,7 +81,7 @@ class FavoritesFragment : MoviesListFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.moviesListLiveData.observe(viewLifecycleOwner) { favoriteMovies ->
-            moviesDatabase = favoriteMovies
+            moviesDatabase = favoriteMovies.toList()
         }
 
         requireActivity().supportFragmentManager.setFragmentResultListener(
