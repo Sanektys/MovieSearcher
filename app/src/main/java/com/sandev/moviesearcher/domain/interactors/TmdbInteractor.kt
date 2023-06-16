@@ -15,7 +15,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
-import javax.inject.Inject
 import javax.inject.Singleton
 
 
@@ -66,6 +65,10 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
 
     fun getSearchedMoviesFromDB(query: String, repositoryType: RepositoryType)
             = getRequestedRepository(repositoryType).getSearchedFromDB(query)
+
+    fun deleteAllCachedMoviesFromDB(repositoryType: RepositoryType)
+            = getRequestedRepository(repositoryType).deleteAllFromDB()
+
 
     private fun getRequestedRepository(repositoryType: RepositoryType): MoviesListRepository {
         return when (repositoryType) {

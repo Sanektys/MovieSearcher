@@ -294,6 +294,7 @@ class HomeFragment : MoviesListFragment() {
 
     private fun refreshMoviesList() {
         moviesDatabase = emptyList()
+        viewModel.clearCachedList()
         if (viewModel.isInSearchMode) {
             viewModel.getSearchedMoviesFromApi(page = INITIAL_PAGE_IN_RECYCLER)
         } else {

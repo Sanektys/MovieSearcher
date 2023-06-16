@@ -112,6 +112,13 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
+    fun clearCachedList() {
+        if (!isOffline) {
+            interactor.deleteAllCachedMoviesFromDB(provideCurrentMovieListTypeByCategoryInSettings())
+        }
+    }
+
+
     private fun provideCurrentMovieListTypeByCategoryInSettings(): TmdbInteractor.RepositoryType {
         return when (sharedPreferencesInteractor.getDefaultMoviesCategoryInMainList()) {
             SharedPreferencesProvider.CATEGORY_POPULAR  -> TmdbInteractor.RepositoryType.POPULAR_MOVIES
