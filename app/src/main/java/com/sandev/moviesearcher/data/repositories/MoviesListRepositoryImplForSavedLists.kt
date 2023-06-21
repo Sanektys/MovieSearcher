@@ -7,7 +7,7 @@ import com.sandev.moviesearcher.data.db.entities.TitleAndDescription
 import java.util.concurrent.Executors
 
 
-class MoviesListRepositoryImplWithList(moviesDao: MovieDao) : MoviesListRepositoryImpl(moviesDao) {
+class MoviesListRepositoryImplForSavedLists(moviesDao: MovieDao) : MoviesListRepositoryImpl(moviesDao) {
 
     fun deleteFromDB(movie: Movie) {
         Executors.newSingleThreadExecutor().execute {

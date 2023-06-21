@@ -6,7 +6,7 @@ import com.sandev.moviesearcher.data.db.dao.FavoriteMovieDao
 import com.sandev.moviesearcher.data.db.dao.MovieDao
 import com.sandev.moviesearcher.data.db.databases.FavoriteMoviesDatabase
 import com.sandev.moviesearcher.data.repositories.MoviesListRepository
-import com.sandev.moviesearcher.data.repositories.MoviesListRepositoryImplWithList
+import com.sandev.moviesearcher.data.repositories.MoviesListRepositoryImplForSavedLists
 import com.sandev.moviesearcher.di.FavoriteFragmentScope
 import dagger.Binds
 import dagger.Module
@@ -26,15 +26,15 @@ class FavoriteMoviesListModule {
             = favoriteMoviesDatabase.favoriteMovieDao()
 
     @[Provides FavoriteFragmentScope]
-    fun provideFavoriteMoviesListRepository(favoriteMovieDao: FavoriteMovieDao): MoviesListRepositoryImplWithList
-            = MoviesListRepositoryImplWithList(favoriteMovieDao)
+    fun provideFavoriteMoviesListRepository(favoriteMovieDao: FavoriteMovieDao): MoviesListRepositoryImplForSavedLists
+            = MoviesListRepositoryImplForSavedLists(favoriteMovieDao)
 }
 
 @Module
 interface FavoriteMoviesListRepositoryModule {
 
     @[Binds FavoriteFragmentScope]
-    fun bindFavoriteMoviesList(moviesListRepository: MoviesListRepositoryImplWithList): MoviesListRepository
+    fun bindFavoriteMoviesList(moviesListRepository: MoviesListRepositoryImplForSavedLists): MoviesListRepository
 
     @[Binds FavoriteFragmentScope]
     fun bindFavoriteMovieDao(favoriteMovieDao: FavoriteMovieDao): MovieDao
