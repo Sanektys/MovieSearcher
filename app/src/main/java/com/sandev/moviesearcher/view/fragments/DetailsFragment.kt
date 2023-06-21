@@ -44,7 +44,7 @@ import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
 class DetailsFragment : Fragment() {
 
     private val viewModel by lazy {
-        ViewModelProvider(requireActivity())[DetailsFragmentViewModel::class.java]
+        ViewModelProvider(this)[DetailsFragmentViewModel::class.java]
     }
 
     private var _binding: FragmentDetailsBinding? = null
