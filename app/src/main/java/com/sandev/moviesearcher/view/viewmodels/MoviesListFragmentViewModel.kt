@@ -1,14 +1,14 @@
 package com.sandev.moviesearcher.view.viewmodels
 
 import android.view.Gravity
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.sandev.moviesearcher.data.db.entities.Movie
 
 
 abstract class MoviesListFragmentViewModel : ViewModel() {
 
-    abstract val moviesListLiveData: MutableLiveData<List<Movie>>
+    abstract val moviesListLiveData: LiveData<List<Movie>>
 
     abstract var lastSearch: String?
 
@@ -26,7 +26,7 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
 
 
     interface ApiCallback {
-        fun onSuccess(movies: List<Movie>, totalPages: Int)
+        fun onSuccess(totalPages: Int)
         fun onFailure()
     }
 }

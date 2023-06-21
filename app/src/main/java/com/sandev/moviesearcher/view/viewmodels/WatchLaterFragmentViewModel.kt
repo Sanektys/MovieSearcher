@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.view.viewmodels
 
+import androidx.lifecycle.LiveData
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.components_holders.WatchLaterMoviesComponentHolder
@@ -11,8 +12,7 @@ class WatchLaterFragmentViewModel : MoviesListFragmentViewModel() {
     @Inject
     lateinit var watchLaterMoviesComponent: WatchLaterMoviesComponentHolder
 
-    override val moviesListLiveData
-        get() = watchLaterMoviesComponent.interactor.moviesListLiveData
+    override val moviesListLiveData: LiveData<List<Movie>>
 
     override var lastSearch: String?
         set(value) { Companion.lastSearch = value }
@@ -27,14 +27,14 @@ class WatchLaterFragmentViewModel : MoviesListFragmentViewModel() {
 
     init {
         App.instance.getAppComponent().inject(this)
+
+        moviesListLiveData = watchLaterMoviesComponent.interactor.getAllFromList()
     }
 
 
     override fun searchInDatabase(query: CharSequence): List<Movie>? {
         return searchInDatabase(query, getAllMovies())
     }
-
-    override fun getAllMovies(): List<Movie> = watchLaterMoviesComponent.interactor.getAllFromList()
 
     fun addToWatchLater(movie: Movie) = watchLaterMoviesComponent.interactor.addToList(movie)
 

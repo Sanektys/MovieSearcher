@@ -102,7 +102,7 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
                     putToDB(moviesList)
                 }
 
-                viewModelCallback.onSuccess(moviesList, response.body()?.totalPages ?: 0)
+                viewModelCallback.onSuccess(response.body()?.totalPages ?: 0)
             }
         }
 

@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.view.viewmodels
 
+import androidx.lifecycle.LiveData
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.components_holders.FavoritesMoviesComponentHolder
@@ -11,8 +12,7 @@ class FavoritesFragmentViewModel : MoviesListFragmentViewModel() {
     @Inject
     lateinit var favoritesMoviesComponent: FavoritesMoviesComponentHolder
 
-    override val moviesListLiveData
-        get() = favoritesMoviesComponent.interactor.moviesListLiveData
+    override val moviesListLiveData: LiveData<List<Movie>>
 
     override var lastSearch: String?
         set(value) { Companion.lastSearch = value }
@@ -27,14 +27,14 @@ class FavoritesFragmentViewModel : MoviesListFragmentViewModel() {
 
     init {
         App.instance.getAppComponent().inject(this)
+
+        moviesListLiveData = favoritesMoviesComponent.interactor.getAllFromList()
     }
 
 
     override fun searchInDatabase(query: CharSequence): List<Movie>? {
         return searchInDatabase(query, getAllMovies())
     }
-
-    override fun getAllMovies(): List<Movie> = favoritesMoviesComponent.interactor.getAllFromList()
 
     fun addToFavorite(movie: Movie) = favoritesMoviesComponent.interactor.addToList(movie)
 

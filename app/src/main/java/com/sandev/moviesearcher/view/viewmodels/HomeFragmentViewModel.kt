@@ -1,5 +1,8 @@
 package com.sandev.moviesearcher.view.viewmodels
 
+import android.content.SharedPreferences
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
@@ -18,7 +21,12 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     @Inject
     lateinit var sharedPreferencesInteractor: SharedPreferencesInteractor
 
-    override val moviesListLiveData = MutableLiveData<List<Movie>>()
+    override val moviesListLiveData = MediatorLiveData<List<Movie>>()
+
+    private var listFromDbLiveData: LiveData<List<Movie>>? = null
+    private var searchedListFromDbLiveData: LiveData<List<Movie>>? = null
+
+    private val sharedPreferencesStateListener: SharedPreferences.OnSharedPreferenceChangeListener
 
     val onFailureFlagLiveData = MutableLiveData<Boolean>()
 
@@ -62,8 +70,27 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         } else {
             getMoviesFromApi()
         }
+
+        initializeDatabaseMoviesListsLiveData()
+        addSourcesToGeneralMoviesListLiveData()
+
+        sharedPreferencesStateListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            when (key) {
+                SharedPreferencesProvider.KEY_CATEGORY ->  {
+                    removeSourcesFromGeneralMoviesListLiveData()
+                    initializeDatabaseMoviesListsLiveData()
+                    addSourcesToGeneralMoviesListLiveData()
+                }
+            }
+        }
+        sharedPreferencesInteractor.addSharedPreferencesChangeListener(sharedPreferencesStateListener)
     }
 
+
+    override fun onCleared() {
+        removeSourcesFromGeneralMoviesListLiveData()
+        sharedPreferencesInteractor.removeSharedPreferencesChangeListener(sharedPreferencesStateListener)
+    }
 
     override fun searchInDatabase(query: CharSequence): List<Movie>? {
         return searchInDatabase(query, moviesListLiveData.value)
@@ -125,34 +152,48 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
+    private fun addSourcesToGeneralMoviesListLiveData() {
+        moviesListLiveData.addSource(listFromDbLiveData!!) { moviesList ->
+            if (!isInSearchMode) {
+                moviesListLiveData.postValue(moviesList)
+            }
+        }
+        moviesListLiveData.addSource(searchedListFromDbLiveData!!) { searchedMoviesList ->
+            if (isInSearchMode) {
+                moviesListLiveData.postValue(searchedMoviesList)
+            }
+        }
+    }
+
+    private fun removeSourcesFromGeneralMoviesListLiveData() {
+        moviesListLiveData.removeSource(listFromDbLiveData!!)
+        moviesListLiveData.removeSource(searchedListFromDbLiveData!!)
+    }
+
+    private fun initializeDatabaseMoviesListsLiveData() {
+        listFromDbLiveData = interactor.getMoviesFromDB(
+            provideCurrentMovieListTypeByCategoryInSettings()
+        )
+        searchedListFromDbLiveData = interactor.getSearchedMoviesFromDB(
+            lastSearch ?: "",
+            provideCurrentMovieListTypeByCategoryInSettings()
+        )
+    }
+
 
     private inner class HomeFragmentApiCallback : ApiCallback {
-        override fun onSuccess(movies: List<Movie>, totalPages: Int) {
+        override fun onSuccess(totalPages: Int) {
             onFailureFlag = false
             totalPagesInLastQuery = totalPages
-            moviesListLiveData.postValue(movies)
         }
 
         override fun onFailure() {
+            if (onFailureFlag) {
+                moviesListLiveData.postValue(moviesListLiveData.value)
+            }
+
             isOffline = true
             onFailureFlag = true
-
-            if (isInSearchMode) {
-                Executors.newSingleThreadExecutor().execute {
-                    moviesListLiveData.postValue(
-                        interactor.getSearchedMoviesFromDB(
-                            query = lastSearch ?: "",
-                            repositoryType = provideCurrentMovieListTypeByCategoryInSettings()
-                        )
-                    )
-                }
-            } else {
-                Executors.newSingleThreadExecutor().execute {
-                    moviesListLiveData.postValue(
-                        interactor.getMoviesFromDB(provideCurrentMovieListTypeByCategoryInSettings())
-                    )
-                }
-            }
         }
     }
 }

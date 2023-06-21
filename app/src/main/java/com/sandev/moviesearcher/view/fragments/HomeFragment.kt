@@ -23,8 +23,8 @@ import androidx.transition.TransitionSet
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.BaseTransientBottomBar.ANIMATION_MODE_FADE
 import com.google.android.material.snackbar.Snackbar
-import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.databinding.FragmentHomeBinding
 import com.sandev.moviesearcher.databinding.MergeFragmentHomeContentBinding
@@ -277,7 +277,7 @@ class HomeFragment : MoviesListFragment() {
         sharedPreferencesChangeListener =
             SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
                 when (key) {
-                    App.instance.getString(R.string.shared_preferences_settings_key_category) -> {
+                    SharedPreferencesProvider.KEY_CATEGORY -> {
                         _bindingFull?.swipeRefresh?.isRefreshing = true
                         refreshMoviesList()
                     }
