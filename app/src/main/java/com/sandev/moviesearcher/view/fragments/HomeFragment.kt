@@ -70,7 +70,6 @@ class HomeFragment : MoviesListFragment() {
 
         private const val RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD = 5
         private const val LOADING_THRESHOLD_MULTIPLIER_FOR_LANDSCAPE = 2
-        private const val INITIAL_PAGE_IN_RECYCLER = 1
 
         private const val SNACKBAR_RESHOW_TIMEOUT = 400L
     }
@@ -144,13 +143,13 @@ class HomeFragment : MoviesListFragment() {
                 viewModel.isInSearchMode = true
                 recyclerAdapter?.clearList()
             }
-            viewModel.getSearchedMoviesFromApi(query, INITIAL_PAGE_IN_RECYCLER)
+            viewModel.getSearchedMoviesFromApi(query, 1)
         } else if (query.isEmpty()) {
             if (viewModel.isInSearchMode) {
                 viewModel.isInSearchMode = false
                 recyclerAdapter?.clearList()
             }
-            viewModel.getMoviesFromApi(INITIAL_PAGE_IN_RECYCLER)
+            viewModel.getMoviesFromApi(1)
         }
         viewModel.lastSearch = query
     }
@@ -248,9 +247,7 @@ class HomeFragment : MoviesListFragment() {
             }
             setAction(getString(R.string.activity_main_snackbar_button_retry)) {
                 bindingFull.swipeRefresh.isRefreshing = true
-                viewModel.isOffline = false
-                viewModel.isNeedRefreshLocalDB = true
-                refreshMoviesList()
+                viewModel.fullRefreshMoviesList()
             }
         }
     }
@@ -267,9 +264,7 @@ class HomeFragment : MoviesListFragment() {
 
     private fun initializeSwipeRefreshLayout() {
         bindingFull.swipeRefresh.setOnRefreshListener {
-            viewModel.isOffline = false
-            viewModel.isNeedRefreshLocalDB = true
-            refreshMoviesList()
+            viewModel.fullRefreshMoviesList()
         }
     }
 
@@ -279,7 +274,6 @@ class HomeFragment : MoviesListFragment() {
                 when (key) {
                     SharedPreferencesProvider.KEY_CATEGORY -> {
                         _bindingFull?.swipeRefresh?.isRefreshing = true
-                        refreshMoviesList()
                     }
                 }
             }
@@ -294,14 +288,7 @@ class HomeFragment : MoviesListFragment() {
         )
     }
 
-    private fun refreshMoviesList() {
-        moviesDatabase = emptyList()
-        if (viewModel.isInSearchMode) {
-            viewModel.getSearchedMoviesFromApi(page = INITIAL_PAGE_IN_RECYCLER)
-        } else {
-            viewModel.getMoviesFromApi(page = INITIAL_PAGE_IN_RECYCLER)
-        }
-    }
+
 
     private fun setupViewModelObserving() {
         viewModel.moviesListLiveData.observe(viewLifecycleOwner) { database ->

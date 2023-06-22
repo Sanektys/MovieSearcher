@@ -57,10 +57,6 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
     private val homeFragmentApiCallback = HomeFragmentApiCallback()
 
-    companion object {
-        private var isInSearchMode: Boolean = false
-        private var lastSearch: String? = null
-    }
 
     init {
         App.instance.getAppComponent().inject(this)
@@ -80,6 +76,8 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
                     removeSourcesFromGeneralMoviesListLiveData()
                     initializeDatabaseMoviesListsLiveData()
                     addSourcesToGeneralMoviesListLiveData()
+
+                    refreshMoviesList()
                 }
             }
         }
@@ -94,6 +92,21 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
     override fun searchInDatabase(query: CharSequence): List<Movie>? {
         return searchInDatabase(query, moviesListLiveData.value)
+    }
+
+    fun refreshMoviesList() {
+        wipeListInMoviesListLiveData()
+        if (isInSearchMode) {
+            getSearchedMoviesFromApi(page = INITIAL_PAGE_IN_RECYCLER)
+        } else {
+            getMoviesFromApi(page = INITIAL_PAGE_IN_RECYCLER)
+        }
+    }
+
+    fun fullRefreshMoviesList() {
+        isOffline = false
+        isNeedRefreshLocalDB = true
+        refreshMoviesList()
     }
 
     fun isNextPageCanBeDownloaded() = lastPage <= totalPagesInLastQuery
@@ -152,17 +165,30 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
+    private fun wipeListInMoviesListLiveData() {
+        moviesListLiveData.value = listOf()
+    }
+
     private fun addSourcesToGeneralMoviesListLiveData() {
         moviesListLiveData.addSource(listFromDbLiveData!!) { moviesList ->
             if (!isInSearchMode) {
                 moviesListLiveData.postValue(moviesList)
             }
         }
+        addSourceForSearchToGeneralMoviesListLiveData()
+    }
+
+    private fun addSourceForSearchToGeneralMoviesListLiveData() {
         moviesListLiveData.addSource(searchedListFromDbLiveData!!) { searchedMoviesList ->
             if (isInSearchMode) {
                 moviesListLiveData.postValue(searchedMoviesList)
             }
         }
+    }
+
+    private fun updateSourceForSearchInGeneralMoviesListLiveData() {
+        moviesListLiveData.removeSource(searchedListFromDbLiveData!!)
+        addSourceForSearchToGeneralMoviesListLiveData()
     }
 
     private fun removeSourcesFromGeneralMoviesListLiveData() {
@@ -174,8 +200,12 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         listFromDbLiveData = interactor.getMoviesFromDB(
             provideCurrentMovieListTypeByCategoryInSettings()
         )
+        initializeDatabaseSearchedMoviesListLiveData(lastSearch ?: "")
+    }
+
+    private fun initializeDatabaseSearchedMoviesListLiveData(query: String) {
         searchedListFromDbLiveData = interactor.getSearchedMoviesFromDB(
-            lastSearch ?: "",
+            query,
             provideCurrentMovieListTypeByCategoryInSettings()
         )
     }
@@ -189,11 +219,24 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
         override fun onFailure() {
             if (onFailureFlag) {
-                moviesListLiveData.postValue(moviesListLiveData.value)
+                if (isInSearchMode) {
+                    initializeDatabaseSearchedMoviesListLiveData(lastSearch!!)
+                    updateSourceForSearchInGeneralMoviesListLiveData()
+                } else {
+                    moviesListLiveData.postValue(listFromDbLiveData?.value ?: listOf())
+                }
             }
 
             isOffline = true
             onFailureFlag = true
         }
+    }
+
+
+    companion object {
+        private var isInSearchMode: Boolean = false
+        private var lastSearch: String? = null
+
+        private const val INITIAL_PAGE_IN_RECYCLER = 1
     }
 }
