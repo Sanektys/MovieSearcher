@@ -1,9 +1,11 @@
 package com.sandev.moviesearcher.view.viewmodels
 
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.data.db.entities.Movie
@@ -22,6 +24,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     lateinit var sharedPreferencesInteractor: SharedPreferencesInteractor
 
     override val moviesListLiveData = MediatorLiveData<List<Movie>>()
+    override val moviesObserver: Observer<List<Movie>>
 
     private var listFromDbLiveData: LiveData<List<Movie>>? = null
     private var searchedListFromDbLiveData: LiveData<List<Movie>>? = null
@@ -31,26 +34,28 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     val onFailureFlagLiveData = MutableLiveData<Boolean>()
 
     var isOffline: Boolean = false
-    var isNeedRefreshLocalDB: Boolean = false
+        private set
+    private var isNeedRefreshLocalDB: Boolean = false
 
-    var isPaginationLoadingOnProcess: Boolean = false
-    var latestAttachedMovieCard: Int = 0
+    private var isPaginationLoadingOnProcess: Boolean = false
+    var lastVisibleMovieCard: Int = 0
+        private set
     private var lastPage: Int = 1
     private var totalPagesInLastQuery = 1
 
     var onFailureFlag: Boolean = false
-        set(value) {
+        private set(value) {
             field = value
             onFailureFlagLiveData.postValue(value)
         }
 
-    override var lastSearch: String?
+    override var lastSearch: String
         set(value) {
             Companion.lastSearch = value
         }
         get() = Companion.lastSearch
     var isInSearchMode: Boolean
-        set(value) {
+        private set(value) {
             Companion.isInSearchMode = value
         }
         get() = Companion.isInSearchMode
@@ -61,11 +66,10 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     init {
         App.instance.getAppComponent().inject(this)
 
-        if (isInSearchMode) {
-            getSearchedMoviesFromApi()
-        } else {
-            getMoviesFromApi()
+        moviesObserver = Observer<List<Movie>> { newList ->
+            moviesDatabase = newList.toList()
         }
+        moviesListLiveData.observeForever(moviesObserver)
 
         initializeDatabaseMoviesListsLiveData()
         addSourcesToGeneralMoviesListLiveData()
@@ -82,25 +86,61 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
             }
         }
         sharedPreferencesInteractor.addSharedPreferencesChangeListener(sharedPreferencesStateListener)
+
+        dispatchQueryToApi()
     }
 
 
     override fun onCleared() {
         removeSourcesFromGeneralMoviesListLiveData()
+
         sharedPreferencesInteractor.removeSharedPreferencesChangeListener(sharedPreferencesStateListener)
+
+        moviesListLiveData.removeObserver(moviesObserver)
     }
 
     override fun searchInDatabase(query: CharSequence): List<Movie>? {
         return searchInDatabase(query, moviesListLiveData.value)
     }
 
-    fun refreshMoviesList() {
-        wipeListInMoviesListLiveData()
-        if (isInSearchMode) {
-            getSearchedMoviesFromApi(page = INITIAL_PAGE_IN_RECYCLER)
-        } else {
-            getMoviesFromApi(page = INITIAL_PAGE_IN_RECYCLER)
+    override fun searchInSearchView(query: String) {
+        if (query == lastSearch) return
+
+        if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
+            if (!isInSearchMode) {
+                isInSearchMode = true
+                recyclerAdapter.clearList()
+            }
+            getSearchedMoviesFromApi(query, INITIAL_PAGE_IN_RECYCLER)
+        } else if (query.isEmpty()) {
+            if (isInSearchMode) {
+                isInSearchMode = false
+                recyclerAdapter.clearList()
+            }
+            getMoviesFromApi(INITIAL_PAGE_IN_RECYCLER)
         }
+        lastSearch = query
+    }
+
+    override fun initializeRecyclerAdapterList() {
+        if (isInSearchMode) {
+            if (isPaginationLoadingOnProcess) {
+                // Если строка поиска не пуста (isInSearchMode = true) и происходит подгрузка
+                // при скролле - добавлять новые списки в конец
+                recyclerAdapter.addMovieCards(moviesDatabase)
+            } else {
+                // Если в поле поиска был произведён ввод, то устанавливается новый список
+                recyclerAdapter.setList(moviesDatabase)
+            }
+        } else {
+            if (!isPaginationLoadingOnProcess) {
+                // Во всех случаях, когда не происходит пагинация - очищаем старый список и ставим тот, что пришёл
+                recyclerAdapter.clearList()
+            }
+            // Если строка поиска пуста - просто добавлять приходящие новые списки в конец
+            recyclerAdapter.addMovieCards(moviesDatabase)
+        }
+        isPaginationLoadingOnProcess = false
     }
 
     fun fullRefreshMoviesList() {
@@ -109,9 +149,25 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         refreshMoviesList()
     }
 
-    fun isNextPageCanBeDownloaded() = lastPage <= totalPagesInLastQuery
+    fun startLoadingOnScroll(lastVisibleItemPosition: Int, itemsRemainingInList: Int, screenOrientation: Int) {
+        lastVisibleMovieCard = lastVisibleItemPosition
 
-    fun getMoviesFromApi(page: Int = lastPage) {
+        val loadingThreshold =
+            if (screenOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+                RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD * LOADING_THRESHOLD_MULTIPLIER_FOR_LANDSCAPE
+            } else {
+                RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD
+            }
+
+        if (itemsRemainingInList <= loadingThreshold && !isPaginationLoadingOnProcess
+            && isNextPageCanBeDownloaded()
+        ) {
+            isPaginationLoadingOnProcess = true
+            dispatchQueryToApi()
+        }
+    }
+
+    private fun getMoviesFromApi(page: Int = lastPage) {
         if (isOffline) {
             homeFragmentApiCallback.onFailure()
             return
@@ -121,7 +177,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
         if (page != lastPage) {
             lastPage = page
-            latestAttachedMovieCard = 0
+            lastVisibleMovieCard = 0
         }
         Executors.newSingleThreadExecutor().execute {
             interactor.getMoviesFromApi(
@@ -134,7 +190,9 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
-    fun getSearchedMoviesFromApi(query: CharSequence = lastSearch ?: "", page: Int = lastPage) {
+    private fun getSearchedMoviesFromApi(query: CharSequence = lastSearch, page: Int = lastPage) {
+        isNeedRefreshLocalDB = false
+
         if (isOffline) {
             homeFragmentApiCallback.onFailure()
             return
@@ -144,7 +202,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
         if (page != lastPage) {
             lastPage = page
-            latestAttachedMovieCard = 0
+            lastVisibleMovieCard = 0
         }
         Executors.newSingleThreadExecutor().execute {
             interactor.getSearchedMoviesFromApi(
@@ -152,6 +210,28 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
                 page = lastPage++,
                 callback = homeFragmentApiCallback
             )
+        }
+    }
+
+    private fun refreshMoviesList() {
+        dispatchQueryToApi(INITIAL_PAGE_IN_RECYCLER)
+    }
+
+    private fun isNextPageCanBeDownloaded() = lastPage <= totalPagesInLastQuery
+
+    private fun dispatchQueryToApi(page: Int? = null) {
+        if (isInSearchMode) {
+            if (page != null) {
+                getSearchedMoviesFromApi(lastSearch, page)
+            } else {
+                getSearchedMoviesFromApi(lastSearch)
+            }
+        } else {
+            if (page != null) {
+                getMoviesFromApi(page)
+            } else {
+                getMoviesFromApi()
+            }
         }
     }
 
@@ -200,7 +280,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         listFromDbLiveData = interactor.getMoviesFromDB(
             provideCurrentMovieListTypeByCategoryInSettings()
         )
-        initializeDatabaseSearchedMoviesListLiveData(lastSearch ?: "")
+        initializeDatabaseSearchedMoviesListLiveData(lastSearch)
     }
 
     private fun initializeDatabaseSearchedMoviesListLiveData(query: String) {
@@ -220,7 +300,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         override fun onFailure() {
             if (onFailureFlag) {
                 if (isInSearchMode) {
-                    initializeDatabaseSearchedMoviesListLiveData(lastSearch!!)
+                    initializeDatabaseSearchedMoviesListLiveData(lastSearch)
                     updateSourceForSearchInGeneralMoviesListLiveData()
                 } else {
                     moviesListLiveData.postValue(listFromDbLiveData?.value ?: listOf())
@@ -229,14 +309,18 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
             isOffline = true
             onFailureFlag = true
+            isPaginationLoadingOnProcess = false
         }
     }
 
 
     companion object {
         private var isInSearchMode: Boolean = false
-        private var lastSearch: String? = null
+        private var lastSearch: String = ""
 
         private const val INITIAL_PAGE_IN_RECYCLER = 1
+
+        private const val RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD = 5
+        private const val LOADING_THRESHOLD_MULTIPLIER_FOR_LANDSCAPE = 2
     }
 }

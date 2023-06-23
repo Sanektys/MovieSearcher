@@ -41,14 +41,6 @@ import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
 abstract class MoviesListFragment : Fragment() {
 
     protected abstract val viewModel: MoviesListFragmentViewModel
-    protected abstract var recyclerAdapter: MoviesRecyclerAdapter?
-
-    protected var moviesDatabase: List<Movie> = emptyList()
-        set(value) {
-            if (value == field) return
-            field = value
-            initializeRecyclerAdapterList()
-        }
 
     private var _appBar: AppBarLayout? = null
     private val appBar: AppBarLayout
@@ -79,7 +71,6 @@ abstract class MoviesListFragment : Fragment() {
     companion object {
         var isAppBarLifted = false
 
-        const val SEARCH_SYMBOLS_THRESHOLD = 2
         private const val MAX_ALPHA = 255F
         private const val DIVIDER_TO_CENTER = 2
     }
@@ -117,11 +108,6 @@ abstract class MoviesListFragment : Fragment() {
     fun hideSearchView() = searchView.hide()
 
     fun isSearchViewHidden() = searchView.currentTransitionState == SearchView.TransitionState.HIDDEN
-
-    protected open fun initializeRecyclerAdapterList() {
-        // Загрузить в recycler результат по прошлому запросу в поиск
-        searchInSearchView(viewModel.lastSearch ?: "")
-    }
 
     protected fun initializeViewsReferences(rootView: View) {
         _appBar = rootView.findViewById(R.id.app_bar)
@@ -166,7 +152,7 @@ abstract class MoviesListFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {}
 
             override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
-                searchInSearchView(text.toString())
+                viewModel.searchInSearchView(text.toString())
             }
         }
         searchView.apply {
@@ -199,15 +185,6 @@ abstract class MoviesListFragment : Fragment() {
                 true
             }
         }
-    }
-
-    protected open fun searchInSearchView(query: String) {
-        if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
-            recyclerAdapter?.setList(viewModel.searchInDatabase(query))
-        } else {
-            recyclerAdapter?.setList(viewModel.getAllMovies())
-        }
-        viewModel.lastSearch = query
     }
 
     private fun createCircularRevealAnimator(view: View): CircularRevealAnimator {

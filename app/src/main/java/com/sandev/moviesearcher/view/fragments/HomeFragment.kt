@@ -1,7 +1,6 @@
 package com.sandev.moviesearcher.view.fragments
 
 import android.content.SharedPreferences
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -49,11 +48,6 @@ class HomeFragment : MoviesListFragment() {
 
     private var mainActivity: MainActivity? = null
     private var moviesRecyclerManager: RecyclerView.LayoutManager? = null
-    override var recyclerAdapter: MoviesRecyclerAdapter?
-        set(value) {
-            Companion.recyclerAdapter = value
-        }
-        get() = Companion.recyclerAdapter
 
     private var snackbar: Snackbar? = null
 
@@ -65,11 +59,6 @@ class HomeFragment : MoviesListFragment() {
             private set
 
         private const val MOVIES_RECYCLER_VIEW_STATE = "MoviesRecylerViewState"
-
-        private var recyclerAdapter: MoviesRecyclerAdapter? = null
-
-        private const val RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD = 5
-        private const val LOADING_THRESHOLD_MULTIPLIER_FOR_LANDSCAPE = 2
 
         private const val SNACKBAR_RESHOW_TIMEOUT = 400L
     }
@@ -128,52 +117,7 @@ class HomeFragment : MoviesListFragment() {
     override fun onDestroy() {
         super.onDestroy()
 
-        if (activity?.isChangingConfigurations == false) {
-            removeOnSharedPreferenceChangeListener()
-
-            recyclerAdapter = null
-        }
-    }
-
-    override fun searchInSearchView(query: String) {
-        if (query == viewModel.lastSearch) return
-
-        if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
-            if (!viewModel.isInSearchMode) {
-                viewModel.isInSearchMode = true
-                recyclerAdapter?.clearList()
-            }
-            viewModel.getSearchedMoviesFromApi(query, 1)
-        } else if (query.isEmpty()) {
-            if (viewModel.isInSearchMode) {
-                viewModel.isInSearchMode = false
-                recyclerAdapter?.clearList()
-            }
-            viewModel.getMoviesFromApi(1)
-        }
-        viewModel.lastSearch = query
-    }
-
-    override fun initializeRecyclerAdapterList() {
-        if (_bindingFull == null) {  // Обновление адаптера когда сам фрагмент прошёл onDestroyedView
-            recyclerAdapter?.clearList()
-        } else if (bindingFull.swipeRefresh.isRefreshing) {
-            recyclerAdapter?.clearList()
-        }
-        if (viewModel.isInSearchMode) {
-            if (viewModel.isPaginationLoadingOnProcess) {
-                // Если строка поиска не пуста (isInSearchMode = true) и происходит подгрузка
-                // при скролле - добавлять новые списки в конец
-                recyclerAdapter?.addMovieCards(moviesDatabase)
-            } else {
-                // Если в поле поиска был произведён ввод, то устанавливается новый список
-                recyclerAdapter?.setList(moviesDatabase)
-            }
-        } else {
-            // Если строка поиска пуста - просто добавлять приходящие новые списки в конец
-            recyclerAdapter?.addMovieCards(moviesDatabase)
-        }
-        viewModel.isPaginationLoadingOnProcess = false
+        removeOnSharedPreferenceChangeListener()
     }
 
     override fun setRecyclerViewAppearance(view: View) {
@@ -181,10 +125,7 @@ class HomeFragment : MoviesListFragment() {
     }
 
     private fun initializeMovieRecycler() {
-        if (recyclerAdapter == null) {
-            recyclerAdapter = MoviesRecyclerAdapter()
-        }
-        recyclerAdapter?.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
+        viewModel.recyclerAdapter.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
             override fun onClick(movie: Movie, posterView: ImageView) {
                 resetExitReenterTransitionAnimations()
                 mainActivity?.startDetailsFragment(movie, posterView)
@@ -194,7 +135,7 @@ class HomeFragment : MoviesListFragment() {
         bindingFull.moviesListRecycler.apply {
             setHasFixedSize(true)
             isNestedScrollingEnabled = true
-            adapter = recyclerAdapter
+            adapter = viewModel.recyclerAdapter
 
             moviesRecyclerManager = layoutManager!!
 
@@ -205,30 +146,18 @@ class HomeFragment : MoviesListFragment() {
     private fun setupRecyclerUpdateOnScroll() {
         bindingFull.moviesListRecycler.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
             override fun onChildViewAttachedToWindow(view: View) {
-                if (viewModel.onFailureFlag) return
+                if (viewModel.isOffline || viewModel.onFailureFlag) return
                 
                 val itemPosition = bindingFull.moviesListRecycler.getChildAdapterPosition(view)
 
-                if (itemPosition > viewModel.latestAttachedMovieCard) {
-                    viewModel.latestAttachedMovieCard = itemPosition
-                    val loadingThreshold =
-                        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                            RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD * LOADING_THRESHOLD_MULTIPLIER_FOR_LANDSCAPE
-                        } else {
-                            RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD
-                        }
-
+                if (itemPosition > viewModel.lastVisibleMovieCard) {
                     val itemsRemainingInList = (bindingFull.moviesListRecycler.adapter?.itemCount?.minus(1) ?: 0) - itemPosition
-                    if (itemsRemainingInList <= loadingThreshold
-                            && !viewModel.isPaginationLoadingOnProcess
-                            && viewModel.isNextPageCanBeDownloaded()) {
-                        viewModel.isPaginationLoadingOnProcess = true
-                        if (viewModel.isInSearchMode) {
-                            viewModel.getSearchedMoviesFromApi()
-                        } else {
-                            viewModel.getMoviesFromApi()
-                        }
-                    }
+
+                    viewModel.startLoadingOnScroll(
+                        lastVisibleItemPosition = itemPosition,
+                        itemsRemainingInList = itemsRemainingInList,
+                        screenOrientation = resources.configuration.orientation
+                    )
                 }
             }
             override fun onChildViewDetachedFromWindow(view: View) {}
@@ -288,19 +217,11 @@ class HomeFragment : MoviesListFragment() {
         )
     }
 
-
-
     private fun setupViewModelObserving() {
-        viewModel.moviesListLiveData.observe(viewLifecycleOwner) { database ->
-            moviesDatabase = database
-        }
         viewModel.onFailureFlagLiveData.observe(viewLifecycleOwner) { failureFlag ->
-            if (bindingFull.swipeRefresh.isRefreshing) {
-                bindingFull.swipeRefresh.isRefreshing = false
-            }
-            if (failureFlag) {
-                viewModel.isPaginationLoadingOnProcess = false
+            bindingFull.swipeRefresh.isRefreshing = false
 
+            if (failureFlag) {
                 if (childFragmentManager.fragments.size == 0) {
                     if (snackbar?.isShown == false) {
                         snackbar?.show()
