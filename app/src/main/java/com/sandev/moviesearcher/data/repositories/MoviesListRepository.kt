@@ -13,4 +13,6 @@ interface MoviesListRepository {
     fun getSearchedFromDB(query: String): LiveData<List<Movie>>
 
     fun deleteAllFromDB()
+
+    fun deleteAllFromDBAndPutNew(movies: List<Movie>)
 }

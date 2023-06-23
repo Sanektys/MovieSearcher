@@ -93,13 +93,20 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
 
         override fun onResponse(call: Call<TmdbResultDto>, response: Response<TmdbResultDto>) {
             if (response.isSuccessful) {
-                val moviesList = TmdbConverter.convertApiListToDtoList(response.body()?.results)
+                val moviesList = when (moviesListRepository) {
+                    is PlayingMoviesListRepository  -> TmdbConverter.convertApiDtoListToPlayingMovieList(response.body()?.results)
+                    is PopularMoviesListRepository  -> TmdbConverter.convertApiDtoListToPopularMovieList(response.body()?.results)
+                    is TopMoviesListRepository      -> TmdbConverter.convertApiDtoListToTopMovieList(response.body()?.results)
+                    is UpcomingMoviesListRepository -> TmdbConverter.convertApiDtoListToUpcomingMovieList(response.body()?.results)
+                    else -> throw IllegalArgumentException("Unknown MoviesListRepository type")
+                }
 
-                moviesListRepository?.run {
+                moviesListRepository.run {
                     if (isNeededWipeBeforePutData) {
-                        deleteAllFromDB()
+                        deleteAllFromDBAndPutNew(moviesList)
+                    } else {
+                        putToDB(moviesList)
                     }
-                    putToDB(moviesList)
                 }
 
                 viewModelCallback.onSuccess(response.body()?.totalPages ?: 0)

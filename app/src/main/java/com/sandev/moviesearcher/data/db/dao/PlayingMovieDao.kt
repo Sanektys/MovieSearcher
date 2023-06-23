@@ -2,28 +2,31 @@ package com.sandev.moviesearcher.data.db.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.data.db.entities.PlayingMovie
 
 
 @Dao
-interface PlayingMovieDao : MovieDao {
+abstract class PlayingMovieDao : MovieDao {
 
     @Query("SELECT * FROM ${PlayingMovie.TABLE_NAME}")
-    override fun getAllCachedMovies(): LiveData<List<Movie>>
+    abstract override fun getAllCachedMovies(): LiveData<List<Movie>>
 
     @Query("SELECT * " +
             "FROM ${PlayingMovie.TABLE_NAME} " +
             "WHERE ${Movie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
             "ORDER BY ${Movie.COLUMN_ID} ASC")
-    override fun getSearchedCachedMovies(query: String): LiveData<List<Movie>>
+    abstract override fun getSearchedCachedMovies(query: String): LiveData<List<Movie>>
 
     @Query("INSERT OR IGNORE INTO ${PlayingMovie.TABLE_NAME}" +
             "(${Movie.COLUMN_POSTER}, ${Movie.COLUMN_TITLE}, " +
             "${Movie.COLUMN_DESCRIPTION}, ${Movie.COLUMN_RATING}) " +
             "VALUES (:poster, :title, :description, :rating)")
-    override fun putToCachedMovies(
+    abstract override fun putToCachedMovies(
         poster: String?,
         title: String,
         description: String,
@@ -31,5 +34,14 @@ interface PlayingMovieDao : MovieDao {
     ): Long
 
     @Query("DELETE FROM ${PlayingMovie.TABLE_NAME}")
-    override fun deleteAllCachedMovies(): Int
+    abstract override fun deleteAllCachedMovies(): Int
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract fun putToCachedMovies(list: List<PlayingMovie>)
+
+    @Transaction
+    open fun deleteAllCachedMoviesAndPutNewMovies(list: List<PlayingMovie>) {
+        deleteAllCachedMovies()
+        putToCachedMovies(list)
+    }
 }
