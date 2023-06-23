@@ -19,14 +19,6 @@ open class MoviesListRepositoryImpl(protected val movieDao: MovieDao) : MoviesLi
     @Suppress("UNCHECKED_CAST")
     override fun putToDB(movies: List<Movie>) {
         Executors.newSingleThreadExecutor().execute {
-//            movies.forEach { movie ->
-//                movieDao.putToCachedMovies(
-//                    poster = movie.poster,
-//                    title = movie.title,
-//                    description = movie.description,
-//                    rating = movie.rating
-//                )
-//            }
             when (movieDao) {
                 is PlayingMovieDao  -> movieDao.putToCachedMovies(movies as List<PlayingMovie>)
                 is PopularMovieDao  -> movieDao.putToCachedMovies(movies as List<PopularMovie>)
@@ -38,7 +30,13 @@ open class MoviesListRepositoryImpl(protected val movieDao: MovieDao) : MoviesLi
 
     override fun getAllFromDB(): LiveData<List<Movie>> = movieDao.getAllCachedMovies()
 
+    override fun getFromDB(moviesCount: Int): LiveData<List<Movie>>
+            = movieDao.getCachedMovies(moviesCount)
+
     override fun getSearchedFromDB(query: String): LiveData<List<Movie>> = movieDao.getSearchedCachedMovies(query)
+    
+    override fun getSearchedFromDB(query: String, moviesCount: Int): LiveData<List<Movie>>
+            = movieDao.getSearchedCachedMovies(query, moviesCount)
 
     override fun deleteAllFromDB() {
         Executors.newSingleThreadExecutor().execute {

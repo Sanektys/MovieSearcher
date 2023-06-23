@@ -16,11 +16,30 @@ abstract class PlayingMovieDao : MovieDao {
     @Query("SELECT * FROM ${PlayingMovie.TABLE_NAME}")
     abstract override fun getAllCachedMovies(): LiveData<List<Movie>>
 
+    @Query("SELECT *" +
+            "FROM " +
+            "(SELECT * " +
+            "FROM ${PlayingMovie.TABLE_NAME} " +
+            "ORDER BY ${Movie.COLUMN_ID} DESC " +
+            "LIMIT :moviesCount) AS q " +
+            "ORDER BY ${Movie.COLUMN_ID} ASC")
+    abstract override fun getCachedMovies(moviesCount: Int): LiveData<List<Movie>>
+
     @Query("SELECT * " +
             "FROM ${PlayingMovie.TABLE_NAME} " +
             "WHERE ${Movie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
             "ORDER BY ${Movie.COLUMN_ID} ASC")
     abstract override fun getSearchedCachedMovies(query: String): LiveData<List<Movie>>
+
+    @Query("SELECT * " +
+            "FROM" +
+            "(SELECT * " +
+            "FROM ${PlayingMovie.TABLE_NAME} " +
+            "WHERE ${Movie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
+            "ORDER BY ${Movie.COLUMN_ID} DESC " +
+            "LIMIT :moviesCount) AS q " +
+            "ORDER BY ${Movie.COLUMN_ID} ASC")
+    abstract override fun getSearchedCachedMovies(query: String, moviesCount: Int): LiveData<List<Movie>>
 
     @Query("INSERT OR IGNORE INTO ${PlayingMovie.TABLE_NAME}" +
             "(${Movie.COLUMN_POSTER}, ${Movie.COLUMN_TITLE}, " +

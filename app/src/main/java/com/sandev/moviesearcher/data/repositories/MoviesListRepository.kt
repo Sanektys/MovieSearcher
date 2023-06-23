@@ -10,7 +10,11 @@ interface MoviesListRepository {
 
     fun getAllFromDB(): LiveData<List<Movie>>
 
+    fun getFromDB(moviesCount: Int): LiveData<List<Movie>>
+
     fun getSearchedFromDB(query: String): LiveData<List<Movie>>
+
+    fun getSearchedFromDB(query: String, moviesCount: Int): LiveData<List<Movie>>
 
     fun deleteAllFromDB()
 
