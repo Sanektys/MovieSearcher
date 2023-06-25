@@ -14,7 +14,7 @@ import com.sandev.moviesearcher.data.db.entities.UpcomingMovie
 import java.util.concurrent.Executors
 
 
-open class MoviesListRepositoryImpl(protected val movieDao: MovieDao) : MoviesListRepository {
+open class MoviesListRepositoryImpl(private val movieDao: MovieDao) : MoviesListRepository {
 
     @Suppress("UNCHECKED_CAST")
     override fun putToDB(movies: List<Movie>) {
@@ -33,8 +33,14 @@ open class MoviesListRepositoryImpl(protected val movieDao: MovieDao) : MoviesLi
     override fun getFromDB(moviesCount: Int): LiveData<List<Movie>>
             = movieDao.getCachedMovies(moviesCount)
 
+    override fun getFromDB(from: Int, moviesCount: Int): List<Movie>
+            = movieDao.getCachedMovies(from, moviesCount)
+
     override fun getSearchedFromDB(query: String): LiveData<List<Movie>> = movieDao.getSearchedCachedMovies(query)
-    
+
+    override fun getSearchedFromDB(query: String, from: Int, moviesCount: Int): List<Movie>
+            = movieDao.getSearchedCachedMovies(query, from, moviesCount)
+
     override fun getSearchedFromDB(query: String, moviesCount: Int): LiveData<List<Movie>>
             = movieDao.getSearchedCachedMovies(query, moviesCount)
 
@@ -48,9 +54,9 @@ open class MoviesListRepositoryImpl(protected val movieDao: MovieDao) : MoviesLi
     override fun deleteAllFromDBAndPutNew(movies: List<Movie>) {
         Executors.newSingleThreadExecutor().execute {
             when (movieDao) {
-                is PlayingMovieDao -> movieDao.deleteAllCachedMoviesAndPutNewMovies(movies as List<PlayingMovie>)
-                is PopularMovieDao -> movieDao.deleteAllCachedMoviesAndPutNewMovies(movies as List<PopularMovie>)
-                is TopMovieDao -> movieDao.deleteAllCachedMoviesAndPutNewMovies(movies as List<TopMovie>)
+                is PlayingMovieDao  -> movieDao.deleteAllCachedMoviesAndPutNewMovies(movies as List<PlayingMovie>)
+                is PopularMovieDao  -> movieDao.deleteAllCachedMoviesAndPutNewMovies(movies as List<PopularMovie>)
+                is TopMovieDao      -> movieDao.deleteAllCachedMoviesAndPutNewMovies(movies as List<TopMovie>)
                 is UpcomingMovieDao -> movieDao.deleteAllCachedMoviesAndPutNewMovies(movies as List<UpcomingMovie>)
             }
         }

@@ -24,6 +24,9 @@ interface FavoriteMovieDao : SavedMovieDao {
             "ORDER BY ${Movie.COLUMN_ID} ASC")
     override fun getCachedMovies(moviesCount: Int): LiveData<List<Movie>>
 
+    @Query("SELECT * FROM ${FavoriteMovie.TABLE_NAME} LIMIT :from, :moviesCount")
+    override fun getCachedMovies(from: Int, moviesCount: Int): List<Movie>
+
     @Query("SELECT * " +
             "FROM ${FavoriteMovie.TABLE_NAME} " +
             "WHERE ${Movie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
@@ -39,6 +42,13 @@ interface FavoriteMovieDao : SavedMovieDao {
             "LIMIT :moviesCount) AS q " +
             "ORDER BY ${Movie.COLUMN_ID} ASC")
     override fun getSearchedCachedMovies(query: String, moviesCount: Int): LiveData<List<Movie>>
+
+    @Query("SELECT * " +
+            "FROM ${FavoriteMovie.TABLE_NAME} " +
+            "WHERE ${Movie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
+            "ORDER BY ${Movie.COLUMN_ID} ASC " +
+            "LIMIT :from, :moviesCount")
+    override fun getSearchedCachedMovies(query: String, from: Int, moviesCount: Int): List<Movie>
 
     @Query("INSERT OR IGNORE INTO ${FavoriteMovie.TABLE_NAME}" +
             "(${Movie.COLUMN_POSTER}, ${Movie.COLUMN_TITLE}, " +

@@ -10,7 +10,11 @@ interface MovieDao {
 
     fun getCachedMovies(moviesCount: Int): LiveData<List<Movie>>
 
+    fun getCachedMovies(from: Int, moviesCount: Int): List<Movie>
+
     fun getSearchedCachedMovies(query: String): LiveData<List<Movie>>
+
+    fun getSearchedCachedMovies(query: String, from: Int, moviesCount: Int): List<Movie>
 
     fun getSearchedCachedMovies(query: String, moviesCount: Int): LiveData<List<Movie>>
 
