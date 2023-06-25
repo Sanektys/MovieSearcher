@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a88d212b71d6b5c7118b4908ed63ddd3",
+    "identityHash": "4fdd73a308d4c02240d215663b2bebe8",
     "entities": [
       {
         "tableName": "cached_popular_movies",
@@ -50,22 +50,14 @@
         },
         "indices": [
           {
-            "name": "index_cached_popular_movies_description",
+            "name": "index_cached_popular_movies_title_description",
             "unique": true,
             "columnNames": [
+              "title",
               "description"
             ],
             "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_cached_popular_movies_description` ON `${TABLE_NAME}` (`description`)"
-          },
-          {
-            "name": "index_cached_popular_movies_title",
-            "unique": false,
-            "columnNames": [
-              "title"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_cached_popular_movies_title` ON `${TABLE_NAME}` (`title`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_cached_popular_movies_title_description` ON `${TABLE_NAME}` (`title`, `description`)"
           }
         ],
         "foreignKeys": []
@@ -116,22 +108,14 @@
         },
         "indices": [
           {
-            "name": "index_cached_top_movies_description",
+            "name": "index_cached_top_movies_title_description",
             "unique": true,
             "columnNames": [
+              "title",
               "description"
             ],
             "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_cached_top_movies_description` ON `${TABLE_NAME}` (`description`)"
-          },
-          {
-            "name": "index_cached_top_movies_title",
-            "unique": false,
-            "columnNames": [
-              "title"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_cached_top_movies_title` ON `${TABLE_NAME}` (`title`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_cached_top_movies_title_description` ON `${TABLE_NAME}` (`title`, `description`)"
           }
         ],
         "foreignKeys": []
@@ -182,22 +166,14 @@
         },
         "indices": [
           {
-            "name": "index_cached_upcoming_movies_description",
+            "name": "index_cached_upcoming_movies_title_description",
             "unique": true,
             "columnNames": [
+              "title",
               "description"
             ],
             "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_cached_upcoming_movies_description` ON `${TABLE_NAME}` (`description`)"
-          },
-          {
-            "name": "index_cached_upcoming_movies_title",
-            "unique": false,
-            "columnNames": [
-              "title"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_cached_upcoming_movies_title` ON `${TABLE_NAME}` (`title`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_cached_upcoming_movies_title_description` ON `${TABLE_NAME}` (`title`, `description`)"
           }
         ],
         "foreignKeys": []
@@ -248,22 +224,14 @@
         },
         "indices": [
           {
-            "name": "index_cached_playing_movies_description",
+            "name": "index_cached_playing_movies_title_description",
             "unique": true,
             "columnNames": [
+              "title",
               "description"
             ],
             "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_cached_playing_movies_description` ON `${TABLE_NAME}` (`description`)"
-          },
-          {
-            "name": "index_cached_playing_movies_title",
-            "unique": false,
-            "columnNames": [
-              "title"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_cached_playing_movies_title` ON `${TABLE_NAME}` (`title`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_cached_playing_movies_title_description` ON `${TABLE_NAME}` (`title`, `description`)"
           }
         ],
         "foreignKeys": []
@@ -272,7 +240,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a88d212b71d6b5c7118b4908ed63ddd3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4fdd73a308d4c02240d215663b2bebe8')"
     ]
   }
 }
