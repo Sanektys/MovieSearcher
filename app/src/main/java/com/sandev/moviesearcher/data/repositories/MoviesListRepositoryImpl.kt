@@ -31,18 +31,18 @@ open class MoviesListRepositoryImpl(private val movieDao: MovieDao) : MoviesList
     override fun getAllFromDB(): LiveData<List<Movie>> = movieDao.getAllCachedMovies()
 
     override fun getFromDB(moviesCount: Int): LiveData<List<Movie>>
-            = movieDao.getCachedMovies(moviesCount)
+            = movieDao.getLastFewCachedMovies(moviesCount)
 
     override fun getFromDB(from: Int, moviesCount: Int): List<Movie>
-            = movieDao.getCachedMovies(from, moviesCount)
+            = movieDao.getFewCachedMoviesFromOffset(from, moviesCount)
 
-    override fun getSearchedFromDB(query: String): LiveData<List<Movie>> = movieDao.getSearchedCachedMovies(query)
+    override fun getSearchedFromDB(query: String): LiveData<List<Movie>> = movieDao.getAllSearchedCachedMovies(query)
 
     override fun getSearchedFromDB(query: String, from: Int, moviesCount: Int): List<Movie>
-            = movieDao.getSearchedCachedMovies(query, from, moviesCount)
+            = movieDao.getFewSearchedCachedMoviesFromOffset(query, from, moviesCount)
 
     override fun getSearchedFromDB(query: String, moviesCount: Int): LiveData<List<Movie>>
-            = movieDao.getSearchedCachedMovies(query, moviesCount)
+            = movieDao.getLastFewSearchedCachedMovies(query, moviesCount)
 
     override fun deleteAllFromDB() {
         Executors.newSingleThreadExecutor().execute {

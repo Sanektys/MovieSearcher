@@ -23,16 +23,16 @@ abstract class PopularMovieDao : MovieDao {
             "ORDER BY ${Movie.COLUMN_ID} DESC " +
             "LIMIT :moviesCount) AS q " +
             "ORDER BY ${Movie.COLUMN_ID} ASC")
-    abstract override fun getCachedMovies(moviesCount: Int): LiveData<List<Movie>>
+    abstract override fun getLastFewCachedMovies(moviesCount: Int): LiveData<List<Movie>>
 
     @Query("SELECT * FROM ${PopularMovie.TABLE_NAME} LIMIT :from, :moviesCount")
-    abstract override fun getCachedMovies(from: Int, moviesCount: Int): List<Movie>
+    abstract override fun getFewCachedMoviesFromOffset(from: Int, moviesCount: Int): List<Movie>
 
     @Query("SELECT * " +
             "FROM ${PopularMovie.TABLE_NAME} " +
             "WHERE ${Movie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
             "ORDER BY ${Movie.COLUMN_ID} ASC")
-    abstract override fun getSearchedCachedMovies(query: String): LiveData<List<Movie>>
+    abstract override fun getAllSearchedCachedMovies(query: String): LiveData<List<Movie>>
 
     @Query("SELECT * " +
             "FROM" +
@@ -42,14 +42,14 @@ abstract class PopularMovieDao : MovieDao {
             "ORDER BY ${Movie.COLUMN_ID} DESC " +
             "LIMIT :moviesCount) AS q " +
             "ORDER BY ${Movie.COLUMN_ID} ASC")
-    abstract override fun getSearchedCachedMovies(query: String, moviesCount: Int): LiveData<List<Movie>>
+    abstract override fun getLastFewSearchedCachedMovies(query: String, moviesCount: Int): LiveData<List<Movie>>
 
     @Query("SELECT * " +
             "FROM ${PopularMovie.TABLE_NAME} " +
             "WHERE ${Movie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
             "ORDER BY ${Movie.COLUMN_ID} ASC " +
             "LIMIT :from, :moviesCount")
-    abstract override fun getSearchedCachedMovies(query: String, from: Int, moviesCount: Int): List<Movie>
+    abstract override fun getFewSearchedCachedMoviesFromOffset(query: String, from: Int, moviesCount: Int): List<Movie>
 
     @Query("INSERT OR IGNORE INTO ${PopularMovie.TABLE_NAME}" +
             "(${Movie.COLUMN_POSTER}, ${Movie.COLUMN_TITLE}, " +

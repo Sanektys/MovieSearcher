@@ -8,15 +8,15 @@ interface MovieDao {
 
     fun getAllCachedMovies(): LiveData<List<Movie>>
 
-    fun getCachedMovies(moviesCount: Int): LiveData<List<Movie>>
+    fun getLastFewCachedMovies(moviesCount: Int): LiveData<List<Movie>>
 
-    fun getCachedMovies(from: Int, moviesCount: Int): List<Movie>
+    fun getFewCachedMoviesFromOffset(from: Int, moviesCount: Int): List<Movie>
 
-    fun getSearchedCachedMovies(query: String): LiveData<List<Movie>>
+    fun getAllSearchedCachedMovies(query: String): LiveData<List<Movie>>
 
-    fun getSearchedCachedMovies(query: String, from: Int, moviesCount: Int): List<Movie>
+    fun getFewSearchedCachedMoviesFromOffset(query: String, from: Int, moviesCount: Int): List<Movie>
 
-    fun getSearchedCachedMovies(query: String, moviesCount: Int): LiveData<List<Movie>>
+    fun getLastFewSearchedCachedMovies(query: String, moviesCount: Int): LiveData<List<Movie>>
 
     fun putToCachedMovies(poster: String?, title: String, description: String, rating: Float): Long
 
