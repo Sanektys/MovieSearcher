@@ -18,4 +18,26 @@ class MoviesListInteractor @Inject constructor(private val repo: MoviesListRepos
     fun removeFromList(movie: Movie) = (repo as MoviesListRepositoryImplForSavedLists).deleteFromDB(movie)
 
     fun getAllFromList(): LiveData<List<Movie>> = repo.getAllFromDB()
+
+    fun getPageFromList(page: Int): List<Movie> = repo.getFromDB(
+        from = (page - 1) * MOVIES_PER_PAGE,
+        moviesCount = MOVIES_PER_PAGE
+    )
+
+    fun getLimitedFromList(): LiveData<List<Movie>> = repo.getFromDB(MOVIES_PER_PAGE)
+
+    fun getLimitedSearchedFromList(query: String): LiveData<List<Movie>>
+            = repo.getSearchedFromDB(query, MOVIES_PER_PAGE)
+
+    fun getSearchedPageFromList(query: String, page: Int): List<Movie>
+            = repo.getSearchedFromDB(
+        query = query,
+        from = (page - 1) * MOVIES_PER_PAGE,
+        moviesCount = MOVIES_PER_PAGE
+    )
+
+
+    companion object {
+        const val MOVIES_PER_PAGE = 20
+    }
 }

@@ -19,7 +19,6 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
 
     protected var moviesDatabase: List<Movie> = emptyList()
         set(value) {
-            if (value == field) return
             field = value
             initializeRecyclerAdapterList()
         }
@@ -54,7 +53,7 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
 
 
     interface ApiCallback {
-        fun onSuccess(totalPages: Int)
+        fun onSuccess(moviesPerPage: Int, totalPages: Int)
         fun onFailure()
     }
 

@@ -68,8 +68,27 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
 
     fun getMoviesFromDB(repositoryType: RepositoryType) = getRequestedRepository(repositoryType).getAllFromDB()
 
+    fun getMoviesFromDB(moviesCount: Int, repositoryType: RepositoryType)
+            = getRequestedRepository(repositoryType).getFromDB(moviesCount)
+
+    fun getMoviesFromDB(page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
+            = getRequestedRepository(repositoryType).getFromDB(
+        from = (page - 1) * moviesPerPage,
+        moviesCount = moviesPerPage
+    )
+
     fun getSearchedMoviesFromDB(query: String, repositoryType: RepositoryType)
             = getRequestedRepository(repositoryType).getSearchedFromDB(query)
+
+    fun getSearchedMoviesFromDB(query: String, page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
+            = getRequestedRepository(repositoryType).getSearchedFromDB(
+        query = query,
+        from = (page - 1) * moviesPerPage,
+        moviesCount = moviesPerPage
+    )
+
+    fun getSearchedMoviesFromDB(query: String, moviesCount: Int, repositoryType: RepositoryType)
+            = getRequestedRepository(repositoryType).getSearchedFromDB(query, moviesCount)
 
     fun deleteAllCachedMoviesFromDB(repositoryType: RepositoryType)
             = getRequestedRepository(repositoryType).deleteAllFromDB()
@@ -101,6 +120,11 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
                     else -> throw IllegalArgumentException("Unknown MoviesListRepository type")
                 }
 
+                viewModelCallback.onSuccess(
+                    moviesPerPage = moviesList.size,
+                    totalPages = response.body()?.totalPages ?: 0
+                )
+
                 moviesListRepository.run {
                     if (isNeededWipeBeforePutData) {
                         deleteAllFromDBAndPutNew(moviesList)
@@ -108,8 +132,6 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
                         putToDB(moviesList)
                     }
                 }
-
-                viewModelCallback.onSuccess(response.body()?.totalPages ?: 0)
             }
         }
 
@@ -124,5 +146,10 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
         TOP_MOVIES,
         UPCOMING_MOVIES,
         PLAYING_MOVIES
+    }
+
+
+    companion object {
+        const val INITIAL_MOVIES_COUNT_PER_PAGE = 20
     }
 }

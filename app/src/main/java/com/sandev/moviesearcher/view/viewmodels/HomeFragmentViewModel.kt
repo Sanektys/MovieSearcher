@@ -13,6 +13,7 @@ import com.sandev.moviesearcher.domain.interactors.SharedPreferencesInteractor
 import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
 import java.util.concurrent.Executors
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 
 class HomeFragmentViewModel : MoviesListFragmentViewModel() {
@@ -32,15 +33,21 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     private val sharedPreferencesStateListener: SharedPreferences.OnSharedPreferenceChangeListener
 
     val onFailureFlagLiveData = MutableLiveData<Boolean>()
+    private val isOfflineChangeLiveData = MutableLiveData<Boolean>()
 
     var isOffline: Boolean = false
-        private set
+        private set(value) {
+            if (field == value) return
+            field = value
+            isOfflineChangeLiveData.postValue(value)
+        }
     private var isNeedRefreshLocalDB: Boolean = false
 
     private var isPaginationLoadingOnProcess: Boolean = false
     var lastVisibleMovieCard: Int = 0
         private set
-    private var lastPage: Int = 1
+    private var nextPage: Int = 1
+    private var moviesPerPage: Int = 0
     private var totalPagesInLastQuery = 1
 
     var onFailureFlag: Boolean = false
@@ -67,27 +74,45 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         App.instance.getAppComponent().inject(this)
 
         moviesObserver = Observer<List<Movie>> { newList ->
-            moviesDatabase = newList.toList()
+            val tempList = mutableListOf<Movie>()
+            if (moviesPerPage < newList.size) {
+                // Если из БД получен список больший, чем реально принято с сервера, урезаем его начало, где дубликаты
+                tempList.addAll(newList.subList(newList.size - moviesPerPage, newList.size))
+            } else {
+                tempList.addAll(newList.toList())
+            }
+            moviesDatabase = tempList
         }
         moviesListLiveData.observeForever(moviesObserver)
 
-        initializeDatabaseMoviesListsLiveData()
-        addSourcesToGeneralMoviesListLiveData()
+        isOfflineChangeLiveData.observeForever { isOffline ->
+            if (isOffline) {
+                removeSourcesFromGeneralMoviesListLiveData()
+            } else {
+                initializeDatabaseMoviesListsLiveData()
+                addSourcesToGeneralMoviesListLiveData()
+            }
+        }
 
         sharedPreferencesStateListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             when (key) {
                 SharedPreferencesProvider.KEY_CATEGORY ->  {
-                    removeSourcesFromGeneralMoviesListLiveData()
-                    initializeDatabaseMoviesListsLiveData()
-                    addSourcesToGeneralMoviesListLiveData()
+                    if (!isOffline) {
+                        removeSourcesFromGeneralMoviesListLiveData()
+                        initializeDatabaseMoviesListsLiveData()
+                        addSourcesToGeneralMoviesListLiveData()
+                    }
 
-                    refreshMoviesList()
+                    dispatchQueryToApi(INITIAL_PAGE_IN_RECYCLER)
                 }
             }
         }
         sharedPreferencesInteractor.addSharedPreferencesChangeListener(sharedPreferencesStateListener)
 
-        dispatchQueryToApi()
+        initializeDatabaseMoviesListsLiveData()
+        addSourcesToGeneralMoviesListLiveData()
+
+        dispatchQueryToApi(INITIAL_PAGE_IN_RECYCLER)
     }
 
 
@@ -146,11 +171,16 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     fun fullRefreshMoviesList() {
         isOffline = false
         isNeedRefreshLocalDB = true
-        refreshMoviesList()
+        dispatchQueryToApi(INITIAL_PAGE_IN_RECYCLER)
     }
 
     fun startLoadingOnScroll(lastVisibleItemPosition: Int, itemsRemainingInList: Int, screenOrientation: Int) {
         lastVisibleMovieCard = lastVisibleItemPosition
+        val relativeThreshold = if (moviesPerPage == 0) {
+            nextPage  // Достигнут конец списка, избегается деление на ноль
+        } else {
+            ((lastVisibleItemPosition / moviesPerPage.toFloat()) + PAGINATION_RATIO).roundToInt()
+        }
 
         val loadingThreshold =
             if (screenOrientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -159,15 +189,24 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
                 RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD
             }
 
-        if (itemsRemainingInList <= loadingThreshold && !isPaginationLoadingOnProcess
-            && isNextPageCanBeDownloaded()
+        if (!isPaginationLoadingOnProcess
+            && itemsRemainingInList <= loadingThreshold
+            && (isOffline || isNextPageCanBeDownloaded())
         ) {
-            isPaginationLoadingOnProcess = true
-            dispatchQueryToApi()
+            if (relativeThreshold > nextPage) {
+                nextPage = relativeThreshold
+                isPaginationLoadingOnProcess = true
+                dispatchQueryToApi()
+            }
         }
     }
 
-    private fun getMoviesFromApi(page: Int = lastPage) {
+    private fun getMoviesFromApi(page: Int = nextPage) {
+        if (page != nextPage) {
+            nextPage = page
+            lastVisibleMovieCard = 0
+        }
+
         if (isOffline) {
             homeFragmentApiCallback.onFailure()
             return
@@ -175,13 +214,9 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
         if (page > totalPagesInLastQuery) return
 
-        if (page != lastPage) {
-            lastPage = page
-            lastVisibleMovieCard = 0
-        }
         Executors.newSingleThreadExecutor().execute {
             interactor.getMoviesFromApi(
-                page = lastPage++,
+                page = nextPage,
                 callback = homeFragmentApiCallback,
                 repositoryType = provideCurrentMovieListTypeByCategoryInSettings(),
                 isNeededWipeBeforePutData = isNeedRefreshLocalDB
@@ -190,8 +225,13 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
-    private fun getSearchedMoviesFromApi(query: CharSequence = lastSearch, page: Int = lastPage) {
+    private fun getSearchedMoviesFromApi(query: CharSequence, page: Int = nextPage) {
         isNeedRefreshLocalDB = false
+
+        if (page != nextPage) {
+            nextPage = page
+            lastVisibleMovieCard = 0
+        }
 
         if (isOffline) {
             homeFragmentApiCallback.onFailure()
@@ -200,24 +240,16 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
         if (page > totalPagesInLastQuery) return
 
-        if (page != lastPage) {
-            lastPage = page
-            lastVisibleMovieCard = 0
-        }
         Executors.newSingleThreadExecutor().execute {
             interactor.getSearchedMoviesFromApi(
                 query = query.toString(),
-                page = lastPage++,
+                page = nextPage,
                 callback = homeFragmentApiCallback
             )
         }
     }
 
-    private fun refreshMoviesList() {
-        dispatchQueryToApi(INITIAL_PAGE_IN_RECYCLER)
-    }
-
-    private fun isNextPageCanBeDownloaded() = lastPage <= totalPagesInLastQuery
+    private fun isNextPageCanBeDownloaded() = nextPage <= totalPagesInLastQuery
 
     private fun dispatchQueryToApi(page: Int? = null) {
         if (isInSearchMode) {
@@ -235,6 +267,36 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
+    private fun loadListInOffline() {
+        if (isOffline) {
+            if (moviesPerPage != TmdbInteractor.INITIAL_MOVIES_COUNT_PER_PAGE) {
+                moviesPerPage = TmdbInteractor.INITIAL_MOVIES_COUNT_PER_PAGE
+            }
+            if (isInSearchMode) {
+                Executors.newSingleThreadExecutor().execute {
+                    val result = interactor.getSearchedMoviesFromDB(
+                        query = lastSearch,
+                        page = nextPage,
+                        moviesPerPage = moviesPerPage,
+                        repositoryType = provideCurrentMovieListTypeByCategoryInSettings()
+                    )
+                    moviesPerPage = result.size
+                    moviesListLiveData.postValue(result)
+                }
+            } else {
+                Executors.newSingleThreadExecutor().execute {
+                    val result = interactor.getMoviesFromDB(
+                        page = nextPage,
+                        moviesPerPage = moviesPerPage,
+                        repositoryType = provideCurrentMovieListTypeByCategoryInSettings()
+                    )
+                    moviesPerPage = result.size
+                    moviesListLiveData.postValue(result)
+                }
+            }
+        }
+    }
+
     private fun provideCurrentMovieListTypeByCategoryInSettings(): TmdbInteractor.RepositoryType {
         return when (sharedPreferencesInteractor.getDefaultMoviesCategoryInMainList()) {
             SharedPreferencesProvider.CATEGORY_POPULAR  -> TmdbInteractor.RepositoryType.POPULAR_MOVIES
@@ -243,10 +305,6 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
             SharedPreferencesProvider.CATEGORY_PLAYING  -> TmdbInteractor.RepositoryType.PLAYING_MOVIES
             else -> throw java.lang.IllegalStateException("Unknown repository type")
         }
-    }
-
-    private fun wipeListInMoviesListLiveData() {
-        moviesListLiveData.value = listOf()
     }
 
     private fun addSourcesToGeneralMoviesListLiveData() {
@@ -266,50 +324,42 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
-    private fun updateSourceForSearchInGeneralMoviesListLiveData() {
-        moviesListLiveData.removeSource(searchedListFromDbLiveData!!)
-        addSourceForSearchToGeneralMoviesListLiveData()
-    }
-
     private fun removeSourcesFromGeneralMoviesListLiveData() {
         moviesListLiveData.removeSource(listFromDbLiveData!!)
         moviesListLiveData.removeSource(searchedListFromDbLiveData!!)
     }
 
     private fun initializeDatabaseMoviesListsLiveData() {
+        moviesPerPage = TmdbInteractor.INITIAL_MOVIES_COUNT_PER_PAGE
+
         listFromDbLiveData = interactor.getMoviesFromDB(
-            provideCurrentMovieListTypeByCategoryInSettings()
+            moviesCount = moviesPerPage,
+            repositoryType = provideCurrentMovieListTypeByCategoryInSettings()
         )
         initializeDatabaseSearchedMoviesListLiveData(lastSearch)
     }
 
     private fun initializeDatabaseSearchedMoviesListLiveData(query: String) {
         searchedListFromDbLiveData = interactor.getSearchedMoviesFromDB(
-            query,
-            provideCurrentMovieListTypeByCategoryInSettings()
+            query = query,
+            moviesCount = moviesPerPage,
+            repositoryType = provideCurrentMovieListTypeByCategoryInSettings()
         )
     }
 
 
     private inner class HomeFragmentApiCallback : ApiCallback {
-        override fun onSuccess(totalPages: Int) {
+        override fun onSuccess(moviesPerPage: Int, totalPages: Int) {
             onFailureFlag = false
             totalPagesInLastQuery = totalPages
+            this@HomeFragmentViewModel.moviesPerPage = moviesPerPage
         }
 
         override fun onFailure() {
-            if (onFailureFlag) {
-                if (isInSearchMode) {
-                    initializeDatabaseSearchedMoviesListLiveData(lastSearch)
-                    updateSourceForSearchInGeneralMoviesListLiveData()
-                } else {
-                    moviesListLiveData.postValue(listFromDbLiveData?.value ?: listOf())
-                }
-            }
-
             isOffline = true
             onFailureFlag = true
-            isPaginationLoadingOnProcess = false
+
+            loadListInOffline()
         }
     }
 
@@ -321,6 +371,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         private const val INITIAL_PAGE_IN_RECYCLER = 1
 
         private const val RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD = 5
+        private const val PAGINATION_RATIO = 0.9F
         private const val LOADING_THRESHOLD_MULTIPLIER_FOR_LANDSCAPE = 2
     }
 }

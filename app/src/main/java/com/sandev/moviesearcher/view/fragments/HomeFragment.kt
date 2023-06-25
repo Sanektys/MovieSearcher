@@ -146,8 +146,6 @@ class HomeFragment : MoviesListFragment() {
     private fun setupRecyclerUpdateOnScroll() {
         bindingFull.moviesListRecycler.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
             override fun onChildViewAttachedToWindow(view: View) {
-                if (viewModel.isOffline || viewModel.onFailureFlag) return
-                
                 val itemPosition = bindingFull.moviesListRecycler.getChildAdapterPosition(view)
 
                 if (itemPosition > viewModel.lastVisibleMovieCard) {
