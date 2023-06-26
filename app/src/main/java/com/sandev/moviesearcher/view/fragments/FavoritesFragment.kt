@@ -73,7 +73,7 @@ class FavoritesFragment : MoviesListFragment() {
 
         requireActivity().supportFragmentManager.setFragmentResultListener(
             FAVORITES_DETAILS_RESULT_KEY, this) { _, bundle ->
-            viewModel.isMovieMoreNotFavorite = bundle.getBoolean(MOVIE_NOW_NOT_FAVORITE_KEY)
+            viewModel.isMovieMoreNotInSavedList = bundle.getBoolean(MOVIE_NOW_NOT_FAVORITE_KEY)
         }
 
         initializeMovieRecyclerList()

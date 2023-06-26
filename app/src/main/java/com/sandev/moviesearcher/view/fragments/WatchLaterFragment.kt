@@ -76,7 +76,7 @@ class WatchLaterFragment : MoviesListFragment() {
 
         requireActivity().supportFragmentManager.setFragmentResultListener(
             WATCH_LATER_DETAILS_RESULT_KEY, this) { _, bundle ->
-            viewModel.isMovieMoreNotWatchLater = bundle.getBoolean(MOVIE_NOW_NOT_WATCH_LATER_KEY)
+            viewModel.isMovieMoreNotInSavedList = bundle.getBoolean(MOVIE_NOW_NOT_WATCH_LATER_KEY)
         }
 
         initializeMovieRecyclerList()
