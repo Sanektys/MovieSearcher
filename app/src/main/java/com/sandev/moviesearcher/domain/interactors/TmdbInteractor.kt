@@ -112,26 +112,38 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
 
         override fun onResponse(call: Call<TmdbResultDto>, response: Response<TmdbResultDto>) {
             if (response.isSuccessful) {
-                val moviesList = when (moviesListRepository) {
-                    is PlayingMoviesListRepository  -> TmdbConverter.convertApiDtoListToPlayingMovieList(response.body()?.results)
-                    is PopularMoviesListRepository  -> TmdbConverter.convertApiDtoListToPopularMovieList(response.body()?.results)
-                    is TopMoviesListRepository      -> TmdbConverter.convertApiDtoListToTopMovieList(response.body()?.results)
-                    is UpcomingMoviesListRepository -> TmdbConverter.convertApiDtoListToUpcomingMovieList(response.body()?.results)
-                    else -> throw IllegalArgumentException("Unknown MoviesListRepository type")
+                val moviesList = if (moviesListRepository != null) {
+                    when (moviesListRepository) {
+                        is PlayingMoviesListRepository -> TmdbConverter.convertApiDtoListToPlayingMovieList(
+                            response.body()?.results
+                        )
+                        is PopularMoviesListRepository -> TmdbConverter.convertApiDtoListToPopularMovieList(
+                            response.body()?.results
+                        )
+                        is TopMoviesListRepository -> TmdbConverter.convertApiDtoListToTopMovieList(
+                            response.body()?.results
+                        )
+                        is UpcomingMoviesListRepository -> TmdbConverter.convertApiDtoListToUpcomingMovieList(
+                            response.body()?.results
+                        )
+                        else -> throw IllegalArgumentException("Unknown MoviesListRepository type")
+                    }
+                } else {
+                    TmdbConverter.convertApiDtoListToTopMovieList(response.body()?.results)
                 }
 
-                viewModelCallback.onSuccess(
-                    moviesPerPage = moviesList.size,
-                    totalPages = response.body()?.totalPages ?: 0
-                )
-
-                moviesListRepository.run {
+                moviesListRepository?.run {
                     if (isNeededWipeBeforePutData) {
                         deleteAllFromDBAndPutNew(moviesList)
                     } else {
                         putToDB(moviesList)
                     }
                 }
+
+                viewModelCallback.onSuccess(
+                    movies = moviesList,
+                    totalPages = response.body()?.totalPages ?: 0
+                )
             }
         }
 

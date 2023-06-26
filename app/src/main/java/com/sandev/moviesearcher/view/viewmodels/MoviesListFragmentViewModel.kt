@@ -12,8 +12,6 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
 
     abstract val moviesListLiveData: LiveData<List<Movie>>
 
-    protected abstract val moviesObserver: Observer<List<Movie>>
-
     abstract var lastSearch: String
         protected set
 
@@ -53,7 +51,7 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
 
 
     interface ApiCallback {
-        fun onSuccess(moviesPerPage: Int, totalPages: Int)
+        fun onSuccess(movies: List<Movie>, totalPages: Int)
         fun onFailure()
     }
 
