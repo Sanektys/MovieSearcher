@@ -1,11 +1,11 @@
 package com.sandev.moviesearcher.view.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
+import androidx.lifecycle.MutableLiveData
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.components_holders.FavoritesMoviesComponentHolder
+import com.sandev.moviesearcher.domain.interactors.MoviesListInteractor
 import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import java.util.concurrent.Executors
@@ -18,36 +18,60 @@ class FavoritesFragmentViewModel : MoviesListFragmentViewModel() {
     @Inject
     lateinit var favoritesMoviesComponent: FavoritesMoviesComponentHolder
 
-    override val moviesListLiveData: LiveData<List<Movie>>
-    override val moviesObserver: Observer<List<Movie>>
+    override val moviesListLiveData = MutableLiveData<List<Movie>>()
 
     override var lastSearch: String
         set(value) { Companion.lastSearch = value }
         get() = Companion.lastSearch
+    override var isInSearchMode: Boolean
+        set(value) {
+            Companion.isInSearchMode = value
+        }
+        get() = Companion.isInSearchMode
 
     var isMovieMoreNotFavorite: Boolean = false
     var lastClickedMovie: Movie? = null
+
+    private var moviesPaginationOffset: Int = 0
 
 
     init {
         App.instance.getAppComponent().inject(this)
 
-        moviesListLiveData = favoritesMoviesComponent.interactor.getAllFromList()
+        moviesPerPage = MoviesListInteractor.MOVIES_PER_PAGE
 
-        moviesObserver = Observer<List<Movie>> { newList ->
+        moviesListLiveData.observeForever { newList ->
+            moviesPerPage = newList.size
+            moviesPaginationOffset += moviesPerPage
+
             moviesDatabase = newList.toList()
         }
-        moviesListLiveData.observeForever(moviesObserver)
 
+        getMoviesFromDB(
+            offset = moviesPaginationOffset,
+            moviesCount = moviesPerPage
+        )
     }
 
 
-    override fun onCleared() {
-        moviesListLiveData.removeObserver(moviesObserver)
-    }
+    override fun dispatchQueryToInteractor(query: String?, page: Int?) {
+        if (page == INITIAL_PAGE_IN_RECYCLER) {
+            moviesPerPage = MoviesListInteractor.MOVIES_PER_PAGE
+            moviesPaginationOffset = 0
+        }
 
-    override fun searchInDatabase(query: CharSequence): List<Movie>? {
-        return searchInDatabase(query, getAllMovies())
+        if (isInSearchMode) {
+            getSearchedMoviesFromApi(
+                query = query ?: "",
+                offset = moviesPaginationOffset,
+                moviesCount = moviesPerPage
+            )
+        } else {
+            getMoviesFromDB(
+                offset = moviesPaginationOffset,
+                moviesCount = moviesPerPage
+            )
+        }
     }
 
     fun setActivePosterOnClickListenerAndRemoveMovieIfNeeded(enabledPosterOnClickListener: MoviesRecyclerAdapter.OnClickListener) {
@@ -65,14 +89,35 @@ class FavoritesFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
-    private fun addToFavorite(movie: Movie) = favoritesMoviesComponent.interactor.addToList(movie)
+    private fun getMoviesFromDB(offset: Int, moviesCount: Int) {
+        Executors.newSingleThreadExecutor().execute {
+            moviesListLiveData.postValue(favoritesMoviesComponent.interactor.getFewMoviesFromList(
+                from = offset,
+                moviesCount = moviesCount
+            ))
+        }
+    }
+
+    private fun getSearchedMoviesFromApi(query: String, offset: Int, moviesCount: Int) {
+        Executors.newSingleThreadExecutor().execute {
+            moviesListLiveData.postValue(favoritesMoviesComponent.interactor.getFewSearchedMoviesFromList(
+                query = query,
+                from = offset,
+                moviesCount = moviesCount
+            ))
+        }
+    }
 
     private fun removeFromFavorite(movie: Movie) = favoritesMoviesComponent.interactor.removeFromList(movie)
 
     private fun removeMovieFromList() {
         if (lastClickedMovie != null) {
             removeFromFavorite(lastClickedMovie!!)
+            recyclerAdapter.removeMovieCard(lastClickedMovie!!)
+
             lastClickedMovie = null
+
+            --moviesPaginationOffset
         }
         isMovieMoreNotFavorite = false
     }
@@ -80,6 +125,7 @@ class FavoritesFragmentViewModel : MoviesListFragmentViewModel() {
 
     companion object {
         private var lastSearch: String = ""
+        private var isInSearchMode: Boolean = false
 
         val RECYCLER_VIEW_APPEARANCE_ANIMATION_DELAY = App.instance.resources.getInteger(R.integer.fragment_favorites_delay_recyclerViewAppearance).toLong()
     }

@@ -1,11 +1,13 @@
 package com.sandev.moviesearcher.data.repositories
 
 import androidx.lifecycle.LiveData
+import com.sandev.moviesearcher.data.db.dao.FavoriteMovieDao
 import com.sandev.moviesearcher.data.db.dao.MovieDao
 import com.sandev.moviesearcher.data.db.dao.PlayingMovieDao
 import com.sandev.moviesearcher.data.db.dao.PopularMovieDao
 import com.sandev.moviesearcher.data.db.dao.TopMovieDao
 import com.sandev.moviesearcher.data.db.dao.UpcomingMovieDao
+import com.sandev.moviesearcher.data.db.dao.WatchLaterMovieDao
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.data.db.entities.PlayingMovie
 import com.sandev.moviesearcher.data.db.entities.PopularMovie
@@ -24,6 +26,14 @@ open class MoviesListRepositoryImpl(private val movieDao: MovieDao) : MoviesList
                 is PopularMovieDao  -> movieDao.putToCachedMovies(movies as List<PopularMovie>)
                 is TopMovieDao      -> movieDao.putToCachedMovies(movies as List<TopMovie>)
                 is UpcomingMovieDao -> movieDao.putToCachedMovies(movies as List<UpcomingMovie>)
+                is FavoriteMovieDao, is WatchLaterMovieDao -> {
+                    movies.forEach {
+                        movieDao.putToCachedMovies(
+                            poster = it.poster, title = it.title,
+                            description = it.description, rating = it.rating
+                        )
+                    }
+                }
             }
         }
     }

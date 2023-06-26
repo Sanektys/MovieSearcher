@@ -1,7 +1,6 @@
 package com.sandev.moviesearcher.view.viewmodels
 
 import android.content.SharedPreferences
-import android.content.res.Configuration
 import androidx.lifecycle.MutableLiveData
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
@@ -10,7 +9,6 @@ import com.sandev.moviesearcher.domain.interactors.SharedPreferencesInteractor
 import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
 import java.util.concurrent.Executors
 import javax.inject.Inject
-import kotlin.math.roundToInt
 
 
 class HomeFragmentViewModel : MoviesListFragmentViewModel() {
@@ -27,17 +25,6 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
     val onFailureFlagLiveData = MutableLiveData<Boolean>()
 
-    var isOffline: Boolean = false
-        private set
-    private var isNeedRefreshLocalDB: Boolean = false
-
-    private var isPaginationLoadingOnProcess: Boolean = false
-    var lastVisibleMovieCard: Int = 0
-        private set
-    private var nextPage: Int = 1
-    private var moviesPerPage: Int = 0
-    private var totalPagesInLastQuery = 1
-
     private var currentRepositoryType: TmdbInteractor.RepositoryType
 
     var onFailureFlag: Boolean = false
@@ -51,7 +38,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
             Companion.lastSearch = value
         }
         get() = Companion.lastSearch
-    private var isInSearchMode: Boolean
+    override var isInSearchMode: Boolean
         set(value) {
             Companion.isInSearchMode = value
         }
@@ -66,7 +53,6 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         currentRepositoryType = provideCurrentMovieListTypeByCategoryInSettings()
 
         moviesListLiveData.observeForever { newList ->
-            nextPage
             moviesPerPage = newList.size
             moviesDatabase = newList.toList()
         }
@@ -76,13 +62,13 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
                 SharedPreferencesProvider.KEY_CATEGORY ->  {
                     currentRepositoryType = provideCurrentMovieListTypeByCategoryInSettings()
 
-                    dispatchQueryToApi(INITIAL_PAGE_IN_RECYCLER)
+                    dispatchQueryToInteractor(query = lastSearch, page = INITIAL_PAGE_IN_RECYCLER)
                 }
             }
         }
         sharedPreferencesInteractor.addSharedPreferencesChangeListener(sharedPreferencesStateListener)
 
-        dispatchQueryToApi(INITIAL_PAGE_IN_RECYCLER)
+        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
     }
 
 
@@ -90,85 +76,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         sharedPreferencesInteractor.removeSharedPreferencesChangeListener(sharedPreferencesStateListener)
     }
 
-    override fun searchInDatabase(query: CharSequence): List<Movie>? {
-        return searchInDatabase(query, moviesListLiveData.value)
-    }
-
-    override fun searchInSearchView(query: String) {
-        if (query == lastSearch) return
-
-        if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
-            if (!isInSearchMode) {
-                isInSearchMode = true
-                recyclerAdapter.clearList()
-            }
-            getSearchedMoviesFromApi(query, INITIAL_PAGE_IN_RECYCLER)
-        } else if (query.isEmpty()) {
-            if (isInSearchMode) {
-                isInSearchMode = false
-                recyclerAdapter.clearList()
-            }
-            getMoviesFromApi(INITIAL_PAGE_IN_RECYCLER)
-        }
-        lastSearch = query
-    }
-
-    override fun initializeRecyclerAdapterList() {
-        if (isInSearchMode) {
-            if (isPaginationLoadingOnProcess) {
-                // Если строка поиска не пуста (isInSearchMode = true) и происходит подгрузка
-                // при скролле - добавлять новые списки в конец
-                recyclerAdapter.addMovieCards(moviesDatabase)
-            } else {
-                // Если в поле поиска был произведён ввод, то устанавливается новый список
-                recyclerAdapter.setList(moviesDatabase)
-            }
-        } else {
-            if (!isPaginationLoadingOnProcess) {
-                // Во всех случаях, когда не происходит пагинация - очищаем старый список и ставим тот, что пришёл
-                recyclerAdapter.clearList()
-            }
-            // Если строка поиска пуста - просто добавлять приходящие новые списки в конец
-            recyclerAdapter.addMovieCards(moviesDatabase)
-        }
-        isPaginationLoadingOnProcess = false
-    }
-
-    fun fullRefreshMoviesList() {
-        isOffline = false
-        isNeedRefreshLocalDB = true
-        lastVisibleMovieCard = 0
-        dispatchQueryToApi(INITIAL_PAGE_IN_RECYCLER)
-    }
-
-    fun startLoadingOnScroll(lastVisibleItemPosition: Int, itemsRemainingInList: Int, screenOrientation: Int) {
-        lastVisibleMovieCard = lastVisibleItemPosition
-        val relativeThreshold = if (moviesPerPage == 0) {
-            nextPage  // Достигнут конец списка, избегается деление на ноль
-        } else {
-            ((lastVisibleItemPosition / moviesPerPage.toFloat()) + PAGINATION_RATIO).roundToInt()
-        }
-
-        val loadingThreshold =
-            if (screenOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-                RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD * LOADING_THRESHOLD_MULTIPLIER_FOR_LANDSCAPE
-            } else {
-                RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD
-            }
-
-        if (!isPaginationLoadingOnProcess
-            && itemsRemainingInList <= loadingThreshold
-            && (isOffline || isNextPageCanBeDownloaded())
-        ) {
-            if (relativeThreshold > nextPage) {
-                nextPage = relativeThreshold
-                isPaginationLoadingOnProcess = true
-                dispatchQueryToApi()
-            }
-        }
-    }
-
-    private fun getMoviesFromApi(page: Int = nextPage) {
+    private fun getMoviesFromApi(page: Int) {
         if (page != nextPage) {
             nextPage = page
             lastVisibleMovieCard = 0
@@ -192,7 +100,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
-    private fun getSearchedMoviesFromApi(query: CharSequence, page: Int = nextPage) {
+    private fun getSearchedMoviesFromApi(query: CharSequence, page: Int) {
         isNeedRefreshLocalDB = false
 
         if (page != nextPage) {
@@ -216,20 +124,18 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
-    private fun isNextPageCanBeDownloaded() = nextPage <= totalPagesInLastQuery
-
-    private fun dispatchQueryToApi(page: Int? = null) {
+    override fun dispatchQueryToInteractor(query: String?, page: Int?) {
         if (isInSearchMode) {
             if (page != null) {
-                getSearchedMoviesFromApi(lastSearch, page)
+                getSearchedMoviesFromApi(query = query ?: "", page = page)
             } else {
-                getSearchedMoviesFromApi(lastSearch)
+                getSearchedMoviesFromApi(query = query ?: "", page = nextPage)
             }
         } else {
             if (page != null) {
-                getMoviesFromApi(page)
+                getMoviesFromApi(page = page)
             } else {
-                getMoviesFromApi()
+                getMoviesFromApi(page = nextPage)
             }
         }
     }
@@ -265,6 +171,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
+
     private inner class HomeFragmentApiCallback : ApiCallback {
         override fun onSuccess(movies: List<Movie>, totalPages: Int) {
             onFailureFlag = false
@@ -287,11 +194,5 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     companion object {
         private var isInSearchMode: Boolean = false
         private var lastSearch: String = ""
-
-        private const val INITIAL_PAGE_IN_RECYCLER = 1
-
-        private const val RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD = 5
-        private const val PAGINATION_RATIO = 0.9F
-        private const val LOADING_THRESHOLD_MULTIPLIER_FOR_LANDSCAPE = 2
     }
 }

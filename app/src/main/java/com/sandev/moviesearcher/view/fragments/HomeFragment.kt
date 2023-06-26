@@ -92,7 +92,6 @@ class HomeFragment : MoviesListFragment() {
         setupViewModelObserving()
 
         initializeMovieRecycler()
-        setupRecyclerUpdateOnScroll()
         moviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
             MOVIES_RECYCLER_VIEW_STATE
         ))
@@ -141,25 +140,6 @@ class HomeFragment : MoviesListFragment() {
 
             doOnPreDraw { startPostponedEnterTransition() }
         }
-    }
-
-    private fun setupRecyclerUpdateOnScroll() {
-        bindingFull.moviesListRecycler.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
-            override fun onChildViewAttachedToWindow(view: View) {
-                val itemPosition = bindingFull.moviesListRecycler.getChildAdapterPosition(view)
-
-                if (itemPosition > viewModel.lastVisibleMovieCard) {
-                    val itemsRemainingInList = (bindingFull.moviesListRecycler.adapter?.itemCount?.minus(1) ?: 0) - itemPosition
-
-                    viewModel.startLoadingOnScroll(
-                        lastVisibleItemPosition = itemPosition,
-                        itemsRemainingInList = itemsRemainingInList,
-                        screenOrientation = resources.configuration.orientation
-                    )
-                }
-            }
-            override fun onChildViewDetachedFromWindow(view: View) {}
-        })
     }
 
     private fun prepareErrorConnectionSnackbar() {

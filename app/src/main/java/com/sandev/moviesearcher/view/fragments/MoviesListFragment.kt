@@ -79,6 +79,7 @@ abstract class MoviesListFragment : Fragment() {
         setAppBarAppearance()
         setSearchViewAppearance()
         setRecyclerViewAppearance(recyclerView)
+        setupRecyclerUpdateOnScroll()
         initializeToolbar()
         setupSearchBehavior()
 
@@ -144,6 +145,25 @@ abstract class MoviesListFragment : Fragment() {
     protected fun resetExitReenterTransitionAnimations() {
         exitTransition = null
         reenterTransition = null
+    }
+
+    private fun setupRecyclerUpdateOnScroll() {
+        recyclerView.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
+            override fun onChildViewAttachedToWindow(view: View) {
+                val itemPosition = recyclerView.getChildAdapterPosition(view)
+
+                if (itemPosition > viewModel.lastVisibleMovieCard) {
+                    val itemsRemainingInList = (recyclerView.adapter?.itemCount?.minus(1) ?: 0) - itemPosition
+
+                    viewModel.startLoadingOnScroll(
+                        lastVisibleItemPosition = itemPosition,
+                        itemsRemainingInList = itemsRemainingInList,
+                        screenOrientation = resources.configuration.orientation
+                    )
+                }
+            }
+            override fun onChildViewDetachedFromWindow(view: View) {}
+        })
     }
 
     private fun setupSearchBehavior() {

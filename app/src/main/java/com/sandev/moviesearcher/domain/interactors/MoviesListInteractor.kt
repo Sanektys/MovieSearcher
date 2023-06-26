@@ -19,25 +19,25 @@ class MoviesListInteractor @Inject constructor(private val repo: MoviesListRepos
 
     fun getAllFromList(): LiveData<List<Movie>> = repo.getAllFromDB()
 
-    fun getPageFromList(page: Int): List<Movie> = repo.getFromDB(
-        from = (page - 1) * MOVIES_PER_PAGE,
-        moviesCount = MOVIES_PER_PAGE
+    fun getFewMoviesFromList(): LiveData<List<Movie>> = repo.getFromDB(MOVIES_PER_PAGE)
+
+    fun getFewMoviesFromList(from: Int, moviesCount: Int): List<Movie> = repo.getFromDB(
+        from = from,
+        moviesCount = moviesCount
     )
 
-    fun getLimitedFromList(): LiveData<List<Movie>> = repo.getFromDB(MOVIES_PER_PAGE)
-
-    fun getLimitedSearchedFromList(query: String): LiveData<List<Movie>>
+    fun getFewSearchedMoviesFromList(query: String): LiveData<List<Movie>>
             = repo.getSearchedFromDB(query, MOVIES_PER_PAGE)
 
-    fun getSearchedPageFromList(query: String, page: Int): List<Movie>
+    fun getFewSearchedMoviesFromList(query: String, from: Int, moviesCount: Int): List<Movie>
             = repo.getSearchedFromDB(
         query = query,
-        from = (page - 1) * MOVIES_PER_PAGE,
-        moviesCount = MOVIES_PER_PAGE
+        from = from,
+        moviesCount = moviesCount
     )
 
 
     companion object {
-        const val MOVIES_PER_PAGE = 20
+        const val MOVIES_PER_PAGE = 15
     }
 }
