@@ -1,6 +1,5 @@
 package com.sandev.moviesearcher.view.viewmodels
 
-import android.content.res.Configuration
 import android.view.Gravity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -70,28 +69,20 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
 
     fun startLoadingOnScroll(lastVisibleItemPosition: Int, itemsRemainingInList: Int, screenOrientation: Int) {
         lastVisibleMovieCard = lastVisibleItemPosition
+
         val relativeThreshold = if (moviesPerPage == 0) {
             nextPage  // Достигнут конец списка, избегается деление на ноль
         } else {
             ((lastVisibleItemPosition / moviesPerPage.toFloat()) + PAGINATION_RATIO).roundToInt()
         }
+        val isItTimeToLoadNextPage = relativeThreshold > nextPage
 
-        val loadingThreshold =
-            if (screenOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-                RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD * LOADING_THRESHOLD_MULTIPLIER_FOR_LANDSCAPE
-            } else {
-                RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD
-            }
+        if (!isItTimeToLoadNextPage) return
 
-        if (!isPaginationLoadingOnProcess
-            && itemsRemainingInList <= loadingThreshold
-            && (isOffline || isNextPageCanBeDownloaded())
-        ) {
-            if (relativeThreshold > nextPage) {
-                nextPage = relativeThreshold
-                isPaginationLoadingOnProcess = true
-                dispatchQueryToInteractor()
-            }
+        if (!isPaginationLoadingOnProcess && (isOffline || isNextPageCanBeDownloaded())) {
+            ++nextPage
+            isPaginationLoadingOnProcess = true
+            dispatchQueryToInteractor()
         }
     }
 
@@ -130,8 +121,6 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
 
         const val INITIAL_PAGE_IN_RECYCLER = 1
 
-        private const val RECYCLER_ITEMS_REMAIN_BEFORE_LOADING_THRESHOLD = 5
         private const val PAGINATION_RATIO = 0.9F
-        private const val LOADING_THRESHOLD_MULTIPLIER_FOR_LANDSCAPE = 2
     }
 }

@@ -4,6 +4,7 @@ import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
+import java.util.Objects
 
 
 @Parcelize
@@ -19,6 +20,22 @@ open class Movie(
     @ColumnInfo(name = COLUMN_RATING, defaultValue = "0")
     open var rating: Float = 0f
 ): Parcelable {
+
+    final override fun equals(other: Any?): Boolean {
+        if (other == null || other !is Movie) return false
+
+        if (other === this) return true
+
+        // В проверке не участвует ID
+        return Objects.equals(this.poster, other.poster) &&
+                Objects.equals(this.title, other.title) &&
+                Objects.equals(this.description, other.description) &&
+                Objects.equals(this.rating, other.rating)
+    }
+
+    final override fun hashCode(): Int {
+        return Objects.hash(poster, title, description, rating)
+    }
 
     companion object {
         const val COLUMN_ID = "_id"

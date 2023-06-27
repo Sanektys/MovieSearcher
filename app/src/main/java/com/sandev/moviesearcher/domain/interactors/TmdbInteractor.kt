@@ -66,19 +66,11 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
         ).enqueue(RetrofitTmdbCallback(callback))
     }
 
-    fun getMoviesFromDB(repositoryType: RepositoryType) = getRequestedRepository(repositoryType).getAllFromDB()
-
-    fun getMoviesFromDB(moviesCount: Int, repositoryType: RepositoryType)
-            = getRequestedRepository(repositoryType).getFromDB(moviesCount)
-
     fun getMoviesFromDB(page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
             = getRequestedRepository(repositoryType).getFromDB(
         from = (page - 1) * moviesPerPage,
         moviesCount = moviesPerPage
     )
-
-    fun getSearchedMoviesFromDB(query: String, repositoryType: RepositoryType)
-            = getRequestedRepository(repositoryType).getSearchedFromDB(query)
 
     fun getSearchedMoviesFromDB(query: String, page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
             = getRequestedRepository(repositoryType).getSearchedFromDB(
@@ -86,13 +78,6 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
         from = (page - 1) * moviesPerPage,
         moviesCount = moviesPerPage
     )
-
-    fun getSearchedMoviesFromDB(query: String, moviesCount: Int, repositoryType: RepositoryType)
-            = getRequestedRepository(repositoryType).getSearchedFromDB(query, moviesCount)
-
-    fun deleteAllCachedMoviesFromDB(repositoryType: RepositoryType)
-            = getRequestedRepository(repositoryType).deleteAllFromDB()
-
 
     private fun getRequestedRepository(repositoryType: RepositoryType): MoviesListRepository {
         return when (repositoryType) {
