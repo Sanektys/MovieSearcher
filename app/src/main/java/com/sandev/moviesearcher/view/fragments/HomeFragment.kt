@@ -13,7 +13,6 @@ import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
 import androidx.fragment.app.FragmentManager.OnBackStackChangedListener
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Scene
 import androidx.transition.Slide
 import androidx.transition.TransitionInflater
@@ -47,21 +46,12 @@ class HomeFragment : MoviesListFragment() {
         get() = _bindingBlank!!
 
     private var mainActivity: MainActivity? = null
-    private var moviesRecyclerManager: RecyclerView.LayoutManager? = null
 
     private var snackbar: Snackbar? = null
 
     private val backStackChangedListener: OnBackStackChangedListener
     private var sharedPreferencesChangeListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
 
-    companion object {
-        var isFragmentClassOnceCreated = false
-            private set
-
-        private const val MOVIES_RECYCLER_VIEW_STATE = "MoviesRecylerViewState"
-
-        private const val SNACKBAR_RESHOW_TIMEOUT = 400L
-    }
 
     init {
         backStackChangedListener = createChildFragmentsChangeListener()
@@ -80,6 +70,7 @@ class HomeFragment : MoviesListFragment() {
         return bindingBlank.root
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initializeSwipeRefreshLayout()
         prepareErrorConnectionSnackbar()
@@ -92,14 +83,6 @@ class HomeFragment : MoviesListFragment() {
         setupViewModelObserving()
 
         initializeMovieRecycler()
-        moviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
-            MOVIES_RECYCLER_VIEW_STATE
-        ))
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putParcelable(MOVIES_RECYCLER_VIEW_STATE, moviesRecyclerManager?.onSaveInstanceState())
     }
 
     override fun onDestroyView() {
@@ -110,7 +93,6 @@ class HomeFragment : MoviesListFragment() {
 
         _bindingFull = null
         _bindingBlank = null
-        moviesRecyclerManager = null
     }
 
     override fun onDestroy() {
@@ -135,8 +117,6 @@ class HomeFragment : MoviesListFragment() {
             setHasFixedSize(true)
             isNestedScrollingEnabled = true
             adapter = viewModel.recyclerAdapter
-
-            moviesRecyclerManager = layoutManager!!
 
             doOnPreDraw { startPostponedEnterTransition() }
         }
@@ -260,5 +240,13 @@ class HomeFragment : MoviesListFragment() {
         } else {
             setTransitionAnimation(Gravity.START, bindingFull.swipeRefresh)
         }
+    }
+
+
+    companion object {
+        var isFragmentClassOnceCreated = false
+            private set
+
+        private const val SNACKBAR_RESHOW_TIMEOUT = 400L
     }
 }

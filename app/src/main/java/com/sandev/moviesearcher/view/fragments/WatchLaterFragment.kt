@@ -8,9 +8,7 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.core.view.doOnPreDraw
-import androidx.core.view.postDelayed
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.db.entities.Movie
@@ -34,7 +32,6 @@ class WatchLaterFragment : MoviesListFragment() {
         get() = _binding!!
 
     private var mainActivity: MainActivity? = null
-    private var watchLaterMoviesRecyclerManager: RecyclerView.LayoutManager? = null
 
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
         override fun onClick(movie: Movie, posterView: ImageView) {
@@ -80,21 +77,12 @@ class WatchLaterFragment : MoviesListFragment() {
         }
 
         initializeMovieRecyclerList()
-        watchLaterMoviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
-            WATCH_LATER_MOVIES_RECYCLER_VIEW_STATE
-        ))
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putParcelable(WATCH_LATER_MOVIES_RECYCLER_VIEW_STATE, watchLaterMoviesRecyclerManager?.onSaveInstanceState())
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
 
         _binding = null
-        watchLaterMoviesRecyclerManager = null
     }
 
     fun prepareTransitionBeforeNewFragment(targetFragmentInLeft: Boolean) {
@@ -113,8 +101,6 @@ class WatchLaterFragment : MoviesListFragment() {
             setHasFixedSize(true)
             isNestedScrollingEnabled = true
             adapter = viewModel.recyclerAdapter
-
-            watchLaterMoviesRecyclerManager = layoutManager!!
 
             itemAnimator = MovieItemAnimator()
 
@@ -159,7 +145,5 @@ class WatchLaterFragment : MoviesListFragment() {
     companion object {
         const val WATCH_LATER_DETAILS_RESULT_KEY = "WATCH_LATER_DETAILS_RESULT"
         const val MOVIE_NOW_NOT_WATCH_LATER_KEY = "MOVIE_NOW_NOT_WATCH_LATER"
-
-        private const val WATCH_LATER_MOVIES_RECYCLER_VIEW_STATE = "WatchLaterMoviesRecylerViewState"
     }
 }

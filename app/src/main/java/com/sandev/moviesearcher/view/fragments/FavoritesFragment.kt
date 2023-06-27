@@ -9,7 +9,6 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.db.entities.Movie
@@ -33,7 +32,6 @@ class FavoritesFragment : MoviesListFragment() {
         get() = _binding!!
 
     private var mainActivity: MainActivity? = null
-    private var favoriteMoviesRecyclerManager: RecyclerView.LayoutManager? = null
 
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
         override fun onClick(movie: Movie, posterView: ImageView) {
@@ -45,14 +43,7 @@ class FavoritesFragment : MoviesListFragment() {
     private val posterOnClickDummy = object : MoviesRecyclerAdapter.OnClickListener {
         override fun onClick(movie: Movie, posterView: ImageView) {}
     }
-
-    companion object {
-        const val FAVORITES_DETAILS_RESULT_KEY = "FAVORITES_DETAILS_RESULT"
-
-        const val MOVIE_NOW_NOT_FAVORITE_KEY = "MOVIE_NOW_NOT_FAVORITE"
-
-        private const val FAVORITE_MOVIES_RECYCLER_VIEW_STATE = "FavoriteMoviesRecylerViewState"
-    }
+    
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -77,21 +68,12 @@ class FavoritesFragment : MoviesListFragment() {
         }
 
         initializeMovieRecyclerList()
-        favoriteMoviesRecyclerManager?.onRestoreInstanceState(savedInstanceState?.getParcelable(
-            FAVORITE_MOVIES_RECYCLER_VIEW_STATE
-        ))
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putParcelable(FAVORITE_MOVIES_RECYCLER_VIEW_STATE, favoriteMoviesRecyclerManager?.onSaveInstanceState())
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
 
         _binding = null
-        favoriteMoviesRecyclerManager = null
     }
 
     private fun initializeMovieRecyclerList() {
@@ -102,8 +84,6 @@ class FavoritesFragment : MoviesListFragment() {
             setHasFixedSize(true)
             isNestedScrollingEnabled = true
             adapter = viewModel.recyclerAdapter
-
-            favoriteMoviesRecyclerManager = layoutManager!!
 
             itemAnimator = MovieItemAnimator()
 
@@ -133,5 +113,12 @@ class FavoritesFragment : MoviesListFragment() {
                 shutdown()
             }
         }
+    }
+
+
+    companion object {
+        const val FAVORITES_DETAILS_RESULT_KEY = "FAVORITES_DETAILS_RESULT"
+
+        const val MOVIE_NOW_NOT_FAVORITE_KEY = "MOVIE_NOW_NOT_FAVORITE"
     }
 }
