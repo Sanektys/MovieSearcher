@@ -153,13 +153,7 @@ abstract class MoviesListFragment : Fragment() {
                 val itemPosition = recyclerView.getChildAdapterPosition(view)
 
                 if (itemPosition > viewModel.lastVisibleMovieCard) {
-                    val itemsRemainingInList = (recyclerView.adapter?.itemCount?.minus(1) ?: 0) - itemPosition
-
-                    viewModel.startLoadingOnScroll(
-                        lastVisibleItemPosition = itemPosition,
-                        itemsRemainingInList = itemsRemainingInList,
-                        screenOrientation = resources.configuration.orientation
-                    )
+                    viewModel.startLoadingOnScroll(lastVisibleItemPosition = itemPosition,)
                 }
             }
             override fun onChildViewDetachedFromWindow(view: View) {}

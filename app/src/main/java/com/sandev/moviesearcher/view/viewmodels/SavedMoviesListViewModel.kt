@@ -19,14 +19,13 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
 
     final override val moviesListLiveData = MutableLiveData<List<Movie>>()
 
-    protected val movieDeletedObserver: Observer<Movie>
-    protected val movieAddedObserver: Observer<Nothing>
-
     var isMovieMoreNotInSavedList: Boolean = false
     var lastClickedMovie: Movie? = null
 
-    protected var moviesPaginationOffset: Int = 0
-        private set
+    protected val movieDeletedObserver: Observer<Movie>
+    protected val movieAddedObserver: Observer<Nothing>
+
+    private var moviesPaginationOffset: Int = 0
 
 
     init {

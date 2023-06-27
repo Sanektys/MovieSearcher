@@ -127,9 +127,9 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     override fun dispatchQueryToInteractor(query: String?, page: Int?) {
         if (isInSearchMode) {
             if (page != null) {
-                getSearchedMoviesFromApi(query = query ?: "", page = page)
+                getSearchedMoviesFromApi(query = query ?: lastSearch, page = page)
             } else {
-                getSearchedMoviesFromApi(query = query ?: "", page = nextPage)
+                getSearchedMoviesFromApi(query = query ?: lastSearch, page = nextPage)
             }
         } else {
             if (page != null) {

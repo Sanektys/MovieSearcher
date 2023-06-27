@@ -26,10 +26,7 @@ class FavoritesFragmentViewModel : SavedMoviesListViewModel() {
         favoritesMoviesComponent.interactor.deletedMovieLiveData.observeForever(movieDeletedObserver)
         favoritesMoviesComponent.interactor.movieAddedNotifyLiveData.observeForever(movieAddedObserver)
 
-        getMoviesFromDB(
-            offset = moviesPaginationOffset,
-            moviesCount = moviesPerPage
-        )
+        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
     }
 
 

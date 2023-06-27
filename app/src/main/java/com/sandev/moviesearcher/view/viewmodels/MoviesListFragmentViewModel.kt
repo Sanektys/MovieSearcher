@@ -23,9 +23,12 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
     var lastVisibleMovieCard: Int = 0
         protected set
 
+    var lastSlideGravity = Gravity.TOP
+
     private var isPaginationLoadingOnProcess: Boolean = false
     protected var nextPage: Int = 1
     protected var moviesPerPage: Int = 0
+
     protected var totalPagesInLastQuery = 1
 
     protected abstract var isInSearchMode: Boolean
@@ -36,10 +39,6 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
             initializeRecyclerAdapterList()
         }
 
-    var lastSlideGravity = Gravity.TOP
-
-
-    protected abstract fun dispatchQueryToInteractor(query: String? = null, page: Int? = null)
 
     fun fullRefreshMoviesList() {
         isOffline = false
@@ -67,7 +66,7 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
         lastSearch = query
     }
 
-    fun startLoadingOnScroll(lastVisibleItemPosition: Int, itemsRemainingInList: Int, screenOrientation: Int) {
+    fun startLoadingOnScroll(lastVisibleItemPosition: Int) {
         lastVisibleMovieCard = lastVisibleItemPosition
 
         val relativeThreshold = if (moviesPerPage == 0) {
@@ -85,6 +84,8 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
             dispatchQueryToInteractor()
         }
     }
+
+    protected abstract fun dispatchQueryToInteractor(query: String? = null, page: Int? = null)
 
     private fun initializeRecyclerAdapterList() {
         if (isInSearchMode) {

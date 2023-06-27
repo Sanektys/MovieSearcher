@@ -28,10 +28,7 @@ class WatchLaterFragmentViewModel : SavedMoviesListViewModel() {
         watchLaterMoviesComponent.interactor.deletedMovieLiveData.observeForever(movieDeletedObserver)
         watchLaterMoviesComponent.interactor.movieAddedNotifyLiveData.observeForever(movieAddedObserver)
 
-        getMoviesFromDB(
-            offset = moviesPaginationOffset,
-            moviesCount = moviesPerPage
-        )
+        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
     }
 
 
