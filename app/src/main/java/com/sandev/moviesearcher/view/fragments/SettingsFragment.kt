@@ -52,7 +52,7 @@ class SettingsFragment : Fragment() {
     private fun destroy() = (parentFragment as MoviesListFragment).destroySettingsFragment()
 
     private fun initializeCategoryRadioGroup() {
-        viewModel.categoryPropertyLiveData.observe(viewLifecycleOwner) { currentCategory ->
+        viewModel.getCategoryProperty.observe(viewLifecycleOwner) { currentCategory ->
             when (currentCategory) {
                 viewModel.categoryPopular -> binding.categoryRadioGroup.check(R.id.RadioButtonPopular)
                 viewModel.categoryTopRated -> binding.categoryRadioGroup.check(R.id.RadioButtonTopRated)

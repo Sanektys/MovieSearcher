@@ -17,8 +17,8 @@ class DetailsFragmentViewModel : ViewModel() {
     @Inject
     lateinit var watchLaterMoviesComponent: WatchLaterMoviesComponentHolder
 
-    val favoritesMoviesLiveData: LiveData<List<Movie>>
-    val watchLaterMoviesLiveData: LiveData<List<Movie>>
+    val getFavoritesMovies: LiveData<List<Movie>>
+    val getWatchLaterMovies: LiveData<List<Movie>>
 
     @Inject
     lateinit var interactor: TmdbInteractor
@@ -38,8 +38,8 @@ class DetailsFragmentViewModel : ViewModel() {
     init {
         App.instance.getAppComponent().inject(this)
 
-        favoritesMoviesLiveData = favoritesMoviesComponent.interactor.getAllFromList()
-        watchLaterMoviesLiveData = watchLaterMoviesComponent.interactor.getAllFromList()
+        getFavoritesMovies = favoritesMoviesComponent.interactor.getAllFromList()
+        getWatchLaterMovies = watchLaterMoviesComponent.interactor.getAllFromList()
     }
 
 

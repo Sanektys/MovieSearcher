@@ -176,7 +176,7 @@ class HomeFragment : MoviesListFragment() {
     }
 
     private fun setupViewModelObserving() {
-        viewModel.onFailureFlagLiveData.observe(viewLifecycleOwner) { failureFlag ->
+        viewModel.getOnFailureFlag.observe(viewLifecycleOwner) { failureFlag ->
             bindingFull.swipeRefresh.isRefreshing = false
 
             if (failureFlag) {

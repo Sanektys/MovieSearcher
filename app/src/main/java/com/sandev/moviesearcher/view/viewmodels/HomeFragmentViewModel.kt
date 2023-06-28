@@ -1,6 +1,7 @@
 package com.sandev.moviesearcher.view.viewmodels
 
 import android.content.SharedPreferences
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
@@ -19,11 +20,12 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     @Inject
     lateinit var sharedPreferencesInteractor: SharedPreferencesInteractor
 
-    override val moviesListLiveData = MutableLiveData<List<Movie>>()
+    override val moviesList = MutableLiveData<List<Movie>>()
+
+    private val onFailureFlagLiveData = MutableLiveData<Boolean>()
+    val getOnFailureFlag: LiveData<Boolean> = onFailureFlagLiveData
 
     private val sharedPreferencesStateListener: SharedPreferences.OnSharedPreferenceChangeListener
-
-    val onFailureFlagLiveData = MutableLiveData<Boolean>()
 
     private var currentRepositoryType: TmdbInteractor.RepositoryType
 
@@ -52,7 +54,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
         currentRepositoryType = provideCurrentMovieListTypeByCategoryInSettings()
 
-        moviesListLiveData.observeForever { newList ->
+        moviesList.observeForever { newList ->
             moviesPerPage = newList.size
             moviesDatabase = newList.toList()
         }
@@ -143,7 +145,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     private fun loadListFromDB() {
         if (isInSearchMode) {
             Executors.newSingleThreadExecutor().execute {
-                moviesListLiveData.postValue(interactor.getSearchedMoviesFromDB(
+                moviesList.postValue(interactor.getSearchedMoviesFromDB(
                     query = lastSearch,
                     page = nextPage,
                     moviesPerPage = moviesPerPage,
@@ -152,7 +154,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
             }
         } else {
             Executors.newSingleThreadExecutor().execute {
-                moviesListLiveData.postValue(interactor.getMoviesFromDB(
+                moviesList.postValue(interactor.getMoviesFromDB(
                     page = nextPage,
                     moviesPerPage = moviesPerPage,
                     repositoryType = provideCurrentMovieListTypeByCategoryInSettings()
@@ -177,7 +179,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
             onFailureFlag = false
             totalPagesInLastQuery = totalPages
 
-            moviesListLiveData.postValue(movies)
+            moviesList.postValue(movies)
         }
 
         override fun onFailure() {

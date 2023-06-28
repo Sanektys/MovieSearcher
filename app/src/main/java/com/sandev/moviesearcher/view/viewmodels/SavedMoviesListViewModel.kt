@@ -17,7 +17,7 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
 
     lateinit var savedMoviesComponent: SavedMoviesComponentHolder
 
-    final override val moviesListLiveData = MutableLiveData<List<Movie>>()
+    final override val moviesList = MutableLiveData<List<Movie>>()
 
     var isMovieMoreNotInSavedList: Boolean = false
     var lastClickedMovie: Movie? = null
@@ -46,7 +46,7 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
             }
         }
 
-        moviesListLiveData.observeForever { newList ->
+        moviesList.observeForever { newList ->
             moviesPerPage = newList.size
             moviesPaginationOffset += moviesPerPage
 
@@ -56,8 +56,8 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
 
 
     override fun onCleared() {
-        savedMoviesComponent.interactor.deletedMovieLiveData.removeObserver(movieDeletedObserver)
-        savedMoviesComponent.interactor.movieAddedNotifyLiveData.removeObserver(movieAddedObserver)
+        savedMoviesComponent.interactor.getDeletedMovie.removeObserver(movieDeletedObserver)
+        savedMoviesComponent.interactor.getMovieAddedNotify.removeObserver(movieAddedObserver)
     }
 
     override fun dispatchQueryToInteractor(query: String?, page: Int?) {
@@ -96,7 +96,7 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
 
     protected fun getMoviesFromDB(offset: Int, moviesCount: Int) {
         Executors.newSingleThreadExecutor().execute {
-            moviesListLiveData.postValue(savedMoviesComponent.interactor.getFewMoviesFromList(
+            moviesList.postValue(savedMoviesComponent.interactor.getFewMoviesFromList(
                 from = offset,
                 moviesCount = moviesCount
             ))
@@ -105,7 +105,7 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
 
     private fun getSearchedMoviesFromApi(query: String, offset: Int, moviesCount: Int) {
         Executors.newSingleThreadExecutor().execute {
-            moviesListLiveData.postValue(savedMoviesComponent.interactor.getFewSearchedMoviesFromList(
+            moviesList.postValue(savedMoviesComponent.interactor.getFewSearchedMoviesFromList(
                 query = query,
                 from = offset,
                 moviesCount = moviesCount

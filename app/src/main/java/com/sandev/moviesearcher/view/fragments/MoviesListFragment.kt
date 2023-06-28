@@ -32,9 +32,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.search.SearchBar
 import com.google.android.material.search.SearchView
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.utils.CircularRevealAnimator
-import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
 
 
@@ -68,12 +66,6 @@ abstract class MoviesListFragment : Fragment() {
     private var recyclerShapeInvalidator: RecyclerShapeInvalidator? = null
     private var recyclerShapeView: View? = null
 
-    companion object {
-        var isAppBarLifted = false
-
-        private const val MAX_ALPHA = 255F
-        private const val DIVIDER_TO_CENTER = 2
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setAppBarAppearance()
@@ -393,5 +385,13 @@ abstract class MoviesListFragment : Fragment() {
 
     private class RecyclerShapeInvalidator(private val view: View) {
         fun invalidateShape() = view.invalidateOutline()
+    }
+
+
+    companion object {
+        var isAppBarLifted = false
+
+        private const val MAX_ALPHA = 255F
+        private const val DIVIDER_TO_CENTER = 2
     }
 }

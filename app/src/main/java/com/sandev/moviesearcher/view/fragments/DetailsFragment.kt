@@ -51,14 +51,6 @@ class DetailsFragment : Fragment() {
     private val binding: FragmentDetailsBinding
         get() = _binding!!
 
-    companion object {
-        private const val FRAGMENT_LAUNCHED_KEY = "FRAGMENT_LAUNCHED"
-        private const val FAVORITE_BUTTON_SELECTED_KEY = "FAVORITE_BUTTON_SELECTED"
-        private const val WATCH_LATER_BUTTON_SELECTED_KEY = "WATCH_LATER_BUTTON_SELECTED"
-
-        private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
-        private const val DELAY_BEFORE_LOAD_HIGH_QUALITY_IMAGE = 300L
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -155,7 +147,7 @@ class DetailsFragment : Fragment() {
     }
 
     private fun checkFavoriteFloatButtonState() {
-        viewModel.favoritesMoviesLiveData.observe(viewLifecycleOwner) { favoritesMovies ->
+        viewModel.getFavoritesMovies.observe(viewLifecycleOwner) { favoritesMovies ->
             if (favoritesMovies.find { it.title == viewModel.movie.title
                         && it.description == viewModel.movie.description } != null) {
                 viewModel.isFavoriteMovie = true
@@ -166,7 +158,7 @@ class DetailsFragment : Fragment() {
     }
 
     private fun checkWatchLaterFloatButtonState() {
-        viewModel.watchLaterMoviesLiveData.observe(viewLifecycleOwner) { watchLaterMovies ->
+        viewModel.getWatchLaterMovies.observe(viewLifecycleOwner) { watchLaterMovies ->
             if (watchLaterMovies.find { it.title == viewModel.movie.title
                         && it.description == viewModel.movie.description } != null) {
                 viewModel.isWatchLaterMovie = true
@@ -361,5 +353,15 @@ class DetailsFragment : Fragment() {
             addTransition(movieInformationTransition)
             addTransition(fabTransition)
         }
+    }
+
+
+    companion object {
+        private const val FRAGMENT_LAUNCHED_KEY = "FRAGMENT_LAUNCHED"
+        private const val FAVORITE_BUTTON_SELECTED_KEY = "FAVORITE_BUTTON_SELECTED"
+        private const val WATCH_LATER_BUTTON_SELECTED_KEY = "WATCH_LATER_BUTTON_SELECTED"
+
+        private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
+        private const val DELAY_BEFORE_LOAD_HIGH_QUALITY_IMAGE = 300L
     }
 }

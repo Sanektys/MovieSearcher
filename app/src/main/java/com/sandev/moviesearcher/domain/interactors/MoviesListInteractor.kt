@@ -13,18 +13,21 @@ class MoviesListInteractor @Inject constructor(private val repo: MoviesListRepos
 
     override val systemLanguage = Locale.getDefault().toLanguageTag()
 
-    val deletedMovieLiveData = MutableLiveData<Movie>()
-    val movieAddedNotifyLiveData = MutableLiveData<Nothing>()
+    val deletedMovie = MutableLiveData<Movie>()
+    val getDeletedMovie: LiveData<Movie> = deletedMovie
+
+    val movieAddedNotify = MutableLiveData<Nothing>()
+    val getMovieAddedNotify: LiveData<Nothing> = movieAddedNotify
 
 
     fun addToList(movie: Movie) {
         repo.putToDB(listOf(movie))
-        movieAddedNotifyLiveData.postValue(null)
+        movieAddedNotify.postValue(null)
     }
 
     fun removeFromList(movie: Movie) {
         (repo as MoviesListRepositoryImplForSavedLists).deleteFromDB(movie)
-        deletedMovieLiveData.postValue(movie)
+        deletedMovie.postValue(movie)
     }
 
     fun getAllFromList(): LiveData<List<Movie>> = repo.getAllFromDB()
