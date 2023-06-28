@@ -72,7 +72,7 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
         val relativeThreshold = if (moviesPerPage == 0) {
             nextPage  // Достигнут конец списка, избегается деление на ноль
         } else {
-            ((lastVisibleItemPosition / moviesPerPage.toFloat()) + PAGINATION_RATIO).roundToInt()
+            ((lastVisibleItemPosition + 1 / moviesPerPage.toFloat()) + PAGINATION_RATIO).roundToInt()
         }
         val isItTimeToLoadNextPage = relativeThreshold > nextPage
 

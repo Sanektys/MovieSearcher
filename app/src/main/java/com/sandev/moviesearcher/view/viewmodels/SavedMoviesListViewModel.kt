@@ -39,10 +39,11 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
             }
         }
         movieAddedObserver = Observer<Nothing> {
-            if (moviesPerPage == 0) {
-                moviesPerPage = 1
+            if (recyclerAdapter.itemCount == 0) {
+                dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
+            } else {
+                softResetPagination(moviesPerPage = 1)
             }
-            lastVisibleMovieCard = 0
         }
 
         moviesListLiveData.observeForever { newList ->
@@ -61,7 +62,7 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
 
     override fun dispatchQueryToInteractor(query: String?, page: Int?) {
         if (page == INITIAL_PAGE_IN_RECYCLER) {
-            resetPagination()
+            hardResetPagination()
         }
 
         if (isInSearchMode) {
@@ -122,11 +123,17 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
         isMovieMoreNotInSavedList = false
     }
 
-    private fun resetPagination() {
+    private fun hardResetPagination() {
         nextPage = INITIAL_PAGE_IN_RECYCLER
         moviesPerPage = MoviesListInteractor.MOVIES_PER_PAGE
         lastVisibleMovieCard = 0
         moviesPaginationOffset = 0
+    }
+
+    private fun softResetPagination(moviesPerPage: Int = MoviesListInteractor.MOVIES_PER_PAGE) {
+        nextPage = INITIAL_PAGE_IN_RECYCLER
+        this.moviesPerPage = moviesPerPage
+        lastVisibleMovieCard = 0
     }
 
 
