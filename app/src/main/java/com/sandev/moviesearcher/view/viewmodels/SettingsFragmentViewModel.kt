@@ -1,6 +1,7 @@
 package com.sandev.moviesearcher.view.viewmodels
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -15,7 +16,8 @@ class SettingsFragmentViewModel(context: Context) : ViewModel() {
     @Inject
     lateinit var sharedPreferencesInteractor: SharedPreferencesInteractor
 
-    val categoryPropertyLiveData: MutableLiveData<String> = MutableLiveData()
+    private val categoryProperty: MutableLiveData<String> = MutableLiveData()
+    val getCategoryProperty: LiveData<String> = categoryProperty
 
     val categoryPopular = context.getString(R.string.shared_preferences_settings_value_category_popular)
     val categoryTopRated = context.getString(R.string.shared_preferences_settings_value_category_top_rated)
@@ -29,7 +31,7 @@ class SettingsFragmentViewModel(context: Context) : ViewModel() {
 
 
     private fun getCategoryProperty() {
-        categoryPropertyLiveData.value = sharedPreferencesInteractor.getDefaultMoviesCategoryInMainList()
+        categoryProperty.value = sharedPreferencesInteractor.getDefaultMoviesCategoryInMainList()
     }
 
     fun putCategoryProperty(category: String) {

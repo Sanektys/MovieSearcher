@@ -44,21 +44,13 @@ import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
 class DetailsFragment : Fragment() {
 
     private val viewModel by lazy {
-        ViewModelProvider(requireActivity())[DetailsFragmentViewModel::class.java]
+        ViewModelProvider(this)[DetailsFragmentViewModel::class.java]
     }
 
     private var _binding: FragmentDetailsBinding? = null
     private val binding: FragmentDetailsBinding
         get() = _binding!!
 
-    companion object {
-        private const val FRAGMENT_LAUNCHED_KEY = "FRAGMENT_LAUNCHED"
-        private const val FAVORITE_BUTTON_SELECTED_KEY = "FAVORITE_BUTTON_SELECTED"
-        private const val WATCH_LATER_BUTTON_SELECTED_KEY = "WATCH_LATER_BUTTON_SELECTED"
-
-        private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
-        private const val DELAY_BEFORE_LOAD_HIGH_QUALITY_IMAGE = 300L
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -77,8 +69,6 @@ class DetailsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.fabToFavorite.isEnabled = false
-        binding.fabToWatchLater.isEnabled = false
 
         viewModel._movie = arguments?.getParcelable<Movie>(MainActivity.MOVIE_DATA_KEY)!!
 
@@ -153,51 +143,28 @@ class DetailsFragment : Fragment() {
 
     private fun setFloatButtonsState() {
         checkFavoriteFloatButtonState()
-        viewModel.favoritesMoviesLiveData.observe(viewLifecycleOwner) { movies ->
-            checkFavoriteFloatButtonState(movies)
-        }
-
         checkWatchLaterFloatButtonState()
-        viewModel.watchLaterMoviesLiveData.observe(viewLifecycleOwner) { movies ->
-            checkWatchLaterFloatButtonState(movies)
+    }
+
+    private fun checkFavoriteFloatButtonState() {
+        viewModel.getFavoritesMovies.observe(viewLifecycleOwner) { favoritesMovies ->
+            if (favoritesMovies.find { it.title == viewModel.movie.title
+                        && it.description == viewModel.movie.description } != null) {
+                viewModel.isFavoriteMovie = true
+                binding.fabToFavorite.isSelected = true
+                binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
+            }
         }
     }
 
-    private fun checkFavoriteFloatButtonState(movies: List<Movie>? = null) {
-        val list = movies ?: viewModel.favoritesMoviesLiveData.value
-        if (list != null) {
-            viewModel.favoritesMoviesComponent.interactor.isListAndDbSameSizeLiveData.observe(viewLifecycleOwner) { sameSize ->
-                if (sameSize) {
-                    if (list.find { it.title == viewModel.movie.title
-                                && it.description == viewModel.movie.description } != null) {
-                        viewModel.isFavoriteMovie = true
-                        binding.fabToFavorite.isSelected = true
-                        binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
-                    }
-                    binding.fabToFavorite.isEnabled = true
-                }
+    private fun checkWatchLaterFloatButtonState() {
+        viewModel.getWatchLaterMovies.observe(viewLifecycleOwner) { watchLaterMovies ->
+            if (watchLaterMovies.find { it.title == viewModel.movie.title
+                        && it.description == viewModel.movie.description } != null) {
+                viewModel.isWatchLaterMovie = true
+                binding.fabToWatchLater.isSelected = true
+                binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
             }
-        } else {
-            binding.fabToFavorite.isEnabled = false
-        }
-    }
-
-    private fun checkWatchLaterFloatButtonState(movies: List<Movie>? = null) {
-        val list = movies ?: viewModel.watchLaterMoviesLiveData.value
-        if (list != null) {
-            viewModel.watchLaterMoviesComponent.interactor.isListAndDbSameSizeLiveData.observe(viewLifecycleOwner) { sameSize ->
-                if (sameSize) {
-                    if (list.find { it.title == viewModel.movie.title
-                                && it.description == viewModel.movie.description } != null) {
-                        viewModel.isWatchLaterMovie = true
-                        binding.fabToWatchLater.isSelected = true
-                        binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
-                    }
-                    binding.fabToWatchLater.isEnabled = true
-                }
-            }
-        } else {
-            binding.fabToWatchLater.isEnabled = false
         }
     }
 
@@ -386,5 +353,15 @@ class DetailsFragment : Fragment() {
             addTransition(movieInformationTransition)
             addTransition(fabTransition)
         }
+    }
+
+
+    companion object {
+        private const val FRAGMENT_LAUNCHED_KEY = "FRAGMENT_LAUNCHED"
+        private const val FAVORITE_BUTTON_SELECTED_KEY = "FAVORITE_BUTTON_SELECTED"
+        private const val WATCH_LATER_BUTTON_SELECTED_KEY = "WATCH_LATER_BUTTON_SELECTED"
+
+        private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
+        private const val DELAY_BEFORE_LOAD_HIGH_QUALITY_IMAGE = 300L
     }
 }

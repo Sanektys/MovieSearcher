@@ -1,9 +1,8 @@
 package com.sandev.moviesearcher.data.db.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.sandev.moviesearcher.data.db.entities.FavoriteMovie
 import com.sandev.moviesearcher.data.db.entities.Movie
@@ -14,15 +13,43 @@ import com.sandev.moviesearcher.data.db.entities.TitleAndDescription
 interface FavoriteMovieDao : SavedMovieDao {
 
     @Query("SELECT * FROM ${FavoriteMovie.TABLE_NAME}")
-    override fun getAllCachedMovies(): List<Movie>
+    override fun getAllCachedMovies(): LiveData<List<Movie>>
+
+    @Query("SELECT *" +
+            "FROM " +
+            "(SELECT * " +
+            "FROM ${FavoriteMovie.TABLE_NAME} " +
+            "ORDER BY ${Movie.COLUMN_ID} DESC " +
+            "LIMIT :moviesCount) AS q " +
+            "ORDER BY ${Movie.COLUMN_ID} ASC")
+    override fun getLastFewCachedMovies(moviesCount: Int): LiveData<List<Movie>>
+
+    @Query("SELECT * FROM ${FavoriteMovie.TABLE_NAME} LIMIT :from, :moviesCount")
+    override fun getFewCachedMoviesFromOffset(from: Int, moviesCount: Int): List<Movie>
 
     @Query("SELECT * " +
             "FROM ${FavoriteMovie.TABLE_NAME} " +
             "WHERE ${Movie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
             "ORDER BY ${Movie.COLUMN_ID} ASC")
-    override fun getSearchedCachedMovies(query: String): List<Movie>
+    override fun getAllSearchedCachedMovies(query: String): LiveData<List<Movie>>
 
-    //@Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Query("SELECT * " +
+            "FROM" +
+            "(SELECT * " +
+            "FROM ${FavoriteMovie.TABLE_NAME} " +
+            "WHERE ${Movie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
+            "ORDER BY ${Movie.COLUMN_ID} DESC " +
+            "LIMIT :moviesCount) AS q " +
+            "ORDER BY ${Movie.COLUMN_ID} ASC")
+    override fun getLastFewSearchedCachedMovies(query: String, moviesCount: Int): LiveData<List<Movie>>
+
+    @Query("SELECT * " +
+            "FROM ${FavoriteMovie.TABLE_NAME} " +
+            "WHERE ${Movie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
+            "ORDER BY ${Movie.COLUMN_ID} ASC " +
+            "LIMIT :from, :moviesCount")
+    override fun getFewSearchedCachedMoviesFromOffset(query: String, from: Int, moviesCount: Int): List<Movie>
+
     @Query("INSERT OR IGNORE INTO ${FavoriteMovie.TABLE_NAME}" +
             "(${Movie.COLUMN_POSTER}, ${Movie.COLUMN_TITLE}, " +
             "${Movie.COLUMN_DESCRIPTION}, ${Movie.COLUMN_RATING}) " +

@@ -64,6 +64,14 @@
             android:ellipsize="end"
             tools:text="@tools:sample/lorem/random" />
 
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/activity_main.movies_recycler.movie_card.description.fade_to_background.height"
+            android:background="@drawable/fade_to_background_gradient"
+            android:layout_alignStart="@id/movie_card.movie_description"
+            android:layout_alignEnd="@id/movie_card.movie_description"
+            android:layout_alignParentBottom="true"/>
+
         <com.sandev.moviesearcher.view.customviews.RatingDonutView
             android:id="@+id/rating_donut"
             android:layout_width="@dimen/activity_main.movies_recycler.movie_card.rating_donut.width"

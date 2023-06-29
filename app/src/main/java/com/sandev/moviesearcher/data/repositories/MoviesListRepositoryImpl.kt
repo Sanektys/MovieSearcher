@@ -1,45 +1,74 @@
 package com.sandev.moviesearcher.data.repositories
 
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
+import com.sandev.moviesearcher.data.db.dao.FavoriteMovieDao
 import com.sandev.moviesearcher.data.db.dao.MovieDao
+import com.sandev.moviesearcher.data.db.dao.PlayingMovieDao
+import com.sandev.moviesearcher.data.db.dao.PopularMovieDao
+import com.sandev.moviesearcher.data.db.dao.TopMovieDao
+import com.sandev.moviesearcher.data.db.dao.UpcomingMovieDao
+import com.sandev.moviesearcher.data.db.dao.WatchLaterMovieDao
 import com.sandev.moviesearcher.data.db.entities.Movie
+import com.sandev.moviesearcher.data.db.entities.PlayingMovie
+import com.sandev.moviesearcher.data.db.entities.PopularMovie
+import com.sandev.moviesearcher.data.db.entities.TopMovie
+import com.sandev.moviesearcher.data.db.entities.UpcomingMovie
 import java.util.concurrent.Executors
 
 
-open class MoviesListRepositoryImpl(protected val movieDao: MovieDao) : MoviesListRepository {
+open class MoviesListRepositoryImpl(private val movieDao: MovieDao) : MoviesListRepository {
 
-    protected val putToDbFlagLiveData = MutableLiveData<List<Long>>()
-    protected val deletedRowsCountLiveData = MutableLiveData<Int>()
-
-
+    @Suppress("UNCHECKED_CAST")
     override fun putToDB(movies: List<Movie>) {
         Executors.newSingleThreadExecutor().execute {
-            val results = mutableListOf<Long>()
-
-            movies.forEach { movie ->
-                results.add(movieDao.putToCachedMovies(
-                    poster = movie.poster,
-                    title = movie.title,
-                    description = movie.description,
-                    rating = movie.rating
-                ))
+            when (movieDao) {
+                is PlayingMovieDao  -> movieDao.putToCachedMovies(movies as List<PlayingMovie>)
+                is PopularMovieDao  -> movieDao.putToCachedMovies(movies as List<PopularMovie>)
+                is TopMovieDao      -> movieDao.putToCachedMovies(movies as List<TopMovie>)
+                is UpcomingMovieDao -> movieDao.putToCachedMovies(movies as List<UpcomingMovie>)
+                is FavoriteMovieDao, is WatchLaterMovieDao -> {
+                    movies.forEach {
+                        movieDao.putToCachedMovies(
+                            poster = it.poster, title = it.title,
+                            description = it.description, rating = it.rating
+                        )
+                    }
+                }
             }
-            putToDbFlagLiveData.postValue(results)
         }
     }
 
-    override fun getAllFromDB(): List<Movie> = movieDao.getAllCachedMovies()
+    override fun getAllFromDB(): LiveData<List<Movie>> = movieDao.getAllCachedMovies()
 
-    override fun getSearchedFromDB(query: String): List<Movie> = movieDao.getSearchedCachedMovies(query)
+    override fun getFromDB(moviesCount: Int): LiveData<List<Movie>>
+            = movieDao.getLastFewCachedMovies(moviesCount)
+
+    override fun getFromDB(from: Int, moviesCount: Int): List<Movie>
+            = movieDao.getFewCachedMoviesFromOffset(from, moviesCount)
+
+    override fun getSearchedFromDB(query: String): LiveData<List<Movie>> = movieDao.getAllSearchedCachedMovies(query)
+
+    override fun getSearchedFromDB(query: String, from: Int, moviesCount: Int): List<Movie>
+            = movieDao.getFewSearchedCachedMoviesFromOffset(query, from, moviesCount)
+
+    override fun getSearchedFromDB(query: String, moviesCount: Int): LiveData<List<Movie>>
+            = movieDao.getLastFewSearchedCachedMovies(query, moviesCount)
 
     override fun deleteAllFromDB() {
         Executors.newSingleThreadExecutor().execute {
-            deletedRowsCountLiveData.postValue(movieDao.deleteAllCachedMovies())
+            movieDao.deleteAllCachedMovies()
         }
     }
 
-
-    companion object {
-        const val PUT_ERROR_FLAG = -1L
+    @Suppress("UNCHECKED_CAST")
+    override fun deleteAllFromDBAndPutNew(movies: List<Movie>) {
+        Executors.newSingleThreadExecutor().execute {
+            when (movieDao) {
+                is PlayingMovieDao  -> movieDao.deleteAllCachedMoviesAndPutNewMovies(movies as List<PlayingMovie>)
+                is PopularMovieDao  -> movieDao.deleteAllCachedMoviesAndPutNewMovies(movies as List<PopularMovie>)
+                is TopMovieDao      -> movieDao.deleteAllCachedMoviesAndPutNewMovies(movies as List<TopMovie>)
+                is UpcomingMovieDao -> movieDao.deleteAllCachedMoviesAndPutNewMovies(movies as List<UpcomingMovie>)
+            }
+        }
     }
 }

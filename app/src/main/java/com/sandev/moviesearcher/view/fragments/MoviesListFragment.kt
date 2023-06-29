@@ -32,23 +32,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.search.SearchBar
 import com.google.android.material.search.SearchView
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.utils.CircularRevealAnimator
-import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
 
 
 abstract class MoviesListFragment : Fragment() {
 
     protected abstract val viewModel: MoviesListFragmentViewModel
-    protected abstract var recyclerAdapter: MoviesRecyclerAdapter?
-
-    protected var moviesDatabase: List<Movie> = emptyList()
-        set(value) {
-            if (value == field) return
-            field = value
-            initializeRecyclerAdapterList()
-        }
 
     private var _appBar: AppBarLayout? = null
     private val appBar: AppBarLayout
@@ -76,18 +66,12 @@ abstract class MoviesListFragment : Fragment() {
     private var recyclerShapeInvalidator: RecyclerShapeInvalidator? = null
     private var recyclerShapeView: View? = null
 
-    companion object {
-        var isAppBarLifted = false
-
-        const val SEARCH_SYMBOLS_THRESHOLD = 2
-        private const val MAX_ALPHA = 255F
-        private const val DIVIDER_TO_CENTER = 2
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setAppBarAppearance()
         setSearchViewAppearance()
         setRecyclerViewAppearance(recyclerView)
+        setupRecyclerUpdateOnScroll()
         initializeToolbar()
         setupSearchBehavior()
 
@@ -117,11 +101,6 @@ abstract class MoviesListFragment : Fragment() {
     fun hideSearchView() = searchView.hide()
 
     fun isSearchViewHidden() = searchView.currentTransitionState == SearchView.TransitionState.HIDDEN
-
-    protected open fun initializeRecyclerAdapterList() {
-        // Загрузить в recycler результат по прошлому запросу в поиск
-        searchInSearchView(viewModel.lastSearch ?: "")
-    }
 
     protected fun initializeViewsReferences(rootView: View) {
         _appBar = rootView.findViewById(R.id.app_bar)
@@ -160,13 +139,26 @@ abstract class MoviesListFragment : Fragment() {
         reenterTransition = null
     }
 
+    private fun setupRecyclerUpdateOnScroll() {
+        recyclerView.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
+            override fun onChildViewAttachedToWindow(view: View) {
+                val itemPosition = recyclerView.getChildAdapterPosition(view)
+
+                if (itemPosition >= viewModel.lastVisibleMovieCard) {
+                    viewModel.startLoadingOnScroll(lastVisibleItemPosition = itemPosition,)
+                }
+            }
+            override fun onChildViewDetachedFromWindow(view: View) {}
+        })
+    }
+
     private fun setupSearchBehavior() {
         val textChangeListener = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun afterTextChanged(s: Editable?) {}
 
             override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
-                searchInSearchView(text.toString())
+                viewModel.searchInSearchView(text.toString())
             }
         }
         searchView.apply {
@@ -199,15 +191,6 @@ abstract class MoviesListFragment : Fragment() {
                 true
             }
         }
-    }
-
-    protected open fun searchInSearchView(query: String) {
-        if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
-            recyclerAdapter?.setList(viewModel.searchInDatabase(query))
-        } else {
-            recyclerAdapter?.setList(viewModel.getAllMovies())
-        }
-        viewModel.lastSearch = query
     }
 
     private fun createCircularRevealAnimator(view: View): CircularRevealAnimator {
@@ -402,5 +385,13 @@ abstract class MoviesListFragment : Fragment() {
 
     private class RecyclerShapeInvalidator(private val view: View) {
         fun invalidateShape() = view.invalidateOutline()
+    }
+
+
+    companion object {
+        var isAppBarLifted = false
+
+        private const val MAX_ALPHA = 255F
+        private const val DIVIDER_TO_CENTER = 2
     }
 }

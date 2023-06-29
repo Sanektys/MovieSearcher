@@ -66,14 +66,18 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
         ).enqueue(RetrofitTmdbCallback(callback))
     }
 
-    fun getMoviesFromDB(repositoryType: RepositoryType) = getRequestedRepository(repositoryType).getAllFromDB()
+    fun getMoviesFromDB(page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
+            = getRequestedRepository(repositoryType).getFromDB(
+        from = (page - 1) * moviesPerPage,
+        moviesCount = moviesPerPage
+    )
 
-    fun getSearchedMoviesFromDB(query: String, repositoryType: RepositoryType)
-            = getRequestedRepository(repositoryType).getSearchedFromDB(query)
-
-    fun deleteAllCachedMoviesFromDB(repositoryType: RepositoryType)
-            = getRequestedRepository(repositoryType).deleteAllFromDB()
-
+    fun getSearchedMoviesFromDB(query: String, page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
+            = getRequestedRepository(repositoryType).getSearchedFromDB(
+        query = query,
+        from = (page - 1) * moviesPerPage,
+        moviesCount = moviesPerPage
+    )
 
     private fun getRequestedRepository(repositoryType: RepositoryType): MoviesListRepository {
         return when (repositoryType) {
@@ -93,16 +97,38 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
 
         override fun onResponse(call: Call<TmdbResultDto>, response: Response<TmdbResultDto>) {
             if (response.isSuccessful) {
-                val moviesList = TmdbConverter.convertApiListToDtoList(response.body()?.results)
+                val moviesList = if (moviesListRepository != null) {
+                    when (moviesListRepository) {
+                        is PlayingMoviesListRepository -> TmdbConverter.convertApiDtoListToPlayingMovieList(
+                            response.body()?.results
+                        )
+                        is PopularMoviesListRepository -> TmdbConverter.convertApiDtoListToPopularMovieList(
+                            response.body()?.results
+                        )
+                        is TopMoviesListRepository -> TmdbConverter.convertApiDtoListToTopMovieList(
+                            response.body()?.results
+                        )
+                        is UpcomingMoviesListRepository -> TmdbConverter.convertApiDtoListToUpcomingMovieList(
+                            response.body()?.results
+                        )
+                        else -> throw IllegalArgumentException("Unknown MoviesListRepository type")
+                    }
+                } else {
+                    TmdbConverter.convertApiDtoListToTopMovieList(response.body()?.results)
+                }
 
                 moviesListRepository?.run {
                     if (isNeededWipeBeforePutData) {
-                        deleteAllFromDB()
+                        deleteAllFromDBAndPutNew(moviesList)
+                    } else {
+                        putToDB(moviesList)
                     }
-                    putToDB(moviesList)
                 }
 
-                viewModelCallback.onSuccess(moviesList, response.body()?.totalPages ?: 0)
+                viewModelCallback.onSuccess(
+                    movies = moviesList,
+                    totalPages = response.body()?.totalPages ?: 0
+                )
             }
         }
 
@@ -117,5 +143,10 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
         TOP_MOVIES,
         UPCOMING_MOVIES,
         PLAYING_MOVIES
+    }
+
+
+    companion object {
+        const val INITIAL_MOVIES_COUNT_PER_PAGE = 20
     }
 }

@@ -1,42 +1,39 @@
 package com.sandev.moviesearcher.view.viewmodels
 
 import com.sandev.moviesearcher.App
-import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.components_holders.WatchLaterMoviesComponentHolder
 import javax.inject.Inject
 
 
-class WatchLaterFragmentViewModel : MoviesListFragmentViewModel() {
+class WatchLaterFragmentViewModel : SavedMoviesListViewModel() {
 
     @Inject
     lateinit var watchLaterMoviesComponent: WatchLaterMoviesComponentHolder
 
-    override val moviesListLiveData
-        get() = watchLaterMoviesComponent.interactor.moviesListLiveData
-
-    override var lastSearch: String?
+    override var lastSearch: String
         set(value) { Companion.lastSearch = value }
         get() = Companion.lastSearch
+    override var isInSearchMode: Boolean
+        set(value) { Companion.isInSearchMode = value }
+        get() = Companion.isInSearchMode
 
-    var isMovieMoreNotWatchLater: Boolean = false
-    var lastClickedMovie: Movie? = null
+    var isLaunchedFromLeft: Boolean = true
 
-    companion object {
-        private var lastSearch: String? = null
-    }
 
     init {
         App.instance.getAppComponent().inject(this)
+
+        savedMoviesComponent = watchLaterMoviesComponent
+
+        watchLaterMoviesComponent.interactor.getDeletedMovie.observeForever(movieDeletedObserver)
+        watchLaterMoviesComponent.interactor.getMovieAddedNotify.observeForever(movieAddedObserver)
+
+        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
     }
 
 
-    override fun searchInDatabase(query: CharSequence): List<Movie>? {
-        return searchInDatabase(query, getAllMovies())
+    companion object {
+        private var lastSearch: String = ""
+        private var isInSearchMode: Boolean = false
     }
-
-    override fun getAllMovies(): List<Movie> = watchLaterMoviesComponent.interactor.getAllFromList()
-
-    fun addToWatchLater(movie: Movie) = watchLaterMoviesComponent.interactor.addToList(movie)
-
-    fun removeFromWatchLater(movie: Movie) = watchLaterMoviesComponent.interactor.removeFromList(movie)
 }

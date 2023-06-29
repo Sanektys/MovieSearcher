@@ -6,7 +6,7 @@ import com.sandev.moviesearcher.data.db.dao.MovieDao
 import com.sandev.moviesearcher.data.db.dao.WatchLaterMovieDao
 import com.sandev.moviesearcher.data.db.databases.WatchLaterMoviesDatabase
 import com.sandev.moviesearcher.data.repositories.MoviesListRepository
-import com.sandev.moviesearcher.data.repositories.MoviesListRepositoryImplWithList
+import com.sandev.moviesearcher.data.repositories.MoviesListRepositoryImplForSavedLists
 import com.sandev.moviesearcher.di.WatchLaterFragmentScope
 import dagger.Binds
 import dagger.Module
@@ -26,15 +26,15 @@ class WatchLaterMoviesListModule {
             = watchLaterMoviesDatabase.watchLaterMovieDao()
 
     @[Provides WatchLaterFragmentScope]
-    fun provideWatchLaterMoviesRepository(watchLaterMovieDao: WatchLaterMovieDao) : MoviesListRepositoryImplWithList
-            = MoviesListRepositoryImplWithList(watchLaterMovieDao)
+    fun provideWatchLaterMoviesRepository(watchLaterMovieDao: WatchLaterMovieDao) : MoviesListRepositoryImplForSavedLists
+            = MoviesListRepositoryImplForSavedLists(watchLaterMovieDao)
 }
 
 @Module
 interface WatchLaterMoviesListRepositoryModule {
 
     @[Binds WatchLaterFragmentScope]
-    fun bindWatchLaterMoviesList(moviesListRepository: MoviesListRepositoryImplWithList): MoviesListRepository
+    fun bindWatchLaterMoviesList(moviesListRepository: MoviesListRepositoryImplForSavedLists): MoviesListRepository
 
     @[Binds WatchLaterFragmentScope]
     fun bindWatchLaterMovieDao(watchLaterMovieDao: WatchLaterMovieDao): MovieDao

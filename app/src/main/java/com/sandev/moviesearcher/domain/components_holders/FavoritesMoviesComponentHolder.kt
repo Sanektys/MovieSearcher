@@ -8,10 +8,10 @@ import javax.inject.Singleton
 
 
 @Singleton
-class FavoritesMoviesComponentHolder(context: Context) {
+class FavoritesMoviesComponentHolder(context: Context) : SavedMoviesComponentHolder {
 
     @Inject
-    lateinit var interactor: MoviesListInteractor
+    override lateinit var interactor: MoviesListInteractor
 
     private val favoritesMoviesComponent = DaggerFavoritesMoviesComponent.factory().create(context)
 

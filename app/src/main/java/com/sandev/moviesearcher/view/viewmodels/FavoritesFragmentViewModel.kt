@@ -1,42 +1,37 @@
 package com.sandev.moviesearcher.view.viewmodels
 
 import com.sandev.moviesearcher.App
-import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.components_holders.FavoritesMoviesComponentHolder
 import javax.inject.Inject
 
 
-class FavoritesFragmentViewModel : MoviesListFragmentViewModel() {
+class FavoritesFragmentViewModel : SavedMoviesListViewModel() {
 
     @Inject
     lateinit var favoritesMoviesComponent: FavoritesMoviesComponentHolder
 
-    override val moviesListLiveData
-        get() = favoritesMoviesComponent.interactor.moviesListLiveData
-
-    override var lastSearch: String?
+    override var lastSearch: String
         set(value) { Companion.lastSearch = value }
         get() = Companion.lastSearch
+    override var isInSearchMode: Boolean
+        set(value) { Companion.isInSearchMode = value }
+        get() = Companion.isInSearchMode
 
-    var isMovieMoreNotFavorite: Boolean = false
-    var lastClickedMovie: Movie? = null
-
-    companion object {
-        private var lastSearch: String? = null
-    }
 
     init {
         App.instance.getAppComponent().inject(this)
+
+        savedMoviesComponent = favoritesMoviesComponent
+
+        favoritesMoviesComponent.interactor.getDeletedMovie.observeForever(movieDeletedObserver)
+        favoritesMoviesComponent.interactor.getMovieAddedNotify.observeForever(movieAddedObserver)
+
+        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
     }
 
 
-    override fun searchInDatabase(query: CharSequence): List<Movie>? {
-        return searchInDatabase(query, getAllMovies())
+    companion object {
+        private var lastSearch: String = ""
+        private var isInSearchMode: Boolean = false
     }
-
-    override fun getAllMovies(): List<Movie> = favoritesMoviesComponent.interactor.getAllFromList()
-
-    fun addToFavorite(movie: Movie) = favoritesMoviesComponent.interactor.addToList(movie)
-
-    fun removeFromFavorite(movie: Movie) = favoritesMoviesComponent.interactor.removeFromList(movie)
 }

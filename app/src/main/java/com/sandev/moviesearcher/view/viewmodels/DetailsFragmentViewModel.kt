@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.view.viewmodels
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.data.db.entities.Movie
@@ -16,10 +17,8 @@ class DetailsFragmentViewModel : ViewModel() {
     @Inject
     lateinit var watchLaterMoviesComponent: WatchLaterMoviesComponentHolder
 
-    val favoritesMoviesLiveData
-        get() = favoritesMoviesComponent.interactor.moviesListLiveData
-    val watchLaterMoviesLiveData
-        get() = watchLaterMoviesComponent.interactor.moviesListLiveData
+    val getFavoritesMovies: LiveData<List<Movie>>
+    val getWatchLaterMovies: LiveData<List<Movie>>
 
     @Inject
     lateinit var interactor: TmdbInteractor
@@ -38,6 +37,9 @@ class DetailsFragmentViewModel : ViewModel() {
 
     init {
         App.instance.getAppComponent().inject(this)
+
+        getFavoritesMovies = favoritesMoviesComponent.interactor.getAllFromList()
+        getWatchLaterMovies = watchLaterMoviesComponent.interactor.getAllFromList()
     }
 
 

@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 class MovieItemAnimator : DefaultItemAnimator() {
 
     companion object {
-        private const val REMOVE_DURATION = 300L
+        const val REMOVE_DURATION = 300L
     }
 
     override fun animateRemove(holder: RecyclerView.ViewHolder?): Boolean {

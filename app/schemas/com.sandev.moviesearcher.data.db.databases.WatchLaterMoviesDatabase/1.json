@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "20632ac9722f69fabb85e736b5a20283",
+    "identityHash": "35b19e8a7fa76fe235644d6e856906a0",
     "entities": [
       {
         "tableName": "cached_watch_later_movies",
@@ -50,22 +50,14 @@
         },
         "indices": [
           {
-            "name": "index_cached_watch_later_movies_description",
+            "name": "index_cached_watch_later_movies_title_description",
             "unique": true,
             "columnNames": [
+              "title",
               "description"
             ],
             "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_cached_watch_later_movies_description` ON `${TABLE_NAME}` (`description`)"
-          },
-          {
-            "name": "index_cached_watch_later_movies_title",
-            "unique": false,
-            "columnNames": [
-              "title"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_cached_watch_later_movies_title` ON `${TABLE_NAME}` (`title`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_cached_watch_later_movies_title_description` ON `${TABLE_NAME}` (`title`, `description`)"
           }
         ],
         "foreignKeys": []
@@ -74,7 +66,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '20632ac9722f69fabb85e736b5a20283')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '35b19e8a7fa76fe235644d6e856906a0')"
     ]
   }
 }
