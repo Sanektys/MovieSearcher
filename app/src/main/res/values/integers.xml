@@ -21,4 +21,8 @@
 
     <!-- Rating view -->
     <integer name="rating_view.minimum_size">300</integer>
+
+
+    <!-- Alert dialog -->
+    <integer name="alert_dialog.animations_durations.appearance">150</integer>
 </resources>

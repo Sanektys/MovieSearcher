@@ -66,4 +66,11 @@
 
     <dimen name="activity_details.description.margin_top">16dp</dimen>
     <dimen name="activity_details.description.margin_horizontal">20dp</dimen>
+
+
+    <!-- alert dialog -->
+    <dimen name="alert_dialog.background_dim_percent">0.2</dimen>
+    <dimen name="alert_dialog.margin_horizontal">8dp</dimen>
+    <dimen name="alert_dialog.margin_vertical">24dp</dimen>
+    <dimen name="alert_dialog.corner_radius">28dp</dimen>
 </resources>

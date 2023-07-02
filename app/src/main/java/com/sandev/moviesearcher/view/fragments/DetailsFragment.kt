@@ -1,6 +1,6 @@
 package com.sandev.moviesearcher.view.fragments
 
-import android.content.Intent
+import android.content.DialogInterface
 import android.graphics.Outline
 import android.os.Bundle
 import android.view.Gravity
@@ -11,6 +11,9 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.animation.DecelerateInterpolator
+import android.widget.FrameLayout
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -30,6 +33,7 @@ import androidx.transition.TransitionSet
 import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.db.entities.Movie
@@ -50,6 +54,8 @@ class DetailsFragment : Fragment() {
     private var _binding: FragmentDetailsBinding? = null
     private val binding: FragmentDetailsBinding
         get() = _binding!!
+
+    private var menuFabDialog: AlertDialog? = null
 
 
     override fun onCreateView(
@@ -92,6 +98,7 @@ class DetailsFragment : Fragment() {
         }
 
         setTransitionAnimation()
+        prepareMenuFabDialog()
 
         activity?.findViewById<BottomNavigationView>(R.id.navigation_bar)?.run {
             animate()  // Убрать нижний navigation view
@@ -189,12 +196,15 @@ class DetailsFragment : Fragment() {
                 Snackbar.LENGTH_SHORT).show()
         }
 
+//        binding.fabShare.setOnClickListener {
+//            val intent = Intent(Intent.ACTION_SEND)
+//            intent.type = "text/plain"
+//            intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.details_fragment_fab_share_sending_text,
+//                viewModel.movie.title, viewModel.movie.description))
+//            startActivity(Intent.createChooser(intent, getString(R.string.details_fragment_fab_share_to)))
+//        }
         binding.fabShare.setOnClickListener {
-            val intent = Intent(Intent.ACTION_SEND)
-            intent.type = "text/plain"
-            intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.details_fragment_fab_share_sending_text,
-                viewModel.movie.title, viewModel.movie.description))
-            startActivity(Intent.createChooser(intent, getString(R.string.details_fragment_fab_share_to)))
+            menuFabDialog?.show()
         }
     }
 
@@ -353,6 +363,35 @@ class DetailsFragment : Fragment() {
             addTransition(movieInformationTransition)
             addTransition(fabTransition)
         }
+    }
+
+    private fun prepareMenuFabDialog() {
+        val alertDialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Dialog test")
+            .setMessage("tested message")
+            .setItems(arrayOf("first", "second", "third")) { dialog, which ->
+                when (which) {
+                    0 -> Toast.makeText(context, "first", Toast.LENGTH_SHORT).show()
+                    1 -> Toast.makeText(context, "second", Toast.LENGTH_SHORT).show()
+                    2 -> Toast.makeText(context, "third", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("CANCEL") { dialogInterface, _ ->
+                dialogInterface.dismiss()
+            }
+            .create()
+
+        alertDialog.window?.setGravity(Gravity.BOTTOM)
+        alertDialog.window?.setBackgroundDrawableResource(R.drawable.alert_dialog_background)
+        alertDialog.show()  // Без show() getButton выдаст null
+
+        val negativeButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE)
+        negativeButton?.updateLayoutParams {
+            width = FrameLayout.LayoutParams.MATCH_PARENT
+        }
+        alertDialog.dismiss()
+
+        menuFabDialog = alertDialog
     }
 
 

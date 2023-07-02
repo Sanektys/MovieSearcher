@@ -30,6 +30,8 @@
 
         <item name="android:statusBarColor">?attr/colorPrimaryContainer</item>
         <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+
+        <item name="materialAlertDialogTheme">@style/MaterialAlertDialog</item>
     </style>
 
     <!-- Child themes -->
@@ -43,5 +45,27 @@
         <item name="colorSurface">?attr/colorPrimaryContainer</item>
         <item name="colorOnSurface">?attr/colorOnPrimaryContainer</item>
         <item name="colorOnSurfaceVariant">?attr/colorOnPrimaryContainer</item>
+    </style>
+
+
+    <!-- Theme for alert dialog -->
+    <style name="MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="android:backgroundDimAmount">@dimen/alert_dialog.background_dim_percent</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialogText</item>
+        <item name="buttonBarNegativeButtonStyle">@style/MaterialAlertDialogNegativeButton</item>
+        <item name="android:windowAnimationStyle">@style/MaterialAlertDialogAnimation</item>
+    </style>
+
+    <style name="MaterialAlertDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/alert_dialog_slide_in</item>
+        <item name="android:windowExitAnimation">@anim/alert_dialog_slide_out</item>
+    </style>
+
+    <style name="MaterialAlertDialogText" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textAppearance">@style/TextAppearance.Material3.TitleMedium</item>
+    </style>
+
+    <style name="MaterialAlertDialogNegativeButton" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">?attr/colorOnPrimaryContainer</item>
     </style>
 </resources>
