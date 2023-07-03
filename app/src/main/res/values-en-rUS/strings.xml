@@ -2,28 +2,46 @@
 <resources>
     <string name="app_name">Movie Searcher</string>
 
-    // main activity
+    <!-- Main activity -->
     <string name="activity_main.bottom_navigation.all_movies.title">ALL MOVIES</string>
     <string name="activity_main.bottom_navigation.favorites.title">FAVORITES</string>
     <string name="activity_main.bottom_navigation.watch_later.title">VIEW LATER</string>
     <string name="activity_main.top_app_bar.settings.title">SETTINGS</string>
+    <string name="activity_main.top_app_bar.search_bar.hint">Search movies</string>
     <string name="activity_main.press_back_for_exit_warning">Press \"back\" again for exit</string>
     <string name="activity_main.snackbar.message.failure_on_load_data">Error downloading, check internet connection</string>
     <string name="activity_main.snackbar.button.retry">Retry</string>
+
+
+    <!-- Settings fragment -->
     <string name="settings_fragment.app_bar.search_bar.hint">Settings</string>
-    <string name="details_fragment.toolbar.title">Movie details</string>
-    <string name="details_fragment.fab.add_favorite">Added to favorites</string>
-    <string name="details_fragment.fab.add_watch_later">Added to \"watch later\"</string>
-    <string name="details_fragment.fab.remove_favorite">Removed from favorites</string>
-    <string name="details_fragment.fab.share.sending_text">Watch this movie: %s\n\n\t%s</string>
-    <string name="details_fragment.fab.share.to">Who to send the movie to?</string>
-    <string name="activity_main.top_app_bar.search_bar.hint">Search movies</string>
-    <string name="favorites_fragment.top_app_bar.search_bar.hint">Search favorite movie</string>
-    <string name="watch_later_fragment.top_app_bar.search_bar.hint">Search a movie from watch later</string>
-    <string name="details_fragment.fab.remove_watch_later">Removed from \"watch later\"</string>
     <string name="settings_fragment.radio_group.category.title">Selecting a movie category from the \"All Movies\" list</string>
     <string name="settings_fragment.radio_group.category.top_rated">Top rated</string>
     <string name="settings_fragment.radio_group.category.popular">Popular</string>
     <string name="settings_fragment.radio_group.category.upcoming">Upcoming</string>
     <string name="settings_fragment.radio_group.category.playing">Playing</string>
+
+
+    <!-- Details fragment -->
+    <string name="details_fragment.toolbar.title">Movie details</string>
+    <string name="details_fragment.fab.add_favorite">Added to favorites</string>
+    <string name="details_fragment.fab.remove_favorite">Removed from favorites</string>
+    <string name="details_fragment.fab.add_watch_later">Added to \"watch later\"</string>
+    <string name="details_fragment.fab.remove_watch_later">Removed from \"watch later\"</string>
+    <string name="details_fragment.fab.share.sending_text">Watch this movie: %s\n\n\t%s</string>
+    <string name="details_fragment.fab.share.to">Who to send the movie to?</string>
+    <string name="details_fragment.alert_dialog.title">Select the action:</string>
+    <string name="details_fragment.alert_dialog.action.sharing">Share this movie</string>
+    <string name="details_fragment.alert_dialog.action.download_poster">Download the movie poster</string>
+    <string name="details_fragment.alert_dialog.action.cancel">Cancel</string>
+    <string name="details_fragment.poster_download.success">Poster successfully uploaded to the gallery</string>
+    <string name="details_fragment.poster_download.failure">Unable to download the movie poster</string>
+
+
+    <!-- Favorites fragment -->
+    <string name="favorites_fragment.top_app_bar.search_bar.hint">Search favorite movie</string>
+
+
+    <!-- Watch later fragment -->
+    <string name="watch_later_fragment.top_app_bar.search_bar.hint">Search a movie from watch later</string>
 </resources>

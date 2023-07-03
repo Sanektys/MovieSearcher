@@ -44,11 +44,11 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_share"
+        android:id="@+id/fab_dialog_menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/Widget.Material3.FloatingActionButton.Primary"
-        android:src="@drawable/outline_share_24"
+        android:src="@drawable/outline_menu_open"
         app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Full"
         app:maxImageSize="@dimen/activity_details.fab.image_size"
         app:layout_anchor="@id/app_bar"
@@ -78,6 +78,19 @@
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom|end"
         android:layout_marginEnd="@dimen/activity_details.fab.first_margin_end" />
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/fab_dialog_menu.progress_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:translationZ="@dimen/activity_details.circular_indicator.translationZ"
+        android:indeterminate="true"
+        app:indicatorSize="@dimen/activity_details.circular_indicator.size"
+        app:trackCornerRadius="@dimen/activity_details.circular_indicator.corner_radius"
+        app:showAnimationBehavior="outward"
+        app:hideAnimationBehavior="outward"
+        app:layout_anchor="@id/fab_dialog_menu"
+        app:layout_anchorGravity="center" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

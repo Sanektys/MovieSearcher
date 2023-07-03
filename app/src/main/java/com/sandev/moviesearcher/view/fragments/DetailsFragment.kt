@@ -11,8 +11,8 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.animation.DecelerateInterpolator
-import android.widget.FrameLayout
-import android.widget.Toast
+import android.widget.Button
+import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
@@ -99,6 +99,7 @@ class DetailsFragment : Fragment() {
 
         setTransitionAnimation()
         prepareMenuFabDialog()
+        binding.fabDialogMenuProgressIndicator.hide()
 
         activity?.findViewById<BottomNavigationView>(R.id.navigation_bar)?.run {
             animate()  // Убрать нижний navigation view
@@ -203,7 +204,7 @@ class DetailsFragment : Fragment() {
 //                viewModel.movie.title, viewModel.movie.description))
 //            startActivity(Intent.createChooser(intent, getString(R.string.details_fragment_fab_share_to)))
 //        }
-        binding.fabShare.setOnClickListener {
+        binding.fabDialogMenu.setOnClickListener {
             menuFabDialog?.show()
         }
     }
@@ -356,7 +357,7 @@ class DetailsFragment : Fragment() {
                 interpolator = LinearOutSlowInInterpolator()
                 addTarget(binding.fabToFavorite)
                 addTarget(binding.fabToWatchLater)
-                addTarget(binding.fabShare)
+                addTarget(binding.fabDialogMenu)
             }
             this.duration = duration
             addTransition(appBarTransition)
@@ -367,29 +368,32 @@ class DetailsFragment : Fragment() {
 
     private fun prepareMenuFabDialog() {
         val alertDialog = MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Dialog test")
-            .setMessage("tested message")
-            .setItems(arrayOf("first", "second", "third")) { dialog, which ->
-                when (which) {
-                    0 -> Toast.makeText(context, "first", Toast.LENGTH_SHORT).show()
-                    1 -> Toast.makeText(context, "second", Toast.LENGTH_SHORT).show()
-                    2 -> Toast.makeText(context, "third", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .setNegativeButton("CANCEL") { dialogInterface, _ ->
+            .setTitle(getString(R.string.details_fragment_alert_dialog_title))
+            .setView(R.layout.alert_dialog_content_for_fragment_details)
+            .setNegativeButton(getString(R.string.details_fragment_alert_dialog_action_cancel)) { dialogInterface, _ ->
                 dialogInterface.dismiss()
             }
             .create()
 
         alertDialog.window?.setGravity(Gravity.BOTTOM)
         alertDialog.window?.setBackgroundDrawableResource(R.drawable.alert_dialog_background)
-        alertDialog.show()  // Без show() getButton выдаст null
 
+        alertDialog.show()  // Без show() getButton выдаст null
         val negativeButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE)
-        negativeButton?.updateLayoutParams {
-            width = FrameLayout.LayoutParams.MATCH_PARENT
-        }
         alertDialog.dismiss()
+
+        val buttonNewLayoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        negativeButton.layoutParams = buttonNewLayoutParams
+
+        alertDialog.findViewById<Button>(R.id.alert_dialog_share_button)?.setOnClickListener { button ->
+
+        }
+        alertDialog.findViewById<Button>(R.id.alert_dialog_download_poster_button)?.setOnClickListener { button ->
+
+        }
 
         menuFabDialog = alertDialog
     }
