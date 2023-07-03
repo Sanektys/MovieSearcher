@@ -1,8 +1,15 @@
 package com.sandev.moviesearcher.view.fragments
 
+import android.Manifest
+import android.content.ContentValues
 import android.content.DialogInterface
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.Outline
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +21,8 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -37,12 +46,18 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.db.entities.Movie
+import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGES_URL
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_HIGH_SIZE
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_MEDIUM_SIZE
 import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 
 class DetailsFragment : Fragment() {
@@ -54,6 +69,8 @@ class DetailsFragment : Fragment() {
     private var _binding: FragmentDetailsBinding? = null
     private val binding: FragmentDetailsBinding
         get() = _binding!!
+
+    private val ioScope = CoroutineScope(Dispatchers.IO)
 
     private var menuFabDialog: AlertDialog? = null
 
@@ -197,13 +214,6 @@ class DetailsFragment : Fragment() {
                 Snackbar.LENGTH_SHORT).show()
         }
 
-//        binding.fabShare.setOnClickListener {
-//            val intent = Intent(Intent.ACTION_SEND)
-//            intent.type = "text/plain"
-//            intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.details_fragment_fab_share_sending_text,
-//                viewModel.movie.title, viewModel.movie.description))
-//            startActivity(Intent.createChooser(intent, getString(R.string.details_fragment_fab_share_to)))
-//        }
         binding.fabDialogMenu.setOnClickListener {
             menuFabDialog?.show()
         }
@@ -388,15 +398,102 @@ class DetailsFragment : Fragment() {
         )
         negativeButton.layoutParams = buttonNewLayoutParams
 
-        alertDialog.findViewById<Button>(R.id.alert_dialog_share_button)?.setOnClickListener { button ->
-
+        alertDialog.findViewById<Button>(R.id.alert_dialog_share_button)?.setOnClickListener {
+            val intent = Intent(Intent.ACTION_SEND)
+            intent.type = "text/plain"
+            intent.putExtra(
+                Intent.EXTRA_TEXT,
+                getString(
+                    R.string.details_fragment_fab_share_sending_text,
+                    viewModel.movie.title, viewModel.movie.description
+                )
+            )
+            startActivity(Intent.createChooser(intent, getString(R.string.details_fragment_fab_share_to)))
         }
         alertDialog.findViewById<Button>(R.id.alert_dialog_download_poster_button)?.setOnClickListener { button ->
-
+            performAsyncLoadOfPoster()
         }
 
         menuFabDialog = alertDialog
     }
+
+    private fun checkExternalStoragePermission(): Boolean {
+        val permission = ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+        return permission == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestExternalStoragePermission() {
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+            EXTERNAL_WRITE_PERMISSION_REQUEST_CODE
+        )
+    }
+
+    private fun saveToGallery(bitmap: Bitmap) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val contentValues = ContentValues().apply {
+                put(MediaStore.Images.Media.TITLE, "${viewModel.movie.title.removeSingleQuote()}_poster")
+                put(MediaStore.Images.Media.DISPLAY_NAME, viewModel.movie.title.removeSingleQuote())
+                put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / DIVIDER_MILLISECONDS_TO_SECONDS)
+                put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis())
+                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/MovieSearcherApp")
+            }
+            val contentResolver = requireActivity().contentResolver
+            val url  = contentResolver.insert(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues
+            ) ?: return
+            contentResolver.openOutputStream(url).use { stream ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_COMPRESS_QUALITY, stream)
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            MediaStore.Images.Media.insertImage(
+                requireActivity().contentResolver,
+                bitmap,
+                viewModel.movie.title.removeSingleQuote(),
+                viewModel.movie.description.removeSingleQuote()
+            )
+        }
+    }
+
+    private fun performAsyncLoadOfPoster() {
+        if (!checkExternalStoragePermission()) {
+            requestExternalStoragePermission()
+            return
+        }
+        MainScope().launch {
+            binding.fabDialogMenuProgressIndicator.show()
+
+            val job = ioScope.async {
+                viewModel.loadMoviePoster(
+                    "${IMAGES_URL}${TmdbApiConstants.IMAGE_FULL_SIZE}${viewModel.movie.poster}"
+                )
+            }
+            saveToGallery(job.await())
+            Snackbar.make(
+                binding.root,
+                R.string.details_fragment_poster_download_success,
+                Snackbar.LENGTH_LONG
+            )
+                .setAction("Open gallery") {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.type = "image/*"
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    startActivity(intent)
+                }
+                .show()
+
+            binding.fabDialogMenuProgressIndicator.hide()
+        }
+    }
+
+    private fun String.removeSingleQuote() = replace("'", "")
 
 
     companion object {
@@ -406,5 +503,9 @@ class DetailsFragment : Fragment() {
 
         private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
         private const val DELAY_BEFORE_LOAD_HIGH_QUALITY_IMAGE = 300L
+
+        private const val DIVIDER_MILLISECONDS_TO_SECONDS = 1000
+        private const val JPEG_COMPRESS_QUALITY = 100
+        private const val EXTERNAL_WRITE_PERMISSION_REQUEST_CODE = 20
     }
 }
