@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Theme.MovieSearcher" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorPrimary">@color/md_theme_primary</item>
@@ -30,6 +30,8 @@
 
         <item name="android:statusBarColor">?attr/colorPrimaryContainer</item>
         <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+
+        <item name="materialAlertDialogTheme">@style/MaterialAlertDialog</item>
     </style>
 
     <!-- Child themes -->
