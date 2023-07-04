@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.view
 
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Outline
 import android.os.Bundle
@@ -49,17 +50,6 @@ class MainActivity : AppCompatActivity() {
         override fun handleOnBackPressed() {}
     }
 
-    companion object {
-        const val MOVIE_DATA_KEY = "MOVIE"
-        const val POSTER_TRANSITION_KEY = "POSTER_TRANSITION"
-
-        private const val HOME_FRAGMENT_COMMIT = "HOME_FRAGMENT_COMMIT"
-        private const val FAVORITES_FRAGMENT_COMMIT = "FAVORITES_FRAGMENT_COMMIT"
-        private const val WATCH_LATER_FRAGMENT_COMMIT = "WATCH_LATER_FRAGMENT_COMMIT"
-
-        private const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
-        private const val ONE_FRAGMENT_IN_STACK = 1
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -322,6 +312,25 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == DetailsFragment.EXTERNAL_WRITE_PERMISSION_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                supportFragmentManager.fragments.forEach { fragment ->
+                    if (fragment is DetailsFragment) {
+                        fragment.performAsyncLoadOfPoster()
+                        return
+                    }
+                }
+            }
+        }
+    }
+
     private fun setNavigationBarAppearance() {
         binding.navigationBar.apply {
             ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
@@ -344,5 +353,18 @@ class MainActivity : AppCompatActivity() {
             }
             clipToOutline = true
         }
+    }
+
+
+    companion object {
+        const val MOVIE_DATA_KEY = "MOVIE"
+        const val POSTER_TRANSITION_KEY = "POSTER_TRANSITION"
+
+        private const val HOME_FRAGMENT_COMMIT = "HOME_FRAGMENT_COMMIT"
+        private const val FAVORITES_FRAGMENT_COMMIT = "FAVORITES_FRAGMENT_COMMIT"
+        private const val WATCH_LATER_FRAGMENT_COMMIT = "WATCH_LATER_FRAGMENT_COMMIT"
+
+        private const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
+        private const val ONE_FRAGMENT_IN_STACK = 1
     }
 }

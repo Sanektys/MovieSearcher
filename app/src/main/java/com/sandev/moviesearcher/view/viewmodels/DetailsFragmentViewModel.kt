@@ -9,6 +9,8 @@ import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.components_holders.FavoritesMoviesComponentHolder
 import com.sandev.moviesearcher.domain.components_holders.WatchLaterMoviesComponentHolder
 import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
+import java.io.IOException
+import java.lang.Exception
 import java.net.URL
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -51,8 +53,12 @@ class DetailsFragmentViewModel : ViewModel() {
     suspend fun loadMoviePoster(posterUrl: String): Bitmap {
         return suspendCoroutine { continuation ->
             val url = URL(posterUrl)
-            val bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream())
-            continuation.resume(bitmap)
+            try {
+                val bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream())
+                continuation.resume(bitmap)
+            } catch(e: Exception) {
+                throw IOException("Connection lost or server didn't respond")
+            }
         }
     }
 

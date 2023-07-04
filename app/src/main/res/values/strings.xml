@@ -35,6 +35,7 @@
     <string name="details_fragment.alert_dialog.action.download_poster">Скачать постер фильма</string>
     <string name="details_fragment.alert_dialog.action.cancel">Отмена</string>
     <string name="details_fragment.poster_download.success">Постер успешно загружен в галерею</string>
+    <string name="details_fragment.poster_download.success.action">Открыть галерею</string>
     <string name="details_fragment.poster_download.failure">Не удалось загрузить постер фильма</string>
 
 

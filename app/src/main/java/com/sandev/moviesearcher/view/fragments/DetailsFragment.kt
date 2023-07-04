@@ -58,6 +58,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import java.io.IOException
 
 
 class DetailsFragment : Fragment() {
@@ -69,8 +70,6 @@ class DetailsFragment : Fragment() {
     private var _binding: FragmentDetailsBinding? = null
     private val binding: FragmentDetailsBinding
         get() = _binding!!
-
-    private val ioScope = CoroutineScope(Dispatchers.IO)
 
     private var menuFabDialog: AlertDialog? = null
 
@@ -398,6 +397,12 @@ class DetailsFragment : Fragment() {
         )
         negativeButton.layoutParams = buttonNewLayoutParams
 
+        initializeDialogButtons(alertDialog)
+
+        menuFabDialog = alertDialog
+    }
+
+    private fun initializeDialogButtons(alertDialog: AlertDialog) {
         alertDialog.findViewById<Button>(R.id.alert_dialog_share_button)?.setOnClickListener {
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "text/plain"
@@ -409,20 +414,24 @@ class DetailsFragment : Fragment() {
                 )
             )
             startActivity(Intent.createChooser(intent, getString(R.string.details_fragment_fab_share_to)))
-        }
-        alertDialog.findViewById<Button>(R.id.alert_dialog_download_poster_button)?.setOnClickListener { button ->
-            performAsyncLoadOfPoster()
-        }
 
-        menuFabDialog = alertDialog
+            menuFabDialog?.dismiss()
+        }
+        alertDialog.findViewById<Button>(R.id.alert_dialog_download_poster_button)?.setOnClickListener {
+            performAsyncLoadOfPoster()
+
+            menuFabDialog?.dismiss()
+        }
     }
 
     private fun checkExternalStoragePermission(): Boolean {
-        val permission = ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        )
-        return permission == PackageManager.PERMISSION_GRANTED
+        return if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+            val permission = ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            permission == PackageManager.PERMISSION_GRANTED
+        } else true
     }
 
     private fun requestExternalStoragePermission() {
@@ -447,7 +456,7 @@ class DetailsFragment : Fragment() {
             val url  = contentResolver.insert(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 contentValues
-            ) ?: return
+            ) ?: throw IOException("Failure on write to external storage")
             contentResolver.openOutputStream(url).use { stream ->
                 bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_COMPRESS_QUALITY, stream)
             }
@@ -462,7 +471,7 @@ class DetailsFragment : Fragment() {
         }
     }
 
-    private fun performAsyncLoadOfPoster() {
+    fun performAsyncLoadOfPoster() {
         if (!checkExternalStoragePermission()) {
             requestExternalStoragePermission()
             return
@@ -470,24 +479,35 @@ class DetailsFragment : Fragment() {
         MainScope().launch {
             binding.fabDialogMenuProgressIndicator.show()
 
-            val job = ioScope.async {
-                viewModel.loadMoviePoster(
-                    "${IMAGES_URL}${TmdbApiConstants.IMAGE_FULL_SIZE}${viewModel.movie.poster}"
-                )
+            try {
+                val job = CoroutineScope(Dispatchers.IO).async {
+                    viewModel.loadMoviePoster(
+                        "${IMAGES_URL}${TmdbApiConstants.IMAGE_FULL_SIZE}${viewModel.movie.poster}"
+                    )
+                }
+                saveToGallery(job.await())
+            } catch (e: Exception) {
+                Snackbar.make(
+                    binding.root,
+                    "${getString(R.string.details_fragment_poster_download_failure)}\n${e.message}",
+                    Snackbar.LENGTH_LONG
+                ).show()
+
+                binding.fabDialogMenuProgressIndicator.hide()
+
+                return@launch
             }
-            saveToGallery(job.await())
+
             Snackbar.make(
                 binding.root,
                 R.string.details_fragment_poster_download_success,
                 Snackbar.LENGTH_LONG
-            )
-                .setAction("Open gallery") {
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.type = "image/*"
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    startActivity(intent)
-                }
-                .show()
+            ).setAction(R.string.details_fragment_poster_download_success_action) {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.type = "image/*"
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+            }.show()
 
             binding.fabDialogMenuProgressIndicator.hide()
         }
@@ -497,15 +517,16 @@ class DetailsFragment : Fragment() {
 
 
     companion object {
+        const val EXTERNAL_WRITE_PERMISSION_REQUEST_CODE = 20
+
         private const val FRAGMENT_LAUNCHED_KEY = "FRAGMENT_LAUNCHED"
         private const val FAVORITE_BUTTON_SELECTED_KEY = "FAVORITE_BUTTON_SELECTED"
+
         private const val WATCH_LATER_BUTTON_SELECTED_KEY = "WATCH_LATER_BUTTON_SELECTED"
-
         private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
-        private const val DELAY_BEFORE_LOAD_HIGH_QUALITY_IMAGE = 300L
 
+        private const val DELAY_BEFORE_LOAD_HIGH_QUALITY_IMAGE = 300L
         private const val DIVIDER_MILLISECONDS_TO_SECONDS = 1000
         private const val JPEG_COMPRESS_QUALITY = 100
-        private const val EXTERNAL_WRITE_PERMISSION_REQUEST_CODE = 20
     }
 }

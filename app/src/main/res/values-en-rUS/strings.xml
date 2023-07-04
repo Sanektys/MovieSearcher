@@ -35,6 +35,7 @@
     <string name="details_fragment.alert_dialog.action.download_poster">Download the movie poster</string>
     <string name="details_fragment.alert_dialog.action.cancel">Cancel</string>
     <string name="details_fragment.poster_download.success">Poster successfully uploaded to the gallery</string>
+    <string name="details_fragment.poster_download.success.action">Open gallery</string>
     <string name="details_fragment.poster_download.failure">Unable to download the movie poster</string>
 
 
