@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Theme.MovieSearcher" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/md_theme_primary</item>
@@ -30,6 +30,8 @@
 
         <item name="android:statusBarColor">?attr/colorPrimaryContainer</item>
         <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+
+        <item name="materialAlertDialogTheme">@style/MaterialAlertDialog</item>
     </style>
 
     <!-- Child themes -->
@@ -39,9 +41,28 @@
         <item name="android:navigationBarColor">@color/transparent_navigation_bar</item>
     </style>
 
-    <style name="Theme.MovieSearcher.Search">  <!-- Theme special for search bar/view -->
+
+    <!-- Theme special for search bar/view -->
+    <style name="Theme.MovieSearcher.Search">
         <item name="colorSurface">?attr/colorPrimaryContainer</item>
         <item name="colorOnSurface">?attr/colorOnPrimaryContainer</item>
         <item name="colorOnSurfaceVariant">?attr/colorOnPrimaryContainer</item>
+    </style>
+
+
+    <!-- Theme for alert dialog -->
+    <style name="MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="android:backgroundDimAmount">@dimen/alert_dialog.background_dim_percent</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialogText</item>
+        <item name="android:windowAnimationStyle">@style/MaterialAlertDialogAnimation</item>
+    </style>
+
+    <style name="MaterialAlertDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/alert_dialog_slide_in</item>
+        <item name="android:windowExitAnimation">@anim/alert_dialog_slide_out</item>
+    </style>
+
+    <style name="MaterialAlertDialogText" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textAppearance">@style/TextAppearance.Material3.TitleMedium</item>
     </style>
 </resources>

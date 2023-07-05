@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="@integer/alert_dialog.animations_durations.appearance"
+    android:interpolator="@android:interpolator/decelerate_quad">
+
+    <translate
+        android:fromYDelta="5%p"
+        android:toYDelta="0%p" />
+</set>

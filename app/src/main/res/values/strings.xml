@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Movie Searcher</string>
 
@@ -29,6 +30,14 @@
     <string name="details_fragment.fab.remove_watch_later">Удалено из \"просмотреть позже\"</string>
     <string name="details_fragment.fab.share.sending_text">Посмотри этот фильм: %s\n\n\t%s</string>
     <string name="details_fragment.fab.share.to">Кому отправить фильм?</string>
+    <string name="details_fragment.alert_dialog.title">Выберите действие:</string>
+    <string name="details_fragment.alert_dialog.action.sharing">Поделиться фильмом</string>
+    <string name="details_fragment.alert_dialog.action.download_poster">Скачать постер фильма</string>
+    <string name="details_fragment.alert_dialog.action.cancel">Отмена</string>
+    <string name="details_fragment.poster_download.success">Постер успешно загружен в галерею</string>
+    <string name="details_fragment.poster_download.success.action">Открыть галерею</string>
+    <string name="details_fragment.poster_download.failure">Не удалось загрузить постер фильма</string>
+
 
     <!-- Favorites fragment -->
     <string name="favorites_fragment.top_app_bar.search_bar.hint">Найти избранный фильм</string>

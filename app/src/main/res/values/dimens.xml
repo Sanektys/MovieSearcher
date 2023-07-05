@@ -61,9 +61,24 @@
     <dimen name="activity_details.fab.second_margin_end">88dp</dimen>
     <dimen name="activity_details.fab.third_margin_end">24dp</dimen>
 
+    <dimen name="activity_details.circular_indicator.size">48dp</dimen>
+    <dimen name="activity_details.circular_indicator.corner_radius">12dp</dimen>
+    <dimen name="activity_details.circular_indicator.translationZ">12dp</dimen>
+
     <dimen name="activity_details.title.margin_top">32dp</dimen>
     <dimen name="activity_details.title.margin_horizontal">32dp</dimen>
 
     <dimen name="activity_details.description.margin_top">16dp</dimen>
     <dimen name="activity_details.description.margin_horizontal">20dp</dimen>
+
+
+    <!-- alert dialog -->
+    <dimen name="alert_dialog.background_dim_percent">0.2</dimen>
+    <dimen name="alert_dialog.margin_horizontal">8dp</dimen>
+    <dimen name="alert_dialog.margin_vertical">24dp</dimen>
+    <dimen name="alert_dialog.corner_radius">28dp</dimen>
+    <dimen name="alert_dialog.content.list_item.icon_size">24dp</dimen>
+    <dimen name="alert_dialog.content.list_item.margin_vertical">16dp</dimen>
+    <dimen name="alert_dialog.content.list_item.padding_horizontal">24dp</dimen>
+    <dimen name="alert_dialog.content.list_item.text.margin_start">16dp</dimen>
 </resources>

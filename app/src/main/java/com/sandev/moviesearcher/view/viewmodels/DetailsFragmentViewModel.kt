@@ -1,5 +1,7 @@
 package com.sandev.moviesearcher.view.viewmodels
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.sandev.moviesearcher.App
@@ -7,7 +9,12 @@ import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.components_holders.FavoritesMoviesComponentHolder
 import com.sandev.moviesearcher.domain.components_holders.WatchLaterMoviesComponentHolder
 import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
+import java.io.IOException
+import java.lang.Exception
+import java.net.URL
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 class DetailsFragmentViewModel : ViewModel() {
@@ -42,6 +49,18 @@ class DetailsFragmentViewModel : ViewModel() {
         getWatchLaterMovies = watchLaterMoviesComponent.interactor.getAllFromList()
     }
 
+
+    suspend fun loadMoviePoster(posterUrl: String): Bitmap {
+        return suspendCoroutine { continuation ->
+            val url = URL(posterUrl)
+            try {
+                val bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream())
+                continuation.resume(bitmap)
+            } catch(e: Exception) {
+                throw IOException("Connection lost or server didn't respond")
+            }
+        }
+    }
 
     fun addToFavorite(movie: Movie) = favoritesMoviesComponent.interactor.addToList(movie)
 
