@@ -53,10 +53,13 @@ import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_MED
 import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.IOException
 
@@ -72,6 +75,8 @@ class DetailsFragment : Fragment() {
         get() = _binding!!
 
     private var menuFabDialog: AlertDialog? = null
+
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
 
     override fun onCreateView(
@@ -161,8 +166,11 @@ class DetailsFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+
         viewModel._movie = null
         viewModel.fragmentThatLaunchedDetails = null
+
+        coroutineScope.cancel()
     }
 
     private fun setFloatButtonsState() {
@@ -479,17 +487,23 @@ class DetailsFragment : Fragment() {
         MainScope().launch {
             binding.fabDialogMenuProgressIndicator.show()
 
+            val job = coroutineScope.async {
+                viewModel.loadMoviePoster(
+                    "${IMAGES_URL}${TmdbApiConstants.IMAGE_FULL_SIZE}${viewModel.movie.poster}"
+                )
+            }
             try {
-                val job = CoroutineScope(Dispatchers.IO).async {
-                    viewModel.loadMoviePoster(
-                        "${IMAGES_URL}${TmdbApiConstants.IMAGE_FULL_SIZE}${viewModel.movie.poster}"
-                    )
-                }
                 saveToGallery(job.await())
+            } catch (_: CancellationException) {
+                _binding?.fabDialogMenuProgressIndicator?.hide()
+
+                return@launch
             } catch (e: Exception) {
+                if (_binding?.root == null) return@launch
+
                 Snackbar.make(
                     binding.root,
-                    "${getString(R.string.details_fragment_poster_download_failure)}\n${e.message}",
+                    "${getString(R.string.details_fragment_poster_download_failure)}\n${e.localizedMessage}",
                     Snackbar.LENGTH_LONG
                 ).show()
 

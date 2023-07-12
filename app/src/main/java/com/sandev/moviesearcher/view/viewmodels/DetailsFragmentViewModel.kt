@@ -53,12 +53,17 @@ class DetailsFragmentViewModel : ViewModel() {
     suspend fun loadMoviePoster(posterUrl: String): Bitmap {
         return suspendCoroutine { continuation ->
             val url = URL(posterUrl)
-            try {
-                val bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream())
-                continuation.resume(bitmap)
+
+            val bitmap = try {
+                val connection = url.openConnection()
+                connection.connectTimeout = CONNECTION_TIMEOUT
+                connection.readTimeout = CONNECTION_READ_TIMEOUT
+
+                BitmapFactory.decodeStream(connection.getInputStream())
             } catch(e: Exception) {
                 throw IOException("Connection lost or server didn't respond")
             }
+            continuation.resume(bitmap)
         }
     }
 
@@ -69,4 +74,10 @@ class DetailsFragmentViewModel : ViewModel() {
     fun addToWatchLater(movie: Movie) = watchLaterMoviesComponent.interactor.addToList(movie)
 
     fun removeFromWatchLater(movie: Movie) = watchLaterMoviesComponent.interactor.removeFromList(movie)
+
+
+    companion object {
+        const val CONNECTION_TIMEOUT = 2000
+        const val CONNECTION_READ_TIMEOUT = 2000
+    }
 }
