@@ -51,6 +51,7 @@ import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGES_UR
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_HIGH_SIZE
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_MEDIUM_SIZE
 import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
+import com.sandev.moviesearcher.utils.changeAppearanceToSamsungOneUI
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
 import kotlinx.coroutines.CancellationException
@@ -391,19 +392,7 @@ class DetailsFragment : Fragment() {
                 dialogInterface.dismiss()
             }
             .create()
-
-        alertDialog.window?.setGravity(Gravity.BOTTOM)
-        alertDialog.window?.setBackgroundDrawableResource(R.drawable.alert_dialog_background)
-
-        alertDialog.show()  // Без show() getButton выдаст null
-        val negativeButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE)
-        alertDialog.dismiss()
-
-        val buttonNewLayoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-        negativeButton.layoutParams = buttonNewLayoutParams
+            .changeAppearanceToSamsungOneUI()
 
         initializeDialogButtons(alertDialog)
 
