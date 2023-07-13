@@ -21,6 +21,7 @@ import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.WatchLaterFragmentViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 class WatchLaterFragment : MoviesListFragment() {
@@ -52,6 +53,8 @@ class WatchLaterFragment : MoviesListFragment() {
 
         mainActivity = activity as MainActivity
 
+        viewModel.isMovieMoreNotInSavedList = false
+
         val previousFragmentName = mainActivity?.previousFragmentName
         if (previousFragmentName != DetailsFragment::class.qualifiedName) {
             if (previousFragmentName == HomeFragment::class.qualifiedName) {
@@ -80,6 +83,10 @@ class WatchLaterFragment : MoviesListFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+
+        runBlocking {   // Если пользователь быстро нажимал "назад", то это предотвращает неудаление карточки
+            viewModel.checkForMovieDeletionNecessary()
+        }
 
         _binding = null
     }
@@ -120,6 +127,7 @@ class WatchLaterFragment : MoviesListFragment() {
                 override fun onAnimationStart(animation: Animation?) {}
                 override fun onAnimationRepeat(animation: Animation?) {}
                 override fun onAnimationEnd(animation: Animation) {
+                    if (view == null) return
                     viewLifecycleOwner.lifecycleScope.launch {
                         launch {
                             binding.moviesListRecycler.layoutAnimationListener = null

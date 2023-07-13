@@ -19,8 +19,15 @@ import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.FavoritesFragmentViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 
 class FavoritesFragment : MoviesListFragment() {
@@ -52,6 +59,8 @@ class FavoritesFragment : MoviesListFragment() {
 
         mainActivity = activity as MainActivity
 
+        viewModel.isMovieMoreNotInSavedList = false
+
         initializeViewsReferences(binding.root)
         setAllAnimationTransition()
 
@@ -71,6 +80,10 @@ class FavoritesFragment : MoviesListFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+
+        runBlocking {  // Если пользователь быстро нажимал "назад", то это предотвращает неудаление карточки
+            viewModel.checkForMovieDeletionNecessary()
+        }
 
         _binding = null
     }
@@ -103,6 +116,7 @@ class FavoritesFragment : MoviesListFragment() {
                 override fun onAnimationStart(animation: Animation?) {}
                 override fun onAnimationRepeat(animation: Animation?) {}
                 override fun onAnimationEnd(animation: Animation) {
+                    if (view == null) return
                     viewLifecycleOwner.lifecycleScope.launch {
                         launch {
                             binding.moviesListRecycler.layoutAnimationListener = null
