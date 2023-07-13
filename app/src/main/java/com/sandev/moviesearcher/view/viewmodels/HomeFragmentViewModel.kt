@@ -3,12 +3,13 @@ package com.sandev.moviesearcher.view.viewmodels
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.interactors.SharedPreferencesInteractor
 import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
-import java.util.concurrent.Executors
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -91,7 +92,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
         if (page > totalPagesInLastQuery) return
 
-        Executors.newSingleThreadExecutor().execute {
+        viewModelScope.launch {
             interactor.getMoviesFromApi(
                 page = nextPage,
                 callback = homeFragmentApiCallback,
@@ -117,7 +118,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
         if (page > totalPagesInLastQuery) return
 
-        Executors.newSingleThreadExecutor().execute {
+        viewModelScope.launch {
             interactor.getSearchedMoviesFromApi(
                 query = query.toString(),
                 page = nextPage,
@@ -144,7 +145,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
     private fun loadListFromDB() {
         if (isInSearchMode) {
-            Executors.newSingleThreadExecutor().execute {
+            viewModelScope.launch {
                 moviesList.postValue(interactor.getSearchedMoviesFromDB(
                     query = lastSearch,
                     page = nextPage,
@@ -153,7 +154,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
                 ))
             }
         } else {
-            Executors.newSingleThreadExecutor().execute {
+            viewModelScope.launch {
                 moviesList.postValue(interactor.getMoviesFromDB(
                     page = nextPage,
                     moviesPerPage = moviesPerPage,

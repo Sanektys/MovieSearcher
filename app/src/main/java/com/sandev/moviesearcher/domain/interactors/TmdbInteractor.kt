@@ -11,6 +11,8 @@ import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiKey
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbResultDto
 import com.sandev.moviesearcher.utils.TmdbConverter
 import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -43,8 +45,9 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
     }
 
 
-    fun getMoviesFromApi(page: Int, callback: MoviesListFragmentViewModel.ApiCallback,
-                         repositoryType: RepositoryType, isNeededWipeBeforePutData: Boolean) {
+    suspend fun getMoviesFromApi(page: Int, callback: MoviesListFragmentViewModel.ApiCallback,
+                         repositoryType: RepositoryType, isNeededWipeBeforePutData: Boolean)
+            = withContext(Dispatchers.IO) {
         retrofitService.getMovies(
             apiKey = TmdbApiKey.KEY,
             category = sharedPreferences.getDefaultCategory(),
@@ -57,7 +60,8 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
         ))
     }
 
-    fun getSearchedMoviesFromApi(query: String, page: Int, callback: MoviesListFragmentViewModel.ApiCallback) {
+    suspend fun getSearchedMoviesFromApi(query: String, page: Int, callback: MoviesListFragmentViewModel.ApiCallback)
+            = withContext(Dispatchers.IO){
         retrofitService.getSearchedMovies(
             apiKey = TmdbApiKey.KEY,
             query = query,
@@ -66,18 +70,22 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
         ).enqueue(RetrofitTmdbCallback(callback))
     }
 
-    fun getMoviesFromDB(page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
-            = getRequestedRepository(repositoryType).getFromDB(
-        from = (page - 1) * moviesPerPage,
-        moviesCount = moviesPerPage
-    )
+    suspend fun getMoviesFromDB(page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
+            = withContext(Dispatchers.IO) {
+        getRequestedRepository(repositoryType).getFromDB(
+            from = (page - 1) * moviesPerPage,
+            moviesCount = moviesPerPage
+        )
+    }
 
-    fun getSearchedMoviesFromDB(query: String, page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
-            = getRequestedRepository(repositoryType).getSearchedFromDB(
-        query = query,
-        from = (page - 1) * moviesPerPage,
-        moviesCount = moviesPerPage
-    )
+    suspend fun getSearchedMoviesFromDB(query: String, page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
+            = withContext(Dispatchers.IO) {
+        getRequestedRepository(repositoryType).getSearchedFromDB(
+            query = query,
+            from = (page - 1) * moviesPerPage,
+            moviesCount = moviesPerPage
+        )
+    }
 
     private fun getRequestedRepository(repositoryType: RepositoryType): MoviesListRepository {
         return when (repositoryType) {
