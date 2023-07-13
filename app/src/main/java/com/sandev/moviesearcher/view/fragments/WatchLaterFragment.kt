@@ -5,10 +5,12 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.transition.TransitionInflater
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.db.entities.Movie
@@ -17,8 +19,8 @@ import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.WatchLaterFragmentViewModel
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class WatchLaterFragment : MoviesListFragment() {
@@ -39,9 +41,6 @@ class WatchLaterFragment : MoviesListFragment() {
             viewModel.lastClickedMovie = movie
             mainActivity?.startDetailsFragment(movie, posterView)
         }
-    }
-    private val posterOnClickDummy = object : MoviesRecyclerAdapter.OnClickListener {
-        override fun onClick(movie: Movie, posterView: ImageView) {}
     }
 
 
@@ -94,9 +93,6 @@ class WatchLaterFragment : MoviesListFragment() {
     }
 
     private fun initializeMovieRecyclerList() {
-        // Пока не прошла анимация не обрабатывать клики на постеры
-        viewModel.recyclerAdapter.setPosterOnClickListener(posterOnClickDummy)
-
         binding.moviesListRecycler.apply {
             setHasFixedSize(true)
             isNestedScrollingEnabled = true
@@ -105,8 +101,6 @@ class WatchLaterFragment : MoviesListFragment() {
             itemAnimator = MovieItemAnimator()
 
             doOnPreDraw { startPostponedEnterTransition() }
-
-            viewModel.setActivePosterOnClickListenerAndRemoveMovieIfNeeded(posterOnClick)
         }
     }
 
@@ -117,19 +111,34 @@ class WatchLaterFragment : MoviesListFragment() {
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
         if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {
-            binding.moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(
-                requireContext(),
-                R.anim.posters_appearance
-            )
+            // Пока не прошла анимация не обрабатывать клики на постеры
+            viewModel.blockCallbackOnPosterClick()
 
             resetExitReenterTransitionAnimations()
 
-            Executors.newSingleThreadScheduledExecutor().apply {
-                schedule({ setTransitionAnimation() },
-                    resources.getInteger(R.integer.activity_main_animations_durations_poster_transition).toLong(),
-                    TimeUnit.MILLISECONDS)
-                shutdown()
+            val layoutAnimationListener = object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) {}
+                override fun onAnimationRepeat(animation: Animation?) {}
+                override fun onAnimationEnd(animation: Animation) {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        launch {
+                            binding.moviesListRecycler.layoutAnimationListener = null
+                            setTransitionAnimation(Gravity.END)
+                        }
+                        launch(Dispatchers.Default) {  // Запускать удаление карточки фильма только после отрисовки анимации recycler
+                            viewModel.checkForMovieDeletionNecessary()
+                            viewModel.clickOnPosterCallbackSetupSynchronizeBlock?.receiveCatching()
+                            viewModel.unblockCallbackOnPosterClick(posterOnClick)
+                        }
+                    }
+                }
             }
+            binding.moviesListRecycler.layoutAnimationListener = layoutAnimationListener
+            binding.moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(
+                requireContext(), R.anim.posters_appearance
+            )
+        } else {
+            viewModel.unblockCallbackOnPosterClick(posterOnClick)
         }
     }
 

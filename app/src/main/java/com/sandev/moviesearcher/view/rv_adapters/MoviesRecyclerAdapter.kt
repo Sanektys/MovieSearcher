@@ -43,7 +43,7 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
         fun onClick(movie: Movie, posterView: ImageView)
     }
 
-    fun setPosterOnClickListener(onClickListener: OnClickListener) {
+    fun setPosterOnClickListener(onClickListener: OnClickListener?) {
         clickListener = onClickListener
     }
 
