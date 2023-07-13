@@ -2,7 +2,6 @@ package com.sandev.moviesearcher.view.fragments
 
 import android.Manifest
 import android.content.ContentValues
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -19,7 +18,6 @@ import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.animation.DecelerateInterpolator
 import android.widget.Button
-import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -35,6 +33,7 @@ import androidx.fragment.app.Fragment
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.transition.Fade
 import androidx.transition.Slide
 import androidx.transition.TransitionInflater
@@ -179,10 +178,13 @@ class DetailsFragment : Fragment() {
         checkWatchLaterFloatButtonState()
     }
 
-    private fun checkFavoriteFloatButtonState() {
-        viewModel.getFavoritesMovies.observe(viewLifecycleOwner) { favoritesMovies ->
-            if (favoritesMovies.find { it.title == viewModel.movie.title
-                        && it.description == viewModel.movie.description } != null) {
+    private fun checkFavoriteFloatButtonState() = viewLifecycleOwner.lifecycleScope.launch {
+        viewModel.favoritesMoviesObtainSynchronizeBlock.receiveCatching()
+        viewModel.getFavoritesMovies!!.observe(viewLifecycleOwner) { favoritesMovies ->
+            val existedFavoriteMovie: Movie? = favoritesMovies.find {
+                it.title == viewModel.movie.title && it.description == viewModel.movie.description
+            }
+            if (existedFavoriteMovie != null) {
                 viewModel.isFavoriteMovie = true
                 binding.fabToFavorite.isSelected = true
                 binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
@@ -190,10 +192,14 @@ class DetailsFragment : Fragment() {
         }
     }
 
-    private fun checkWatchLaterFloatButtonState() {
-        viewModel.getWatchLaterMovies.observe(viewLifecycleOwner) { watchLaterMovies ->
-            if (watchLaterMovies.find { it.title == viewModel.movie.title
-                        && it.description == viewModel.movie.description } != null) {
+
+    private fun checkWatchLaterFloatButtonState() = viewLifecycleOwner.lifecycleScope.launch {
+        viewModel.watchLaterMoviesObtainSynchronizeBlock.receiveCatching()
+        viewModel.getWatchLaterMovies!!.observe(viewLifecycleOwner) { watchLaterMovies ->
+            val existedWatchLaterMovie: Movie? = watchLaterMovies.find {
+                it.title == viewModel.movie.title && it.description == viewModel.movie.description
+            }
+            if (existedWatchLaterMovie != null) {
                 viewModel.isWatchLaterMovie = true
                 binding.fabToWatchLater.isSelected = true
                 binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
