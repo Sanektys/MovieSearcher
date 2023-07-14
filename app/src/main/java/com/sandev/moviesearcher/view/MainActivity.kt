@@ -8,7 +8,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewOutlineProvider
 import android.view.animation.DecelerateInterpolator
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +22,7 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.databinding.ActivityMainBinding
@@ -200,7 +200,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun startDetailsFragment(movie: Movie, posterView: ImageView) {
+    fun startDetailsFragment(movie: Movie, posterView: ShapeableImageView) {
         val bundle = Bundle()
         bundle.putParcelable(MOVIE_DATA_KEY, movie)
         val transitionName = posterView.transitionName
@@ -213,6 +213,7 @@ class MainActivity : AppCompatActivity() {
         previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
         supportFragmentManager
             .beginTransaction()
+            .setReorderingAllowed(true)
             .addSharedElement(posterView, transitionName)
             .replace(R.id.fragment, detailsFragment)
             .addToBackStack(null)

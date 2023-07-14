@@ -7,11 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.ImageView
 import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.transition.TransitionInflater
+import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.databinding.FragmentFavoritesBinding
@@ -19,15 +18,9 @@ import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.FavoritesFragmentViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.EmptyCoroutineContext
 
 
 class FavoritesFragment : MoviesListFragment() {
@@ -43,7 +36,7 @@ class FavoritesFragment : MoviesListFragment() {
     private var mainActivity: MainActivity? = null
 
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
-        override fun onClick(movie: Movie, posterView: ImageView) {
+        override fun onClick(movie: Movie, posterView: ShapeableImageView) {
             resetExitReenterTransitionAnimations()
             viewModel.lastClickedMovie = movie
             mainActivity?.startDetailsFragment(movie, posterView)
@@ -103,7 +96,6 @@ class FavoritesFragment : MoviesListFragment() {
     private fun setAllAnimationTransition() {
         setTransitionAnimation(Gravity.END)
 
-        sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
         if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {

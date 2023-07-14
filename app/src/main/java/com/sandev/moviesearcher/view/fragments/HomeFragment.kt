@@ -9,16 +9,15 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
-import android.widget.ImageView
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.FragmentManager.OnBackStackChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.transition.Scene
 import androidx.transition.Slide
-import androidx.transition.TransitionInflater
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.BaseTransientBottomBar.ANIMATION_MODE_FADE
 import com.google.android.material.snackbar.Snackbar
@@ -109,7 +108,7 @@ class HomeFragment : MoviesListFragment() {
 
     private fun initializeMovieRecycler() {
         viewModel.recyclerAdapter.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
-            override fun onClick(movie: Movie, posterView: ImageView) {
+            override fun onClick(movie: Movie, posterView: ShapeableImageView) {
                 resetExitReenterTransitionAnimations()
                 mainActivity?.startDetailsFragment(movie, posterView)
             }
@@ -202,7 +201,6 @@ class HomeFragment : MoviesListFragment() {
     }
 
     private fun setAllTransitionAnimation() {
-        sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
         val scene = Scene.getSceneForLayout(bindingBlank.root as ViewGroup, R.layout.merge_fragment_home_content, requireContext())

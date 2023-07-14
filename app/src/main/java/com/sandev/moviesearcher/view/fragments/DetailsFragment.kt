@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Outline
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -26,7 +27,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.forEach
-import androidx.core.view.postDelayed
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
@@ -36,9 +36,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.transition.Fade
 import androidx.transition.Slide
+import androidx.transition.Transition
 import androidx.transition.TransitionInflater
 import androidx.transition.TransitionSet
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -239,6 +245,18 @@ class DetailsFragment : Fragment() {
                 if (viewModel.movie.poster != null) {
                     Glide.with(this@DetailsFragment)
                         .load("${IMAGES_URL}${IMAGE_MEDIUM_SIZE}${viewModel.movie.poster}")
+                        .placeholder(R.drawable.dummy_poster)
+                        .apply(RequestOptions().dontTransform())
+                        .listener(object : RequestListener<Drawable>{  // Подождать полной загрузки из кэша и только потом делать перенос постера
+                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                                startPostponedEnterTransition()
+                                return false
+                            }
+                            override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                                startPostponedEnterTransition()  // Если запускать без паузы сразу transition, то будут глитчи из-за Glide
+                                return false
+                            }
+                        })
                         .into(this)
                 } else {
                     Glide.with(this@DetailsFragment)
@@ -249,16 +267,17 @@ class DetailsFragment : Fragment() {
             }
             viewModel.isLowQualityPosterDownloaded = true
         }
-        if (viewModel.movie.poster != null) {
-            binding.collapsingToolbarImage.postDelayed(DELAY_BEFORE_LOAD_HIGH_QUALITY_IMAGE) {
-                Glide.with(this@DetailsFragment)
-                    .load("${IMAGES_URL}${IMAGE_HIGH_SIZE}${viewModel.movie.poster}")
-                    .placeholder(binding.collapsingToolbarImage.drawable)
-                    .into(binding.collapsingToolbarImage)
-            }
-        }
         binding.title.text = viewModel.movie.title
         binding.description.text = viewModel.movie.description
+    }
+
+    private fun downloadHighResolutionPosterImage() {
+        if (viewModel._movie?.poster != null) {
+            Glide.with(this)
+                .load("${IMAGES_URL}${IMAGE_HIGH_SIZE}${viewModel.movie.poster}")
+                .placeholder(binding.collapsingToolbarImage.drawable)
+                .into(binding.collapsingToolbarImage)
+        }
     }
 
     private fun setToolbarAppearance() {
@@ -359,7 +378,16 @@ class DetailsFragment : Fragment() {
     }
 
     private fun setTransitionAnimation() {
-        sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
+        val sharedElementTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
+        sharedElementTransition.addListener(object : Transition.TransitionListener{
+            override fun onTransitionStart(transition: Transition) {}
+            override fun onTransitionCancel(transition: Transition) {}
+            override fun onTransitionPause(transition: Transition) {}
+            override fun onTransitionResume(transition: Transition) {}
+            override fun onTransitionEnd(transition: Transition) { downloadHighResolutionPosterImage() }
+        })
+        sharedElementEnterTransition = sharedElementTransition
+        postponeEnterTransition()
 
         val duration = resources.getInteger(R.integer.activity_main_animations_durations_poster_transition)
             .toLong()
@@ -534,7 +562,6 @@ class DetailsFragment : Fragment() {
         private const val WATCH_LATER_BUTTON_SELECTED_KEY = "WATCH_LATER_BUTTON_SELECTED"
         private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
 
-        private const val DELAY_BEFORE_LOAD_HIGH_QUALITY_IMAGE = 300L
         private const val DIVIDER_MILLISECONDS_TO_SECONDS = 1000
         private const val JPEG_COMPRESS_QUALITY = 100
     }
