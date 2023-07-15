@@ -43,7 +43,7 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
             if (recyclerAdapter.itemCount == 0) {
                 dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
             } else {
-                softResetPagination(moviesPerPage = 1)
+                softResetPagination()
             }
         }
 
@@ -70,14 +70,14 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
         savedMoviesComponent.interactor.getMovieAddedNotify.removeObserver(movieAddedObserver)
     }
 
-    override fun dispatchQueryToInteractor(query: String?, page: Int?) {
+    override fun dispatchQueryToInteractor(page: Int?) {
         if (page == INITIAL_PAGE_IN_RECYCLER) {
             hardResetPagination()
         }
 
         if (isInSearchMode) {
-            getSearchedMoviesFromApi(
-                query = query ?: lastSearch,
+            getSearchedMoviesFromDB(
+                query = lastSearch,
                 offset = moviesPaginationOffset,
                 moviesCount = moviesPerPage
             )
@@ -113,7 +113,7 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
         )
     }
 
-    private fun getSearchedMoviesFromApi(query: String, offset: Int, moviesCount: Int) = viewModelScope.launch {
+    private fun getSearchedMoviesFromDB(query: String, offset: Int, moviesCount: Int) = viewModelScope.launch {
         moviesList.postValue(
             savedMoviesComponent.interactor.getFewSearchedMoviesFromList(
                 query = query,
@@ -142,9 +142,14 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
         moviesPaginationOffset = 0
     }
 
-    private fun softResetPagination(moviesPerPage: Int = MoviesListInteractor.MOVIES_PER_PAGE) {
+    private fun softResetPagination() {
         nextPage = INITIAL_PAGE_IN_RECYCLER
-        this.moviesPerPage = moviesPerPage
+        moviesPerPage = SOFT_RESET_PAGINATION_MOVIES_PER_PAGE
         lastVisibleMovieCard = 0
+    }
+
+
+    companion object {
+        const val SOFT_RESET_PAGINATION_MOVIES_PER_PAGE = 1
     }
 }

@@ -61,7 +61,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
                 SharedPreferencesProvider.KEY_CATEGORY ->  viewModelScope.launch {
                     currentRepositoryType = provideCurrentMovieListTypeByCategoryInSettings()
 
-                    dispatchQueryToInteractor(query = lastSearch, page = INITIAL_PAGE_IN_RECYCLER)
+                    dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
                 }
             }
         }
@@ -121,7 +121,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
-    private fun getSearchedMoviesFromApi(query: CharSequence, page: Int) {
+    private fun getSearchedMoviesFromApi(page: Int) {
         isNeedRefreshLocalDB = false
 
         if (page != nextPage) {
@@ -141,7 +141,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
             try {
                 interactor.getSearchedMoviesFromApi(
-                    query = query.toString(),
+                    query = lastSearch,
                     page = nextPage
                 ).collect { result ->
                     resultMovies = result.movies
@@ -155,12 +155,12 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
-    override fun dispatchQueryToInteractor(query: String?, page: Int?) {
+    override fun dispatchQueryToInteractor(page: Int?) {
         if (isInSearchMode) {
             if (page != null) {
-                getSearchedMoviesFromApi(query = query ?: lastSearch, page = page)
+                getSearchedMoviesFromApi(page = page)
             } else {
-                getSearchedMoviesFromApi(query = query ?: lastSearch, page = nextPage)
+                getSearchedMoviesFromApi(page = nextPage)
             }
         } else {
             if (page != null) {

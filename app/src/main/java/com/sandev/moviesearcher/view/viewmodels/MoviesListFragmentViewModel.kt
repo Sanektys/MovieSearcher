@@ -44,26 +44,26 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
         isOffline = false
         isNeedRefreshLocalDB = true
         lastVisibleMovieCard = 0
-        dispatchQueryToInteractor(lastSearch, INITIAL_PAGE_IN_RECYCLER)
+        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
     }
 
     fun searchInSearchView(query: String) {
         if (query == lastSearch) return
+        lastSearch = query
 
         if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
             if (!isInSearchMode) {
                 isInSearchMode = true
                 recyclerAdapter.clearList()
             }
-            dispatchQueryToInteractor(query = query, page = INITIAL_PAGE_IN_RECYCLER)
+            dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
         } else if (query.isEmpty()) {
             if (isInSearchMode) {
                 isInSearchMode = false
                 recyclerAdapter.clearList()
             }
-            dispatchQueryToInteractor(query = null, page = INITIAL_PAGE_IN_RECYCLER)
+            dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
         }
-        lastSearch = query
     }
 
     fun startLoadingOnScroll(lastVisibleItemPosition: Int) {
@@ -85,7 +85,7 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
         }
     }
 
-    protected abstract fun dispatchQueryToInteractor(query: String? = null, page: Int? = null)
+    protected abstract fun dispatchQueryToInteractor(page: Int? = null)
 
     private fun initializeRecyclerAdapterList() {
         if (isInSearchMode) {
