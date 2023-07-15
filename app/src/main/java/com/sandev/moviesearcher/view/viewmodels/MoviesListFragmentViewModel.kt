@@ -111,12 +111,6 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
     private fun isNextPageCanBeDownloaded() = nextPage <= totalPagesInLastQuery
 
 
-//    interface ApiCallback {
-//        fun onSuccess(movies: List<Movie>)
-//        fun onFailure()
-//    }
-
-
     companion object {
         const val SEARCH_SYMBOLS_THRESHOLD = 2
 

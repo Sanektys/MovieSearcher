@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.utils
 
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.data.db.entities.PlayingMovie
 import com.sandev.moviesearcher.data.db.entities.PopularMovie
 import com.sandev.moviesearcher.data.db.entities.TopMovie
@@ -55,6 +56,21 @@ object TmdbConverter {
 
     fun convertApiDtoListToUpcomingMovieList(list: List<TmdbMovieDto>?): List<UpcomingMovie> {
         val result = mutableListOf<UpcomingMovie>()
+        list?.forEach { tmdbMovie ->
+            result.add(
+                UpcomingMovie(
+                    poster = tmdbMovie.posterPath,
+                    title = tmdbMovie.title,
+                    description = tmdbMovie.overview,
+                    rating = tmdbMovie.voteAverage
+                )
+            )
+        }
+        return result
+    }
+
+    fun convertApiDtoListToMovieList(list: List<TmdbMovieDto>?): List<Movie> {
+        val result = mutableListOf<Movie>()
         list?.forEach { tmdbMovie ->
             result.add(
                 UpcomingMovie(

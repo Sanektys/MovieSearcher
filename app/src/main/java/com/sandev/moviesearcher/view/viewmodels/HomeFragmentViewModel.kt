@@ -47,8 +47,6 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
         get() = Companion.isInSearchMode
 
-    private val homeFragmentApiCallback = HomeFragmentApiCallback()
-
 
     init {
         App.instance.getAppComponent().inject(this)
@@ -86,20 +84,38 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
 
         if (isOffline) {
-            homeFragmentApiCallback.onFailure()
+            onQueryFailure()
             return
         }
 
         if (page > totalPagesInLastQuery) return
 
         viewModelScope.launch {
-            interactor.getMoviesFromApi(
-                page = nextPage,
-                callback = homeFragmentApiCallback,
-                repositoryType = provideCurrentMovieListTypeByCategoryInSettings(),
-                isNeededWipeBeforePutData = isNeedRefreshLocalDB
-            )
+            val repositoryTypeOnQuery = provideCurrentMovieListTypeByCategoryInSettings()
+            var resultMovies: List<Movie> = listOf()
+
+            try {
+                interactor.getMoviesFromApi(
+                    page = nextPage,
+                    repositoryType = repositoryTypeOnQuery
+                ).collect { result ->
+                    resultMovies = result.movies
+                    totalPagesInLastQuery = result.totalPages
+                }
+            } catch (e: Exception) {
+                onQueryFailure()
+                isNeedRefreshLocalDB = false
+                return@launch
+            }
+
+            if (isNeedRefreshLocalDB) {
+                interactor.deleteAllMoviesFromDbAndPutNewMovies(resultMovies, repositoryTypeOnQuery)
+            } else {
+                interactor.putMoviesToDB(resultMovies, repositoryTypeOnQuery)
+            }
             isNeedRefreshLocalDB = false
+
+            onQuerySuccess(resultMovies)
         }
     }
 
@@ -112,18 +128,28 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
 
         if (isOffline) {
-            homeFragmentApiCallback.onFailure()
+            onQueryFailure()
             return
         }
 
         if (page > totalPagesInLastQuery) return
 
         viewModelScope.launch {
-            interactor.getSearchedMoviesFromApi(
-                query = query.toString(),
-                page = nextPage,
-                callback = homeFragmentApiCallback
-            )
+            var resultMovies: List<Movie> = listOf()
+
+            try {
+                interactor.getSearchedMoviesFromApi(
+                    query = query.toString(),
+                    page = nextPage
+                ).collect { result ->
+                    resultMovies = result.movies
+                    totalPagesInLastQuery = result.totalPages
+                }
+            } catch (e: Exception) {
+                onQueryFailure()
+                return@launch
+            }
+            onQuerySuccess(resultMovies)
         }
     }
 
@@ -174,23 +200,19 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
+    private fun onQuerySuccess(movies: List<Movie>) {
+        onFailureFlag = false
 
-    private inner class HomeFragmentApiCallback : ApiCallback {
-        override fun onSuccess(movies: List<Movie>, totalPages: Int) {
-            onFailureFlag = false
-            totalPagesInLastQuery = totalPages
+        moviesList.postValue(movies)
+    }
 
-            moviesList.postValue(movies)
-        }
+    private fun onQueryFailure() {
+        onFailureFlag = true
+        isOffline = true
 
-        override fun onFailure() {
-            onFailureFlag = true
-            isOffline = true
+        moviesPerPage = TmdbInteractor.INITIAL_MOVIES_COUNT_PER_PAGE
 
-            moviesPerPage = TmdbInteractor.INITIAL_MOVIES_COUNT_PER_PAGE
-
-            loadListFromDB()
-        }
+        loadListFromDB()
     }
 
 

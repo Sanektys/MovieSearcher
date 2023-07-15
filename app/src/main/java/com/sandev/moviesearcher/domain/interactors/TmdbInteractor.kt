@@ -1,6 +1,7 @@
 package com.sandev.moviesearcher.domain.interactors
 
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.data.repositories.MoviesListRepository
 import com.sandev.moviesearcher.data.repositories.PlayingMoviesListRepository
 import com.sandev.moviesearcher.data.repositories.PopularMoviesListRepository
@@ -8,15 +9,15 @@ import com.sandev.moviesearcher.data.repositories.TopMoviesListRepository
 import com.sandev.moviesearcher.data.repositories.UpcomingMoviesListRepository
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApi
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiKey
-import com.sandev.moviesearcher.data.themoviedatabase.TmdbResultDto
+import com.sandev.moviesearcher.data.themoviedatabase.TmdbResult
 import com.sandev.moviesearcher.utils.TmdbConverter
-import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.util.*
+import java.util.Locale
 import javax.inject.Singleton
 
 
@@ -45,29 +46,43 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
     }
 
 
-    suspend fun getMoviesFromApi(page: Int, callback: MoviesListFragmentViewModel.ApiCallback,
-                         repositoryType: RepositoryType, isNeededWipeBeforePutData: Boolean)
-            = withContext(Dispatchers.IO) {
-        retrofitService.getMovies(
+    suspend fun getMoviesFromApi(page: Int, repositoryType: RepositoryType): Flow<TmdbResult> = flow {
+        emit(retrofitService.getMovies(
             apiKey = TmdbApiKey.KEY,
             category = sharedPreferences.getDefaultCategory(),
             language = systemLanguage,
             page = page
-        ).enqueue(RetrofitTmdbCallback(
-            callback,
-            getRequestedRepository(repositoryType),
-            isNeededWipeBeforePutData
         ))
-    }
+    }.map {
+        val movies = when (repositoryType) {
+            RepositoryType.TOP_MOVIES      -> TmdbConverter.convertApiDtoListToTopMovieList(it.results)
+            RepositoryType.POPULAR_MOVIES  -> TmdbConverter.convertApiDtoListToPopularMovieList(it.results)
+            RepositoryType.PLAYING_MOVIES  -> TmdbConverter.convertApiDtoListToPlayingMovieList(it.results)
+            RepositoryType.UPCOMING_MOVIES -> TmdbConverter.convertApiDtoListToUpcomingMovieList(it.results)
+        }
+        TmdbResult(movies = movies, totalPages = it.totalPages)
+    }.flowOn(Dispatchers.IO)
 
-    suspend fun getSearchedMoviesFromApi(query: String, page: Int, callback: MoviesListFragmentViewModel.ApiCallback)
-            = withContext(Dispatchers.IO){
-        retrofitService.getSearchedMovies(
+    suspend fun getSearchedMoviesFromApi(query: String, page: Int): Flow<TmdbResult> = flow {
+        emit(retrofitService.getSearchedMovies(
             apiKey = TmdbApiKey.KEY,
             query = query,
             language = systemLanguage,
             page = page
-        ).enqueue(RetrofitTmdbCallback(callback))
+        ))
+    }.map {
+        val movies = TmdbConverter.convertApiDtoListToMovieList(it.results)
+        TmdbResult(movies = movies, totalPages = it.totalPages)
+    }.flowOn(Dispatchers.IO)
+
+    suspend fun putMoviesToDB(moviesList: List<Movie>, repositoryType: RepositoryType)
+            = withContext(Dispatchers.IO) {
+        getRequestedRepository(repositoryType).putToDB(moviesList)
+    }
+
+    suspend fun deleteAllMoviesFromDbAndPutNewMovies(moviesList: List<Movie>, repositoryType: RepositoryType)
+            = withContext(Dispatchers.IO) {
+        getRequestedRepository(repositoryType).deleteAllFromDBAndPutNew(moviesList)
     }
 
     suspend fun getMoviesFromDB(page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
@@ -93,55 +108,6 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
             RepositoryType.TOP_MOVIES      -> moviesListRepositories[topMoviesRepositoryIndex]
             RepositoryType.UPCOMING_MOVIES -> moviesListRepositories[upcomingMoviesRepositoryIndex]
             RepositoryType.PLAYING_MOVIES  -> moviesListRepositories[playingMoviesRepositoryIndex]
-        }
-    }
-
-
-    private class RetrofitTmdbCallback(
-        private val viewModelCallback: MoviesListFragmentViewModel.ApiCallback,
-        private val moviesListRepository: MoviesListRepository? = null,
-        private val isNeededWipeBeforePutData: Boolean = false
-    ) : Callback<TmdbResultDto> {
-
-        override fun onResponse(call: Call<TmdbResultDto>, response: Response<TmdbResultDto>) {
-            if (response.isSuccessful) {
-                val moviesList = if (moviesListRepository != null) {
-                    when (moviesListRepository) {
-                        is PlayingMoviesListRepository -> TmdbConverter.convertApiDtoListToPlayingMovieList(
-                            response.body()?.results
-                        )
-                        is PopularMoviesListRepository -> TmdbConverter.convertApiDtoListToPopularMovieList(
-                            response.body()?.results
-                        )
-                        is TopMoviesListRepository -> TmdbConverter.convertApiDtoListToTopMovieList(
-                            response.body()?.results
-                        )
-                        is UpcomingMoviesListRepository -> TmdbConverter.convertApiDtoListToUpcomingMovieList(
-                            response.body()?.results
-                        )
-                        else -> throw IllegalArgumentException("Unknown MoviesListRepository type")
-                    }
-                } else {
-                    TmdbConverter.convertApiDtoListToTopMovieList(response.body()?.results)
-                }
-
-                moviesListRepository?.run {
-                    if (isNeededWipeBeforePutData) {
-                        deleteAllFromDBAndPutNew(moviesList)
-                    } else {
-                        putToDB(moviesList)
-                    }
-                }
-
-                viewModelCallback.onSuccess(
-                    movies = moviesList,
-                    totalPages = response.body()?.totalPages ?: 0
-                )
-            }
-        }
-
-        override fun onFailure(call: Call<TmdbResultDto>, t: Throwable) {
-            viewModelCallback.onFailure()
         }
     }
 
