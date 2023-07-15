@@ -28,7 +28,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
     private val sharedPreferencesStateListener: SharedPreferences.OnSharedPreferenceChangeListener
 
-    private var currentRepositoryType: TmdbInteractor.RepositoryType
+    private var currentRepositoryType: TmdbInteractor.RepositoryType = TmdbInteractor.RepositoryType.POPULAR_MOVIES
 
     var onFailureFlag: Boolean = false
         private set(value) {
@@ -51,8 +51,6 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     init {
         App.instance.getAppComponent().inject(this)
 
-        currentRepositoryType = provideCurrentMovieListTypeByCategoryInSettings()
-
         moviesList.observeForever { newList ->
             moviesPerPage = newList.size
             moviesDatabase = newList.toList()
@@ -60,7 +58,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
         sharedPreferencesStateListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             when (key) {
-                SharedPreferencesProvider.KEY_CATEGORY ->  {
+                SharedPreferencesProvider.KEY_CATEGORY ->  viewModelScope.launch {
                     currentRepositoryType = provideCurrentMovieListTypeByCategoryInSettings()
 
                     dispatchQueryToInteractor(query = lastSearch, page = INITIAL_PAGE_IN_RECYCLER)
@@ -69,7 +67,11 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
         sharedPreferencesInteractor.addSharedPreferencesChangeListener(sharedPreferencesStateListener)
 
-        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
+        viewModelScope.launch {
+            currentRepositoryType = provideCurrentMovieListTypeByCategoryInSettings()
+
+            dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
+        }
     }
 
 
@@ -91,7 +93,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         if (page > totalPagesInLastQuery) return
 
         viewModelScope.launch {
-            val repositoryTypeOnQuery = provideCurrentMovieListTypeByCategoryInSettings()
+            val repositoryTypeOnQuery = currentRepositoryType
             var resultMovies: List<Movie> = listOf()
 
             try {
@@ -176,7 +178,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
                     query = lastSearch,
                     page = nextPage,
                     moviesPerPage = moviesPerPage,
-                    repositoryType = provideCurrentMovieListTypeByCategoryInSettings()
+                    repositoryType = currentRepositoryType
                 ))
             }
         } else {
@@ -184,13 +186,13 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
                 moviesList.postValue(interactor.getMoviesFromDB(
                     page = nextPage,
                     moviesPerPage = moviesPerPage,
-                    repositoryType = provideCurrentMovieListTypeByCategoryInSettings()
+                    repositoryType = currentRepositoryType
                 ))
             }
         }
     }
 
-    private fun provideCurrentMovieListTypeByCategoryInSettings(): TmdbInteractor.RepositoryType {
+    private suspend fun provideCurrentMovieListTypeByCategoryInSettings(): TmdbInteractor.RepositoryType {
         return when (sharedPreferencesInteractor.getDefaultMoviesCategoryInMainList()) {
             SharedPreferencesProvider.CATEGORY_POPULAR  -> TmdbInteractor.RepositoryType.POPULAR_MOVIES
             SharedPreferencesProvider.CATEGORY_TOP      -> TmdbInteractor.RepositoryType.TOP_MOVIES
