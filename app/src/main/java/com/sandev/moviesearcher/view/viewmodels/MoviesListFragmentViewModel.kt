@@ -72,7 +72,7 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
         val relativeThreshold = if (moviesPerPage == 0) {
             nextPage  // Достигнут конец списка, избегается деление на ноль
         } else {
-            ((lastVisibleItemPosition + 1 / moviesPerPage.toFloat()) + PAGINATION_RATIO).roundToInt()
+            ((lastVisibleItemPosition + 1) / moviesPerPage.toFloat() + PAGINATION_RATIO).roundToInt()
         }
         val isItTimeToLoadNextPage = relativeThreshold > nextPage
 
@@ -111,10 +111,10 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
     private fun isNextPageCanBeDownloaded() = nextPage <= totalPagesInLastQuery
 
 
-    interface ApiCallback {
-        fun onSuccess(movies: List<Movie>, totalPages: Int)
-        fun onFailure()
-    }
+//    interface ApiCallback {
+//        fun onSuccess(movies: List<Movie>)
+//        fun onFailure()
+//    }
 
 
     companion object {
