@@ -22,7 +22,8 @@
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimaryContainer">
+        android:background="?attr/colorPrimaryContainer"
+        app:elevation="0dp">
 
         <com.google.android.material.search.SearchBar
             android:id="@+id/search_bar"
