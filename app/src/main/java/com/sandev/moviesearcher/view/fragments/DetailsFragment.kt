@@ -248,6 +248,7 @@ class DetailsFragment : Fragment() {
                         .load("${IMAGES_URL}${IMAGE_MEDIUM_SIZE}${viewModel.movie.poster}")
                         .placeholder(R.drawable.dummy_poster)
                         .apply(RequestOptions().dontTransform())
+                        .onlyRetrieveFromCache(true)
                         .listener(object : RequestListener<Drawable>{  // Подождать полной загрузки из кэша и только потом делать перенос постера
                             override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
                                 startPostponedEnterTransition()
@@ -262,7 +263,9 @@ class DetailsFragment : Fragment() {
                 } else {
                     Glide.with(this@DetailsFragment)
                         .load(R.drawable.dummy_poster)
+                        .apply(RequestOptions().dontTransform())
                         .into(this)
+                    doOnPreDraw { startPostponedEnterTransition() }
                 }
                 transitionName = arguments?.getString(MainActivity.POSTER_TRANSITION_KEY)
             }
