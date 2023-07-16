@@ -67,6 +67,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 
 
@@ -271,12 +272,19 @@ class DetailsFragment : Fragment() {
         binding.description.text = viewModel.movie.description
     }
 
-    private fun downloadHighResolutionPosterImage() {
-        if (viewModel._movie?.poster != null) {
-            Glide.with(this)
+    private suspend fun downloadHighResolutionPosterImage() = withContext(Dispatchers.IO) download@ {
+        if (viewModel.movie.poster != null) {
+            val downloadingImage = Glide.with(this@DetailsFragment)
                 .load("${IMAGES_URL}${IMAGE_HIGH_SIZE}${viewModel.movie.poster}")
-                .placeholder(binding.collapsingToolbarImage.drawable)
-                .into(binding.collapsingToolbarImage)
+                .submit()  // Дальнейшее в этом методе просто для того, чтобы не использовать placeholder т.к. он глючит с drawable из вью
+            val imageDrawable = try {
+                downloadingImage.get()
+            } catch (e: Exception) {
+                return@download
+            }
+            withContext(Dispatchers.Main) {
+                binding.collapsingToolbarImage.setImageDrawable(imageDrawable)
+            }
         }
     }
 
@@ -384,7 +392,10 @@ class DetailsFragment : Fragment() {
             override fun onTransitionCancel(transition: Transition) {}
             override fun onTransitionPause(transition: Transition) {}
             override fun onTransitionResume(transition: Transition) {}
-            override fun onTransitionEnd(transition: Transition) { downloadHighResolutionPosterImage() }
+            override fun onTransitionEnd(transition: Transition) {
+                if (view == null) return
+                viewLifecycleOwner.lifecycleScope.launch { downloadHighResolutionPosterImage() }
+            }
         })
         sharedElementEnterTransition = sharedElementTransition
         postponeEnterTransition()
