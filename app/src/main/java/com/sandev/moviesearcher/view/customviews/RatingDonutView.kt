@@ -18,6 +18,7 @@ import com.sandev.moviesearcher.R
 
 class RatingDonutView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null)
     : View(context, attrs) {
+
     private val oval = RectF()
     private val textRect = Rect()
 
@@ -78,6 +79,13 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         private val RATING_RANGE_NEUTRAL   = 40 .. 59
         private val RATING_RANGE_GOOD      = 60 .. 79
         private val RATING_RANGE_EXCELLENT = 80 .. FULL_PROGRESS
+
+        private var isColorsInitialized = false
+        private var RATING_COLOR_AWFUL:     Int? = null
+        private var RATING_COLOR_BAD:       Int? = null
+        private var RATING_COLOR_NEUTRAL:   Int? = null
+        private var RATING_COLOR_GOOD:      Int? = null
+        private var RATING_COLOR_EXCELLENT: Int? = null
     }
 
 
@@ -99,8 +107,13 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         progressAnimation = factualProgress
         displayingProgress = factualProgress.toFloat()
 
+        if (!isColorsInitialized) {
+            initColors()
+        }
+
         initPaint()
     }
+
 
     override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
         radius = if (width > height) {
@@ -220,12 +233,11 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
             invalidate()
 
             if (progressAnimation < factualProgress) {
+                ++progressAnimation
                 postDelayed(ANIMATION_ITERATION_DELAY) { increaseProgress() }
             } else {
                 isAnimationRunning = false
             }
-
-            ++progressAnimation
         }
 
         increaseProgress()
@@ -258,17 +270,27 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         }
     }
 
+    private fun initColors() {
+        RATING_COLOR_AWFUL     = RATING_COLOR_AWFUL     ?: resources.getColor(R.color.rating_color_awful, context.theme)
+        RATING_COLOR_BAD       = RATING_COLOR_BAD       ?: resources.getColor(R.color.rating_color_bad, context.theme)
+        RATING_COLOR_NEUTRAL   = RATING_COLOR_NEUTRAL   ?: resources.getColor(R.color.rating_color_neutral, context.theme)
+        RATING_COLOR_GOOD      = RATING_COLOR_GOOD      ?: resources.getColor(R.color.rating_color_good, context.theme)
+        RATING_COLOR_EXCELLENT = RATING_COLOR_EXCELLENT ?: resources.getColor(R.color.rating_color_excellent, context.theme)
+
+        isColorsInitialized = true
+    }
+
     private fun updatePaintsColors() {
         strokePaint.color = getPaintColor(displayingProgress.toInt())
         digitPaint.color = getPaintColor(displayingProgress.toInt())
     }
 
     private fun getPaintColor(progress: Int) = when (progress) {
-        in RATING_RANGE_AWFUL     -> resources.getColor(R.color.rating_color_awful, context.theme)
-        in RATING_RANGE_BAD       -> resources.getColor(R.color.rating_color_bad, context.theme)
-        in RATING_RANGE_NEUTRAL   -> resources.getColor(R.color.rating_color_neutral, context.theme)
-        in RATING_RANGE_GOOD      -> resources.getColor(R.color.rating_color_good, context.theme)
-        in RATING_RANGE_EXCELLENT -> resources.getColor(R.color.rating_color_excellent, context.theme)
+        in RATING_RANGE_AWFUL     -> RATING_COLOR_AWFUL!!
+        in RATING_RANGE_BAD       -> RATING_COLOR_BAD!!
+        in RATING_RANGE_NEUTRAL   -> RATING_COLOR_NEUTRAL!!
+        in RATING_RANGE_GOOD      -> RATING_COLOR_GOOD!!
+        in RATING_RANGE_EXCELLENT -> RATING_COLOR_EXCELLENT!!
         else -> Color.DKGRAY
     }
 }
