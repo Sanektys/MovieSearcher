@@ -10,7 +10,9 @@ import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.components_holders.FavoritesMoviesComponentHolder
 import com.sandev.moviesearcher.domain.components_holders.WatchLaterMoviesComponentHolder
 import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -86,20 +88,36 @@ class DetailsFragmentViewModel : ViewModel() {
         }
     }
 
-    fun addToFavorite(movie: Movie) = viewModelScope.launch {
-        favoritesMoviesComponent.interactor.addToList(movie)
+    fun addToFavorite(movie: Movie) {
+        val oneShotScope = CoroutineScope(Dispatchers.IO)
+        oneShotScope.launch {
+            favoritesMoviesComponent.interactor.addToList(movie)
+            oneShotScope.cancel()
+        }
     }
 
-    fun removeFromFavorite(movie: Movie) = viewModelScope.launch {
-        favoritesMoviesComponent.interactor.removeFromList(movie)
+    fun removeFromFavorite(movie: Movie) {
+        val oneShotScope = CoroutineScope(Dispatchers.IO)
+        oneShotScope.launch {
+            favoritesMoviesComponent.interactor.removeFromList(movie)
+            oneShotScope.cancel()
+        }
     }
 
-    fun addToWatchLater(movie: Movie) = viewModelScope.launch {
-        watchLaterMoviesComponent.interactor.addToList(movie)
+    fun addToWatchLater(movie: Movie) {
+        val oneShotScope = CoroutineScope(Dispatchers.IO)
+        oneShotScope.launch {
+            watchLaterMoviesComponent.interactor.addToList(movie)
+            oneShotScope.cancel()
+        }
     }
 
-    fun removeFromWatchLater(movie: Movie) = viewModelScope.launch {
-        watchLaterMoviesComponent.interactor.removeFromList(movie)
+    fun removeFromWatchLater(movie: Movie) {
+        val oneShotScope = CoroutineScope(Dispatchers.IO)
+        oneShotScope.launch {
+            watchLaterMoviesComponent.interactor.removeFromList(movie)
+            oneShotScope.cancel()
+        }
     }
 
 
