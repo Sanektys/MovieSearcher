@@ -15,10 +15,10 @@ class MoviesListInteractor @Inject constructor(private val repo: MoviesListRepos
 
     override val systemLanguage = Locale.getDefault().toLanguageTag()
 
-    val deletedMovie = MutableLiveData<Movie>()
+    private val deletedMovie = MutableLiveData<Movie>()
     val getDeletedMovie: LiveData<Movie> = deletedMovie
 
-    val movieAddedNotify = MutableLiveData<Nothing>()
+    private val movieAddedNotify = MutableLiveData<Nothing>()
     val getMovieAddedNotify: LiveData<Nothing> = movieAddedNotify
 
 

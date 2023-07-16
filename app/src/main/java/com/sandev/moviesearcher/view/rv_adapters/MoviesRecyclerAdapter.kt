@@ -80,11 +80,12 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
         }
     }
 
-    fun removeMovieCard(movie: Movie) {
+    fun removeMovieCard(movie: Movie): Boolean {
         val index = moviesList.indexOf(movie)
-        if (index == -1) return
+        if (index == -1) return false
         moviesList.removeAt(index)
         notifyItemRemoved(index)
+        return true
     }
 
     fun removeMovieCardAt(position: Int) {

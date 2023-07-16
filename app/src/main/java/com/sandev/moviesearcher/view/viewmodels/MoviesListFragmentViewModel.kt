@@ -40,13 +40,6 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
         }
 
 
-    fun fullRefreshMoviesList() {
-        isOffline = false
-        isNeedRefreshLocalDB = true
-        lastVisibleMovieCard = 0
-        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
-    }
-
     fun searchInSearchView(query: String) {
         if (query == lastSearch) return
         lastSearch = query

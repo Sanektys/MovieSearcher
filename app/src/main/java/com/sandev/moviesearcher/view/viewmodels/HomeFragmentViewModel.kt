@@ -75,6 +75,13 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     }
 
 
+    fun fullRefreshMoviesList() {
+        isOffline = false
+        isNeedRefreshLocalDB = true
+        lastVisibleMovieCard = 0
+        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
+    }
+
     override fun onCleared() {
         sharedPreferencesInteractor.removeSharedPreferencesChangeListener(sharedPreferencesStateListener)
     }

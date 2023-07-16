@@ -33,8 +33,8 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
         moviesPerPage = MoviesListInteractor.MOVIES_PER_PAGE
 
         movieDeletedObserver = Observer<Movie> { deletedMovie ->
-            recyclerAdapter.removeMovieCard(deletedMovie)
-            if (moviesPaginationOffset > 0) {
+            val isMovieDeleted = recyclerAdapter.removeMovieCard(deletedMovie)
+            if (isMovieDeleted && moviesPaginationOffset > 0) {
                 --moviesPaginationOffset
             }
             unblockCallbackOnPosterClick()
@@ -43,7 +43,9 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
             if (recyclerAdapter.itemCount == 0) {
                 dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
             } else {
-                softResetPagination()
+                if (moviesPerPage == 0) {  // Пагинация в последний раз дошла до конца списка
+                    softResetPagination()
+                }
             }
         }
 
@@ -78,13 +80,11 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
         if (isInSearchMode) {
             getSearchedMoviesFromDB(
                 query = lastSearch,
-                offset = moviesPaginationOffset,
-                moviesCount = moviesPerPage
+                offset = moviesPaginationOffset
             )
         } else {
             getMoviesFromDB(
-                offset = moviesPaginationOffset,
-                moviesCount = moviesPerPage
+                offset = moviesPaginationOffset
             )
         }
     }
@@ -104,21 +104,21 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
         }
     }
 
-    private fun getMoviesFromDB(offset: Int, moviesCount: Int) = viewModelScope.launch {
+    private fun getMoviesFromDB(offset: Int) = viewModelScope.launch {
         moviesList.postValue(
             savedMoviesComponent.interactor.getFewMoviesFromList(
                 from = offset,
-                moviesCount = moviesCount
+                moviesCount = MoviesListInteractor.MOVIES_PER_PAGE
             )
         )
     }
 
-    private fun getSearchedMoviesFromDB(query: String, offset: Int, moviesCount: Int) = viewModelScope.launch {
+    private fun getSearchedMoviesFromDB(query: String, offset: Int) = viewModelScope.launch {
         moviesList.postValue(
             savedMoviesComponent.interactor.getFewSearchedMoviesFromList(
                 query = query,
                 from = offset,
-                moviesCount = moviesCount
+                moviesCount = MoviesListInteractor.MOVIES_PER_PAGE
             )
         )
     }
@@ -143,13 +143,12 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
     }
 
     private fun softResetPagination() {
-        nextPage = INITIAL_PAGE_IN_RECYCLER
-        moviesPerPage = SOFT_RESET_PAGINATION_MOVIES_PER_PAGE
+        moviesPerPage = MOCK_MOVIES_PER_PAGE_COUNT_FOR_TRIGGER_TO_NEXT_PAGE_LOAD
         lastVisibleMovieCard = 0
     }
 
 
     companion object {
-        const val SOFT_RESET_PAGINATION_MOVIES_PER_PAGE = 1
+        const val MOCK_MOVIES_PER_PAGE_COUNT_FOR_TRIGGER_TO_NEXT_PAGE_LOAD = 1
     }
 }
