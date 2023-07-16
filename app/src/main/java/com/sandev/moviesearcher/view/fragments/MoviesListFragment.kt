@@ -153,11 +153,22 @@ abstract class MoviesListFragment : Fragment() {
     }
 
     private fun setupSearchBehavior() {
+        val defaultHint = searchBar.hint?.toString()
+
+        if (viewModel.lastSearch.isNotEmpty()) {
+            searchBar.hint = viewModel.lastSearch
+            searchView.hint = viewModel.lastSearch
+        }
+
         val textChangeListener = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun afterTextChanged(s: Editable?) {}
 
             override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
+                if (text.isEmpty()) {
+                    searchBar.hint = defaultHint
+                    searchView.hint = defaultHint
+                }
                 viewModel.searchInSearchView(text.toString())
             }
         }
@@ -172,6 +183,10 @@ abstract class MoviesListFragment : Fragment() {
                     editText.addTextChangedListener(textChangeListener)
                 } else if (previousState == SearchView.TransitionState.SHOWN &&
                         newState == SearchView.TransitionState.HIDING) {
+                    // Сохранение текста на экране при выходе из ввода
+                    searchBar.hint = text?.ifEmpty { defaultHint }
+                    searchView.hint = text?.ifEmpty { defaultHint }
+
                     editText.removeTextChangedListener(textChangeListener)
                     // Принудительно убрать системную панель навигации на старых андроидах
                     if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
