@@ -36,6 +36,7 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
             val isMovieDeleted = recyclerAdapter.removeMovieCard(deletedMovie)
             if (isMovieDeleted && moviesPaginationOffset > 0) {
                 --moviesPaginationOffset
+                nextPage = INITIAL_PAGE_IN_RECYCLER
             }
             unblockCallbackOnPosterClick()
         }
@@ -43,6 +44,9 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
             if (recyclerAdapter.itemCount == 0) {
                 dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
             } else {
+                // Сохранённые списки не зависят от nextPage напрямую, только от moviesPaginationOffset,
+                // поэтому сбрасываем страницу при каждом обновлении чтобы пагинация загружала новые страницы
+                nextPage = INITIAL_PAGE_IN_RECYCLER
                 if (moviesPerPage == 0) {  // Пагинация в последний раз дошла до конца списка
                     softResetPagination()
                 }
