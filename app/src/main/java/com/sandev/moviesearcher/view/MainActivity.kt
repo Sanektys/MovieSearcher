@@ -8,7 +8,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewOutlineProvider
 import android.view.animation.DecelerateInterpolator
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -22,6 +21,8 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.databinding.ActivityMainBinding
@@ -31,7 +32,8 @@ import com.sandev.moviesearcher.view.fragments.HomeFragment
 import com.sandev.moviesearcher.view.fragments.MoviesListFragment
 import com.sandev.moviesearcher.view.fragments.SplashScreenFragment
 import com.sandev.moviesearcher.view.fragments.WatchLaterFragment
-import java.util.concurrent.Executors
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -119,14 +121,12 @@ class MainActivity : AppCompatActivity() {
                         true
                     } else {
                         lastFragmentInBackStack.hideSearchView()
-                        Executors.newSingleThreadExecutor().apply {
-                            execute {
-                                while (true) {
-                                    if (lastFragmentInBackStack.isSearchViewHidden()) break
-                                }
-                                navigationMenuItemClick(lastFragmentInBackStack, menuItem)
+                        lifecycleScope.launch {
+                            while (true) {
+                                if (lastFragmentInBackStack.isSearchViewHidden()) break
+                                delay(LOOP_CYCLE_DELAY)
                             }
-                            shutdown()
+                            navigationMenuItemClick(lastFragmentInBackStack, menuItem)
                         }
                         false
                     }
@@ -200,7 +200,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun startDetailsFragment(movie: Movie, posterView: ImageView) {
+    fun startDetailsFragment(movie: Movie, posterView: ShapeableImageView) {
         val bundle = Bundle()
         bundle.putParcelable(MOVIE_DATA_KEY, movie)
         val transitionName = posterView.transitionName
@@ -213,6 +213,7 @@ class MainActivity : AppCompatActivity() {
         previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
         supportFragmentManager
             .beginTransaction()
+            .setReorderingAllowed(true)
             .addSharedElement(posterView, transitionName)
             .replace(R.id.fragment, detailsFragment)
             .addToBackStack(null)
@@ -263,18 +264,16 @@ class MainActivity : AppCompatActivity() {
                     if (!lastFragmentInBackStack.isSearchViewHidden()) {
                         // Т.к. searchView не убирается сразу, то нужно ждать пока оно закроется
                         lastFragmentInBackStack.hideSearchView()
-                        Executors.newSingleThreadExecutor().apply {
-                            execute {
-                                while (true) {
-                                    if (lastFragmentInBackStack.isSearchViewHidden()) break
-                                }
-                                isEnabled = true
-                                dummyOnBackPressed.isEnabled = false
-                                runOnUiThread {
-                                    onBackPressedDispatcher.onBackPressed()
-                                }
+                        lifecycleScope.launch {
+                            while (true) {
+                                if (lastFragmentInBackStack.isSearchViewHidden()) break
+                                delay(LOOP_CYCLE_DELAY)
                             }
-                            shutdown()
+                            isEnabled = true
+                            dummyOnBackPressed.isEnabled = false
+                            runOnUiThread {
+                                onBackPressedDispatcher.onBackPressed()
+                            }
                         }
                         // На время закрытия searchView не обрабатывать клики
                         dummyOnBackPressed.isEnabled = true
@@ -366,5 +365,6 @@ class MainActivity : AppCompatActivity() {
 
         private const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
         private const val ONE_FRAGMENT_IN_STACK = 1
+        private const val LOOP_CYCLE_DELAY = 50L
     }
 }

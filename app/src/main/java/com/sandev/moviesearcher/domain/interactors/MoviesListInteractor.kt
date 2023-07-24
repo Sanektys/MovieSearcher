@@ -5,6 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.data.repositories.MoviesListRepository
 import com.sandev.moviesearcher.data.repositories.MoviesListRepositoryImplForSavedLists
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.Locale
 import javax.inject.Inject
 
@@ -13,36 +15,36 @@ class MoviesListInteractor @Inject constructor(private val repo: MoviesListRepos
 
     override val systemLanguage = Locale.getDefault().toLanguageTag()
 
-    val deletedMovie = MutableLiveData<Movie>()
+    private val deletedMovie = MutableLiveData<Movie>()
     val getDeletedMovie: LiveData<Movie> = deletedMovie
 
-    val movieAddedNotify = MutableLiveData<Nothing>()
+    private val movieAddedNotify = MutableLiveData<Nothing>()
     val getMovieAddedNotify: LiveData<Nothing> = movieAddedNotify
 
 
-    fun addToList(movie: Movie) {
+    suspend fun addToList(movie: Movie) = withContext(Dispatchers.IO) {
         repo.putToDB(listOf(movie))
         movieAddedNotify.postValue(null)
     }
 
-    fun removeFromList(movie: Movie) {
+    suspend fun removeFromList(movie: Movie) = withContext(Dispatchers.IO) {
         (repo as MoviesListRepositoryImplForSavedLists).deleteFromDB(movie)
         deletedMovie.postValue(movie)
     }
 
-    fun getAllFromList(): LiveData<List<Movie>> = repo.getAllFromDB()
+    suspend fun getAllFromList(): LiveData<List<Movie>> = withContext(Dispatchers.IO) {
+        repo.getAllFromDB()
+    }
 
-    fun getFewMoviesFromList(from: Int, moviesCount: Int): List<Movie> = repo.getFromDB(
-        from = from,
-        moviesCount = moviesCount
-    )
+    suspend fun getFewMoviesFromList(from: Int, moviesCount: Int): List<Movie>
+            = withContext(Dispatchers.IO) {
+        repo.getFromDB(from = from, moviesCount = moviesCount)
+    }
 
-    fun getFewSearchedMoviesFromList(query: String, from: Int, moviesCount: Int): List<Movie>
-            = repo.getSearchedFromDB(
-        query = query,
-        from = from,
-        moviesCount = moviesCount
-    )
+    suspend fun getFewSearchedMoviesFromList(query: String, from: Int, moviesCount: Int): List<Movie>
+            = withContext(Dispatchers.IO) {
+        repo.getSearchedFromDB(query = query, from = from, moviesCount = moviesCount)
+    }
 
 
     companion object {

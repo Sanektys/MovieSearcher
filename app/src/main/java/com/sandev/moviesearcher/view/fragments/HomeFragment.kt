@@ -6,18 +6,18 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
-import android.widget.ImageView
 import androidx.core.view.doOnPreDraw
-import androidx.core.view.postDelayed
 import androidx.fragment.app.FragmentManager.OnBackStackChangedListener
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.transition.Scene
 import androidx.transition.Slide
-import androidx.transition.TransitionInflater
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.BaseTransientBottomBar.ANIMATION_MODE_FADE
 import com.google.android.material.snackbar.Snackbar
@@ -29,7 +29,8 @@ import com.sandev.moviesearcher.databinding.MergeFragmentHomeContentBinding
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
-import java.util.concurrent.Executors
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class HomeFragment : MoviesListFragment() {
@@ -107,7 +108,7 @@ class HomeFragment : MoviesListFragment() {
 
     private fun initializeMovieRecycler() {
         viewModel.recyclerAdapter.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
-            override fun onClick(movie: Movie, posterView: ImageView) {
+            override fun onClick(movie: Movie, posterView: ShapeableImageView) {
                 resetExitReenterTransitionAnimations()
                 mainActivity?.startDetailsFragment(movie, posterView)
             }
@@ -184,8 +185,8 @@ class HomeFragment : MoviesListFragment() {
                     if (snackbar?.isShown == false) {
                         snackbar?.show()
                     } else if (snackbar != null) {  // Невозможно моментально показать snackbar после его скрытия, делаем паузу хотя бы 300мс
-                        Executors.newSingleThreadExecutor().execute {
-                            Thread.sleep(SNACKBAR_RESHOW_TIMEOUT)
+                        viewLifecycleOwner.lifecycleScope.launch  {
+                            delay(SNACKBAR_RESHOW_TIMEOUT)
                             snackbar?.show()
                         }
                     }
@@ -200,7 +201,6 @@ class HomeFragment : MoviesListFragment() {
     }
 
     private fun setAllTransitionAnimation() {
-        sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
         val scene = Scene.getSceneForLayout(bindingBlank.root as ViewGroup, R.layout.merge_fragment_home_content, requireContext())
@@ -230,13 +230,21 @@ class HomeFragment : MoviesListFragment() {
 
         if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {
             // Не включать transition анимации после выхода из окна деталей
-            bindingFull.root.postDelayed(resources.getInteger(R.integer.activity_main_animations_durations_poster_transition).toLong()) {
-                setTransitionAnimation(Gravity.START, bindingFull.swipeRefresh)
-            }
-            // LayoutAnimation для recycler включается только при возвращении с экрана деталей
-            bindingFull.moviesListRecycler.layoutAnimation =
-                AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
             resetExitReenterTransitionAnimations()
+
+            val layoutAnimationListener = object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) {}
+                override fun onAnimationRepeat(animation: Animation?) {}
+                override fun onAnimationEnd(animation: Animation) {
+                    bindingFull.moviesListRecycler.layoutAnimationListener = null
+                    setTransitionAnimation(Gravity.START, bindingFull.swipeRefresh)
+                }
+            }
+            bindingFull.moviesListRecycler.layoutAnimationListener = layoutAnimationListener
+            // LayoutAnimation для recycler включается только при возвращении с экрана деталей
+            bindingFull.moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(
+                requireContext(), R.anim.posters_appearance
+            )
         } else {
             setTransitionAnimation(Gravity.START, bindingFull.swipeRefresh)
         }

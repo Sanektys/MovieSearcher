@@ -2,15 +2,13 @@ package com.sandev.moviesearcher.view.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.sandev.moviesearcher.App
-import com.sandev.moviesearcher.R
+import androidx.lifecycle.viewModelScope
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.components_holders.SavedMoviesComponentHolder
 import com.sandev.moviesearcher.domain.interactors.MoviesListInteractor
-import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 
 
 abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
@@ -22,8 +20,10 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
     var isMovieMoreNotInSavedList: Boolean = false
     var lastClickedMovie: Movie? = null
 
+    var clickOnPosterCallbackSetupSynchronizeBlock: Channel<Nothing>? = null
+
     protected val movieDeletedObserver: Observer<Movie>
-    protected val movieAddedObserver: Observer<Nothing>
+    protected val movieAddedObserver: Observer<Nothing?>
 
     private var moviesPaginationOffset: Int = 0
 
@@ -33,16 +33,23 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
         moviesPerPage = MoviesListInteractor.MOVIES_PER_PAGE
 
         movieDeletedObserver = Observer<Movie> { deletedMovie ->
-            recyclerAdapter.removeMovieCard(deletedMovie)
-            if (moviesPaginationOffset > 0) {
+            val isMovieDeleted = recyclerAdapter.removeMovieCard(deletedMovie)
+            if (isMovieDeleted && moviesPaginationOffset > 0) {
                 --moviesPaginationOffset
+                nextPage = INITIAL_PAGE_IN_RECYCLER
             }
+            unblockCallbackOnPosterClick()
         }
-        movieAddedObserver = Observer<Nothing> {
+        movieAddedObserver = Observer<Nothing?> {
             if (recyclerAdapter.itemCount == 0) {
                 dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
             } else {
-                softResetPagination(moviesPerPage = 1)
+                // Сохранённые списки не зависят от nextPage напрямую, только от moviesPaginationOffset,
+                // поэтому сбрасываем страницу при каждом обновлении чтобы пагинация загружала новые страницы
+                nextPage = INITIAL_PAGE_IN_RECYCLER
+                if (moviesPerPage == 0) {  // Пагинация в последний раз дошла до конца списка
+                    softResetPagination()
+                }
             }
         }
 
@@ -55,67 +62,76 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
     }
 
 
+    fun blockCallbackOnPosterClick() {
+        clickOnPosterCallbackSetupSynchronizeBlock = Channel()
+        recyclerAdapter.setPosterOnClickListener(null)
+    }
+
+    fun unblockCallbackOnPosterClick(callback: MoviesRecyclerAdapter.OnClickListener) {
+        recyclerAdapter.setPosterOnClickListener(callback)
+    }
+
     override fun onCleared() {
         savedMoviesComponent.interactor.getDeletedMovie.removeObserver(movieDeletedObserver)
         savedMoviesComponent.interactor.getMovieAddedNotify.removeObserver(movieAddedObserver)
     }
 
-    override fun dispatchQueryToInteractor(query: String?, page: Int?) {
+    override fun dispatchQueryToInteractor(page: Int?) {
         if (page == INITIAL_PAGE_IN_RECYCLER) {
             hardResetPagination()
         }
 
         if (isInSearchMode) {
-            getSearchedMoviesFromApi(
-                query = query ?: lastSearch,
-                offset = moviesPaginationOffset,
-                moviesCount = moviesPerPage
+            getSearchedMoviesFromDB(
+                query = lastSearch,
+                offset = moviesPaginationOffset
             )
         } else {
             getMoviesFromDB(
-                offset = moviesPaginationOffset,
-                moviesCount = moviesPerPage
+                offset = moviesPaginationOffset
             )
         }
     }
 
-    fun setActivePosterOnClickListenerAndRemoveMovieIfNeeded(enabledPosterOnClickListener: MoviesRecyclerAdapter.OnClickListener) {
-        Executors.newSingleThreadScheduledExecutor().apply {
-            schedule({  // Запускать удаление только после отрисовки анимации recycler
-                if (isMovieMoreNotInSavedList) {
-                    removeMovieFromList()
-
-                    Thread.sleep(MovieItemAnimator.REMOVE_DURATION)
-                    recyclerAdapter.setPosterOnClickListener(enabledPosterOnClickListener)
-                } else {
-                    recyclerAdapter.setPosterOnClickListener(enabledPosterOnClickListener)
-                }
-            }, RECYCLER_VIEW_APPEARANCE_ANIMATION_DELAY, TimeUnit.MILLISECONDS)
+    suspend fun checkForMovieDeletionNecessary() {
+        if (isMovieMoreNotInSavedList) {
+            removeMovieFromList()
+        } else {
+            unblockCallbackOnPosterClick()
         }
     }
 
-    protected fun getMoviesFromDB(offset: Int, moviesCount: Int) {
-        Executors.newSingleThreadExecutor().execute {
-            moviesList.postValue(savedMoviesComponent.interactor.getFewMoviesFromList(
+    private fun unblockCallbackOnPosterClick() {
+        clickOnPosterCallbackSetupSynchronizeBlock?.run {
+            cancel()
+            clickOnPosterCallbackSetupSynchronizeBlock = null
+        }
+    }
+
+    private fun getMoviesFromDB(offset: Int) = viewModelScope.launch {
+        moviesList.postValue(
+            savedMoviesComponent.interactor.getFewMoviesFromList(
                 from = offset,
-                moviesCount = moviesCount
-            ))
-        }
+                moviesCount = MoviesListInteractor.MOVIES_PER_PAGE
+            )
+        )
     }
 
-    private fun getSearchedMoviesFromApi(query: String, offset: Int, moviesCount: Int) {
-        Executors.newSingleThreadExecutor().execute {
-            moviesList.postValue(savedMoviesComponent.interactor.getFewSearchedMoviesFromList(
+    private fun getSearchedMoviesFromDB(query: String, offset: Int) = viewModelScope.launch {
+        moviesList.postValue(
+            savedMoviesComponent.interactor.getFewSearchedMoviesFromList(
                 query = query,
                 from = offset,
-                moviesCount = moviesCount
-            ))
-        }
+                moviesCount = MoviesListInteractor.MOVIES_PER_PAGE
+            )
+        )
     }
 
-    private fun removeFromSavedList(movie: Movie) = savedMoviesComponent.interactor.removeFromList(movie)
+    private suspend fun removeFromSavedList(movie: Movie) {
+        savedMoviesComponent.interactor.removeFromList(movie)
+    }
 
-    private fun removeMovieFromList() {
+    private suspend fun removeMovieFromList() {
         if (lastClickedMovie != null) {
             removeFromSavedList(lastClickedMovie!!)
             lastClickedMovie = null
@@ -130,14 +146,13 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
         moviesPaginationOffset = 0
     }
 
-    private fun softResetPagination(moviesPerPage: Int = MoviesListInteractor.MOVIES_PER_PAGE) {
-        nextPage = INITIAL_PAGE_IN_RECYCLER
-        this.moviesPerPage = moviesPerPage
+    private fun softResetPagination() {
+        moviesPerPage = MOCK_MOVIES_PER_PAGE_COUNT_FOR_TRIGGER_TO_NEXT_PAGE_LOAD
         lastVisibleMovieCard = 0
     }
 
 
     companion object {
-        val RECYCLER_VIEW_APPEARANCE_ANIMATION_DELAY = App.instance.resources.getInteger(R.integer.fragment_favorites_delay_recyclerViewAppearance).toLong()
+        const val MOCK_MOVIES_PER_PAGE_COUNT_FOR_TRIGGER_TO_NEXT_PAGE_LOAD = 1
     }
 }

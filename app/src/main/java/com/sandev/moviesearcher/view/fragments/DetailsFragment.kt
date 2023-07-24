@@ -2,11 +2,11 @@ package com.sandev.moviesearcher.view.fragments
 
 import android.Manifest
 import android.content.ContentValues
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Outline
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -19,7 +19,6 @@ import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.animation.DecelerateInterpolator
 import android.widget.Button
-import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -28,18 +27,24 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.forEach
-import androidx.core.view.postDelayed
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.transition.Fade
 import androidx.transition.Slide
+import androidx.transition.Transition
 import androidx.transition.TransitionInflater
 import androidx.transition.TransitionSet
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -51,13 +56,18 @@ import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGES_UR
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_HIGH_SIZE
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_MEDIUM_SIZE
 import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
+import com.sandev.moviesearcher.utils.changeAppearanceToSamsungOneUI
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 
 
@@ -72,6 +82,8 @@ class DetailsFragment : Fragment() {
         get() = _binding!!
 
     private var menuFabDialog: AlertDialog? = null
+
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
 
     override fun onCreateView(
@@ -161,8 +173,11 @@ class DetailsFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+
         viewModel._movie = null
         viewModel.fragmentThatLaunchedDetails = null
+
+        coroutineScope.cancel()
     }
 
     private fun setFloatButtonsState() {
@@ -170,10 +185,13 @@ class DetailsFragment : Fragment() {
         checkWatchLaterFloatButtonState()
     }
 
-    private fun checkFavoriteFloatButtonState() {
-        viewModel.getFavoritesMovies.observe(viewLifecycleOwner) { favoritesMovies ->
-            if (favoritesMovies.find { it.title == viewModel.movie.title
-                        && it.description == viewModel.movie.description } != null) {
+    private fun checkFavoriteFloatButtonState() = viewLifecycleOwner.lifecycleScope.launch {
+        viewModel.favoritesMoviesObtainSynchronizeBlock.receiveCatching()
+        viewModel.getFavoritesMovies!!.observe(viewLifecycleOwner) { favoritesMovies ->
+            val existedFavoriteMovie: Movie? = favoritesMovies.find {
+                it.title == viewModel.movie.title && it.description == viewModel.movie.description
+            }
+            if (existedFavoriteMovie != null) {
                 viewModel.isFavoriteMovie = true
                 binding.fabToFavorite.isSelected = true
                 binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
@@ -181,10 +199,14 @@ class DetailsFragment : Fragment() {
         }
     }
 
-    private fun checkWatchLaterFloatButtonState() {
-        viewModel.getWatchLaterMovies.observe(viewLifecycleOwner) { watchLaterMovies ->
-            if (watchLaterMovies.find { it.title == viewModel.movie.title
-                        && it.description == viewModel.movie.description } != null) {
+
+    private fun checkWatchLaterFloatButtonState() = viewLifecycleOwner.lifecycleScope.launch {
+        viewModel.watchLaterMoviesObtainSynchronizeBlock.receiveCatching()
+        viewModel.getWatchLaterMovies!!.observe(viewLifecycleOwner) { watchLaterMovies ->
+            val existedWatchLaterMovie: Movie? = watchLaterMovies.find {
+                it.title == viewModel.movie.title && it.description == viewModel.movie.description
+            }
+            if (existedWatchLaterMovie != null) {
                 viewModel.isWatchLaterMovie = true
                 binding.fabToWatchLater.isSelected = true
                 binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
@@ -224,26 +246,49 @@ class DetailsFragment : Fragment() {
                 if (viewModel.movie.poster != null) {
                     Glide.with(this@DetailsFragment)
                         .load("${IMAGES_URL}${IMAGE_MEDIUM_SIZE}${viewModel.movie.poster}")
+                        .placeholder(R.drawable.dummy_poster)
+                        .apply(RequestOptions().dontTransform())
+                        .onlyRetrieveFromCache(true)
+                        .listener(object : RequestListener<Drawable>{  // Подождать полной загрузки из кэша и только потом делать перенос постера
+                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                                startPostponedEnterTransition()
+                                return false
+                            }
+                            override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                                startPostponedEnterTransition()  // Если запускать без паузы сразу transition, то будут глитчи из-за Glide
+                                return false
+                            }
+                        })
                         .into(this)
                 } else {
                     Glide.with(this@DetailsFragment)
                         .load(R.drawable.dummy_poster)
+                        .apply(RequestOptions().dontTransform())
                         .into(this)
+                    doOnPreDraw { startPostponedEnterTransition() }
                 }
                 transitionName = arguments?.getString(MainActivity.POSTER_TRANSITION_KEY)
             }
             viewModel.isLowQualityPosterDownloaded = true
         }
-        if (viewModel.movie.poster != null) {
-            binding.collapsingToolbarImage.postDelayed(DELAY_BEFORE_LOAD_HIGH_QUALITY_IMAGE) {
-                Glide.with(this@DetailsFragment)
-                    .load("${IMAGES_URL}${IMAGE_HIGH_SIZE}${viewModel.movie.poster}")
-                    .placeholder(binding.collapsingToolbarImage.drawable)
-                    .into(binding.collapsingToolbarImage)
-            }
-        }
         binding.title.text = viewModel.movie.title
         binding.description.text = viewModel.movie.description
+    }
+
+    private suspend fun downloadHighResolutionPosterImage() = withContext(Dispatchers.IO) download@ {
+        if (viewModel.movie.poster != null) {
+            val downloadingImage = Glide.with(this@DetailsFragment)
+                .load("${IMAGES_URL}${IMAGE_HIGH_SIZE}${viewModel.movie.poster}")
+                .submit()  // Дальнейшее в этом методе просто для того, чтобы не использовать placeholder т.к. он глючит с drawable из вью
+            val imageDrawable = try {
+                downloadingImage.get()
+            } catch (e: Exception) {
+                return@download
+            }
+            withContext(Dispatchers.Main) {
+                binding.collapsingToolbarImage.setImageDrawable(imageDrawable)
+            }
+        }
     }
 
     private fun setToolbarAppearance() {
@@ -344,7 +389,19 @@ class DetailsFragment : Fragment() {
     }
 
     private fun setTransitionAnimation() {
-        sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
+        val sharedElementTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
+        sharedElementTransition.addListener(object : Transition.TransitionListener{
+            override fun onTransitionStart(transition: Transition) {}
+            override fun onTransitionCancel(transition: Transition) {}
+            override fun onTransitionPause(transition: Transition) {}
+            override fun onTransitionResume(transition: Transition) {}
+            override fun onTransitionEnd(transition: Transition) {
+                if (view == null) return
+                viewLifecycleOwner.lifecycleScope.launch { downloadHighResolutionPosterImage() }
+            }
+        })
+        sharedElementEnterTransition = sharedElementTransition
+        postponeEnterTransition()
 
         val duration = resources.getInteger(R.integer.activity_main_animations_durations_poster_transition)
             .toLong()
@@ -383,19 +440,7 @@ class DetailsFragment : Fragment() {
                 dialogInterface.dismiss()
             }
             .create()
-
-        alertDialog.window?.setGravity(Gravity.BOTTOM)
-        alertDialog.window?.setBackgroundDrawableResource(R.drawable.alert_dialog_background)
-
-        alertDialog.show()  // Без show() getButton выдаст null
-        val negativeButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE)
-        alertDialog.dismiss()
-
-        val buttonNewLayoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-        negativeButton.layoutParams = buttonNewLayoutParams
+            .changeAppearanceToSamsungOneUI()
 
         initializeDialogButtons(alertDialog)
 
@@ -479,17 +524,23 @@ class DetailsFragment : Fragment() {
         MainScope().launch {
             binding.fabDialogMenuProgressIndicator.show()
 
+            val job = coroutineScope.async {
+                viewModel.loadMoviePoster(
+                    "${IMAGES_URL}${TmdbApiConstants.IMAGE_FULL_SIZE}${viewModel.movie.poster}"
+                )
+            }
             try {
-                val job = CoroutineScope(Dispatchers.IO).async {
-                    viewModel.loadMoviePoster(
-                        "${IMAGES_URL}${TmdbApiConstants.IMAGE_FULL_SIZE}${viewModel.movie.poster}"
-                    )
-                }
                 saveToGallery(job.await())
+            } catch (_: CancellationException) {
+                _binding?.fabDialogMenuProgressIndicator?.hide()
+
+                return@launch
             } catch (e: Exception) {
+                if (_binding?.root == null) return@launch
+
                 Snackbar.make(
                     binding.root,
-                    "${getString(R.string.details_fragment_poster_download_failure)}\n${e.message}",
+                    "${getString(R.string.details_fragment_poster_download_failure)}\n${e.localizedMessage}",
                     Snackbar.LENGTH_LONG
                 ).show()
 
@@ -525,7 +576,6 @@ class DetailsFragment : Fragment() {
         private const val WATCH_LATER_BUTTON_SELECTED_KEY = "WATCH_LATER_BUTTON_SELECTED"
         private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
 
-        private const val DELAY_BEFORE_LOAD_HIGH_QUALITY_IMAGE = 300L
         private const val DIVIDER_MILLISECONDS_TO_SECONDS = 1000
         private const val JPEG_COMPRESS_QUALITY = 100
     }

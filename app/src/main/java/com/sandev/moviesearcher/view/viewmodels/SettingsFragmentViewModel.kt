@@ -1,17 +1,16 @@
 package com.sandev.moviesearcher.view.viewmodels
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.sandev.moviesearcher.App
-import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.domain.interactors.SharedPreferencesInteractor
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-class SettingsFragmentViewModel(context: Context) : ViewModel() {
+class SettingsFragmentViewModel() : ViewModel() {
 
     @Inject
     lateinit var sharedPreferencesInteractor: SharedPreferencesInteractor
@@ -19,10 +18,6 @@ class SettingsFragmentViewModel(context: Context) : ViewModel() {
     private val categoryProperty: MutableLiveData<String> = MutableLiveData()
     val getCategoryProperty: LiveData<String> = categoryProperty
 
-    val categoryPopular = context.getString(R.string.shared_preferences_settings_value_category_popular)
-    val categoryTopRated = context.getString(R.string.shared_preferences_settings_value_category_top_rated)
-    val categoryUpcoming = context.getString(R.string.shared_preferences_settings_value_category_upcoming)
-    val categoryNowPlaying = context.getString(R.string.shared_preferences_settings_value_category_now_playing)
 
     init {
         App.instance.getAppComponent().inject(this)
@@ -30,26 +25,12 @@ class SettingsFragmentViewModel(context: Context) : ViewModel() {
     }
 
 
-    private fun getCategoryProperty() {
-        categoryProperty.value = sharedPreferencesInteractor.getDefaultMoviesCategoryInMainList()
+    private fun getCategoryProperty() = viewModelScope.launch {
+        categoryProperty.postValue(sharedPreferencesInteractor.getDefaultMoviesCategoryInMainList())
     }
 
-    fun putCategoryProperty(category: String) {
+    fun putCategoryProperty(category: String) = viewModelScope.launch {
         sharedPreferencesInteractor.setDefaultMoviesCategoryInMainList(category)
         getCategoryProperty()
-    }
-
-
-    class MyViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
-
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-
-            if (modelClass.isAssignableFrom(SettingsFragmentViewModel::class.java)) {
-                return SettingsFragmentViewModel(context) as T
-            }
-
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
     }
 }

@@ -4,13 +4,19 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.components_holders.FavoritesMoviesComponentHolder
 import com.sandev.moviesearcher.domain.components_holders.WatchLaterMoviesComponentHolder
 import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
-import java.lang.Exception
 import java.net.URL
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -24,8 +30,13 @@ class DetailsFragmentViewModel : ViewModel() {
     @Inject
     lateinit var watchLaterMoviesComponent: WatchLaterMoviesComponentHolder
 
-    val getFavoritesMovies: LiveData<List<Movie>>
-    val getWatchLaterMovies: LiveData<List<Movie>>
+    var getFavoritesMovies: LiveData<List<Movie>>? = null
+        private set
+    var getWatchLaterMovies: LiveData<List<Movie>>? = null
+        private set
+
+    val favoritesMoviesObtainSynchronizeBlock = Channel<Nothing>()
+    val watchLaterMoviesObtainSynchronizeBlock = Channel<Nothing>()
 
     @Inject
     lateinit var interactor: TmdbInteractor
@@ -45,28 +56,73 @@ class DetailsFragmentViewModel : ViewModel() {
     init {
         App.instance.getAppComponent().inject(this)
 
-        getFavoritesMovies = favoritesMoviesComponent.interactor.getAllFromList()
-        getWatchLaterMovies = watchLaterMoviesComponent.interactor.getAllFromList()
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                launch {
+                    getFavoritesMovies = favoritesMoviesComponent.interactor.getAllFromList()
+                    favoritesMoviesObtainSynchronizeBlock.close()
+                }
+                launch {
+                    getWatchLaterMovies = watchLaterMoviesComponent.interactor.getAllFromList()
+                    watchLaterMoviesObtainSynchronizeBlock.close()
+                }
+            }
+        }
     }
 
 
     suspend fun loadMoviePoster(posterUrl: String): Bitmap {
         return suspendCoroutine { continuation ->
             val url = URL(posterUrl)
-            try {
-                val bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream())
-                continuation.resume(bitmap)
+
+            val bitmap = try {
+                val connection = url.openConnection()
+                connection.connectTimeout = CONNECTION_TIMEOUT
+                connection.readTimeout = CONNECTION_READ_TIMEOUT
+
+                BitmapFactory.decodeStream(connection.getInputStream())
             } catch(e: Exception) {
                 throw IOException("Connection lost or server didn't respond")
             }
+            continuation.resume(bitmap)
         }
     }
 
-    fun addToFavorite(movie: Movie) = favoritesMoviesComponent.interactor.addToList(movie)
+    fun addToFavorite(movie: Movie) {
+        val oneShotScope = CoroutineScope(Dispatchers.IO)
+        oneShotScope.launch {
+            favoritesMoviesComponent.interactor.addToList(movie)
+            oneShotScope.cancel()
+        }
+    }
 
-    fun removeFromFavorite(movie: Movie) = favoritesMoviesComponent.interactor.removeFromList(movie)
+    fun removeFromFavorite(movie: Movie) {
+        val oneShotScope = CoroutineScope(Dispatchers.IO)
+        oneShotScope.launch {
+            favoritesMoviesComponent.interactor.removeFromList(movie)
+            oneShotScope.cancel()
+        }
+    }
 
-    fun addToWatchLater(movie: Movie) = watchLaterMoviesComponent.interactor.addToList(movie)
+    fun addToWatchLater(movie: Movie) {
+        val oneShotScope = CoroutineScope(Dispatchers.IO)
+        oneShotScope.launch {
+            watchLaterMoviesComponent.interactor.addToList(movie)
+            oneShotScope.cancel()
+        }
+    }
 
-    fun removeFromWatchLater(movie: Movie) = watchLaterMoviesComponent.interactor.removeFromList(movie)
+    fun removeFromWatchLater(movie: Movie) {
+        val oneShotScope = CoroutineScope(Dispatchers.IO)
+        oneShotScope.launch {
+            watchLaterMoviesComponent.interactor.removeFromList(movie)
+            oneShotScope.cancel()
+        }
+    }
+
+
+    companion object {
+        const val CONNECTION_TIMEOUT = 2000
+        const val CONNECTION_READ_TIMEOUT = 2000
+    }
 }

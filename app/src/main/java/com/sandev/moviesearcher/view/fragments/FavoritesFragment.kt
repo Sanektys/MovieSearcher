@@ -5,11 +5,12 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.ImageView
 import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.ViewModelProvider
-import androidx.transition.TransitionInflater
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.databinding.FragmentFavoritesBinding
@@ -17,8 +18,9 @@ import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.FavoritesFragmentViewModel
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 class FavoritesFragment : MoviesListFragment() {
@@ -34,14 +36,11 @@ class FavoritesFragment : MoviesListFragment() {
     private var mainActivity: MainActivity? = null
 
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
-        override fun onClick(movie: Movie, posterView: ImageView) {
+        override fun onClick(movie: Movie, posterView: ShapeableImageView) {
             resetExitReenterTransitionAnimations()
             viewModel.lastClickedMovie = movie
             mainActivity?.startDetailsFragment(movie, posterView)
         }
-    }
-    private val posterOnClickDummy = object : MoviesRecyclerAdapter.OnClickListener {
-        override fun onClick(movie: Movie, posterView: ImageView) {}
     }
     
 
@@ -52,6 +51,8 @@ class FavoritesFragment : MoviesListFragment() {
         _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
 
         mainActivity = activity as MainActivity
+
+        viewModel.isMovieMoreNotInSavedList = false
 
         initializeViewsReferences(binding.root)
         setAllAnimationTransition()
@@ -73,13 +74,14 @@ class FavoritesFragment : MoviesListFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
 
+        runBlocking {  // Если пользователь быстро нажимал "назад", то это предотвращает неудаление карточки
+            viewModel.checkForMovieDeletionNecessary()
+        }
+
         _binding = null
     }
 
     private fun initializeMovieRecyclerList() {
-        // Пока не прошла анимация не обрабатывать клики на постеры
-        viewModel.recyclerAdapter.setPosterOnClickListener(posterOnClickDummy)
-
         binding.moviesListRecycler.apply {
             setHasFixedSize(true)
             isNestedScrollingEnabled = true
@@ -88,37 +90,50 @@ class FavoritesFragment : MoviesListFragment() {
             itemAnimator = MovieItemAnimator()
 
             doOnPreDraw { startPostponedEnterTransition() }
-
-            viewModel.setActivePosterOnClickListenerAndRemoveMovieIfNeeded(posterOnClick)
         }
     }
 
     private fun setAllAnimationTransition() {
         setTransitionAnimation(Gravity.END)
 
-        sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
         if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {
-            binding.moviesListRecycler.layoutAnimation =
-                AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.posters_appearance)
+            // Пока не прошла анимация не обрабатывать клики на постеры
+            viewModel.blockCallbackOnPosterClick()
 
             resetExitReenterTransitionAnimations()
 
-            Executors.newSingleThreadScheduledExecutor().apply {
-                schedule(
-                    { setTransitionAnimation(Gravity.END) },
-                    resources.getInteger(R.integer.activity_main_animations_durations_poster_transition).toLong(),
-                    TimeUnit.MILLISECONDS)
-                shutdown()
+            val layoutAnimationListener = object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) {}
+                override fun onAnimationRepeat(animation: Animation?) {}
+                override fun onAnimationEnd(animation: Animation) {
+                    if (view == null) return
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        launch {
+                            binding.moviesListRecycler.layoutAnimationListener = null
+                            setTransitionAnimation(Gravity.END)
+                        }
+                        launch(Dispatchers.Default) {
+                            viewModel.checkForMovieDeletionNecessary()  // Запускать удаление карточки фильма только после отрисовки анимации recycler
+                            viewModel.clickOnPosterCallbackSetupSynchronizeBlock?.receiveCatching()
+                            viewModel.unblockCallbackOnPosterClick(posterOnClick)
+                        }
+                    }
+                }
             }
+            binding.moviesListRecycler.layoutAnimationListener = layoutAnimationListener
+            binding.moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(
+                requireContext(), R.anim.posters_appearance
+            )
+        } else {
+            viewModel.unblockCallbackOnPosterClick(posterOnClick)
         }
     }
 
 
     companion object {
         const val FAVORITES_DETAILS_RESULT_KEY = "FAVORITES_DETAILS_RESULT"
-
         const val MOVIE_NOW_NOT_FAVORITE_KEY = "MOVIE_NOW_NOT_FAVORITE"
     }
 }

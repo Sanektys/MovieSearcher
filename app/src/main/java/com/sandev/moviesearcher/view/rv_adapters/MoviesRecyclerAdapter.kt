@@ -2,9 +2,9 @@ package com.sandev.moviesearcher.view.rv_adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.databinding.MovieCardBinding
@@ -40,10 +40,10 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
     }
 
     interface OnClickListener {
-        fun onClick(movie: Movie, posterView: ImageView)
+        fun onClick(movie: Movie, posterView: ShapeableImageView)
     }
 
-    fun setPosterOnClickListener(onClickListener: OnClickListener) {
+    fun setPosterOnClickListener(onClickListener: OnClickListener?) {
         clickListener = onClickListener
     }
 
@@ -80,11 +80,12 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
         }
     }
 
-    fun removeMovieCard(movie: Movie) {
+    fun removeMovieCard(movie: Movie): Boolean {
         val index = moviesList.indexOf(movie)
-        if (index == -1) return
+        if (index == -1) return false
         moviesList.removeAt(index)
         notifyItemRemoved(index)
+        return true
     }
 
     fun removeMovieCardAt(position: Int) {

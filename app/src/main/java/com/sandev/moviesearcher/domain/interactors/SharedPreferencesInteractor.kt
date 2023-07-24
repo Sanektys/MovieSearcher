@@ -2,13 +2,19 @@ package com.sandev.moviesearcher.domain.interactors
 
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 
 class SharedPreferencesInteractor(private val sharedPreferences: SharedPreferencesProvider) {
 
-    fun setDefaultMoviesCategoryInMainList(category: String) = sharedPreferences.setDefaultCategory(category)
+    suspend fun setDefaultMoviesCategoryInMainList(category: String) = withContext(Dispatchers.IO) {
+        sharedPreferences.setDefaultCategory(category)
+    }
 
-    fun getDefaultMoviesCategoryInMainList() = sharedPreferences.getDefaultCategory()
+    suspend fun getDefaultMoviesCategoryInMainList() = withContext(Dispatchers.IO) {
+        sharedPreferences.getDefaultCategory()
+    }
 
     fun addSharedPreferencesChangeListener(listener: OnSharedPreferenceChangeListener) =
         sharedPreferences.registerSharedPreferencesChangeListener(listener)

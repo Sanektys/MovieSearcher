@@ -40,30 +40,23 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
         }
 
 
-    fun fullRefreshMoviesList() {
-        isOffline = false
-        isNeedRefreshLocalDB = true
-        lastVisibleMovieCard = 0
-        dispatchQueryToInteractor(lastSearch, INITIAL_PAGE_IN_RECYCLER)
-    }
-
     fun searchInSearchView(query: String) {
         if (query == lastSearch) return
+        lastSearch = query
 
         if (query.length >= SEARCH_SYMBOLS_THRESHOLD) {
             if (!isInSearchMode) {
                 isInSearchMode = true
                 recyclerAdapter.clearList()
             }
-            dispatchQueryToInteractor(query = query, page = INITIAL_PAGE_IN_RECYCLER)
+            dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
         } else if (query.isEmpty()) {
             if (isInSearchMode) {
                 isInSearchMode = false
                 recyclerAdapter.clearList()
             }
-            dispatchQueryToInteractor(query = null, page = INITIAL_PAGE_IN_RECYCLER)
+            dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
         }
-        lastSearch = query
     }
 
     fun startLoadingOnScroll(lastVisibleItemPosition: Int) {
@@ -72,7 +65,7 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
         val relativeThreshold = if (moviesPerPage == 0) {
             nextPage  // Достигнут конец списка, избегается деление на ноль
         } else {
-            ((lastVisibleItemPosition + 1 / moviesPerPage.toFloat()) + PAGINATION_RATIO).roundToInt()
+            ((lastVisibleItemPosition + 1) / moviesPerPage.toFloat() + PAGINATION_RATIO).roundToInt()
         }
         val isItTimeToLoadNextPage = relativeThreshold > nextPage
 
@@ -85,7 +78,7 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
         }
     }
 
-    protected abstract fun dispatchQueryToInteractor(query: String? = null, page: Int? = null)
+    protected abstract fun dispatchQueryToInteractor(page: Int? = null)
 
     private fun initializeRecyclerAdapterList() {
         if (isInSearchMode) {
@@ -109,12 +102,6 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
     }
 
     private fun isNextPageCanBeDownloaded() = nextPage <= totalPagesInLastQuery
-
-
-    interface ApiCallback {
-        fun onSuccess(movies: List<Movie>, totalPages: Int)
-        fun onFailure()
-    }
 
 
     companion object {

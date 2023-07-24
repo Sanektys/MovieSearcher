@@ -20,10 +20,6 @@ class CircularRevealAnimator(private val windowHeight: Int, private val windowWi
 
     var animationDuration = DEFAULT_ANIMATION_DURATION
 
-    companion object {
-        const val DEFAULT_ANIMATION_DURATION = 400L
-    }
-
 
     fun revealView() {
         if (!isAnimationActive) {
@@ -34,7 +30,6 @@ class CircularRevealAnimator(private val windowHeight: Int, private val windowWi
             }
         }
     }
-
 
     private fun reveal() {
         val startRadius = 0f
@@ -58,7 +53,6 @@ class CircularRevealAnimator(private val windowHeight: Int, private val windowWi
                 revealingView, targetX, targetY, startRadius, endRadius).apply {
             duration = animationDuration
             interpolator = outInterpolator
-            interpolator
             addListener(animationListener)
             start()
         }
@@ -80,5 +74,10 @@ class CircularRevealAnimator(private val windowHeight: Int, private val windowWi
 
         override fun onAnimationCancel(animation: Animator) {}
         override fun onAnimationRepeat(animation: Animator) {}
+    }
+
+
+    companion object {
+        const val DEFAULT_ANIMATION_DURATION = 400L
     }
 }
