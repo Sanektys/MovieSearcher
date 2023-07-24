@@ -19,8 +19,6 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.URL
 import javax.inject.Inject
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 
 class DetailsFragmentViewModel : ViewModel() {
@@ -71,21 +69,19 @@ class DetailsFragmentViewModel : ViewModel() {
     }
 
 
-    suspend fun loadMoviePoster(posterUrl: String): Bitmap {
-        return suspendCoroutine { continuation ->
-            val url = URL(posterUrl)
+    fun loadMoviePoster(posterUrl: String): Bitmap {
+        val url = URL(posterUrl)
 
-            val bitmap = try {
-                val connection = url.openConnection()
-                connection.connectTimeout = CONNECTION_TIMEOUT
-                connection.readTimeout = CONNECTION_READ_TIMEOUT
+        val bitmap = try {
+            val connection = url.openConnection()
+            connection.connectTimeout = CONNECTION_TIMEOUT
+            connection.readTimeout = CONNECTION_READ_TIMEOUT
 
-                BitmapFactory.decodeStream(connection.getInputStream())
-            } catch(e: Exception) {
-                throw IOException("Connection lost or server didn't respond")
-            }
-            continuation.resume(bitmap)
+            BitmapFactory.decodeStream(connection.getInputStream())
+        } catch(e: Exception) {
+            throw IOException("Connection lost or server didn't respond")
         }
+        return bitmap
     }
 
     fun addToFavorite(movie: Movie) {

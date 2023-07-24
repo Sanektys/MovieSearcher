@@ -59,13 +59,11 @@ import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
 import com.sandev.moviesearcher.utils.changeAppearanceToSamsungOneUI
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -83,7 +81,7 @@ class DetailsFragment : Fragment() {
 
     private var menuFabDialog: AlertDialog? = null
 
-    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var posterDownloadDisposable: Disposable? = null
 
 
     override fun onCreateView(
@@ -177,7 +175,7 @@ class DetailsFragment : Fragment() {
         viewModel._movie = null
         viewModel.fragmentThatLaunchedDetails = null
 
-        coroutineScope.cancel()
+        posterDownloadDisposable?.dispose()
     }
 
     private fun setFloatButtonsState() {
@@ -521,47 +519,55 @@ class DetailsFragment : Fragment() {
             requestExternalStoragePermission()
             return
         }
-        MainScope().launch {
-            binding.fabDialogMenuProgressIndicator.show()
+        binding.fabDialogMenuProgressIndicator.show()
 
-            val job = coroutineScope.async {
-                viewModel.loadMoviePoster(
-                    "${IMAGES_URL}${TmdbApiConstants.IMAGE_FULL_SIZE}${viewModel.movie.poster}"
-                )
-            }
+        posterDownloadDisposable = Completable.fromSingle<Unit> { observer ->
             try {
-                saveToGallery(job.await())
-            } catch (_: CancellationException) {
-                _binding?.fabDialogMenuProgressIndicator?.hide()
-
-                return@launch
+                saveToGallery(
+                    viewModel.loadMoviePoster(
+                        "${IMAGES_URL}${TmdbApiConstants.IMAGE_FULL_SIZE}${viewModel.movie.poster}"
+                    )
+                )
+                observer.onSuccess(Unit)
             } catch (e: Exception) {
-                if (_binding?.root == null) return@launch
-
-                Snackbar.make(
-                    binding.root,
-                    "${getString(R.string.details_fragment_poster_download_failure)}\n${e.localizedMessage}",
-                    Snackbar.LENGTH_LONG
-                ).show()
-
-                binding.fabDialogMenuProgressIndicator.hide()
-
-                return@launch
+                observer.onError(e)
             }
-
-            Snackbar.make(
-                binding.root,
-                R.string.details_fragment_poster_download_success,
-                Snackbar.LENGTH_LONG
-            ).setAction(R.string.details_fragment_poster_download_success_action) {
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.type = "image/*"
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                startActivity(intent)
-            }.show()
-
-            binding.fabDialogMenuProgressIndicator.hide()
         }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                success@ {
+                    if (_binding?.root == null) return@success
+
+                    Snackbar.make(
+                        binding.root,
+                        R.string.details_fragment_poster_download_success,
+                        Snackbar.LENGTH_LONG
+                    ).setAction(R.string.details_fragment_poster_download_success_action) {
+                        val intent = Intent(Intent.ACTION_VIEW)
+                        intent.type = "image/*"
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        startActivity(intent)
+                    }.show()
+
+                    binding.fabDialogMenuProgressIndicator.hide()
+
+                    posterDownloadDisposable?.dispose()
+                },
+                error@ { error ->
+                    if (_binding?.root == null) return@error
+
+                    Snackbar.make(
+                        binding.root,
+                        "${getString(R.string.details_fragment_poster_download_failure)}\n${error.localizedMessage}",
+                        Snackbar.LENGTH_LONG
+                    ).show()
+
+                    binding.fabDialogMenuProgressIndicator.hide()
+
+                    posterDownloadDisposable?.dispose()
+                }
+            )
     }
 
     private fun String.removeSingleQuote() = replace("'", "")

@@ -74,6 +74,12 @@ dependencies {
     def lottieVersion = "6.0.0"
     implementation "com.airbnb.android:lottie:$lottieVersion"
 
+    // RXJava
+    def rxJavaVersion = "3.1.5"
+    def rxJavaVersionForAndroid = "3.0.2"
+    implementation "io.reactivex.rxjava3:rxandroid:$rxJavaVersionForAndroid"
+    implementation "io.reactivex.rxjava3:rxjava:$rxJavaVersion"
+
     implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
