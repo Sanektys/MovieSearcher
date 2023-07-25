@@ -23,10 +23,10 @@ class FavoritesFragmentViewModel : SavedMoviesListViewModel() {
 
         savedMoviesComponent = favoritesMoviesComponent
 
+        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
+
         favoritesMoviesComponent.interactor.getDeletedMovie.observeForever(movieDeletedObserver)
         favoritesMoviesComponent.interactor.getMovieAddedNotify.observeForever(movieAddedObserver)
-
-        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
     }
 
 

@@ -2,14 +2,12 @@ package com.sandev.moviesearcher.view.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.viewModelScope
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.components_holders.SavedMoviesComponentHolder
 import com.sandev.moviesearcher.domain.interactors.MoviesListInteractor
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.launch
 
 
 abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
@@ -27,6 +25,7 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
     protected val movieAddedObserver: Observer<Nothing?>
 
     private var moviesPaginationOffset: Int = 0
+    private var isPaginationHardResetOnProcess: Boolean = false
 
 
     init {
@@ -59,6 +58,8 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
             moviesPaginationOffset += moviesPerPage
 
             moviesDatabase = newList.toList()
+
+            if (isPaginationHardResetOnProcess) isPaginationHardResetOnProcess = false
         }
     }
 
@@ -78,7 +79,12 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
     }
 
     override fun dispatchQueryToInteractor(page: Int?) {
+        // Избегать двойной инициализации при создании экземпляра viewmodel
+        // вызовом dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER) в блоке init и коллбэке observer'а
+        if (isPaginationHardResetOnProcess) return
+
         if (page == INITIAL_PAGE_IN_RECYCLER) {
+            isPaginationHardResetOnProcess = true
             hardResetPagination()
         }
 
@@ -120,7 +126,7 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
         }
     }
 
-    private fun getSearchedMoviesFromDB(query: String, offset: Int) = viewModelScope.launch {
+    private fun getSearchedMoviesFromDB(query: String, offset: Int) {
         var disposable: Disposable? = null
         disposable = savedMoviesComponent.interactor.getFewSearchedMoviesFromList(
                 query = query,
