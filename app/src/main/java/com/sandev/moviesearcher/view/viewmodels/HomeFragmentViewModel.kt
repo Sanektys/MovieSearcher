@@ -9,6 +9,7 @@ import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.interactors.SharedPreferencesInteractor
 import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
+import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -99,33 +100,41 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
         if (page > totalPagesInLastQuery) return
 
-        viewModelScope.launch {
-            val repositoryTypeOnQuery = currentRepositoryType
-            var resultMovies: List<Movie> = listOf()
 
-            try {
-                interactor.getMoviesFromApi(
-                    page = nextPage,
-                    repositoryType = repositoryTypeOnQuery
-                ).collect { result ->
-                    resultMovies = result.movies
-                    totalPagesInLastQuery = result.totalPages
+        val repositoryTypeOnQuery = currentRepositoryType
+
+        var queryToApi: Disposable? = null
+        queryToApi = interactor.getMoviesFromApi(
+            page = nextPage,
+            repositoryType = repositoryTypeOnQuery
+        ).subscribe(
+            onSuccess@ { result ->
+                totalPagesInLastQuery = result.totalPages
+
+                var queryToLocalDB: Disposable? = null
+                queryToLocalDB = if (isNeedRefreshLocalDB) {
+                    interactor.deleteAllMoviesFromDbAndPutNewMovies(result.movies, repositoryTypeOnQuery)
+                        .subscribe {
+                            queryToLocalDB?.dispose()
+                        }
+                } else {
+                    interactor.putMoviesToDB(result.movies, repositoryTypeOnQuery).subscribe {
+                        queryToLocalDB?.dispose()
+                    }
                 }
-            } catch (e: Exception) {
+                isNeedRefreshLocalDB = false
+
+                onQuerySuccess(result.movies)
+
+                queryToApi?.dispose()
+            },
+            onError@ {
                 onQueryFailure()
                 isNeedRefreshLocalDB = false
-                return@launch
-            }
 
-            if (isNeedRefreshLocalDB) {
-                interactor.deleteAllMoviesFromDbAndPutNewMovies(resultMovies, repositoryTypeOnQuery)
-            } else {
-                interactor.putMoviesToDB(resultMovies, repositoryTypeOnQuery)
+                queryToApi?.dispose()
             }
-            isNeedRefreshLocalDB = false
-
-            onQuerySuccess(resultMovies)
-        }
+        )
     }
 
     private fun getSearchedMoviesFromApi(page: Int) {
@@ -143,23 +152,25 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
         if (page > totalPagesInLastQuery) return
 
-        viewModelScope.launch {
-            var resultMovies: List<Movie> = listOf()
 
-            try {
-                interactor.getSearchedMoviesFromApi(
-                    query = lastSearch,
-                    page = nextPage
-                ).collect { result ->
-                    resultMovies = result.movies
-                    totalPagesInLastQuery = result.totalPages
-                }
-            } catch (e: Exception) {
+        var queryToApi: Disposable? = null
+        queryToApi = interactor.getSearchedMoviesFromApi(
+            query = lastSearch,
+            page = nextPage
+        ).subscribe(
+            onSuccess@ { result ->
+                totalPagesInLastQuery = result.totalPages
+
+                onQuerySuccess(result.movies)
+
+                queryToApi?.dispose()
+            },
+            onError@ {
                 onQueryFailure()
-                return@launch
+
+                queryToApi?.dispose()
             }
-            onQuerySuccess(resultMovies)
-        }
+        )
     }
 
     override fun dispatchQueryToInteractor(page: Int?) {
@@ -179,22 +190,26 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     }
 
     private fun loadListFromDB() {
-        if (isInSearchMode) {
-            viewModelScope.launch {
-                moviesList.postValue(interactor.getSearchedMoviesFromDB(
-                    query = lastSearch,
-                    page = nextPage,
-                    moviesPerPage = moviesPerPage,
-                    repositoryType = currentRepositoryType
-                ))
+        var disposable: Disposable? = null
+
+        disposable = if (isInSearchMode) {
+            interactor.getSearchedMoviesFromDB(
+                query = lastSearch,
+                page = nextPage,
+                moviesPerPage = moviesPerPage,
+                repositoryType = currentRepositoryType
+            ).subscribe { movies ->
+                moviesList.value = movies
+                disposable?.dispose()
             }
         } else {
-            viewModelScope.launch {
-                moviesList.postValue(interactor.getMoviesFromDB(
-                    page = nextPage,
-                    moviesPerPage = moviesPerPage,
-                    repositoryType = currentRepositoryType
-                ))
+            interactor.getMoviesFromDB(
+                page = nextPage,
+                moviesPerPage = moviesPerPage,
+                repositoryType = currentRepositoryType
+            ).subscribe { movies ->
+                moviesList.value = movies
+                disposable?.dispose()
             }
         }
     }
