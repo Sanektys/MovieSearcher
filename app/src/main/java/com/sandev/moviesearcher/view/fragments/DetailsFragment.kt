@@ -61,6 +61,7 @@ import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
@@ -82,6 +83,8 @@ class DetailsFragment : Fragment() {
     private var menuFabDialog: AlertDialog? = null
 
     private var posterDownloadDisposable: Disposable? = null
+
+    private val disposableContainer = CompositeDisposable()
 
 
     override fun onCreateView(
@@ -167,6 +170,7 @@ class DetailsFragment : Fragment() {
             changeWatchLaterMoviesList()
         }
         _binding = null
+        disposableContainer.dispose()
     }
 
     override fun onDestroy() {
@@ -184,32 +188,37 @@ class DetailsFragment : Fragment() {
     }
 
     private fun checkFavoriteFloatButtonState() = viewLifecycleOwner.lifecycleScope.launch {
-        viewModel.favoritesMoviesObtainSynchronizeBlock.receiveCatching()
-        viewModel.getFavoritesMovies!!.observe(viewLifecycleOwner) { favoritesMovies ->
+        val disposable = viewModel.getFavoritesMovies.subscribe { favoritesMovies ->
             val existedFavoriteMovie: Movie? = favoritesMovies.find {
                 it.title == viewModel.movie.title && it.description == viewModel.movie.description
             }
             if (existedFavoriteMovie != null) {
                 viewModel.isFavoriteMovie = true
                 binding.fabToFavorite.isSelected = true
-                binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
+            } else {
+                viewModel.isFavoriteMovie = false
+                binding.fabToFavorite.isSelected = false
             }
+            binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
         }
+        disposableContainer.add(disposable)
     }
 
-
     private fun checkWatchLaterFloatButtonState() = viewLifecycleOwner.lifecycleScope.launch {
-        viewModel.watchLaterMoviesObtainSynchronizeBlock.receiveCatching()
-        viewModel.getWatchLaterMovies!!.observe(viewLifecycleOwner) { watchLaterMovies ->
+        val disposable = viewModel.getWatchLaterMovies.subscribe { watchLaterMovies ->
             val existedWatchLaterMovie: Movie? = watchLaterMovies.find {
                 it.title == viewModel.movie.title && it.description == viewModel.movie.description
             }
             if (existedWatchLaterMovie != null) {
                 viewModel.isWatchLaterMovie = true
                 binding.fabToWatchLater.isSelected = true
-                binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
+            } else {
+                viewModel.isWatchLaterMovie = false
+                binding.fabToWatchLater.isSelected = false
             }
+            binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
         }
+        disposableContainer.add(disposable)
     }
 
     private fun setFloatButtonOnClick() {

@@ -7,6 +7,7 @@ import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.components_holders.SavedMoviesComponentHolder
 import com.sandev.moviesearcher.domain.interactors.MoviesListInteractor
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
+import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
@@ -93,7 +94,7 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
         }
     }
 
-    suspend fun checkForMovieDeletionNecessary() {
+    fun checkForMovieDeletionNecessary() {
         if (isMovieMoreNotInSavedList) {
             removeMovieFromList()
         } else {
@@ -108,30 +109,37 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
         }
     }
 
-    private fun getMoviesFromDB(offset: Int) = viewModelScope.launch {
-        moviesList.postValue(
-            savedMoviesComponent.interactor.getFewMoviesFromList(
-                from = offset,
-                moviesCount = MoviesListInteractor.MOVIES_PER_PAGE
-            )
-        )
+    private fun getMoviesFromDB(offset: Int) {
+        var disposable: Disposable? = null
+        disposable = savedMoviesComponent.interactor.getFewMoviesFromList(
+            from = offset,
+            moviesCount = MoviesListInteractor.MOVIES_PER_PAGE
+        ).subscribe { movies ->
+            moviesList.value = movies
+            disposable?.dispose()
+        }
     }
 
     private fun getSearchedMoviesFromDB(query: String, offset: Int) = viewModelScope.launch {
-        moviesList.postValue(
-            savedMoviesComponent.interactor.getFewSearchedMoviesFromList(
+        var disposable: Disposable? = null
+        disposable = savedMoviesComponent.interactor.getFewSearchedMoviesFromList(
                 query = query,
                 from = offset,
                 moviesCount = MoviesListInteractor.MOVIES_PER_PAGE
-            )
-        )
+        ).subscribe { movies ->
+            moviesList.value = movies
+            disposable?.dispose()
+        }
     }
 
-    private suspend fun removeFromSavedList(movie: Movie) {
-        savedMoviesComponent.interactor.removeFromList(movie)
+    private fun removeFromSavedList(movie: Movie) {
+        var disposable: Disposable? = null
+        disposable = savedMoviesComponent.interactor.removeFromList(movie).subscribe {
+            disposable?.dispose()
+        }
     }
 
-    private suspend fun removeMovieFromList() {
+    private fun removeMovieFromList() {
         if (lastClickedMovie != null) {
             removeFromSavedList(lastClickedMovie!!)
             lastClickedMovie = null

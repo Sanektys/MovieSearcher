@@ -5,8 +5,11 @@ import androidx.lifecycle.MutableLiveData
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.data.repositories.MoviesListRepository
 import com.sandev.moviesearcher.data.repositories.MoviesListRepositoryImplForSavedLists
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Locale
 import javax.inject.Inject
 
@@ -22,29 +25,35 @@ class MoviesListInteractor @Inject constructor(private val repo: MoviesListRepos
     val getMovieAddedNotify: LiveData<Nothing> = movieAddedNotify
 
 
-    suspend fun addToList(movie: Movie) = withContext(Dispatchers.IO) {
+    fun addToList(movie: Movie) = Completable.create { emitter ->
         repo.putToDB(listOf(movie))
         movieAddedNotify.postValue(null)
-    }
+        emitter.onComplete()
+    }.subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
 
-    suspend fun removeFromList(movie: Movie) = withContext(Dispatchers.IO) {
+    fun removeFromList(movie: Movie) = Completable.create { emitter ->
         (repo as MoviesListRepositoryImplForSavedLists).deleteFromDB(movie)
         deletedMovie.postValue(movie)
-    }
+        emitter.onComplete()
+    }.subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
 
-    suspend fun getAllFromList(): LiveData<List<Movie>> = withContext(Dispatchers.IO) {
-        repo.getAllFromDB()
-    }
+    fun getAllFromList(): Observable<List<Movie>> = repo.getAllFromDB()
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
 
-    suspend fun getFewMoviesFromList(from: Int, moviesCount: Int): List<Movie>
-            = withContext(Dispatchers.IO) {
-        repo.getFromDB(from = from, moviesCount = moviesCount)
-    }
+    fun getFewMoviesFromList(from: Int, moviesCount: Int): Single<List<Movie>>
+            = Single.create<List<Movie>> { emitter ->
+        emitter.onSuccess(repo.getFromDB(from = from, moviesCount = moviesCount))
+    }.subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
 
-    suspend fun getFewSearchedMoviesFromList(query: String, from: Int, moviesCount: Int): List<Movie>
-            = withContext(Dispatchers.IO) {
-        repo.getSearchedFromDB(query = query, from = from, moviesCount = moviesCount)
-    }
+    fun getFewSearchedMoviesFromList(query: String, from: Int, moviesCount: Int): Single<List<Movie>>
+            = Single.create<List<Movie>> { emitter ->
+        emitter.onSuccess(repo.getSearchedFromDB(query = query, from = from, moviesCount = moviesCount))
+    }.subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
 
 
     companion object {

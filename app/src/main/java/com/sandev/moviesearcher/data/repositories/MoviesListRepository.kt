@@ -2,13 +2,14 @@ package com.sandev.moviesearcher.data.repositories
 
 import androidx.lifecycle.LiveData
 import com.sandev.moviesearcher.data.db.entities.Movie
+import io.reactivex.rxjava3.core.Observable
 
 
 interface MoviesListRepository {
 
     fun putToDB(movies: List<Movie>)
 
-    fun getAllFromDB(): LiveData<List<Movie>>
+    fun getAllFromDB(): Observable<List<Movie>>
 
     fun getFromDB(moviesCount: Int): LiveData<List<Movie>>
 

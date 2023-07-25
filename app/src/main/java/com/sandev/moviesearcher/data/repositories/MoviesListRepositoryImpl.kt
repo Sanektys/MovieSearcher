@@ -13,6 +13,7 @@ import com.sandev.moviesearcher.data.db.entities.PlayingMovie
 import com.sandev.moviesearcher.data.db.entities.PopularMovie
 import com.sandev.moviesearcher.data.db.entities.TopMovie
 import com.sandev.moviesearcher.data.db.entities.UpcomingMovie
+import io.reactivex.rxjava3.core.Observable
 
 
 open class MoviesListRepositoryImpl(private val movieDao: MovieDao) : MoviesListRepository {
@@ -35,7 +36,7 @@ open class MoviesListRepositoryImpl(private val movieDao: MovieDao) : MoviesList
         }
     }
 
-    override fun getAllFromDB(): LiveData<List<Movie>>
+    override fun getAllFromDB(): Observable<List<Movie>>
             = movieDao.getAllCachedMovies()
 
     override fun getFromDB(moviesCount: Int): LiveData<List<Movie>>
