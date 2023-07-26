@@ -10,13 +10,12 @@ import com.sandev.moviesearcher.data.repositories.UpcomingMoviesListRepository
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApi
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiKey
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbResult
+import com.sandev.moviesearcher.data.themoviedatabase.TmdbResultDto
 import com.sandev.moviesearcher.utils.TmdbConverter
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Locale
 import javax.inject.Singleton
 
@@ -46,14 +45,13 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
     }
 
 
-    suspend fun getMoviesFromApi(page: Int, repositoryType: RepositoryType): Flow<TmdbResult> = flow {
-        emit(retrofitService.getMovies(
-            apiKey = TmdbApiKey.KEY,
-            category = sharedPreferences.getDefaultCategory(),
-            language = systemLanguage,
-            page = page
-        ))
-    }.map {
+    fun getMoviesFromApi(page: Int, repositoryType: RepositoryType)
+            = retrofitService.getMovies(
+        apiKey = TmdbApiKey.KEY,
+        category = sharedPreferences.getDefaultCategory(),
+        language = systemLanguage,
+        page = page
+    ).subscribeOn(Schedulers.io()).map {
         val movies = when (repositoryType) {
             RepositoryType.TOP_MOVIES      -> TmdbConverter.convertApiDtoListToTopMovieList(it.results)
             RepositoryType.POPULAR_MOVIES  -> TmdbConverter.convertApiDtoListToPopularMovieList(it.results)
@@ -61,46 +59,55 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
             RepositoryType.UPCOMING_MOVIES -> TmdbConverter.convertApiDtoListToUpcomingMovieList(it.results)
         }
         TmdbResult(movies = movies, totalPages = it.totalPages)
-    }.flowOn(Dispatchers.IO)
+    }.observeOn(Schedulers.io())
 
-    suspend fun getSearchedMoviesFromApi(query: String, page: Int): Flow<TmdbResult> = flow {
-        emit(retrofitService.getSearchedMovies(
-            apiKey = TmdbApiKey.KEY,
-            query = query,
-            language = systemLanguage,
-            page = page
-        ))
-    }.map {
+    fun getSearchedMoviesFromApi(query: String, page: Int)
+            = retrofitService.getSearchedMovies(
+        apiKey = TmdbApiKey.KEY,
+        query = query,
+        language = systemLanguage,
+        page = page
+    ).subscribeOn(Schedulers.io()).map {
         val movies = TmdbConverter.convertApiDtoListToMovieList(it.results)
         TmdbResult(movies = movies, totalPages = it.totalPages)
-    }.flowOn(Dispatchers.IO)
+    }.observeOn(Schedulers.io())
 
-    suspend fun putMoviesToDB(moviesList: List<Movie>, repositoryType: RepositoryType)
-            = withContext(Dispatchers.IO) {
+    fun putMoviesToDB(moviesList: List<Movie>, repositoryType: RepositoryType)
+            = Completable.create { emitter ->
         getRequestedRepository(repositoryType).putToDB(moviesList)
-    }
+        emitter.onComplete()
+    }.subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
 
-    suspend fun deleteAllMoviesFromDbAndPutNewMovies(moviesList: List<Movie>, repositoryType: RepositoryType)
-            = withContext(Dispatchers.IO) {
+    fun deleteAllMoviesFromDbAndPutNewMovies(moviesList: List<Movie>, repositoryType: RepositoryType)
+            = Completable.create { emitter ->
         getRequestedRepository(repositoryType).deleteAllFromDBAndPutNew(moviesList)
-    }
+        emitter.onComplete()
+    }.subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
 
-    suspend fun getMoviesFromDB(page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
-            = withContext(Dispatchers.IO) {
-        getRequestedRepository(repositoryType).getFromDB(
-            from = (page - 1) * moviesPerPage,
-            moviesCount = moviesPerPage
+    fun getMoviesFromDB(page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
+            = Single.create<List<Movie>> { emitter ->
+        emitter.onSuccess(
+            getRequestedRepository(repositoryType).getFromDB(
+                from = (page - 1) * moviesPerPage,
+                moviesCount = moviesPerPage
+            )
         )
-    }
+    }.subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
 
-    suspend fun getSearchedMoviesFromDB(query: String, page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
-            = withContext(Dispatchers.IO) {
-        getRequestedRepository(repositoryType).getSearchedFromDB(
-            query = query,
-            from = (page - 1) * moviesPerPage,
-            moviesCount = moviesPerPage
+    fun getSearchedMoviesFromDB(query: String, page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
+            = Single.create<List<Movie>> { emitter ->
+        emitter.onSuccess(
+            getRequestedRepository(repositoryType).getSearchedFromDB(
+                query = query,
+                from = (page - 1) * moviesPerPage,
+                moviesCount = moviesPerPage
+            )
         )
-    }
+    }.subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
 
     private fun getRequestedRepository(repositoryType: RepositoryType): MoviesListRepository {
         return when (repositoryType) {

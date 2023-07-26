@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.data.themoviedatabase
 
+import io.reactivex.rxjava3.core.Single
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -7,18 +8,18 @@ import retrofit2.http.Query
 
 interface TmdbApi {
     @GET("movie/{category}")
-    suspend fun getMovies(
+    fun getMovies(
         @Path("category") category: String,
         @Query("api_key") apiKey: String,
         @Query("language") language: String,
         @Query("page") page: Int
-    ): TmdbResultDto
+    ): Single<TmdbResultDto>
 
     @GET("search/movie")
-    suspend fun getSearchedMovies(
+    fun getSearchedMovies(
         @Query("api_key") apiKey: String,
         @Query("query") query: String,
         @Query("language") language: String,
         @Query("page") page: Int
-    ): TmdbResultDto
+    ): Single<TmdbResultDto>
 }

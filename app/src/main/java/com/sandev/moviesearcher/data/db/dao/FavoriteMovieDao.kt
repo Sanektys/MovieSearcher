@@ -7,13 +7,14 @@ import androidx.room.Query
 import com.sandev.moviesearcher.data.db.entities.FavoriteMovie
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.data.db.entities.TitleAndDescription
+import io.reactivex.rxjava3.core.Observable
 
 
 @Dao
 interface FavoriteMovieDao : SavedMovieDao {
 
     @Query("SELECT * FROM ${FavoriteMovie.TABLE_NAME}")
-    override fun getAllCachedMovies(): LiveData<List<Movie>>
+    override fun getAllCachedMovies(): Observable<List<Movie>>
 
     @Query("SELECT *" +
             "FROM " +

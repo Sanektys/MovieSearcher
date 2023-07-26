@@ -8,13 +8,14 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.data.db.entities.UpcomingMovie
+import io.reactivex.rxjava3.core.Observable
 
 
 @Dao
 abstract class UpcomingMovieDao : MovieDao {
 
     @Query("SELECT * FROM ${UpcomingMovie.TABLE_NAME}")
-    abstract override fun getAllCachedMovies(): LiveData<List<Movie>>
+    abstract override fun getAllCachedMovies(): Observable<List<Movie>>
 
     @Query("SELECT *" +
             "FROM " +

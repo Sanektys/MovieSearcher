@@ -48,6 +48,7 @@ dependencies {
     // Room
     def roomVersion = "2.5.2"
     implementation "androidx.room:room-runtime:$roomVersion"
+    implementation "androidx.room:room-rxjava3:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
 
     // Dagger
@@ -60,6 +61,7 @@ dependencies {
     def retrofitGsonVersion = "2.9.0"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitGsonVersion"
+    implementation "com.squareup.retrofit2:adapter-rxjava3:$retrofitVersion"
 
     // OkHttp
     def okHttpLoggingVersion = "4.11.0"
@@ -73,6 +75,12 @@ dependencies {
     // Lottie
     def lottieVersion = "6.0.0"
     implementation "com.airbnb.android:lottie:$lottieVersion"
+
+    // RXJava
+    def rxJavaVersion = "3.1.5"
+    def rxJavaVersionForAndroid = "3.0.2"
+    implementation "io.reactivex.rxjava3:rxandroid:$rxJavaVersionForAndroid"
+    implementation "io.reactivex.rxjava3:rxjava:$rxJavaVersion"
 
     implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
