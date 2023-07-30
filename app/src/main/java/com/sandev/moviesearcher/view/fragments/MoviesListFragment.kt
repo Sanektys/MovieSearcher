@@ -34,6 +34,9 @@ import com.google.android.material.search.SearchView
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.utils.CircularRevealAnimator
 import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.Disposable
+import java.util.concurrent.TimeUnit
 
 
 abstract class MoviesListFragment : Fragment() {
@@ -66,6 +69,8 @@ abstract class MoviesListFragment : Fragment() {
     private var recyclerShapeInvalidator: RecyclerShapeInvalidator? = null
     private var recyclerShapeView: View? = null
 
+    private var searchInputObserver: Disposable? = null
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setAppBarAppearance()
@@ -96,6 +101,8 @@ abstract class MoviesListFragment : Fragment() {
         _recyclerView = null
         _childFragment = null
         circularRevealAnimator = null
+
+        searchInputObserver?.dispose()
     }
 
     fun hideSearchView() = searchView.hide()
@@ -160,17 +167,24 @@ abstract class MoviesListFragment : Fragment() {
             searchView.hint = viewModel.lastSearch
         }
 
-        val textChangeListener = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun afterTextChanged(s: Editable?) {}
+        var textChangeListener: TextWatcher? = null
+        searchInputObserver = Observable.create<String> { emitter ->
+            textChangeListener = object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun afterTextChanged(s: Editable?) {}
 
-            override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
-                if (text.isEmpty()) {
-                    searchBar.hint = defaultHint
-                    searchView.hint = defaultHint
+                override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
+                    if (text.isEmpty()) {
+                        searchBar.hint = defaultHint
+                        searchView.hint = defaultHint
+                    }
+                    emitter.onNext(text.toString())
                 }
-                viewModel.searchInSearchView(text.toString())
             }
+        }
+        .debounce(SEARCH_INPUT_QUERY_SUBMIT_DELAY, TimeUnit.MILLISECONDS)
+        .subscribe { query ->
+            viewModel.searchInSearchView(query)
         }
         searchView.apply {
             addTransitionListener { _, previousState, newState ->
@@ -408,5 +422,7 @@ abstract class MoviesListFragment : Fragment() {
 
         private const val MAX_ALPHA = 255F
         private const val DIVIDER_TO_CENTER = 2
+
+        private const val SEARCH_INPUT_QUERY_SUBMIT_DELAY = 500L
     }
 }
