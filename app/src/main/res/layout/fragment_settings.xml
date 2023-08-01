@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rootView"
+    android:id="@+id/fragmentSettingsRootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorOnSurfaceInverse"
@@ -27,101 +27,94 @@
             app:navigationIcon="@drawable/sharp_arrow_back" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <com.google.android.material.card.MaterialCardView
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/settingsScroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="@dimen/fragment_settings.block.margin_bottom"
-        app:cardBackgroundColor="@android:color/transparent"
-        app:cardCornerRadius="@dimen/fragment_settings.block.corner_radius"
-        style="@style/Widget.Material3.CardView.Filled"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout">
 
-        <androidx.core.widget.NestedScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Material3.CardView.Filled"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                app:cardBackgroundColor="?attr/colorSurfaceSecondaryVariant"
+                app:cardCornerRadius="@dimen/fragment_settings.block.corner_radius">
 
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/Widget.Material3.CardView.Filled"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardBackgroundColor="?attr/colorSurfaceSecondaryVariant"
-                    app:cardCornerRadius="@dimen/fragment_settings.block.corner_radius">
+                    android:orientation="vertical">
 
-                    <LinearLayout
+                    <RadioGroup
+                        android:id="@+id/categoryRadioGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/fragment_settings.element.short_margin_horizontal"
+                            android:layout_marginTop="@dimen/fragment_settings.radio_group.title.marginTop"
+                            android:layout_marginBottom="@dimen/fragment_settings.radio_group.title.marginBottom"
+                            android:alpha="@dimen/fragment_settings.radio_group.title.alpha"
+                            android:text="@string/settings_fragment.radio_group.category.title"
+                            android:textAppearance="@style/TextAppearance.Material3.LabelLarge" />
+
+                        <com.google.android.material.radiobutton.MaterialRadioButton
+                            android:id="@+id/RadioButtonPopular"
+                            android:layout_width="wrap_content"
+                            android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
+                            android:layout_marginStart="@dimen/fragment_settings.element.short_margin_horizontal"
+                            android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
+                            android:text="@string/settings_fragment.radio_group.category.popular" />
+
+                        <com.google.android.material.radiobutton.MaterialRadioButton
+                            android:id="@+id/RadioButtonTopRated"
+                            android:layout_width="wrap_content"
+                            android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
+                            android:layout_marginStart="@dimen/fragment_settings.element.short_margin_horizontal"
+                            android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
+                            android:text="@string/settings_fragment.radio_group.category.top_rated" />
+
+                        <com.google.android.material.radiobutton.MaterialRadioButton
+                            android:id="@+id/RadioButtonUpcoming"
+                            android:layout_width="wrap_content"
+                            android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
+                            android:layout_marginStart="@dimen/fragment_settings.element.short_margin_horizontal"
+                            android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
+                            android:text="@string/settings_fragment.radio_group.category.upcoming" />
+
+                        <com.google.android.material.radiobutton.MaterialRadioButton
+                            android:id="@+id/RadioButtonNowPlaying"
+                            android:layout_width="wrap_content"
+                            android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
+                            android:layout_marginStart="@dimen/fragment_settings.element.short_margin_horizontal"
+                            android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
+                            android:text="@string/settings_fragment.radio_group.category.playing" />
+                    </RadioGroup>
+
+                    <com.google.android.material.divider.MaterialDivider
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:layout_marginHorizontal="@dimen/fragment_settings.element.short_margin_horizontal"
+                        app:dividerColor="?attr/colorOutlineVariant" />
 
-                        <RadioGroup
-                            android:id="@+id/categoryRadioGroup"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <com.google.android.material.textview.MaterialTextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="@dimen/fragment_settings.element.short_margin_horizontal"
-                                android:layout_marginTop="@dimen/fragment_settings.radio_group.title.marginTop"
-                                android:layout_marginBottom="@dimen/fragment_settings.radio_group.title.marginBottom"
-                                android:alpha="@dimen/fragment_settings.radio_group.title.alpha"
-                                android:text="@string/settings_fragment.radio_group.category.title"
-                                android:textAppearance="@style/TextAppearance.Material3.LabelLarge" />
-
-                            <com.google.android.material.radiobutton.MaterialRadioButton
-                                android:id="@+id/RadioButtonPopular"
-                                android:layout_width="wrap_content"
-                                android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
-                                android:layout_marginStart="@dimen/fragment_settings.element.short_margin_horizontal"
-                                android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
-                                android:text="@string/settings_fragment.radio_group.category.popular" />
-
-                            <com.google.android.material.radiobutton.MaterialRadioButton
-                                android:id="@+id/RadioButtonTopRated"
-                                android:layout_width="wrap_content"
-                                android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
-                                android:layout_marginStart="@dimen/fragment_settings.element.short_margin_horizontal"
-                                android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
-                                android:text="@string/settings_fragment.radio_group.category.top_rated" />
-
-                            <com.google.android.material.radiobutton.MaterialRadioButton
-                                android:id="@+id/RadioButtonUpcoming"
-                                android:layout_width="wrap_content"
-                                android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
-                                android:layout_marginStart="@dimen/fragment_settings.element.short_margin_horizontal"
-                                android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
-                                android:text="@string/settings_fragment.radio_group.category.upcoming" />
-
-                            <com.google.android.material.radiobutton.MaterialRadioButton
-                                android:id="@+id/RadioButtonNowPlaying"
-                                android:layout_width="wrap_content"
-                                android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
-                                android:layout_marginStart="@dimen/fragment_settings.element.short_margin_horizontal"
-                                android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
-                                android:text="@string/settings_fragment.radio_group.category.playing" />
-                        </RadioGroup>
-
-                        <com.google.android.material.divider.MaterialDivider
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="@dimen/fragment_settings.element.short_margin_horizontal"
-                            app:dividerColor="?attr/colorOutlineVariant" />
-
-                        <com.sandev.moviesearcher.view.customviews.PreferenceSwitch
-                            android:id="@+id/splashScreenSwitch"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:preference_description="@string/settings_fragment.splash_switch.description"
-                            app:preference_title="@string/settings_fragment.splash_switch.title" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
-    </com.google.android.material.card.MaterialCardView>
+                    <com.sandev.moviesearcher.view.customviews.PreferenceSwitch
+                        android:id="@+id/splashScreenSwitch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:preference_description="@string/settings_fragment.splash_switch.description"
+                        app:preference_title="@string/settings_fragment.splash_switch.title" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

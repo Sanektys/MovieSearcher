@@ -38,16 +38,4 @@ class PreferenceSwitch(context: Context, attr: AttributeSet) : ConstraintLayout(
         isFocusable = true
         isClickable = true
     }
-
-//    override fun onTouchEvent(event: MotionEvent?): Boolean {
-//        super.onTouchEvent(event)
-//        if (event?.action == MotionEvent.ACTION_UP) {
-//            performClick()
-//        }
-//        return true
-//    }
-//
-//    override fun performClick(): Boolean {
-//        return super.performClick()
-//    }
 }

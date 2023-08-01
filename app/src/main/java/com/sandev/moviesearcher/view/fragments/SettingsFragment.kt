@@ -1,8 +1,10 @@
 package com.sandev.moviesearcher.view.fragments
 
 import android.animation.AnimatorInflater
+import android.graphics.Outline
 import android.os.Bundle
 import android.view.View
+import android.view.ViewOutlineProvider
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -36,6 +38,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         setAppBarAppearance()
         setSearchBarAppearance()
+        setNestedScrollAppearance()
         initializeCategoryRadioGroup()
         initializeSplashScreenSwitch()
 
@@ -91,6 +94,23 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         binding.searchBar.setNavigationOnClickListener {
             destroy()
+        }
+    }
+
+    private fun setNestedScrollAppearance() {
+        binding.settingsScroll.apply {
+            outlineProvider = object : ViewOutlineProvider() {
+                override fun getOutline(view: View?, outline: Outline?) {
+                    outline?.setRoundRect(
+                        0, 0,
+                        view!!.width, view.height,
+                        resources.getDimensionPixelSize(R.dimen.fragment_settings_block_corner_radius)
+                            .toFloat()
+                    )
+                    outline?.alpha = 0f
+                }
+            }
+            clipToOutline = true
         }
     }
 }

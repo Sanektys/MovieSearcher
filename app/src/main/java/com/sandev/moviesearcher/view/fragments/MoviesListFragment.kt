@@ -268,6 +268,11 @@ abstract class MoviesListFragment : Fragment() {
                 context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceInverse, outValue, true)
                 background = AppCompatResources.getDrawable(context, outValue.resourceId)
             }
+
+            // Т.к. верхний блок уже выставил нужный цвет, то убираем его из корневого вью окна настроек в целях оптимизации переотрисовок
+            requireActivity().findViewById<View>(R.id.fragmentSettingsRootView).apply {
+                background = null
+            }
         }
     }
 
@@ -277,13 +282,17 @@ abstract class MoviesListFragment : Fragment() {
             searchView.visibility = View.VISIBLE
             recyclerView.visibility = View.VISIBLE
 
+            requireActivity().findViewById<View>(R.id.fragmentSettingsRootView).apply {
+                val outValue = TypedValue()
+                context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceInverse, outValue, true)
+                background = AppCompatResources.getDrawable(context, outValue.resourceId)
+            }
+
             circularRevealAnimator ?: createCircularRevealAnimator(requireView()).also { circularRevealAnimator = it }
             circularRevealAnimator?.revealView()
 
             requireActivity().findViewById<View>(R.id.rootBackground).apply {
-                val outValue = TypedValue()
-                context.theme.resolveAttribute(com.google.android.material.R.attr.colorSurface, outValue, true)
-                background = AppCompatResources.getDrawable(context, outValue.resourceId)
+                background = null
             }
 
             appBar.postDelayed(circularRevealAnimator?.animationDuration ?: 0) {
