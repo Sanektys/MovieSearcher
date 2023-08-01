@@ -9,4 +9,9 @@
         <attr name="digits_size" format="dimension" />
         <attr name="elements_shadow_color" format="color" />
     </declare-styleable>
+
+    <declare-styleable name="PreferenceSwitch">
+        <attr name="preference_title" format="string" />
+        <attr name="preference_description" format="string" />
+    </declare-styleable>
 </resources>
