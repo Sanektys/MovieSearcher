@@ -37,6 +37,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         setAppBarAppearance()
         setSearchBarAppearance()
         initializeCategoryRadioGroup()
+        initializeSplashScreenSwitch()
 
         view.doOnAttach {
             requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressed)
@@ -62,6 +63,16 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 R.id.RadioButtonUpcoming   -> viewModel.putCategoryProperty(SharedPreferencesProvider.CATEGORY_UPCOMING)
                 R.id.RadioButtonNowPlaying -> viewModel.putCategoryProperty(SharedPreferencesProvider.CATEGORY_PLAYING)
             }
+        }
+    }
+
+    private fun initializeSplashScreenSwitch() {
+        viewModel.getSplashScreenEnabling.observe(viewLifecycleOwner) { isSplashScreenEnabled ->
+            binding.splashScreenSwitch.switch.isChecked = isSplashScreenEnabled
+        }
+
+        binding.splashScreenSwitch.setOnClickListener {
+            viewModel.setSplashScreenEnabling(!binding.splashScreenSwitch.switch.isChecked)
         }
     }
 

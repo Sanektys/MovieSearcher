@@ -11,6 +11,7 @@ import com.sandev.moviesearcher.domain.interactors.SharedPreferencesInteractor
 import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
 import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -75,6 +76,8 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
+
+    fun isSplashScreenEnabled() = sharedPreferencesInteractor.isSplashScreenEnabled()
 
     fun fullRefreshMoviesList() {
         isOffline = false

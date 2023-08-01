@@ -396,7 +396,7 @@ class DetailsFragment : Fragment() {
     }
 
     private fun setTransitionAnimation() {
-        val sharedElementTransition = TransitionInflater.from(context).inflateTransition(R.transition.poster_transition)
+        val sharedElementTransition = TransitionInflater.from(requireContext()).inflateTransition(R.transition.poster_transition)
         sharedElementTransition.addListener(object : Transition.TransitionListener{
             override fun onTransitionStart(transition: Transition) {}
             override fun onTransitionCancel(transition: Transition) {}

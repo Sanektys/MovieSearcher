@@ -20,6 +20,8 @@
     <string name="settings_fragment.radio_group.category.popular">Popular</string>
     <string name="settings_fragment.radio_group.category.upcoming">Upcoming</string>
     <string name="settings_fragment.radio_group.category.playing">Playing</string>
+    <string name="settings_fragment.splash_switch.title">Show splash screen</string>
+    <string name="settings_fragment.splash_switch.description">Splash screen will be displayed each time in startup</string>
 
 
     <!-- Details fragment -->

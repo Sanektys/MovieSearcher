@@ -21,6 +21,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.moviesearcher.R
@@ -32,11 +33,16 @@ import com.sandev.moviesearcher.view.fragments.HomeFragment
 import com.sandev.moviesearcher.view.fragments.MoviesListFragment
 import com.sandev.moviesearcher.view.fragments.SplashScreenFragment
 import com.sandev.moviesearcher.view.fragments.WatchLaterFragment
+import com.sandev.moviesearcher.view.viewmodels.MainActivityViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
+
+    private val viewModel: MainActivityViewModel by lazy {
+        ViewModelProvider(this)[MainActivityViewModel::class.java]
+    }
 
     var previousFragmentName: String? = null
 
@@ -68,8 +74,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun startHomeFragment() {
-        if (!HomeFragment.isFragmentClassOnceCreated) {
+    fun startHomeFragment(isSplashScreenEnabled: Boolean = true) {
+        if (!HomeFragment.isFragmentClassOnceCreated && isSplashScreenEnabled) {
             binding.navigationBar.run {
                 animate()
                 .setDuration(
@@ -98,7 +104,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startSplashScreen() {
-        if (!SplashScreenFragment.isSplashWasCreated) {
+        val isSplashScreenEnabled = viewModel.isSplashScreenEnabled()
+
+        if (!SplashScreenFragment.isSplashWasCreated && isSplashScreenEnabled) {
             binding.navigationBar.doOnLayout { it.translationY = it.height.toFloat() }
             binding.navigationBar.menu.forEach { it.isEnabled = false }
 
@@ -107,7 +115,7 @@ class MainActivity : AppCompatActivity() {
                 .add(R.id.fragment, SplashScreenFragment())
                 .commit()
         } else {
-            startHomeFragment()
+            startHomeFragment(isSplashScreenEnabled)
         }
     }
 

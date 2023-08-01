@@ -32,7 +32,8 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <RadioGroup
                 android:id="@+id/categoryRadioGroup"
@@ -46,7 +47,7 @@
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/fragment_settings.radio_group.title.marginStart"
+                    android:layout_marginStart="@dimen/fragment_settings.element.margin_horizontal"
                     android:layout_marginTop="@dimen/fragment_settings.radio_group.title.marginTop"
                     android:layout_marginBottom="@dimen/fragment_settings.radio_group.title.marginBottom"
                     android:alpha="@dimen/fragment_settings.radio_group.title.alpha"
@@ -57,7 +58,7 @@
                     android:id="@+id/RadioButtonPopular"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
-                    android:layout_marginStart="@dimen/fragment_settings.radio_group.radio_button.marginStart"
+                    android:layout_marginStart="@dimen/fragment_settings.element.margin_horizontal"
                     android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
                     android:text="@string/settings_fragment.radio_group.category.popular" />
 
@@ -65,7 +66,7 @@
                     android:id="@+id/RadioButtonTopRated"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
-                    android:layout_marginStart="@dimen/fragment_settings.radio_group.radio_button.marginStart"
+                    android:layout_marginStart="@dimen/fragment_settings.element.margin_horizontal"
                     android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
                     android:text="@string/settings_fragment.radio_group.category.top_rated" />
 
@@ -73,7 +74,7 @@
                     android:id="@+id/RadioButtonUpcoming"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
-                    android:layout_marginStart="@dimen/fragment_settings.radio_group.radio_button.marginStart"
+                    android:layout_marginStart="@dimen/fragment_settings.element.margin_horizontal"
                     android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
                     android:text="@string/settings_fragment.radio_group.category.upcoming" />
 
@@ -81,10 +82,21 @@
                     android:id="@+id/RadioButtonNowPlaying"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
-                    android:layout_marginStart="@dimen/fragment_settings.radio_group.radio_button.marginStart"
+                    android:layout_marginStart="@dimen/fragment_settings.element.margin_horizontal"
                     android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
                     android:text="@string/settings_fragment.radio_group.category.playing" />
             </RadioGroup>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.sandev.moviesearcher.view.customviews.PreferenceSwitch
+                android:id="@+id/splashScreenSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:preference_title="@string/settings_fragment.splash_switch.title"
+                app:preference_description="@string/settings_fragment.splash_switch.description"/>
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>
