@@ -6,10 +6,12 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewOutlineProvider
 import android.view.animation.AccelerateInterpolator
 import android.view.inputmethod.EditorInfo
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -259,6 +261,13 @@ abstract class MoviesListFragment : Fragment() {
             appBar.visibility = View.GONE
             searchView.visibility = View.GONE
             recyclerView.visibility = View.GONE
+
+            // Подкрашивать уголки navigationBar под текущий цвет фона окна настроек
+            requireActivity().findViewById<View>(R.id.rootBackground).apply {
+                val outValue = TypedValue()
+                context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceInverse, outValue, true)
+                background = AppCompatResources.getDrawable(context, outValue.resourceId)
+            }
         }
     }
 
@@ -270,6 +279,12 @@ abstract class MoviesListFragment : Fragment() {
 
             circularRevealAnimator ?: createCircularRevealAnimator(requireView()).also { circularRevealAnimator = it }
             circularRevealAnimator?.revealView()
+
+            requireActivity().findViewById<View>(R.id.rootBackground).apply {
+                val outValue = TypedValue()
+                context.theme.resolveAttribute(com.google.android.material.R.attr.colorSurface, outValue, true)
+                background = AppCompatResources.getDrawable(context, outValue.resourceId)
+            }
 
             appBar.postDelayed(circularRevealAnimator?.animationDuration ?: 0) {
                 childFragmentManager.popBackStack()

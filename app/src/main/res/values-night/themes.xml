@@ -28,6 +28,9 @@
         <item name="colorSurfaceInverse">@color/md_theme_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/md_theme_inversePrimary</item>
 
+        <item name="colorSurfaceSecondaryVariant">@color/md_theme_surfaceVariant</item>
+        <item name="colorOutlineVariant">@color/md_theme_outline</item>
+
         <item name="android:statusBarColor">?attr/colorPrimaryContainer</item>
         <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
 
