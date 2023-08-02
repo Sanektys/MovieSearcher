@@ -37,6 +37,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     }
 
     private var vibrator: Vibrator? = null
+    private var isSettingsScreenRevealed = false
     private var isSplashScreenSwitchInitialized = false
 
 
@@ -53,6 +54,15 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         view.doOnAttach {
             requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressed)
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        if (!isSettingsScreenRevealed) {
+            (parentFragment as MoviesListFragment).revealSettingsFragment()
+            isSettingsScreenRevealed = true
         }
     }
 
@@ -88,6 +98,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                     vibrator?.vibrate(SWITCH_VIBRATION_LENGTH)
                 }
             } else {
+                // Не показывать анимацию переключения и не включать вибрацию во время инициализации свитча
                 binding.splashScreenSwitch.switch.isChecked = isSplashScreenEnabled
                 binding.splashScreenSwitch.switch.jumpDrawablesToCurrentState()
                 isSplashScreenSwitchInitialized = true

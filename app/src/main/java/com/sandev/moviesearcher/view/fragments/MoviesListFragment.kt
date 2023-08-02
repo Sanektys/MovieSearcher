@@ -251,8 +251,6 @@ abstract class MoviesListFragment : Fragment() {
                 .add(R.id.settingsFragment, SettingsFragment())
                 .addToBackStack(null)
                 .commit()
-
-            circularRevealAnimator?.revealView()
         } else {  // Возвращение фрагмента после смены конфигурации
             childFragment.visibility = View.VISIBLE
         }
@@ -275,6 +273,8 @@ abstract class MoviesListFragment : Fragment() {
             }
         }
     }
+
+    fun revealSettingsFragment() = circularRevealAnimator?.revealView()
 
     fun destroySettingsFragment() {
         if (childFragmentManager.fragments[0] is SettingsFragment) {
