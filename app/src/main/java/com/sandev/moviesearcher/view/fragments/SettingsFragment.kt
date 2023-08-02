@@ -1,8 +1,12 @@
 package com.sandev.moviesearcher.view.fragments
 
 import android.animation.AnimatorInflater
+import android.content.Context
 import android.graphics.Outline
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.activity.OnBackPressedCallback
@@ -32,9 +36,14 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         override fun handleOnBackPressed() = destroy()
     }
 
+    private var vibrator: Vibrator? = null
+    private var isSplashScreenSwitchInitialized = false
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         _binding = FragmentSettingsBinding.bind(view)
+
+        vibrator = activity?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
         setAppBarAppearance()
         setSearchBarAppearance()
@@ -71,7 +80,18 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
     private fun initializeSplashScreenSwitch() {
         viewModel.getSplashScreenEnabling.observe(viewLifecycleOwner) { isSplashScreenEnabled ->
-            binding.splashScreenSwitch.switch.isChecked = isSplashScreenEnabled
+            if (isSplashScreenSwitchInitialized) {
+                binding.splashScreenSwitch.switch.isChecked = isSplashScreenEnabled
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator?.vibrate(VibrationEffect.createOneShot(SWITCH_VIBRATION_LENGTH, VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    vibrator?.vibrate(SWITCH_VIBRATION_LENGTH)
+                }
+            } else {
+                binding.splashScreenSwitch.switch.isChecked = isSplashScreenEnabled
+                binding.splashScreenSwitch.switch.jumpDrawablesToCurrentState()
+                isSplashScreenSwitchInitialized = true
+            }
         }
 
         binding.splashScreenSwitch.setOnClickListener {
@@ -112,5 +132,10 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             }
             clipToOutline = true
         }
+    }
+
+
+    companion object {
+        const val SWITCH_VIBRATION_LENGTH = 50L
     }
 }

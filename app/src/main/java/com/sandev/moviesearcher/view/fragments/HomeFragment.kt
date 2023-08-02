@@ -224,6 +224,9 @@ class HomeFragment : MoviesListFragment() {
             TransitionManager.go(scene, appearingTransition)
             isFragmentClassOnceCreated = true
         } else {
+            if (!isFragmentClassOnceCreated) {
+                isFragmentClassOnceCreated = true
+            }
             scene.enter()
         }
         initializeViewsReferences(bindingBlank.root)
