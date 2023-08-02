@@ -16,6 +16,16 @@ class SharedPreferencesInteractor(private val sharedPreferences: SharedPreferenc
         sharedPreferences.getDefaultCategory()
     }
 
+    suspend fun setShowingSplashScreen(isEnabled: Boolean) = withContext(Dispatchers.IO) {
+        sharedPreferences.setShowingSplashScreen(isEnabled)
+    }
+
+    suspend fun getSplashScreenEnabled() = withContext(Dispatchers.IO) {
+        sharedPreferences.isSplashScreenEnabled()
+    }
+
+    fun isSplashScreenEnabled() = sharedPreferences.isSplashScreenEnabled()
+
     fun addSharedPreferencesChangeListener(listener: OnSharedPreferenceChangeListener) =
         sharedPreferences.registerSharedPreferencesChangeListener(listener)
 

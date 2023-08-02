@@ -1,8 +1,14 @@
 package com.sandev.moviesearcher.view.fragments
 
 import android.animation.AnimatorInflater
+import android.content.Context
+import android.graphics.Outline
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.View
+import android.view.ViewOutlineProvider
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -30,16 +36,33 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         override fun handleOnBackPressed() = destroy()
     }
 
+    private var vibrator: Vibrator? = null
+    private var isSettingsScreenRevealed = false
+    private var isSplashScreenSwitchInitialized = false
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         _binding = FragmentSettingsBinding.bind(view)
 
+        vibrator = activity?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+
         setAppBarAppearance()
         setSearchBarAppearance()
+        setNestedScrollAppearance()
         initializeCategoryRadioGroup()
+        initializeSplashScreenSwitch()
 
         view.doOnAttach {
             requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressed)
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        if (!isSettingsScreenRevealed) {
+            (parentFragment as MoviesListFragment).revealSettingsFragment()
+            isSettingsScreenRevealed = true
         }
     }
 
@@ -65,6 +88,28 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         }
     }
 
+    private fun initializeSplashScreenSwitch() {
+        viewModel.getSplashScreenEnabling.observe(viewLifecycleOwner) { isSplashScreenEnabled ->
+            if (isSplashScreenSwitchInitialized) {
+                binding.splashScreenSwitch.switch.isChecked = isSplashScreenEnabled
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator?.vibrate(VibrationEffect.createOneShot(SWITCH_VIBRATION_LENGTH, VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    vibrator?.vibrate(SWITCH_VIBRATION_LENGTH)
+                }
+            } else {
+                // Не показывать анимацию переключения и не включать вибрацию во время инициализации свитча
+                binding.splashScreenSwitch.switch.isChecked = isSplashScreenEnabled
+                binding.splashScreenSwitch.switch.jumpDrawablesToCurrentState()
+                isSplashScreenSwitchInitialized = true
+            }
+        }
+
+        binding.splashScreenSwitch.setOnClickListener {
+            viewModel.setSplashScreenEnabling(!binding.splashScreenSwitch.switch.isChecked)
+        }
+    }
+
     private fun setAppBarAppearance() {
         binding.appBarLayout.apply {
             ViewCompat.setOnApplyWindowInsetsListener(this) { appBar, insets ->
@@ -81,5 +126,27 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         binding.searchBar.setNavigationOnClickListener {
             destroy()
         }
+    }
+
+    private fun setNestedScrollAppearance() {
+        binding.settingsScroll.apply {
+            outlineProvider = object : ViewOutlineProvider() {
+                override fun getOutline(view: View?, outline: Outline?) {
+                    outline?.setRoundRect(
+                        0, 0,
+                        view!!.width, view.height,
+                        resources.getDimensionPixelSize(R.dimen.fragment_settings_block_corner_radius)
+                            .toFloat()
+                    )
+                    outline?.alpha = 0f
+                }
+            }
+            clipToOutline = true
+        }
+    }
+
+
+    companion object {
+        const val SWITCH_VIBRATION_LENGTH = 50L
     }
 }

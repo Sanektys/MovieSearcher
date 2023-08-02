@@ -20,6 +20,8 @@
     <string name="settings_fragment.radio_group.category.popular">Популярное</string>
     <string name="settings_fragment.radio_group.category.upcoming">Скоро в прокате</string>
     <string name="settings_fragment.radio_group.category.playing">В прокате</string>
+    <string name="settings_fragment.splash_switch.title">Показывать анимацию при запуске</string>
+    <string name="settings_fragment.splash_switch.description">Анимация будет отображаться каждый раз при запуске приложения</string>
 
 
     <!-- Details fragment -->
@@ -57,4 +59,5 @@
     <string name="shared_preferences.settings.value.category.top_rated" translatable="false">top_rated</string>
     <string name="shared_preferences.settings.value.category.upcoming" translatable="false">upcoming</string>
     <string name="shared_preferences.settings.value.category.now_playing" translatable="false">now_playing</string>
+    <string name="shared_preferences.settings.key.show_splash_screen" translatable="false">show_splash</string>
 </resources>

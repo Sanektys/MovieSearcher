@@ -43,12 +43,14 @@
     <!-- settings fragment -->
     <dimen name="fragment_settings.search_bar.height">@dimen/activity_main.search_bar.height</dimen>
     <dimen name="fragment_settings.search_bar.margin">@dimen/activity_main.search_bar.margin</dimen>
+    <dimen name="fragment_settings.element.short_margin_horizontal">16dp</dimen>
+    <dimen name="fragment_settings.element.long_margin_horizontal">20dp</dimen>
+    <dimen name="fragment_settings.block.margin_bottom">12dp</dimen>
+    <dimen name="fragment_settings.block.corner_radius">24dp</dimen>
     <dimen name="fragment_settings.radio_group.title.marginTop">12dp</dimen>
-    <dimen name="fragment_settings.radio_group.title.marginStart">12dp</dimen>
     <dimen name="fragment_settings.radio_group.title.marginBottom">8dp</dimen>
     <dimen name="fragment_settings.radio_group.title.alpha">0.5</dimen>
     <dimen name="fragment_settings.radio_group.radio_button.height">44dp</dimen>
-    <dimen name="fragment_settings.radio_group.radio_button.marginStart">12dp</dimen>
     <dimen name="fragment_settings.radio_group.radio_button.paddingHorizontal">12dp</dimen>
 
 
@@ -81,4 +83,9 @@
     <dimen name="alert_dialog.content.list_item.margin_vertical">16dp</dimen>
     <dimen name="alert_dialog.content.list_item.padding_horizontal">24dp</dimen>
     <dimen name="alert_dialog.content.list_item.text.margin_start">16dp</dimen>
+
+
+    <!-- preference switch view -->
+    <dimen name="preference_switch.margin_vertical">12dp</dimen>
+    <dimen name="preference_switch.text_switch_margin">12dp</dimen>
 </resources>

@@ -203,8 +203,10 @@ class HomeFragment : MoviesListFragment() {
     private fun setAllTransitionAnimation() {
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
+        val isSplashScreenEnabled = viewModel.isSplashScreenEnabled()
+
         val scene = Scene.getSceneForLayout(bindingBlank.root as ViewGroup, R.layout.merge_fragment_home_content, requireContext())
-        if (!isFragmentClassOnceCreated) {  // запускать анимацию появления только при первой загрузке класса фрагмента
+        if (!isFragmentClassOnceCreated && isSplashScreenEnabled) {  // запускать анимацию появления только при первой загрузке класса фрагмента
             val appBarSlideTransition = Slide(Gravity.TOP)
                 .setDuration(resources.getInteger(
                     R.integer.activity_main_animations_durations_first_appearance_app_bar).toLong())
@@ -222,6 +224,9 @@ class HomeFragment : MoviesListFragment() {
             TransitionManager.go(scene, appearingTransition)
             isFragmentClassOnceCreated = true
         } else {
+            if (!isFragmentClassOnceCreated) {
+                isFragmentClassOnceCreated = true
+            }
             scene.enter()
         }
         initializeViewsReferences(bindingBlank.root)
