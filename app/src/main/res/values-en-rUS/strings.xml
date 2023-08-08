@@ -30,7 +30,7 @@
     <string name="details_fragment.fab.remove_favorite">Removed from favorites</string>
     <string name="details_fragment.fab.add_watch_later">Added to \"watch later\"</string>
     <string name="details_fragment.fab.remove_watch_later">Removed from \"watch later\"</string>
-    <string name="details_fragment.fab.share.sending_text">Watch this movie: %s\n\n\t%s</string>
+    <string name="details_fragment.fab.share.sending_text">Watch this movie: %1$s\n\n\t%2$s</string>
     <string name="details_fragment.fab.share.to">Who to send the movie to?</string>
     <string name="details_fragment.alert_dialog.title">Select the action:</string>
     <string name="details_fragment.alert_dialog.action.sharing">Share this movie</string>
