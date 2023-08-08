@@ -1,6 +1,7 @@
 package com.sandev.moviesearcher.di.components
 
 import android.content.Context
+import com.example.domain_api.the_movie_database.RetrofitProvider
 import com.sandev.moviesearcher.di.modules.AllMoviesListModule
 import com.sandev.moviesearcher.di.modules.RemoteModule
 import com.sandev.moviesearcher.di.modules.SharedPreferenceModule
@@ -19,14 +20,14 @@ import javax.inject.Singleton
 
 
 @Singleton
-@Component(modules = [
-    SharedPreferenceModule::class,
-    RemoteModule::class,
-    TmdbModule::class,
-    ViewModelModule::class,
-    AllMoviesListModule::class,
-    TmdbInteractorModule::class,
-])
+@Component(
+    modules = [
+        SharedPreferenceModule::class,
+        ViewModelModule::class,
+        AllMoviesListModule::class,
+    ],
+    dependencies = [RetrofitProvider::class]
+)
 interface AppComponent {
 
     fun inject(homeFragmentViewModel: HomeFragmentViewModel)
@@ -38,6 +39,8 @@ interface AppComponent {
 
     @Component.Builder
     interface Builder {
+        @BindsInstance
+        fun retrofit(retrofitProvider: RetrofitProvider): Builder
         @BindsInstance
         fun context(context: Context): Builder
         fun build(): AppComponent

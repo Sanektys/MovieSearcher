@@ -1,0 +1,29 @@
+ext {
+
+    // Retrofit
+    def retrofitVersion = "2.9.0"
+    retrofit = "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    gsonConverter = "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+    retrofitRxJavaAdapter =  "com.squareup.retrofit2:adapter-rxjava3:$retrofitVersion"
+
+    // OkHttp
+    def okHttpVersion = "4.11.0"
+    okHttpInterceptor = "com.squareup.okhttp3:logging-interceptor:$okHttpVersion"
+
+    // Room
+    def roomVersion = "2.5.2"
+    room = "androidx.room:room-runtime:$roomVersion"
+    roomCompiler = "androidx.room:room-compiler:$roomVersion"
+    roomRxJavaExtension = "androidx.room:room-rxjava3:$roomVersion"
+
+    // Dagger
+    def daggerVersion = "2.47"
+    dagger = "com.google.dagger:dagger:$daggerVersion"
+    daggerCompiler = "com.google.dagger:dagger-compiler:$daggerVersion"
+
+    // RXJava
+    def rxJavaVersion = '3.1.6'
+    def rxJavaVersionForAndroid = "3.0.2"
+    rxJava = "io.reactivex.rxjava3:rxjava:$rxJavaVersion"
+    rxJavaAndroid = "io.reactivex.rxjava3:rxandroid:$rxJavaVersionForAndroid"
+}

@@ -46,7 +46,11 @@ android {
     }
 }
 
+apply from: "$project.rootDir/versions.gradle"
+
 dependencies {
+
+    implementation project(":domain")
 
     // Room
     def roomVersion = "2.5.2"

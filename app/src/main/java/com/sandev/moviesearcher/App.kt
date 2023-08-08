@@ -1,6 +1,7 @@
 package com.sandev.moviesearcher
 
 import android.app.Application
+import com.example.domain.provideRetrofit
 import com.sandev.moviesearcher.di.components.AppComponent
 import com.sandev.moviesearcher.di.components.DaggerAppComponent
 
@@ -21,5 +22,8 @@ class App : Application() {
         getAppComponent()
     }
 
-    fun getAppComponent() = appComponent ?: DaggerAppComponent.builder().context(this).build().also { appComponent = it }
+    fun getAppComponent() = appComponent ?: DaggerAppComponent.builder()
+        .retrofit(retrofitProvider = provideRetrofit())
+        .context(this)
+        .build().also { appComponent = it }
 }
