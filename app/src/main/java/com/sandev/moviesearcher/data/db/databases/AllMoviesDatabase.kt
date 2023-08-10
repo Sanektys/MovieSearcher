@@ -6,17 +6,17 @@ import com.sandev.moviesearcher.data.db.dao.PlayingMovieDao
 import com.sandev.moviesearcher.data.db.dao.PopularMovieDao
 import com.sandev.moviesearcher.data.db.dao.TopMovieDao
 import com.sandev.moviesearcher.data.db.dao.UpcomingMovieDao
-import com.sandev.moviesearcher.data.db.entities.PlayingMovie
-import com.sandev.moviesearcher.data.db.entities.PopularMovie
-import com.sandev.moviesearcher.data.db.entities.TopMovie
-import com.sandev.moviesearcher.data.db.entities.UpcomingMovie
+import com.sandev.moviesearcher.data.db.entities.PlayingDatabaseMovie
+import com.sandev.moviesearcher.data.db.entities.PopularDatabaseMovie
+import com.sandev.moviesearcher.data.db.entities.TopDatabaseMovie
+import com.sandev.moviesearcher.data.db.entities.UpcomingDatabaseMovie
 
 
 @Database(version = 1, exportSchema = true, entities = [
-    PopularMovie::class,
-    TopMovie::class,
-    UpcomingMovie::class,
-    PlayingMovie::class
+    PopularDatabaseMovie::class,
+    TopDatabaseMovie::class,
+    UpcomingDatabaseMovie::class,
+    PlayingDatabaseMovie::class
 ])
 abstract class AllMoviesDatabase : RoomDatabase() {
 

@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-parcelize'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -38,6 +40,11 @@ dependencies {
     implementation retrofit
     implementation gsonConverter
     implementation retrofitRxJavaAdapter
+
+    // Room
+    implementation room
+    kapt roomCompiler
+    implementation roomRxJavaExtension
 
     implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'

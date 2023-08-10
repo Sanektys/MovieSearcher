@@ -3,14 +3,14 @@ package com.sandev.moviesearcher.view.viewmodels
 import android.view.Gravity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.sandev.moviesearcher.data.db.entities.Movie
+import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import kotlin.math.roundToInt
 
 
 abstract class MoviesListFragmentViewModel : ViewModel() {
 
-    protected abstract val moviesList: MutableLiveData<List<Movie>>
+    protected abstract val moviesList: MutableLiveData<List<DatabaseMovie>>
 
     abstract var lastSearch: String
         protected set
@@ -33,7 +33,7 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
 
     protected abstract var isInSearchMode: Boolean
 
-    protected var moviesDatabase: List<Movie> = emptyList()
+    protected var moviesDatabase: List<DatabaseMovie> = emptyList()
         set(value) {
             field = value
             initializeRecyclerAdapterList()

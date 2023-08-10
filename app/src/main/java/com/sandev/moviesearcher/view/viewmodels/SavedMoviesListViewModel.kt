@@ -2,7 +2,7 @@ package com.sandev.moviesearcher.view.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.sandev.moviesearcher.data.db.entities.Movie
+import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
 import com.sandev.moviesearcher.domain.components_holders.SavedMoviesComponentHolder
 import com.sandev.moviesearcher.domain.interactors.MoviesListInteractor
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
@@ -14,14 +14,14 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
 
     lateinit var savedMoviesComponent: SavedMoviesComponentHolder
 
-    final override val moviesList = MutableLiveData<List<Movie>>()
+    final override val moviesList = MutableLiveData<List<DatabaseMovie>>()
 
     var isMovieMoreNotInSavedList: Boolean = false
-    var lastClickedMovie: Movie? = null
+    var lastClickedDatabaseMovie: DatabaseMovie? = null
 
     var clickOnPosterCallbackSetupSynchronizeBlock: Channel<Nothing>? = null
 
-    protected val movieDeletedObserver: Observer<Movie>
+    protected val databaseMovieDeletedObserver: Observer<DatabaseMovie>
     protected val movieAddedObserver: Observer<Nothing?>
 
     private var moviesPaginationOffset: Int = 0
@@ -32,7 +32,7 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
         isOffline = true
         moviesPerPage = MoviesListInteractor.MOVIES_PER_PAGE
 
-        movieDeletedObserver = Observer<Movie> { deletedMovie ->
+        databaseMovieDeletedObserver = Observer<DatabaseMovie> { deletedMovie ->
             val isMovieDeleted = recyclerAdapter.removeMovieCard(deletedMovie)
             if (isMovieDeleted && moviesPaginationOffset > 0) {
                 --moviesPaginationOffset
@@ -74,7 +74,7 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
     }
 
     override fun onCleared() {
-        savedMoviesComponent.interactor.getDeletedMovie.removeObserver(movieDeletedObserver)
+        savedMoviesComponent.interactor.getDeletedDatabaseMovie.removeObserver(databaseMovieDeletedObserver)
         savedMoviesComponent.interactor.getMovieAddedNotify.removeObserver(movieAddedObserver)
     }
 
@@ -138,17 +138,17 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
         }
     }
 
-    private fun removeFromSavedList(movie: Movie) {
+    private fun removeFromSavedList(databaseMovie: DatabaseMovie) {
         var disposable: Disposable? = null
-        disposable = savedMoviesComponent.interactor.removeFromList(movie).subscribe {
+        disposable = savedMoviesComponent.interactor.removeFromList(databaseMovie).subscribe {
             disposable?.dispose()
         }
     }
 
     private fun removeMovieFromList() {
-        if (lastClickedMovie != null) {
-            removeFromSavedList(lastClickedMovie!!)
-            lastClickedMovie = null
+        if (lastClickedDatabaseMovie != null) {
+            removeFromSavedList(lastClickedDatabaseMovie!!)
+            lastClickedDatabaseMovie = null
         }
         isMovieMoreNotInSavedList = false
     }

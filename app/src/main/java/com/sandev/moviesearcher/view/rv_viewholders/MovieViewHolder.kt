@@ -4,7 +4,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.data.db.entities.Movie
+import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGES_URL
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_MEDIUM_SIZE
 import com.sandev.moviesearcher.databinding.MovieCardBinding
@@ -17,10 +17,10 @@ class MovieViewHolder(private val binding: MovieCardBinding) : RecyclerView.View
         const val MOVIE_RATING_MULTIPLIER = 10
     }
 
-    fun onBind(movieData: Movie, position: Int) {
-        if (movieData.poster != null) {
+    fun onBind(databaseMovieData: DatabaseMovie, position: Int) {
+        if (databaseMovieData.poster != null) {
             Glide.with(binding.root)
-                .load("${IMAGES_URL}${IMAGE_MEDIUM_SIZE}${movieData.poster}")
+                .load("${IMAGES_URL}${IMAGE_MEDIUM_SIZE}${databaseMovieData.poster}")
                 .placeholder(R.drawable.dummy_poster)
                 .apply(RequestOptions().dontTransform())
                 .into(poster)
@@ -31,8 +31,8 @@ class MovieViewHolder(private val binding: MovieCardBinding) : RecyclerView.View
         }
         poster.transitionName =
             binding.root.resources.getString(R.string.movie_view_holder_transition_name, position)
-        binding.movieCardMovieTitle.text = movieData.title
-        binding.movieCardMovieDescription.text = movieData.description
-        binding.ratingDonut.setProgress((movieData.rating * MOVIE_RATING_MULTIPLIER).toInt())
+        binding.movieCardMovieTitle.text = databaseMovieData.title
+        binding.movieCardMovieDescription.text = databaseMovieData.description
+        binding.ratingDonut.setProgress((databaseMovieData.rating * MOVIE_RATING_MULTIPLIER).toInt())
     }
 }

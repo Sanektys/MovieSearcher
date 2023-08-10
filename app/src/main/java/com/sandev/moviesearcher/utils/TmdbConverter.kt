@@ -1,19 +1,19 @@
 package com.sandev.moviesearcher.utils
 
-import com.sandev.moviesearcher.data.db.entities.Movie
-import com.sandev.moviesearcher.data.db.entities.PlayingMovie
-import com.sandev.moviesearcher.data.db.entities.PopularMovie
-import com.sandev.moviesearcher.data.db.entities.TopMovie
-import com.sandev.moviesearcher.data.db.entities.UpcomingMovie
+import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
+import com.sandev.moviesearcher.data.db.entities.PlayingDatabaseMovie
+import com.sandev.moviesearcher.data.db.entities.PopularDatabaseMovie
+import com.sandev.moviesearcher.data.db.entities.TopDatabaseMovie
+import com.sandev.moviesearcher.data.db.entities.UpcomingDatabaseMovie
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbMovieDto
 
 
 object TmdbConverter {
-    fun convertApiDtoListToPlayingMovieList(list: List<TmdbMovieDto>?): List<PlayingMovie> {
-        val result = mutableListOf<PlayingMovie>()
+    fun convertApiDtoListToPlayingMovieList(list: List<TmdbMovieDto>?): List<PlayingDatabaseMovie> {
+        val result = mutableListOf<PlayingDatabaseMovie>()
         list?.forEach { tmdbMovie ->
             result.add(
-                PlayingMovie(
+                PlayingDatabaseMovie(
                     poster = tmdbMovie.posterPath,
                     title = tmdbMovie.title,
                     description = tmdbMovie.overview,
@@ -24,11 +24,11 @@ object TmdbConverter {
         return result
     }
 
-    fun convertApiDtoListToPopularMovieList(list: List<TmdbMovieDto>?): List<PopularMovie> {
-        val result = mutableListOf<PopularMovie>()
+    fun convertApiDtoListToPopularMovieList(list: List<TmdbMovieDto>?): List<PopularDatabaseMovie> {
+        val result = mutableListOf<PopularDatabaseMovie>()
         list?.forEach { tmdbMovie ->
             result.add(
-                PopularMovie(
+                PopularDatabaseMovie(
                     poster = tmdbMovie.posterPath,
                     title = tmdbMovie.title,
                     description = tmdbMovie.overview,
@@ -39,11 +39,11 @@ object TmdbConverter {
         return result
     }
 
-    fun convertApiDtoListToTopMovieList(list: List<TmdbMovieDto>?): List<TopMovie> {
-        val result = mutableListOf<TopMovie>()
+    fun convertApiDtoListToTopMovieList(list: List<TmdbMovieDto>?): List<TopDatabaseMovie> {
+        val result = mutableListOf<TopDatabaseMovie>()
         list?.forEach { tmdbMovie ->
             result.add(
-                TopMovie(
+                TopDatabaseMovie(
                     poster = tmdbMovie.posterPath,
                     title = tmdbMovie.title,
                     description = tmdbMovie.overview,
@@ -54,11 +54,11 @@ object TmdbConverter {
         return result
     }
 
-    fun convertApiDtoListToUpcomingMovieList(list: List<TmdbMovieDto>?): List<UpcomingMovie> {
-        val result = mutableListOf<UpcomingMovie>()
+    fun convertApiDtoListToUpcomingMovieList(list: List<TmdbMovieDto>?): List<UpcomingDatabaseMovie> {
+        val result = mutableListOf<UpcomingDatabaseMovie>()
         list?.forEach { tmdbMovie ->
             result.add(
-                UpcomingMovie(
+                UpcomingDatabaseMovie(
                     poster = tmdbMovie.posterPath,
                     title = tmdbMovie.title,
                     description = tmdbMovie.overview,
@@ -69,11 +69,11 @@ object TmdbConverter {
         return result
     }
 
-    fun convertApiDtoListToMovieList(list: List<TmdbMovieDto>?): List<Movie> {
-        val result = mutableListOf<Movie>()
+    fun convertApiDtoListToMovieList(list: List<TmdbMovieDto>?): List<DatabaseMovie> {
+        val result = mutableListOf<DatabaseMovie>()
         list?.forEach { tmdbMovie ->
             result.add(
-                UpcomingMovie(
+                UpcomingDatabaseMovie(
                     poster = tmdbMovie.posterPath,
                     title = tmdbMovie.title,
                     description = tmdbMovie.overview,

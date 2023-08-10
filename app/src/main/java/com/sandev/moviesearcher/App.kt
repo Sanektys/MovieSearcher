@@ -23,7 +23,7 @@ class App : Application() {
     }
 
     fun getAppComponent() = appComponent ?: DaggerAppComponent.builder()
-        .retrofit(retrofitProvider = provideRetrofit())
+        .retrofit(tmdbRetrofitProvider = provideRetrofit())
         .context(this)
         .build().also { appComponent = it }
 }

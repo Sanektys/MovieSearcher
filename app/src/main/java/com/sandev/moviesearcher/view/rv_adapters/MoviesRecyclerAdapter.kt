@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.data.db.entities.Movie
+import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
 import com.sandev.moviesearcher.databinding.MovieCardBinding
 import com.sandev.moviesearcher.utils.rv_diffutils.MoviesListDiff
 import com.sandev.moviesearcher.view.rv_viewholders.MovieViewHolder
@@ -14,7 +14,7 @@ import com.sandev.moviesearcher.view.rv_viewholders.MovieViewHolder
 
 class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
 
-    private val moviesList: MutableList<Movie> = mutableListOf()
+    private val moviesList: MutableList<DatabaseMovie> = mutableListOf()
     private var clickListener: OnClickListener? = null
     var lastClickedMoviePosition = DEFAULT_NON_CLICKED_POSITION
         private set
@@ -40,18 +40,18 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
     }
 
     interface OnClickListener {
-        fun onClick(movie: Movie, posterView: ShapeableImageView)
+        fun onClick(databaseMovie: DatabaseMovie, posterView: ShapeableImageView)
     }
 
     fun setPosterOnClickListener(onClickListener: OnClickListener?) {
         clickListener = onClickListener
     }
 
-    fun getMovieAt(position: Int): Movie? = moviesList.getOrNull(position)
+    fun getMovieAt(position: Int): DatabaseMovie? = moviesList.getOrNull(position)
 
-    fun findMovie(movie: Movie): Movie? = moviesList.find { it.title == movie.title }
+    fun findMovie(databaseMovie: DatabaseMovie): DatabaseMovie? = moviesList.find { it.title == databaseMovie.title }
 
-    fun setList(newList: List<Movie>?) {
+    fun setList(newList: List<DatabaseMovie>?) {
         if (newList == null || newList == moviesList) {
             return
         }
@@ -67,12 +67,12 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
         notifyItemRangeRemoved(0, listSize)
     }
 
-    fun addMovieCard(movie: Movie) {
-        moviesList.add(movie)
+    fun addMovieCard(databaseMovie: DatabaseMovie) {
+        moviesList.add(databaseMovie)
         notifyItemInserted(moviesList.size - 1)
     }
 
-    fun addMovieCards(newCards: List<Movie>?) {
+    fun addMovieCards(newCards: List<DatabaseMovie>?) {
         if (newCards?.isNotEmpty() == true) {
             val oldSize = moviesList.size
             moviesList.addAll(newCards)
@@ -80,8 +80,8 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
         }
     }
 
-    fun removeMovieCard(movie: Movie): Boolean {
-        val index = moviesList.indexOf(movie)
+    fun removeMovieCard(databaseMovie: DatabaseMovie): Boolean {
+        val index = moviesList.indexOf(databaseMovie)
         if (index == -1) return false
         moviesList.removeAt(index)
         notifyItemRemoved(index)

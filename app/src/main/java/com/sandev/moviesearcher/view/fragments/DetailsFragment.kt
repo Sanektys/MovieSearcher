@@ -50,7 +50,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.data.db.entities.Movie
+import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGES_URL
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_HIGH_SIZE
@@ -105,7 +105,7 @@ class DetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        viewModel._movie = arguments?.getParcelable<Movie>(MainActivity.MOVIE_DATA_KEY)!!
+        viewModel._Database_movie = arguments?.getParcelable<DatabaseMovie>(MainActivity.MOVIE_DATA_KEY)!!
 
         viewModel.fragmentThatLaunchedDetails = savedInstanceState
             ?.getString(FRAGMENT_LAUNCHED_KEY) ?: (activity as MainActivity).previousFragmentName
@@ -176,7 +176,7 @@ class DetailsFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
 
-        viewModel._movie = null
+        viewModel._Database_movie = null
         viewModel.fragmentThatLaunchedDetails = null
 
         posterDownloadDisposable?.dispose()
@@ -189,10 +189,10 @@ class DetailsFragment : Fragment() {
 
     private fun checkFavoriteFloatButtonState() = viewLifecycleOwner.lifecycleScope.launch {
         val disposable = viewModel.getFavoritesMovies.subscribe { favoritesMovies ->
-            val existedFavoriteMovie: Movie? = favoritesMovies.find {
-                it.title == viewModel.movie.title && it.description == viewModel.movie.description
+            val existedFavoriteDatabaseMovie: DatabaseMovie? = favoritesMovies.find {
+                it.title == viewModel.databaseMovie.title && it.description == viewModel.databaseMovie.description
             }
-            if (existedFavoriteMovie != null) {
+            if (existedFavoriteDatabaseMovie != null) {
                 viewModel.isFavoriteMovie = true
                 binding.fabToFavorite.isSelected = true
             } else {
@@ -206,10 +206,10 @@ class DetailsFragment : Fragment() {
 
     private fun checkWatchLaterFloatButtonState() = viewLifecycleOwner.lifecycleScope.launch {
         val disposable = viewModel.getWatchLaterMovies.subscribe { watchLaterMovies ->
-            val existedWatchLaterMovie: Movie? = watchLaterMovies.find {
-                it.title == viewModel.movie.title && it.description == viewModel.movie.description
+            val existedWatchLaterDatabaseMovie: DatabaseMovie? = watchLaterMovies.find {
+                it.title == viewModel.databaseMovie.title && it.description == viewModel.databaseMovie.description
             }
-            if (existedWatchLaterMovie != null) {
+            if (existedWatchLaterDatabaseMovie != null) {
                 viewModel.isWatchLaterMovie = true
                 binding.fabToWatchLater.isSelected = true
             } else {
@@ -250,9 +250,9 @@ class DetailsFragment : Fragment() {
     private fun initializeContent() {
         if (!viewModel.isLowQualityPosterDownloaded) {
             binding.collapsingToolbarImage.apply {
-                if (viewModel.movie.poster != null) {
+                if (viewModel.databaseMovie.poster != null) {
                     Glide.with(this@DetailsFragment)
-                        .load("${IMAGES_URL}${IMAGE_MEDIUM_SIZE}${viewModel.movie.poster}")
+                        .load("${IMAGES_URL}${IMAGE_MEDIUM_SIZE}${viewModel.databaseMovie.poster}")
                         .placeholder(R.drawable.dummy_poster)
                         .apply(RequestOptions().dontTransform())
                         .onlyRetrieveFromCache(true)
@@ -278,14 +278,14 @@ class DetailsFragment : Fragment() {
             }
             viewModel.isLowQualityPosterDownloaded = true
         }
-        binding.title.text = viewModel.movie.title
-        binding.description.text = viewModel.movie.description
+        binding.title.text = viewModel.databaseMovie.title
+        binding.description.text = viewModel.databaseMovie.description
     }
 
     private suspend fun downloadHighResolutionPosterImage() = withContext(Dispatchers.IO) download@ {
-        if (viewModel.movie.poster != null) {
+        if (viewModel.databaseMovie.poster != null) {
             val downloadingImage = Glide.with(this@DetailsFragment)
-                .load("${IMAGES_URL}${IMAGE_HIGH_SIZE}${viewModel.movie.poster}")
+                .load("${IMAGES_URL}${IMAGE_HIGH_SIZE}${viewModel.databaseMovie.poster}")
                 .submit()  // Дальнейшее в этом методе просто для того, чтобы не использовать placeholder т.к. он глючит с drawable из вью
             val imageDrawable = try {
                 downloadingImage.get()
@@ -367,7 +367,7 @@ class DetailsFragment : Fragment() {
 
     private fun changeFavoriteMoviesList() {
         if (!viewModel.isFavoriteMovie && binding.fabToFavorite.isSelected) {
-            viewModel.addToFavorite(viewModel.movie)
+            viewModel.addToFavorite(viewModel.databaseMovie)
         } else if (viewModel.isFavoriteMovie && !binding.fabToFavorite.isSelected) {
             if (viewModel.fragmentThatLaunchedDetails == FavoritesFragment::class.qualifiedName) {
                 requireActivity().supportFragmentManager.setFragmentResult(
@@ -375,14 +375,14 @@ class DetailsFragment : Fragment() {
                     bundleOf(FavoritesFragment.MOVIE_NOW_NOT_FAVORITE_KEY to true)
                 )
             } else {
-                viewModel.removeFromFavorite(viewModel.movie)
+                viewModel.removeFromFavorite(viewModel.databaseMovie)
             }
         }
     }
 
     private fun changeWatchLaterMoviesList() {
         if (!viewModel.isWatchLaterMovie && binding.fabToWatchLater.isSelected) {
-            viewModel.addToWatchLater(viewModel.movie)
+            viewModel.addToWatchLater(viewModel.databaseMovie)
         } else if (viewModel.isWatchLaterMovie && !binding.fabToWatchLater.isSelected) {
             if (viewModel.fragmentThatLaunchedDetails == WatchLaterFragment::class.qualifiedName) {
                 requireActivity().supportFragmentManager.setFragmentResult(
@@ -390,7 +390,7 @@ class DetailsFragment : Fragment() {
                     bundleOf(WatchLaterFragment.MOVIE_NOW_NOT_WATCH_LATER_KEY to true)
                 )
             } else {
-                viewModel.removeFromWatchLater(viewModel.movie)
+                viewModel.removeFromWatchLater(viewModel.databaseMovie)
             }
         }
     }
@@ -462,7 +462,7 @@ class DetailsFragment : Fragment() {
                 Intent.EXTRA_TEXT,
                 getString(
                     R.string.details_fragment_fab_share_sending_text,
-                    viewModel.movie.title, viewModel.movie.description
+                    viewModel.databaseMovie.title, viewModel.databaseMovie.description
                 )
             )
             startActivity(Intent.createChooser(intent, getString(R.string.details_fragment_fab_share_to)))
@@ -497,8 +497,8 @@ class DetailsFragment : Fragment() {
     private fun saveToGallery(bitmap: Bitmap) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val contentValues = ContentValues().apply {
-                put(MediaStore.Images.Media.TITLE, "${viewModel.movie.title.removeSingleQuote()}_poster")
-                put(MediaStore.Images.Media.DISPLAY_NAME, viewModel.movie.title.removeSingleQuote())
+                put(MediaStore.Images.Media.TITLE, "${viewModel.databaseMovie.title.removeSingleQuote()}_poster")
+                put(MediaStore.Images.Media.DISPLAY_NAME, viewModel.databaseMovie.title.removeSingleQuote())
                 put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
                 put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / DIVIDER_MILLISECONDS_TO_SECONDS)
                 put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis())
@@ -517,8 +517,8 @@ class DetailsFragment : Fragment() {
             MediaStore.Images.Media.insertImage(
                 requireActivity().contentResolver,
                 bitmap,
-                viewModel.movie.title.removeSingleQuote(),
-                viewModel.movie.description.removeSingleQuote()
+                viewModel.databaseMovie.title.removeSingleQuote(),
+                viewModel.databaseMovie.description.removeSingleQuote()
             )
         }
     }
@@ -534,7 +534,7 @@ class DetailsFragment : Fragment() {
             try {
                 saveToGallery(
                     viewModel.loadMoviePoster(
-                        "${IMAGES_URL}${TmdbApiConstants.IMAGE_FULL_SIZE}${viewModel.movie.poster}"
+                        "${IMAGES_URL}${TmdbApiConstants.IMAGE_FULL_SIZE}${viewModel.databaseMovie.poster}"
                     )
                 )
                 observer.onSuccess(Unit)

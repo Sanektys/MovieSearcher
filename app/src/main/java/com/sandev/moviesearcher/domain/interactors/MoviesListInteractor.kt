@@ -2,7 +2,7 @@ package com.sandev.moviesearcher.domain.interactors
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.sandev.moviesearcher.data.db.entities.Movie
+import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
 import com.sandev.moviesearcher.data.repositories.MoviesListRepository
 import com.sandev.moviesearcher.data.repositories.MoviesListRepositoryImplForSavedLists
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -18,39 +18,39 @@ class MoviesListInteractor @Inject constructor(private val repo: MoviesListRepos
 
     override val systemLanguage = Locale.getDefault().toLanguageTag()
 
-    private val deletedMovie = MutableLiveData<Movie>()
-    val getDeletedMovie: LiveData<Movie> = deletedMovie
+    private val deletedDatabaseMovie = MutableLiveData<DatabaseMovie>()
+    val getDeletedDatabaseMovie: LiveData<DatabaseMovie> = deletedDatabaseMovie
 
     private val movieAddedNotify = MutableLiveData<Nothing>()
     val getMovieAddedNotify: LiveData<Nothing> = movieAddedNotify
 
 
-    fun addToList(movie: Movie) = Completable.create { emitter ->
-        repo.putToDB(listOf(movie))
+    fun addToList(databaseMovie: DatabaseMovie) = Completable.create { emitter ->
+        repo.putToDB(listOf(databaseMovie))
         movieAddedNotify.postValue(null)
         emitter.onComplete()
     }.subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
 
-    fun removeFromList(movie: Movie) = Completable.create { emitter ->
-        (repo as MoviesListRepositoryImplForSavedLists).deleteFromDB(movie)
-        deletedMovie.postValue(movie)
+    fun removeFromList(databaseMovie: DatabaseMovie) = Completable.create { emitter ->
+        (repo as MoviesListRepositoryImplForSavedLists).deleteFromDB(databaseMovie)
+        deletedDatabaseMovie.postValue(databaseMovie)
         emitter.onComplete()
     }.subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
 
-    fun getAllFromList(): Observable<List<Movie>> = repo.getAllFromDB()
+    fun getAllFromList(): Observable<List<DatabaseMovie>> = repo.getAllFromDB()
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
 
-    fun getFewMoviesFromList(from: Int, moviesCount: Int): Single<List<Movie>>
-            = Single.create<List<Movie>> { emitter ->
+    fun getFewMoviesFromList(from: Int, moviesCount: Int): Single<List<DatabaseMovie>>
+            = Single.create<List<DatabaseMovie>> { emitter ->
         emitter.onSuccess(repo.getFromDB(from = from, moviesCount = moviesCount))
     }.subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
 
-    fun getFewSearchedMoviesFromList(query: String, from: Int, moviesCount: Int): Single<List<Movie>>
-            = Single.create<List<Movie>> { emitter ->
+    fun getFewSearchedMoviesFromList(query: String, from: Int, moviesCount: Int): Single<List<DatabaseMovie>>
+            = Single.create<List<DatabaseMovie>> { emitter ->
         emitter.onSuccess(repo.getSearchedFromDB(query = query, from = from, moviesCount = moviesCount))
     }.subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())

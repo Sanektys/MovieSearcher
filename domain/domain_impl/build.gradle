@@ -14,6 +14,15 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += [
+                        "room.schemaLocation":"$projectDir/schemas".toString(),
+                        "room.incremental":"true"
+                ]
+            }
+        }
     }
 
     buildTypes {
@@ -44,6 +53,10 @@ dependencies {
 
     // OkHttp
     implementation okHttpInterceptor
+
+    // Room
+    implementation room
+    kapt roomCompiler
 
     // Dagger
     implementation dagger

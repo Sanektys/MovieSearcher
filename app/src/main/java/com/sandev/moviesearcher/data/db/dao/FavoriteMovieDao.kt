@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
-import com.sandev.moviesearcher.data.db.entities.FavoriteMovie
-import com.sandev.moviesearcher.data.db.entities.Movie
+import com.sandev.moviesearcher.data.db.entities.FavoriteDatabaseMovie
+import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
 import com.sandev.moviesearcher.data.db.entities.TitleAndDescription
 import io.reactivex.rxjava3.core.Observable
 
@@ -13,45 +13,45 @@ import io.reactivex.rxjava3.core.Observable
 @Dao
 interface FavoriteMovieDao : SavedMovieDao {
 
-    @Query("SELECT * FROM ${FavoriteMovie.TABLE_NAME}")
-    override fun getAllCachedMovies(): Observable<List<Movie>>
+    @Query("SELECT * FROM ${FavoriteDatabaseMovie.TABLE_NAME}")
+    override fun getAllCachedMovies(): Observable<List<DatabaseMovie>>
 
     @Query("SELECT *" +
             "FROM " +
             "(SELECT * " +
-            "FROM ${FavoriteMovie.TABLE_NAME} " +
+            "FROM ${FavoriteDatabaseMovie.TABLE_NAME} " +
             "ORDER BY ${Movie.COLUMN_ID} DESC " +
             "LIMIT :moviesCount) AS q " +
             "ORDER BY ${Movie.COLUMN_ID} ASC")
-    override fun getLastFewCachedMovies(moviesCount: Int): LiveData<List<Movie>>
+    override fun getLastFewCachedMovies(moviesCount: Int): LiveData<List<DatabaseMovie>>
 
-    @Query("SELECT * FROM ${FavoriteMovie.TABLE_NAME} LIMIT :from, :moviesCount")
-    override fun getFewCachedMoviesFromOffset(from: Int, moviesCount: Int): List<Movie>
+    @Query("SELECT * FROM ${FavoriteDatabaseMovie.TABLE_NAME} LIMIT :from, :moviesCount")
+    override fun getFewCachedMoviesFromOffset(from: Int, moviesCount: Int): List<DatabaseMovie>
 
     @Query("SELECT * " +
-            "FROM ${FavoriteMovie.TABLE_NAME} " +
+            "FROM ${FavoriteDatabaseMovie.TABLE_NAME} " +
             "WHERE ${Movie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
             "ORDER BY ${Movie.COLUMN_ID} ASC")
-    override fun getAllSearchedCachedMovies(query: String): LiveData<List<Movie>>
+    override fun getAllSearchedCachedMovies(query: String): LiveData<List<DatabaseMovie>>
 
     @Query("SELECT * " +
             "FROM" +
             "(SELECT * " +
-            "FROM ${FavoriteMovie.TABLE_NAME} " +
+            "FROM ${FavoriteDatabaseMovie.TABLE_NAME} " +
             "WHERE ${Movie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
             "ORDER BY ${Movie.COLUMN_ID} DESC " +
             "LIMIT :moviesCount) AS q " +
             "ORDER BY ${Movie.COLUMN_ID} ASC")
-    override fun getLastFewSearchedCachedMovies(query: String, moviesCount: Int): LiveData<List<Movie>>
+    override fun getLastFewSearchedCachedMovies(query: String, moviesCount: Int): LiveData<List<DatabaseMovie>>
 
     @Query("SELECT * " +
-            "FROM ${FavoriteMovie.TABLE_NAME} " +
+            "FROM ${FavoriteDatabaseMovie.TABLE_NAME} " +
             "WHERE ${Movie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
             "ORDER BY ${Movie.COLUMN_ID} ASC " +
             "LIMIT :from, :moviesCount")
-    override fun getFewSearchedCachedMoviesFromOffset(query: String, from: Int, moviesCount: Int): List<Movie>
+    override fun getFewSearchedCachedMoviesFromOffset(query: String, from: Int, moviesCount: Int): List<DatabaseMovie>
 
-    @Query("INSERT OR IGNORE INTO ${FavoriteMovie.TABLE_NAME}" +
+    @Query("INSERT OR IGNORE INTO ${FavoriteDatabaseMovie.TABLE_NAME}" +
             "(${Movie.COLUMN_POSTER}, ${Movie.COLUMN_TITLE}, " +
             "${Movie.COLUMN_DESCRIPTION}, ${Movie.COLUMN_RATING}) " +
             "VALUES (:poster, :title, :description, :rating)")
@@ -62,9 +62,9 @@ interface FavoriteMovieDao : SavedMovieDao {
         rating: Float
     ): Long
 
-    @Delete(entity = FavoriteMovie::class)
+    @Delete(entity = FavoriteDatabaseMovie::class)
     override fun deleteFromCachedMovies(certainMovie: TitleAndDescription): Int
 
-    @Query("DELETE FROM ${FavoriteMovie.TABLE_NAME}")
+    @Query("DELETE FROM ${FavoriteDatabaseMovie.TABLE_NAME}")
     override fun deleteAllCachedMovies(): Int
 }

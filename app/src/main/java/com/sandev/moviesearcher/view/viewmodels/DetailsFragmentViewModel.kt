@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModel
 import com.sandev.moviesearcher.App
-import com.sandev.moviesearcher.data.db.entities.Movie
+import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
 import com.sandev.moviesearcher.domain.components_holders.FavoritesMoviesComponentHolder
 import com.sandev.moviesearcher.domain.components_holders.WatchLaterMoviesComponentHolder
 import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
@@ -22,15 +22,15 @@ class DetailsFragmentViewModel : ViewModel() {
     @Inject
     lateinit var watchLaterMoviesComponent: WatchLaterMoviesComponentHolder
 
-    val getFavoritesMovies: Observable<List<Movie>>
-    val getWatchLaterMovies: Observable<List<Movie>>
+    val getFavoritesMovies: Observable<List<DatabaseMovie>>
+    val getWatchLaterMovies: Observable<List<DatabaseMovie>>
 
     @Inject
     lateinit var interactor: TmdbInteractor
 
-    var _movie: Movie? = null
-    val movie: Movie
-        get() = _movie!!
+    var _Database_movie: DatabaseMovie? = null
+    val databaseMovie: DatabaseMovie
+        get() = _Database_movie!!
 
     var isFavoriteMovie: Boolean = false
     var isWatchLaterMovie: Boolean = false
@@ -63,30 +63,30 @@ class DetailsFragmentViewModel : ViewModel() {
         return bitmap
     }
 
-    fun addToFavorite(movie: Movie) {
+    fun addToFavorite(databaseMovie: DatabaseMovie) {
         var disposable: Disposable? = null
-        disposable = favoritesMoviesComponent.interactor.addToList(movie).subscribe {
+        disposable = favoritesMoviesComponent.interactor.addToList(databaseMovie).subscribe {
             disposable?.dispose()
         }
     }
 
-    fun removeFromFavorite(movie: Movie) {
+    fun removeFromFavorite(databaseMovie: DatabaseMovie) {
         var disposable: Disposable? = null
-        disposable = favoritesMoviesComponent.interactor.removeFromList(movie).subscribe {
+        disposable = favoritesMoviesComponent.interactor.removeFromList(databaseMovie).subscribe {
             disposable?.dispose()
         }
     }
 
-    fun addToWatchLater(movie: Movie) {
+    fun addToWatchLater(databaseMovie: DatabaseMovie) {
         var disposable: Disposable? = null
-        disposable = watchLaterMoviesComponent.interactor.addToList(movie).subscribe {
+        disposable = watchLaterMoviesComponent.interactor.addToList(databaseMovie).subscribe {
             disposable?.dispose()
         }
     }
 
-    fun removeFromWatchLater(movie: Movie) {
+    fun removeFromWatchLater(databaseMovie: DatabaseMovie) {
         var disposable: Disposable? = null
-        disposable = watchLaterMoviesComponent.interactor.removeFromList(movie).subscribe {
+        disposable = watchLaterMoviesComponent.interactor.removeFromList(databaseMovie).subscribe {
             disposable?.dispose()
         }
     }

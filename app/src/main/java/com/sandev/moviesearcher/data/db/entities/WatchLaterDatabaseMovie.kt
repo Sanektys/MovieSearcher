@@ -7,9 +7,9 @@ import androidx.room.PrimaryKey
 
 
 @Entity(
-    tableName = FavoriteMovie.TABLE_NAME,
+    tableName = WatchLaterDatabaseMovie.TABLE_NAME,
     indices = [Index(value = [Movie.COLUMN_TITLE, Movie.COLUMN_DESCRIPTION], unique = true)])
-class FavoriteMovie(
+data class WatchLaterDatabaseMovie(
     @[ColumnInfo(name = Movie.COLUMN_ID) PrimaryKey(autoGenerate = true)]
     override val id: Int = 0,
     @ColumnInfo(name = Movie.COLUMN_POSTER)
@@ -20,9 +20,9 @@ class FavoriteMovie(
     override val description: String,
     @ColumnInfo(name = Movie.COLUMN_RATING, defaultValue = "0")
     override var rating: Float = 0f
-) : Movie(id, poster, title, description, rating) {
+) :  DatabaseMovie(id, poster, title, description, rating) {
 
     companion object {
-        const val TABLE_NAME = "cached_favorites_movies"
+        const val TABLE_NAME = "cached_watch_later_movies"
     }
 }

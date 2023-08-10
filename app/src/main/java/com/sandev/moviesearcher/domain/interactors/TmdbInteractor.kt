@@ -1,7 +1,6 @@
 package com.sandev.moviesearcher.domain.interactors
 
-import com.sandev.moviesearcher.data.SharedPreferencesProvider
-import com.sandev.moviesearcher.data.db.entities.Movie
+import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
 import com.sandev.moviesearcher.data.repositories.MoviesListRepository
 import com.sandev.moviesearcher.data.repositories.PlayingMoviesListRepository
 import com.sandev.moviesearcher.data.repositories.PopularMoviesListRepository
@@ -10,20 +9,17 @@ import com.sandev.moviesearcher.data.repositories.UpcomingMoviesListRepository
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApi
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiKey
 import com.sandev.moviesearcher.data.themoviedatabase.TmdbResult
-import com.sandev.moviesearcher.data.themoviedatabase.TmdbResultDto
 import com.sandev.moviesearcher.utils.TmdbConverter
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Locale
-import javax.inject.Singleton
 
 
-@Singleton
-class TmdbInteractor(private val retrofitService: TmdbApi,
-                     private val sharedPreferences: SharedPreferencesProvider,
-                     private vararg val moviesListRepositories: MoviesListRepository
+class TmdbInteractor(
+    private val retrofitService: TmdbApi,
+    private vararg val moviesListRepositories: MoviesListRepository
 ) {
 
     private val systemLanguage = Locale.getDefault().toLanguageTag()
@@ -45,10 +41,10 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
     }
 
 
-    fun getMoviesFromApi(page: Int, repositoryType: RepositoryType)
+    fun getMoviesFromApi(page: Int, moviesCategory: String, repositoryType: RepositoryType)
             = retrofitService.getMovies(
         apiKey = TmdbApiKey.KEY,
-        category = sharedPreferences.getDefaultCategory(),
+        category = moviesCategory,
         language = systemLanguage,
         page = page
     ).subscribeOn(Schedulers.io()).map {
@@ -72,14 +68,14 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
         TmdbResult(movies = movies, totalPages = it.totalPages)
     }.observeOn(Schedulers.io())
 
-    fun putMoviesToDB(moviesList: List<Movie>, repositoryType: RepositoryType)
+    fun putMoviesToDB(moviesList: List<DatabaseMovie>, repositoryType: RepositoryType)
             = Completable.create { emitter ->
         getRequestedRepository(repositoryType).putToDB(moviesList)
         emitter.onComplete()
     }.subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
 
-    fun deleteAllMoviesFromDbAndPutNewMovies(moviesList: List<Movie>, repositoryType: RepositoryType)
+    fun deleteAllMoviesFromDbAndPutNewMovies(moviesList: List<DatabaseMovie>, repositoryType: RepositoryType)
             = Completable.create { emitter ->
         getRequestedRepository(repositoryType).deleteAllFromDBAndPutNew(moviesList)
         emitter.onComplete()
@@ -87,7 +83,7 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
         .observeOn(AndroidSchedulers.mainThread())
 
     fun getMoviesFromDB(page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
-            = Single.create<List<Movie>> { emitter ->
+            = Single.create<List<DatabaseMovie>> { emitter ->
         emitter.onSuccess(
             getRequestedRepository(repositoryType).getFromDB(
                 from = (page - 1) * moviesPerPage,
@@ -98,7 +94,7 @@ class TmdbInteractor(private val retrofitService: TmdbApi,
         .observeOn(AndroidSchedulers.mainThread())
 
     fun getSearchedMoviesFromDB(query: String, page: Int, moviesPerPage: Int, repositoryType: RepositoryType)
-            = Single.create<List<Movie>> { emitter ->
+            = Single.create<List<DatabaseMovie>> { emitter ->
         emitter.onSuccess(
             getRequestedRepository(repositoryType).getSearchedFromDB(
                 query = query,

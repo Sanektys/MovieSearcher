@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.data.db.entities.Movie
+import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
 import com.sandev.moviesearcher.databinding.FragmentFavoritesBinding
 import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import com.sandev.moviesearcher.view.MainActivity
@@ -36,10 +36,10 @@ class FavoritesFragment : MoviesListFragment() {
     private var mainActivity: MainActivity? = null
 
     private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
-        override fun onClick(movie: Movie, posterView: ShapeableImageView) {
+        override fun onClick(databaseMovie: DatabaseMovie, posterView: ShapeableImageView) {
             resetExitReenterTransitionAnimations()
-            viewModel.lastClickedMovie = movie
-            mainActivity?.startDetailsFragment(movie, posterView)
+            viewModel.lastClickedDatabaseMovie = databaseMovie
+            mainActivity?.startDetailsFragment(databaseMovie, posterView)
         }
     }
     

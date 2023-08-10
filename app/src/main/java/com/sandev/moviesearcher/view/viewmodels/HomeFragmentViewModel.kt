@@ -6,12 +6,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
-import com.sandev.moviesearcher.data.db.entities.Movie
+import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
 import com.sandev.moviesearcher.domain.interactors.SharedPreferencesInteractor
 import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
 import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -23,7 +22,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
     @Inject
     lateinit var sharedPreferencesInteractor: SharedPreferencesInteractor
 
-    override val moviesList = MutableLiveData<List<Movie>>()
+    override val moviesList = MutableLiveData<List<DatabaseMovie>>()
 
     private val onFailureFlagLiveData = MutableLiveData<Boolean>()
     val getOnFailureFlag: LiveData<Boolean> = onFailureFlagLiveData
@@ -105,10 +104,17 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
 
         val repositoryTypeOnQuery = currentRepositoryType
+        val moviesCategory = when (repositoryTypeOnQuery) {
+            TmdbInteractor.RepositoryType.TOP_MOVIES      -> SharedPreferencesProvider.CATEGORY_TOP
+            TmdbInteractor.RepositoryType.POPULAR_MOVIES  -> SharedPreferencesProvider.CATEGORY_POPULAR
+            TmdbInteractor.RepositoryType.UPCOMING_MOVIES -> SharedPreferencesProvider.CATEGORY_UPCOMING
+            TmdbInteractor.RepositoryType.PLAYING_MOVIES  -> SharedPreferencesProvider.CATEGORY_PLAYING
+        }
 
         var queryToApi: Disposable? = null
         queryToApi = interactor.getMoviesFromApi(
             page = nextPage,
+            moviesCategory = moviesCategory,
             repositoryType = repositoryTypeOnQuery
         ).subscribe(
             onSuccess@ { result ->
@@ -227,7 +233,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
-    private fun onQuerySuccess(movies: List<Movie>) {
+    private fun onQuerySuccess(movies: List<DatabaseMovie>) {
         onFailureFlag = false
 
         moviesList.postValue(movies)

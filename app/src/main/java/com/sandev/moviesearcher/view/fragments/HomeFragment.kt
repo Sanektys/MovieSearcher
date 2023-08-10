@@ -23,7 +23,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar.ANIMATION_MOD
 import com.google.android.material.snackbar.Snackbar
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
-import com.sandev.moviesearcher.data.db.entities.Movie
+import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
 import com.sandev.moviesearcher.databinding.FragmentHomeBinding
 import com.sandev.moviesearcher.databinding.MergeFragmentHomeContentBinding
 import com.sandev.moviesearcher.view.MainActivity
@@ -108,9 +108,9 @@ class HomeFragment : MoviesListFragment() {
 
     private fun initializeMovieRecycler() {
         viewModel.recyclerAdapter.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
-            override fun onClick(movie: Movie, posterView: ShapeableImageView) {
+            override fun onClick(databaseMovie: DatabaseMovie, posterView: ShapeableImageView) {
                 resetExitReenterTransitionAnimations()
-                mainActivity?.startDetailsFragment(movie, posterView)
+                mainActivity?.startDetailsFragment(databaseMovie, posterView)
             }
         })
 
