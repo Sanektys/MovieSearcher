@@ -1,7 +1,7 @@
 package com.example.domain
 
 import com.example.domain_api.the_movie_database.TmdbRetrofitProvider
-import com.example.domain_impl.the_movie_database.di.components.DaggerRetrofitComponent
+import com.example.domain_impl.the_movie_database.di.components.DaggerTmdbRetrofitComponent
 
 
-fun provideRetrofit(): TmdbRetrofitProvider = DaggerRetrofitComponent.builder().build()
+fun provideRetrofit(): TmdbRetrofitProvider = DaggerTmdbRetrofitComponent.builder().build()

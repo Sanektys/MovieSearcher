@@ -7,6 +7,7 @@ import com.example.domain_api.local_database.daos.PlayingMovieDao
 import com.example.domain_api.local_database.daos.PopularMovieDao
 import com.example.domain_api.local_database.daos.TopMovieDao
 import com.example.domain_api.local_database.daos.UpcomingMovieDao
+import com.example.domain_api.local_database.db_contracts.AllMoviesDatabaseContract
 import com.example.domain_api.local_database.repository.MoviesListRepository
 import com.example.domain_impl.local_database.databases.AllMoviesDatabase
 import com.example.domain_impl.local_database.repositories.MoviesListRepositoryImpl
@@ -14,51 +15,51 @@ import com.example.domain_impl.local_database.repositories.PlayingMoviesListRepo
 import com.example.domain_impl.local_database.repositories.PopularMoviesListRepository
 import com.example.domain_impl.local_database.repositories.TopMoviesListRepository
 import com.example.domain_impl.local_database.repositories.UpcomingMoviesListRepository
+import com.example.domain_impl.local_database.scopes.AllMoviesScope
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import javax.inject.Singleton
 
 
 @Module(includes = [AllMoviesRepositoryModule::class])
 class AllMoviesModule {
 
-    @[Provides Singleton]
-    fun provideAllMoviesDatabase(context: Context) : AllMoviesDatabase = Room
+    @[Provides AllMoviesScope]
+    fun provideAllMoviesDatabase(context: Context) : AllMoviesDatabaseContract = Room
         .databaseBuilder(context, AllMoviesDatabase::class.java, AllMoviesDatabase.DATABASE_NAME)
         .build()
 
 
-    @[Provides Singleton]
-    fun providePopularMovieDao(allMoviesDatabase: AllMoviesDatabase): PopularMovieDao
+    @[Provides AllMoviesScope]
+    fun providePopularMovieDao(allMoviesDatabase: AllMoviesDatabaseContract): PopularMovieDao
             = allMoviesDatabase.providePopularMoviesDao()
 
-    @[Provides Singleton]
-    fun provideTopMovieDao(allMoviesDatabase: AllMoviesDatabase): TopMovieDao
+    @[Provides AllMoviesScope]
+    fun provideTopMovieDao(allMoviesDatabase: AllMoviesDatabaseContract): TopMovieDao
             = allMoviesDatabase.provideTopMoviesDao()
 
-    @[Provides Singleton]
-    fun provideUpcomingMovieDao(allMoviesDatabase: AllMoviesDatabase): UpcomingMovieDao
+    @[Provides AllMoviesScope]
+    fun provideUpcomingMovieDao(allMoviesDatabase: AllMoviesDatabaseContract): UpcomingMovieDao
             = allMoviesDatabase.provideUpcomingMoviesDao()
 
-    @[Provides Singleton]
-    fun providePlayingMovieDao(allMoviesDatabase: AllMoviesDatabase): PlayingMovieDao
+    @[Provides AllMoviesScope]
+    fun providePlayingMovieDao(allMoviesDatabase: AllMoviesDatabaseContract): PlayingMovieDao
             = allMoviesDatabase.providePlayingMoviesDao()
 
 
-    @[Provides Singleton]
+    @[Provides AllMoviesScope]
     fun providePopularMoviesListRepository(popularMovieDao: PopularMovieDao): PopularMoviesListRepository
             = PopularMoviesListRepository(popularMovieDao)
 
-    @[Provides Singleton]
+    @[Provides AllMoviesScope]
     fun provideTopMoviesListRepository(topMovieDao: TopMovieDao): TopMoviesListRepository
             = TopMoviesListRepository(topMovieDao)
 
-    @[Provides Singleton]
+    @[Provides AllMoviesScope]
     fun provideUpcomingMoviesListRepository(upcomingMovieDao: UpcomingMovieDao): UpcomingMoviesListRepository
             = UpcomingMoviesListRepository(upcomingMovieDao)
 
-    @[Provides Singleton]
+    @[Provides AllMoviesScope]
     fun providePlayingMoviesListRepository(playingMovieDao: PlayingMovieDao): PlayingMoviesListRepository
             = PlayingMoviesListRepository(playingMovieDao)
 }
@@ -66,18 +67,21 @@ class AllMoviesModule {
 @Module
 interface AllMoviesRepositoryModule {
 
-    @[Binds Singleton]
+    @[Binds AllMoviesScope]
+    fun bindMoviesListRepositoryImplForPopularMovies(popularMoviesRepository: PopularMoviesListRepository): MoviesListRepositoryImpl
+
+    @[Binds AllMoviesScope]
     fun bindMoviesListRepository(allMoviesListRepository: MoviesListRepositoryImpl): MoviesListRepository
 
-    @[Binds Singleton]
+    @[Binds AllMoviesScope]
     fun bindPopularMovieDao(popularMovieDao: PopularMovieDao): MovieDao
 
-    @[Binds Singleton]
+    @[Binds AllMoviesScope]
     fun bindTopMovieDao(topMovieDao: TopMovieDao): MovieDao
 
-    @[Binds Singleton]
+    @[Binds AllMoviesScope]
     fun bindUpcomingMovieDao(upcomingMovieDao: UpcomingMovieDao): MovieDao
 
-    @[Binds Singleton]
+    @[Binds AllMoviesScope]
     fun bindPlayingMovieDao(playingMovieDao: PlayingMovieDao): MovieDao
 }

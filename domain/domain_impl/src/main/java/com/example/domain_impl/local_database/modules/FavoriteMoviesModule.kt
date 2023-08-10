@@ -4,7 +4,9 @@ import android.content.Context
 import androidx.room.Room
 import com.example.domain_api.local_database.daos.FavoriteMovieDao
 import com.example.domain_api.local_database.daos.MovieDao
+import com.example.domain_api.local_database.db_contracts.FavoriteDatabaseContract
 import com.example.domain_api.local_database.repository.MoviesListRepository
+import com.example.domain_api.local_database.repository.MoviesListRepositoryForSavedLists
 import com.example.domain_impl.local_database.databases.FavoriteMoviesDatabase
 import com.example.domain_impl.local_database.repositories.MoviesListRepositoryForSavedListsImpl
 import com.example.domain_impl.local_database.scopes.FavoriteMoviesScope
@@ -17,12 +19,12 @@ import dagger.Provides
 class FavoriteMoviesModule {
 
     @[Provides FavoriteMoviesScope]
-    fun provideFavoriteMoviesDatabase(context: Context): FavoriteMoviesDatabase = Room
+    fun provideFavoriteMoviesDatabase(context: Context): FavoriteDatabaseContract = Room
         .databaseBuilder(context, FavoriteMoviesDatabase::class.java, FavoriteMoviesDatabase.DATABASE_NAME)
         .build()
 
     @[Provides FavoriteMoviesScope]
-    fun provideFavoriteMovieDao(favoriteMoviesDatabase: FavoriteMoviesDatabase): FavoriteMovieDao
+    fun provideFavoriteMovieDao(favoriteMoviesDatabase: FavoriteDatabaseContract): FavoriteMovieDao
             = favoriteMoviesDatabase.provideDao()
 
     @[Provides FavoriteMoviesScope]
@@ -34,7 +36,10 @@ class FavoriteMoviesModule {
 interface FavoriteMoviesRepositoryModule {
 
     @[Binds FavoriteMoviesScope]
-    fun bindFavoriteMoviesList(moviesListRepository: MoviesListRepositoryForSavedListsImpl): MoviesListRepository
+    fun bindFavoriteMoviesListRepository(moviesListRepository: MoviesListRepositoryForSavedListsImpl): MoviesListRepository
+
+    @[Binds FavoriteMoviesScope]
+    fun bindFavoriteMoviesListRepositoryForSavedLists(moviesListRepository: MoviesListRepositoryForSavedListsImpl): MoviesListRepositoryForSavedLists
 
     @[Binds FavoriteMoviesScope]
     fun bindFavoriteMovieDao(favoriteMovieDao: FavoriteMovieDao): MovieDao

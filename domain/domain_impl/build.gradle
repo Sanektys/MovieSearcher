@@ -57,6 +57,7 @@ dependencies {
     // Room
     implementation room
     kapt roomCompiler
+    implementation roomRxJavaExtension
 
     // Dagger
     implementation dagger

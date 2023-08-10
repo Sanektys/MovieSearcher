@@ -8,4 +8,4 @@ import dagger.Component
 
 @TmdbRetrofitScope
 @Component(modules = [RetrofitModule::class])
-internal interface TmdbTmdbRetrofitComponent : TmdbRetrofitProvider
+internal interface TmdbRetrofitComponent : TmdbRetrofitProvider
