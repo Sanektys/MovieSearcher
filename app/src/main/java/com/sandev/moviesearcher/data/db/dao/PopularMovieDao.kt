@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
+import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.data.db.entities.PopularDatabaseMovie
 import io.reactivex.rxjava3.core.Observable
 

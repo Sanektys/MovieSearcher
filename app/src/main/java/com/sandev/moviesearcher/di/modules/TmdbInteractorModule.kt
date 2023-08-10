@@ -18,14 +18,12 @@ class TmdbInteractorModule {
     @[Provides Singleton]
     fun provideTmdbInteractor(
         tmdbApi: TmdbApi,
-        sharedPreferencesProvider: SharedPreferencesProvider,
         popularMoviesListRepository: PopularMoviesListRepository,
         topMoviesListRepository: TopMoviesListRepository,
         upcomingMoviesListRepository: UpcomingMoviesListRepository,
         playingMoviesListRepository: PlayingMoviesListRepository
     ): TmdbInteractor = TmdbInteractor(
         retrofitService = tmdbApi,
-        sharedPreferences = sharedPreferencesProvider,
         popularMoviesListRepository,
         topMoviesListRepository,
         upcomingMoviesListRepository,

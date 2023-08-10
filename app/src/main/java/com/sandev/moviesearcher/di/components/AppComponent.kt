@@ -1,9 +1,11 @@
 package com.sandev.moviesearcher.di.components
 
 import android.content.Context
-import com.example.domain_api.the_movie_database.TmdbRetrofitProvider
 import com.sandev.moviesearcher.di.modules.AllMoviesListModule
+import com.sandev.moviesearcher.di.modules.RemoteModule
 import com.sandev.moviesearcher.di.modules.SharedPreferenceModule
+import com.sandev.moviesearcher.di.modules.TmdbInteractorModule
+import com.sandev.moviesearcher.di.modules.TmdbModule
 import com.sandev.moviesearcher.di.modules.ViewModelModule
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
 import com.sandev.moviesearcher.view.viewmodels.FavoritesFragmentViewModel
@@ -22,8 +24,10 @@ import javax.inject.Singleton
         SharedPreferenceModule::class,
         ViewModelModule::class,
         AllMoviesListModule::class,
-    ],
-    dependencies = [TmdbRetrofitProvider::class]
+        RemoteModule::class,
+        TmdbInteractorModule::class,
+        TmdbModule::class,
+    ]
 )
 interface AppComponent {
 
@@ -36,8 +40,6 @@ interface AppComponent {
 
     @Component.Builder
     interface Builder {
-        @BindsInstance
-        fun retrofit(tmdbRetrofitProvider: TmdbRetrofitProvider): Builder
         @BindsInstance
         fun context(context: Context): Builder
         fun build(): AppComponent
