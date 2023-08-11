@@ -1,9 +1,9 @@
-package com.example.domain_impl.local_database.components
+package com.example.domain_impl.local_database.di.components
 
 import android.content.Context
 import com.example.domain_api.local_database.db_providers.WatchLaterDatabaseProvider
-import com.example.domain_impl.local_database.modules.WatchLaterMoviesModule
-import com.example.domain_impl.local_database.scopes.WatchLaterMoviesScope
+import com.example.domain_impl.local_database.di.modules.WatchLaterMoviesModule
+import com.example.domain_impl.local_database.di.scopes.WatchLaterMoviesScope
 import dagger.BindsInstance
 import dagger.Component
 

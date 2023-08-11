@@ -1,4 +1,4 @@
-package com.example.domain_impl.local_database.modules
+package com.example.domain_impl.local_database.di.modules
 
 import android.content.Context
 import androidx.room.Room
@@ -9,7 +9,7 @@ import com.example.domain_api.local_database.repository.MoviesListRepository
 import com.example.domain_api.local_database.repository.MoviesListRepositoryForSavedLists
 import com.example.domain_impl.local_database.databases.WatchLaterMoviesDatabase
 import com.example.domain_impl.local_database.repositories.MoviesListRepositoryForSavedListsImpl
-import com.example.domain_impl.local_database.scopes.WatchLaterMoviesScope
+import com.example.domain_impl.local_database.di.scopes.WatchLaterMoviesScope
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

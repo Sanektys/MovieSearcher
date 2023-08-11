@@ -1,4 +1,4 @@
-package com.example.domain_impl.local_database.modules
+package com.example.domain_impl.local_database.di.modules
 
 import android.content.Context
 import androidx.room.Room
@@ -15,7 +15,7 @@ import com.example.domain_impl.local_database.repositories.PlayingMoviesListRepo
 import com.example.domain_impl.local_database.repositories.PopularMoviesListRepository
 import com.example.domain_impl.local_database.repositories.TopMoviesListRepository
 import com.example.domain_impl.local_database.repositories.UpcomingMoviesListRepository
-import com.example.domain_impl.local_database.scopes.AllMoviesScope
+import com.example.domain_impl.local_database.di.scopes.AllMoviesScope
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

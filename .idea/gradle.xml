@@ -15,6 +15,7 @@
             <option value="$PROJECT_DIR$/domain" />
             <option value="$PROJECT_DIR$/domain/domain_api" />
             <option value="$PROJECT_DIR$/domain/domain_impl" />
+            <option value="$PROJECT_DIR$/tmdb_feature" />
           </set>
         </option>
       </GradleProjectSettings>

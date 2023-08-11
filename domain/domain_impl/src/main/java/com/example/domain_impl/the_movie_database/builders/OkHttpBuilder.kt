@@ -1,4 +1,4 @@
-package com.example.domain_impl.the_movie_database.di.builders
+package com.example.domain_impl.the_movie_database.builders
 
 import com.example.domain_api.BuildConfig
 import okhttp3.OkHttpClient
