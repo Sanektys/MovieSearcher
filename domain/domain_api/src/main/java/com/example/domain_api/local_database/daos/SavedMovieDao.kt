@@ -1,6 +1,6 @@
 package com.example.domain_api.local_database.daos
 
-import com.sandev.moviesearcher.data.db.entities.TitleAndDescription
+import com.example.domain_api.local_database.entities.TitleAndDescription
 
 
 interface SavedMovieDao : MovieDao {

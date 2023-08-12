@@ -1,4 +1,4 @@
-package com.example.domain_api.the_movie_database.constants
+package com.example.domain_impl.the_movie_database.constants
 
 
 object TmdbConstants {

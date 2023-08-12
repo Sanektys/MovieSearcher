@@ -8,17 +8,17 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = FavoriteDatabaseMovie.TABLE_NAME,
-    indices = [Index(value = [Movie.COLUMN_TITLE, Movie.COLUMN_DESCRIPTION], unique = true)])
+    indices = [Index(value = [DatabaseMovie.COLUMN_TITLE, DatabaseMovie.COLUMN_DESCRIPTION], unique = true)])
 class FavoriteDatabaseMovie(
-    @[ColumnInfo(name = Movie.COLUMN_ID) PrimaryKey(autoGenerate = true)]
+    @[ColumnInfo(name = DatabaseMovie.COLUMN_ID) PrimaryKey(autoGenerate = true)]
     override val id: Int = 0,
-    @ColumnInfo(name = Movie.COLUMN_POSTER)
+    @ColumnInfo(name = DatabaseMovie.COLUMN_POSTER)
     override val poster: String?,
-    @ColumnInfo(name = Movie.COLUMN_TITLE, defaultValue = Movie.DEFAULT_TITLE)
+    @ColumnInfo(name = DatabaseMovie.COLUMN_TITLE, defaultValue = DatabaseMovie.DEFAULT_TITLE)
     override val title: String,
-    @ColumnInfo(name = Movie.COLUMN_DESCRIPTION, defaultValue = "")
+    @ColumnInfo(name = DatabaseMovie.COLUMN_DESCRIPTION, defaultValue = "")
     override val description: String,
-    @ColumnInfo(name = Movie.COLUMN_RATING, defaultValue = "0")
+    @ColumnInfo(name = DatabaseMovie.COLUMN_RATING, defaultValue = "0")
     override var rating: Float = 0f
 ) : DatabaseMovie(id, poster, title, description, rating) {
 

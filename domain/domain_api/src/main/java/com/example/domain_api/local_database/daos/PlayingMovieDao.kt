@@ -6,8 +6,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
-import com.sandev.moviesearcher.data.db.entities.PlayingDatabaseMovie
+import com.example.domain_api.local_database.entities.DatabaseMovie
+import com.example.domain_api.local_database.entities.PlayingDatabaseMovie
 import io.reactivex.rxjava3.core.Observable
 
 

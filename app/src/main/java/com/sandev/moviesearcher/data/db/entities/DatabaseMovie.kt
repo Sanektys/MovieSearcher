@@ -8,7 +8,7 @@ import java.util.Objects
 
 
 @Parcelize
-open class Movie(
+open class DatabaseMovie(
     @[ColumnInfo(name = COLUMN_ID) PrimaryKey(autoGenerate = true)]
     open val id: Int = 0,
     @ColumnInfo(name = COLUMN_POSTER)

@@ -5,7 +5,6 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
-import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.data.db.entities.TitleAndDescription
 import com.sandev.moviesearcher.data.db.entities.WatchLaterDatabaseMovie
 import io.reactivex.rxjava3.core.Observable
@@ -21,9 +20,9 @@ interface WatchLaterMovieDao : SavedMovieDao {
             "FROM " +
             "(SELECT * " +
             "FROM ${WatchLaterDatabaseMovie.TABLE_NAME} " +
-            "ORDER BY ${Movie.COLUMN_ID} DESC " +
+            "ORDER BY ${DatabaseMovie.COLUMN_ID} DESC " +
             "LIMIT :moviesCount) AS q " +
-            "ORDER BY ${Movie.COLUMN_ID} ASC")
+            "ORDER BY ${DatabaseMovie.COLUMN_ID} ASC")
     override fun getLastFewCachedMovies(moviesCount: Int): LiveData<List<DatabaseMovie>>
 
     @Query("SELECT * FROM ${WatchLaterDatabaseMovie.TABLE_NAME} LIMIT :from, :moviesCount")
@@ -31,30 +30,30 @@ interface WatchLaterMovieDao : SavedMovieDao {
 
     @Query("SELECT * " +
             "FROM ${WatchLaterDatabaseMovie.TABLE_NAME} " +
-            "WHERE ${Movie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
-            "ORDER BY ${Movie.COLUMN_ID} ASC")
+            "WHERE ${DatabaseMovie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
+            "ORDER BY ${DatabaseMovie.COLUMN_ID} ASC")
     override fun getAllSearchedCachedMovies(query: String): LiveData<List<DatabaseMovie>>
 
     @Query("SELECT * " +
             "FROM" +
             "(SELECT * " +
             "FROM ${WatchLaterDatabaseMovie.TABLE_NAME} " +
-            "WHERE ${Movie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
-            "ORDER BY ${Movie.COLUMN_ID} DESC " +
+            "WHERE ${DatabaseMovie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
+            "ORDER BY ${DatabaseMovie.COLUMN_ID} DESC " +
             "LIMIT :moviesCount) AS q " +
-            "ORDER BY ${Movie.COLUMN_ID} ASC")
+            "ORDER BY ${DatabaseMovie.COLUMN_ID} ASC")
     override fun getLastFewSearchedCachedMovies(query: String, moviesCount: Int): LiveData<List<DatabaseMovie>>
 
     @Query("SELECT * " +
             "FROM ${WatchLaterDatabaseMovie.TABLE_NAME} " +
-            "WHERE ${Movie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
-            "ORDER BY ${Movie.COLUMN_ID} ASC " +
+            "WHERE ${DatabaseMovie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
+            "ORDER BY ${DatabaseMovie.COLUMN_ID} ASC " +
             "LIMIT :from, :moviesCount")
     override fun getFewSearchedCachedMoviesFromOffset(query: String, from: Int, moviesCount: Int): List<DatabaseMovie>
 
     @Query("INSERT OR IGNORE INTO ${WatchLaterDatabaseMovie.TABLE_NAME}" +
-            "(${Movie.COLUMN_POSTER}, ${Movie.COLUMN_TITLE}, " +
-            "${Movie.COLUMN_DESCRIPTION}, ${Movie.COLUMN_RATING}) " +
+            "(${DatabaseMovie.COLUMN_POSTER}, ${DatabaseMovie.COLUMN_TITLE}, " +
+            "${DatabaseMovie.COLUMN_DESCRIPTION}, ${DatabaseMovie.COLUMN_RATING}) " +
             "VALUES (:poster, :title, :description, :rating)")
     override fun putToCachedMovies(
         poster: String?,

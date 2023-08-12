@@ -1,9 +1,9 @@
 package com.example.domain_api.local_database.repository
 
-import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
+import com.example.domain_api.local_database.entities.DatabaseMovie
 
 
-interface MoviesListRepositoryForSavedLists {
+interface MoviesListRepositoryForSavedLists : MoviesListRepository {
 
     fun deleteFromDB(databaseMovie: DatabaseMovie)
 }

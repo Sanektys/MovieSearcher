@@ -7,7 +7,7 @@ import com.example.domain_impl.the_movie_database.di.components.DaggerTmdbRetrof
 import com.sandev.tmdb_feature.di.components.DaggerTmdbInteractorComponent
 
 
-class TmdbInteractorComponentViewModel(application: Application) : AndroidViewModel(application) {
+class TmdbComponentViewModel(application: Application) : AndroidViewModel(application) {
 
     val tmdbComponent = DaggerTmdbInteractorComponent.builder()
         .database(DaggerAllMoviesDatabaseComponent.factory().create(application.applicationContext))

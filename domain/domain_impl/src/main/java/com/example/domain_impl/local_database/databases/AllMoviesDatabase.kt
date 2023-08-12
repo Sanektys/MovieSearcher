@@ -3,10 +3,10 @@ package com.example.domain_impl.local_database.databases
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.example.domain_api.local_database.db_contracts.AllMoviesDatabaseContract
-import com.sandev.moviesearcher.data.db.entities.PlayingDatabaseMovie
-import com.sandev.moviesearcher.data.db.entities.PopularDatabaseMovie
-import com.sandev.moviesearcher.data.db.entities.TopDatabaseMovie
-import com.sandev.moviesearcher.data.db.entities.UpcomingDatabaseMovie
+import com.example.domain_api.local_database.entities.PlayingDatabaseMovie
+import com.example.domain_api.local_database.entities.PopularDatabaseMovie
+import com.example.domain_api.local_database.entities.TopDatabaseMovie
+import com.example.domain_api.local_database.entities.UpcomingDatabaseMovie
 
 
 @Database(version = 1, exportSchema = true, entities = [

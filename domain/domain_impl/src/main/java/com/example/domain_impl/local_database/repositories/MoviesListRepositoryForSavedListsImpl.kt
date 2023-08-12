@@ -2,8 +2,8 @@ package com.example.domain_impl.local_database.repositories
 
 import com.example.domain_api.local_database.daos.SavedMovieDao
 import com.example.domain_api.local_database.repository.MoviesListRepositoryForSavedLists
-import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
-import com.sandev.moviesearcher.data.db.entities.TitleAndDescription
+import com.example.domain_api.local_database.entities.DatabaseMovie
+import com.example.domain_api.local_database.entities.TitleAndDescription
 
 
 class MoviesListRepositoryForSavedListsImpl(private val savedMovieDao: SavedMovieDao)

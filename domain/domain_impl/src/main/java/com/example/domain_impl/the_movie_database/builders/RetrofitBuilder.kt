@@ -1,6 +1,6 @@
 package com.example.domain_impl.the_movie_database.builders
 
-import com.example.domain_api.the_movie_database.constants.TmdbConstants
+import com.example.domain_impl.the_movie_database.constants.TmdbConstants
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory

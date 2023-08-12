@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
-import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
-import com.sandev.moviesearcher.data.db.entities.TitleAndDescription
-import com.sandev.moviesearcher.data.db.entities.WatchLaterDatabaseMovie
+import com.example.domain_api.local_database.entities.DatabaseMovie
+import com.example.domain_api.local_database.entities.TitleAndDescription
+import com.example.domain_api.local_database.entities.WatchLaterDatabaseMovie
 import io.reactivex.rxjava3.core.Observable
 
 

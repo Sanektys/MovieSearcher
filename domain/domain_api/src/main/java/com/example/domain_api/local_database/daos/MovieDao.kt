@@ -1,7 +1,7 @@
 package com.example.domain_api.local_database.daos
 
 import androidx.lifecycle.LiveData
-import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
+import com.example.domain_api.local_database.entities.DatabaseMovie
 import io.reactivex.rxjava3.core.Observable
 
 

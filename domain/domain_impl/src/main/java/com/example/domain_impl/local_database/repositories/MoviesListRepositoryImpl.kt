@@ -9,11 +9,11 @@ import com.example.domain_api.local_database.daos.TopMovieDao
 import com.example.domain_api.local_database.daos.UpcomingMovieDao
 import com.example.domain_api.local_database.daos.WatchLaterMovieDao
 import com.example.domain_api.local_database.repository.MoviesListRepository
-import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
-import com.sandev.moviesearcher.data.db.entities.PlayingDatabaseMovie
-import com.sandev.moviesearcher.data.db.entities.PopularDatabaseMovie
-import com.sandev.moviesearcher.data.db.entities.TopDatabaseMovie
-import com.sandev.moviesearcher.data.db.entities.UpcomingDatabaseMovie
+import com.example.domain_api.local_database.entities.DatabaseMovie
+import com.example.domain_api.local_database.entities.PlayingDatabaseMovie
+import com.example.domain_api.local_database.entities.PopularDatabaseMovie
+import com.example.domain_api.local_database.entities.TopDatabaseMovie
+import com.example.domain_api.local_database.entities.UpcomingDatabaseMovie
 import io.reactivex.rxjava3.core.Observable
 
 
