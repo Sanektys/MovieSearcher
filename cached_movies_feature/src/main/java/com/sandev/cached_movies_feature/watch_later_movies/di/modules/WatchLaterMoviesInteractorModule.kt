@@ -8,7 +8,7 @@ import dagger.Provides
 
 
 @Module
-class WatchLaterMoviesInteractorModule {
+internal class WatchLaterMoviesInteractorModule {
 
     @[Provides WatchLaterMoviesScope]
     fun provideWatchLaterMoviesDatabaseInteractor(moviesListRepository: MoviesListRepositoryForSavedLists) =

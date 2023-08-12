@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.view.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -10,9 +11,10 @@ import android.view.animation.AnimationUtils
 import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.google.android.material.imageview.ShapeableImageView
+import com.sandev.cached_movies_feature.watch_later_movies.WatchLaterMoviesComponentViewModel
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
 import com.sandev.moviesearcher.databinding.FragmentWatchLaterBinding
 import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import com.sandev.moviesearcher.view.MainActivity
@@ -25,9 +27,8 @@ import kotlinx.coroutines.runBlocking
 
 class WatchLaterFragment : MoviesListFragment() {
 
-    override val viewModel: WatchLaterFragmentViewModel by lazy {
-        ViewModelProvider(requireActivity())[WatchLaterFragmentViewModel::class.java]
-    }
+    private var _viewModel: WatchLaterFragmentViewModel? = null
+    override val viewModel: WatchLaterFragmentViewModel = _viewModel!!
 
     private var _binding: FragmentWatchLaterBinding? = null
     private val binding: FragmentWatchLaterBinding
@@ -43,6 +44,15 @@ class WatchLaterFragment : MoviesListFragment() {
         }
     }
 
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        val favoriteMoviesDatabaseComponent = ViewModelProvider(requireActivity())[WatchLaterMoviesComponentViewModel::class.java]
+
+        val viewModelFactory = WatchLaterFragmentViewModel.ViewModelFactory(favoriteMoviesDatabaseComponent.interactor)
+        _viewModel = ViewModelProvider(requireActivity(), viewModelFactory)[WatchLaterFragmentViewModel::class.java]
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

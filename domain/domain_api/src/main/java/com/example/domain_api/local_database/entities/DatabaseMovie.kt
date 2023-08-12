@@ -23,7 +23,7 @@ open class DatabaseMovie(
 ): Parcelable, Movie {
 
     final override fun equals(other: Any?): Boolean {
-        if (other == null || other !is Movie) return false
+        if (other == null || other !is DatabaseMovie) return false
 
         if (other === this) return true
 

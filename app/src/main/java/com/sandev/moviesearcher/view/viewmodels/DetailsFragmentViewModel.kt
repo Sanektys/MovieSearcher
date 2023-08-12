@@ -3,34 +3,34 @@ package com.sandev.moviesearcher.view.viewmodels
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModel
+import com.example.domain_api.local_database.entities.DatabaseMovie
+import com.sandev.cached_movies_feature.domain.CachedMoviesInteractor
 import com.sandev.moviesearcher.App
-import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
-import com.sandev.moviesearcher.domain.components_holders.FavoritesMoviesComponentHolder
-import com.sandev.moviesearcher.domain.components_holders.WatchLaterMoviesComponentHolder
-import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.Disposable
 import java.io.IOException
 import java.net.URL
-import javax.inject.Inject
 
 
 class DetailsFragmentViewModel : ViewModel() {
 
-    @Inject
-    lateinit var favoritesMoviesComponent: FavoritesMoviesComponentHolder
-    @Inject
-    lateinit var watchLaterMoviesComponent: WatchLaterMoviesComponentHolder
+    var favoritesMoviesDatabaseInteractor: CachedMoviesInteractor? = null
+        set(value) {
+            field = value
+            getFavoritesMovies = favoritesMoviesDatabaseInteractor?.getAllFromList()
+        }
+    var watchLaterMoviesDatabaseInteractor: CachedMoviesInteractor? = null
+        set(value) {
+            field = value
+            getWatchLaterMovies = watchLaterMoviesDatabaseInteractor?.getAllFromList()
+        }
 
-    val getFavoritesMovies: Observable<List<DatabaseMovie>>
-    val getWatchLaterMovies: Observable<List<DatabaseMovie>>
+    var getFavoritesMovies: Observable<List<DatabaseMovie>>? = null
+    var getWatchLaterMovies: Observable<List<DatabaseMovie>>? = null
 
-    @Inject
-    lateinit var interactor: TmdbInteractor
-
-    var _Database_movie: DatabaseMovie? = null
-    val databaseMovie: DatabaseMovie
-        get() = _Database_movie!!
+    var _movie: DatabaseMovie? = null
+    val movie: DatabaseMovie
+        get() = _movie!!
 
     var isFavoriteMovie: Boolean = false
     var isWatchLaterMovie: Boolean = false
@@ -39,13 +39,6 @@ class DetailsFragmentViewModel : ViewModel() {
     var isLowQualityPosterDownloaded: Boolean = false
 
     var fragmentThatLaunchedDetails: String? = null
-
-    init {
-        App.instance.getAppComponent().inject(this)
-
-        getFavoritesMovies = favoritesMoviesComponent.interactor.getAllFromList()
-        getWatchLaterMovies = watchLaterMoviesComponent.interactor.getAllFromList()
-    }
 
 
     fun loadMoviePoster(posterUrl: String): Bitmap {
@@ -65,28 +58,28 @@ class DetailsFragmentViewModel : ViewModel() {
 
     fun addToFavorite(databaseMovie: DatabaseMovie) {
         var disposable: Disposable? = null
-        disposable = favoritesMoviesComponent.interactor.addToList(databaseMovie).subscribe {
+        disposable = favoritesMoviesDatabaseInteractor?.addToList(databaseMovie)?.subscribe {
             disposable?.dispose()
         }
     }
 
     fun removeFromFavorite(databaseMovie: DatabaseMovie) {
         var disposable: Disposable? = null
-        disposable = favoritesMoviesComponent.interactor.removeFromList(databaseMovie).subscribe {
+        disposable = favoritesMoviesDatabaseInteractor?.removeFromList(databaseMovie)?.subscribe {
             disposable?.dispose()
         }
     }
 
     fun addToWatchLater(databaseMovie: DatabaseMovie) {
         var disposable: Disposable? = null
-        disposable = watchLaterMoviesComponent.interactor.addToList(databaseMovie).subscribe {
+        disposable = watchLaterMoviesDatabaseInteractor?.addToList(databaseMovie)?.subscribe {
             disposable?.dispose()
         }
     }
 
     fun removeFromWatchLater(databaseMovie: DatabaseMovie) {
         var disposable: Disposable? = null
-        disposable = watchLaterMoviesComponent.interactor.removeFromList(databaseMovie).subscribe {
+        disposable = watchLaterMoviesDatabaseInteractor?.removeFromList(databaseMovie)?.subscribe {
             disposable?.dispose()
         }
     }

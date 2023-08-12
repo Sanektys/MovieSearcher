@@ -2,17 +2,15 @@ package com.sandev.moviesearcher.view.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
-import com.sandev.moviesearcher.domain.components_holders.SavedMoviesComponentHolder
-import com.sandev.moviesearcher.domain.interactors.MoviesListInteractor
+import com.example.domain_api.local_database.entities.DatabaseMovie
+import com.sandev.cached_movies_feature.domain.CachedMoviesInteractor
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.channels.Channel
 
 
-abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
-
-    lateinit var savedMoviesComponent: SavedMoviesComponentHolder
+abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: CachedMoviesInteractor)
+    : MoviesListFragmentViewModel() {
 
     final override val moviesList = MutableLiveData<List<DatabaseMovie>>()
 
@@ -30,7 +28,7 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
 
     init {
         isOffline = true
-        moviesPerPage = MoviesListInteractor.MOVIES_PER_PAGE
+        moviesPerPage = CachedMoviesInteractor.MOVIES_PER_PAGE
 
         databaseMovieDeletedObserver = Observer<DatabaseMovie> { deletedMovie ->
             val isMovieDeleted = recyclerAdapter.removeMovieCard(deletedMovie)
@@ -53,6 +51,9 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
             }
         }
 
+        cachedMoviesInteractor.getDeletedDatabaseMovie.observeForever(databaseMovieDeletedObserver)
+        cachedMoviesInteractor.getMovieAddedNotify.observeForever(movieAddedObserver)
+
         moviesList.observeForever { newList ->
             moviesPerPage = newList.size
             moviesPaginationOffset += moviesPerPage
@@ -61,6 +62,8 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
 
             if (isPaginationHardResetOnProcess) isPaginationHardResetOnProcess = false
         }
+
+        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
     }
 
 
@@ -74,11 +77,11 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
     }
 
     override fun onCleared() {
-        savedMoviesComponent.interactor.getDeletedDatabaseMovie.removeObserver(databaseMovieDeletedObserver)
-        savedMoviesComponent.interactor.getMovieAddedNotify.removeObserver(movieAddedObserver)
+        cachedMoviesInteractor.getDeletedDatabaseMovie.removeObserver(databaseMovieDeletedObserver)
+        cachedMoviesInteractor.getMovieAddedNotify.removeObserver(movieAddedObserver)
     }
 
-    override fun dispatchQueryToInteractor(page: Int?) {
+    final override fun dispatchQueryToInteractor(page: Int?) {
         // Избегать двойной инициализации при создании экземпляра viewmodel
         // вызовом dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER) в блоке init и коллбэке observer'а
         if (isPaginationHardResetOnProcess) return
@@ -117,9 +120,9 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
 
     private fun getMoviesFromDB(offset: Int) {
         var disposable: Disposable? = null
-        disposable = savedMoviesComponent.interactor.getFewMoviesFromList(
+        disposable = cachedMoviesInteractor.getFewMoviesFromList(
             from = offset,
-            moviesCount = MoviesListInteractor.MOVIES_PER_PAGE
+            moviesCount = CachedMoviesInteractor.MOVIES_PER_PAGE
         ).subscribe { movies ->
             moviesList.value = movies
             disposable?.dispose()
@@ -128,10 +131,10 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
 
     private fun getSearchedMoviesFromDB(query: String, offset: Int) {
         var disposable: Disposable? = null
-        disposable = savedMoviesComponent.interactor.getFewSearchedMoviesFromList(
+        disposable = cachedMoviesInteractor.getFewSearchedMoviesFromList(
                 query = query,
                 from = offset,
-                moviesCount = MoviesListInteractor.MOVIES_PER_PAGE
+                moviesCount = CachedMoviesInteractor.MOVIES_PER_PAGE
         ).subscribe { movies ->
             moviesList.value = movies
             disposable?.dispose()
@@ -140,7 +143,7 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
 
     private fun removeFromSavedList(databaseMovie: DatabaseMovie) {
         var disposable: Disposable? = null
-        disposable = savedMoviesComponent.interactor.removeFromList(databaseMovie).subscribe {
+        disposable = cachedMoviesInteractor.removeFromList(databaseMovie).subscribe {
             disposable?.dispose()
         }
     }
@@ -155,7 +158,7 @@ abstract class SavedMoviesListViewModel : MoviesListFragmentViewModel() {
 
     private fun hardResetPagination() {
         nextPage = INITIAL_PAGE_IN_RECYCLER
-        moviesPerPage = MoviesListInteractor.MOVIES_PER_PAGE
+        moviesPerPage = CachedMoviesInteractor.MOVIES_PER_PAGE
         lastVisibleMovieCard = 0
         moviesPaginationOffset = 0
     }

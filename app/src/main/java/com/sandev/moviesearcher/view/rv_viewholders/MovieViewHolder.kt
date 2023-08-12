@@ -3,10 +3,9 @@ package com.sandev.moviesearcher.view.rv_viewholders
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.example.domain.constants.TmdbCommonConstants
+import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
-import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGES_URL
-import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_MEDIUM_SIZE
 import com.sandev.moviesearcher.databinding.MovieCardBinding
 
 
@@ -20,7 +19,7 @@ class MovieViewHolder(private val binding: MovieCardBinding) : RecyclerView.View
     fun onBind(databaseMovieData: DatabaseMovie, position: Int) {
         if (databaseMovieData.poster != null) {
             Glide.with(binding.root)
-                .load("${IMAGES_URL}${IMAGE_MEDIUM_SIZE}${databaseMovieData.poster}")
+                .load("${TmdbCommonConstants.IMAGES_URL}${TmdbCommonConstants.IMAGE_MEDIUM_SIZE}${databaseMovieData.poster}")
                 .placeholder(R.drawable.dummy_poster)
                 .apply(RequestOptions().dontTransform())
                 .into(poster)

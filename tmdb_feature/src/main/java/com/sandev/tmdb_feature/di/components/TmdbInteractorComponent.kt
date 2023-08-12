@@ -1,9 +1,9 @@
 package com.sandev.tmdb_feature.di.components
 
-import androidx.lifecycle.ViewModel
 import com.example.domain_api.the_movie_database.TmdbRetrofitProvider
 import com.example.domain_impl.local_database.di.AllMoviesDatabaseExtendedProvider
 import com.example.domain_impl.local_database.di.scopes.AllMoviesScope
+import com.sandev.tmdb_feature.TmdbComponentViewModel
 import com.sandev.tmdb_feature.di.TmdbInteractorProvider
 import com.sandev.tmdb_feature.di.modules.TmdbInteractorModule
 import dagger.Component
@@ -17,9 +17,9 @@ import dagger.Component
         AllMoviesDatabaseExtendedProvider::class,
     ]
 )
-interface TmdbInteractorComponent : TmdbInteractorProvider {
+internal interface TmdbInteractorComponent : TmdbInteractorProvider {
 
-    fun inject(viewModel: ViewModel)
+    fun inject(viewModel: TmdbComponentViewModel)
 
     @Component.Builder
     interface Builder {

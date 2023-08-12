@@ -6,9 +6,9 @@ import okhttp3.logging.HttpLoggingInterceptor
 import java.util.concurrent.TimeUnit
 
 
-object OkHttpBuilder {
-    const val CALL_TIMEOUT_IN_SECONDS = 10L
-    const val READ_TIMEOUT_IN_SECONDS = 10L
+internal object OkHttpBuilder {
+    private const val CALL_TIMEOUT_IN_SECONDS = 10L
+    private const val READ_TIMEOUT_IN_SECONDS = 10L
 
     fun build() = OkHttpClient.Builder()
         .callTimeout(CALL_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)

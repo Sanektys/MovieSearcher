@@ -3,7 +3,7 @@ package com.sandev.moviesearcher.view.viewmodels
 import android.view.Gravity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
+import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import kotlin.math.roundToInt
 

@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.view.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -10,9 +11,10 @@ import android.view.animation.AnimationUtils
 import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.google.android.material.imageview.ShapeableImageView
+import com.sandev.cached_movies_feature.favorite_movies.FavoriteMoviesComponentViewModel
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
 import com.sandev.moviesearcher.databinding.FragmentFavoritesBinding
 import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import com.sandev.moviesearcher.view.MainActivity
@@ -25,9 +27,8 @@ import kotlinx.coroutines.runBlocking
 
 class FavoritesFragment : MoviesListFragment() {
 
-    override val viewModel: FavoritesFragmentViewModel by lazy {
-        ViewModelProvider(requireActivity())[FavoritesFragmentViewModel::class.java]
-    }
+    private var _viewModel: FavoritesFragmentViewModel? = null
+    override val viewModel: FavoritesFragmentViewModel = _viewModel!!
 
     private var _binding: FragmentFavoritesBinding? = null
     private val binding: FragmentFavoritesBinding
@@ -42,7 +43,16 @@ class FavoritesFragment : MoviesListFragment() {
             mainActivity?.startDetailsFragment(databaseMovie, posterView)
         }
     }
-    
+
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        val favoriteMoviesDatabaseComponent = ViewModelProvider(requireActivity())[FavoriteMoviesComponentViewModel::class.java]
+
+        val viewModelFactory = FavoritesFragmentViewModel.ViewModelFactory(favoriteMoviesDatabaseComponent.interactor)
+        _viewModel = ViewModelProvider(requireActivity(), viewModelFactory)[FavoritesFragmentViewModel::class.java]
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

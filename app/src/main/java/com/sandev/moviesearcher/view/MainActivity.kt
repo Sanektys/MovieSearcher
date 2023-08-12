@@ -23,9 +23,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.data.db.entities.DatabaseMovie
 import com.sandev.moviesearcher.databinding.ActivityMainBinding
 import com.sandev.moviesearcher.view.fragments.DetailsFragment
 import com.sandev.moviesearcher.view.fragments.FavoritesFragment

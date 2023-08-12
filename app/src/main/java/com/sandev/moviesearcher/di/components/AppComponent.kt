@@ -1,12 +1,7 @@
 package com.sandev.moviesearcher.di.components
 
 import android.content.Context
-import com.sandev.moviesearcher.di.modules.AllMoviesListModule
-import com.sandev.moviesearcher.di.modules.RemoteModule
 import com.sandev.moviesearcher.di.modules.SharedPreferenceModule
-import com.sandev.moviesearcher.di.modules.TmdbInteractorModule
-import com.sandev.moviesearcher.di.modules.TmdbModule
-import com.sandev.moviesearcher.di.modules.ViewModelModule
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
 import com.sandev.moviesearcher.view.viewmodels.FavoritesFragmentViewModel
 import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
@@ -20,14 +15,7 @@ import javax.inject.Singleton
 
 @Singleton
 @Component(
-    modules = [
-        SharedPreferenceModule::class,
-        ViewModelModule::class,
-        AllMoviesListModule::class,
-        RemoteModule::class,
-        TmdbInteractorModule::class,
-        TmdbModule::class,
-    ]
+    modules = [SharedPreferenceModule::class]
 )
 interface AppComponent {
 
