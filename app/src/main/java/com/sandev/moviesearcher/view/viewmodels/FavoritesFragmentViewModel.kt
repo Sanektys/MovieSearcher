@@ -21,7 +21,7 @@ class FavoritesFragmentViewModel(cachedMoviesInteractor: CachedMoviesInteractor)
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
-            if (modelClass.isAssignableFrom(HomeFragmentViewModel::class.java)) {
+            if (modelClass.isAssignableFrom(FavoritesFragmentViewModel::class.java)) {
                 return FavoritesFragmentViewModel(cachedMoviesInteractor) as T
             }
 

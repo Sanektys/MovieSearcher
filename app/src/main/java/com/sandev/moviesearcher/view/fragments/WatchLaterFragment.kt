@@ -28,7 +28,8 @@ import kotlinx.coroutines.runBlocking
 class WatchLaterFragment : MoviesListFragment() {
 
     private var _viewModel: WatchLaterFragmentViewModel? = null
-    override val viewModel: WatchLaterFragmentViewModel = _viewModel!!
+    override val viewModel: WatchLaterFragmentViewModel
+        get() = _viewModel!!
 
     private var _binding: FragmentWatchLaterBinding? = null
     private val binding: FragmentWatchLaterBinding

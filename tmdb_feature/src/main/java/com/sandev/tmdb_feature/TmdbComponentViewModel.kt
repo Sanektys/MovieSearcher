@@ -6,6 +6,7 @@ import com.example.domain.provideAllMoviesDatabase
 import com.example.domain.provideRetrofit
 import com.sandev.tmdb_feature.di.components.DaggerTmdbInteractorComponent
 import com.sandev.tmdb_feature.domain.interactors.TmdbInteractor
+import javax.inject.Inject
 
 
 class TmdbComponentViewModel(application: Application) : AndroidViewModel(application) {
@@ -15,6 +16,7 @@ class TmdbComponentViewModel(application: Application) : AndroidViewModel(applic
         .retrofit(provideRetrofit())
         .build()
 
+    @Inject
     lateinit var interactor: TmdbInteractor
 
 

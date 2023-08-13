@@ -28,7 +28,8 @@ import kotlinx.coroutines.runBlocking
 class FavoritesFragment : MoviesListFragment() {
 
     private var _viewModel: FavoritesFragmentViewModel? = null
-    override val viewModel: FavoritesFragmentViewModel = _viewModel!!
+    override val viewModel: FavoritesFragmentViewModel
+        get() = _viewModel!!
 
     private var _binding: FragmentFavoritesBinding? = null
     private val binding: FragmentFavoritesBinding

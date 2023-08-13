@@ -23,8 +23,8 @@ class WatchLaterFragmentViewModel(cachedMoviesInteractor: CachedMoviesInteractor
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
-            if (modelClass.isAssignableFrom(HomeFragmentViewModel::class.java)) {
-                return FavoritesFragmentViewModel(cachedMoviesInteractor) as T
+            if (modelClass.isAssignableFrom(WatchLaterFragmentViewModel::class.java)) {
+                return WatchLaterFragmentViewModel(cachedMoviesInteractor) as T
             }
 
             throw IllegalArgumentException("Unknown ViewModel class")

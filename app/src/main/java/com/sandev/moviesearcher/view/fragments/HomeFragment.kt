@@ -38,7 +38,8 @@ import kotlinx.coroutines.launch
 class HomeFragment : MoviesListFragment() {
 
     private var _viewModel: HomeFragmentViewModel? = null
-    override val viewModel: HomeFragmentViewModel = _viewModel!!
+    override val viewModel: HomeFragmentViewModel
+        get() = _viewModel!!
 
     private var _bindingFull: MergeFragmentHomeContentBinding? = null
     private val bindingFull: MergeFragmentHomeContentBinding
