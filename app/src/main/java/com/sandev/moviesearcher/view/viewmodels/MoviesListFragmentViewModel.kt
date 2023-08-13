@@ -101,7 +101,7 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
         isPaginationLoadingOnProcess = false
     }
 
-    private fun isNextPageCanBeDownloaded() = nextPage <= totalPagesInLastQuery
+    private fun isNextPageCanBeDownloaded() = nextPage < totalPagesInLastQuery
 
 
     companion object {
