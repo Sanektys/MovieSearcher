@@ -3,27 +3,25 @@ package com.sandev.moviesearcher.view.viewmodels
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
-import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.domain.interactors.SharedPreferencesInteractor
-import com.sandev.moviesearcher.domain.interactors.TmdbInteractor
+import com.sandev.tmdb_feature.domain.interactors.TmdbInteractor
 import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
-class HomeFragmentViewModel : MoviesListFragmentViewModel() {
-
-    @Inject
-    lateinit var interactor: TmdbInteractor
+class HomeFragmentViewModel(private val interactor: TmdbInteractor) : MoviesListFragmentViewModel() {
 
     @Inject
     lateinit var sharedPreferencesInteractor: SharedPreferencesInteractor
 
-    override val moviesList = MutableLiveData<List<Movie>>()
+    override val moviesList = MutableLiveData<List<DatabaseMovie>>()
 
     private val onFailureFlagLiveData = MutableLiveData<Boolean>()
     val getOnFailureFlag: LiveData<Boolean> = onFailureFlagLiveData
@@ -105,29 +103,37 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
 
 
         val repositoryTypeOnQuery = currentRepositoryType
+        val moviesCategory = when (repositoryTypeOnQuery) {
+            TmdbInteractor.RepositoryType.TOP_MOVIES      -> SharedPreferencesProvider.CATEGORY_TOP
+            TmdbInteractor.RepositoryType.POPULAR_MOVIES  -> SharedPreferencesProvider.CATEGORY_POPULAR
+            TmdbInteractor.RepositoryType.UPCOMING_MOVIES -> SharedPreferencesProvider.CATEGORY_UPCOMING
+            TmdbInteractor.RepositoryType.PLAYING_MOVIES  -> SharedPreferencesProvider.CATEGORY_PLAYING
+        }
 
         var queryToApi: Disposable? = null
         queryToApi = interactor.getMoviesFromApi(
             page = nextPage,
+            moviesCategory = moviesCategory,
             repositoryType = repositoryTypeOnQuery
-        ).subscribe(
+        ).subscribe(@Suppress("UNCHECKED_CAST")
             onSuccess@ { result ->
                 totalPagesInLastQuery = result.totalPages
+                val movies = result.movies as List<DatabaseMovie>
 
                 var queryToLocalDB: Disposable? = null
                 queryToLocalDB = if (isNeedRefreshLocalDB) {
-                    interactor.deleteAllMoviesFromDbAndPutNewMovies(result.movies, repositoryTypeOnQuery)
+                    interactor.deleteAllMoviesFromDbAndPutNewMovies(movies, repositoryTypeOnQuery)
                         .subscribe {
                             queryToLocalDB?.dispose()
                         }
                 } else {
-                    interactor.putMoviesToDB(result.movies, repositoryTypeOnQuery).subscribe {
+                    interactor.putMoviesToDB(movies, repositoryTypeOnQuery).subscribe {
                         queryToLocalDB?.dispose()
                     }
                 }
                 isNeedRefreshLocalDB = false
 
-                onQuerySuccess(result.movies)
+                onQuerySuccess(movies)
 
                 queryToApi?.dispose()
             },
@@ -160,11 +166,11 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         queryToApi = interactor.getSearchedMoviesFromApi(
             query = lastSearch,
             page = nextPage
-        ).subscribe(
+        ).subscribe(@Suppress("UNCHECKED_CAST")
             onSuccess@ { result ->
                 totalPagesInLastQuery = result.totalPages
 
-                onQuerySuccess(result.movies)
+                onQuerySuccess(result.movies as List<DatabaseMovie>)
 
                 queryToApi?.dispose()
             },
@@ -227,7 +233,7 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         }
     }
 
-    private fun onQuerySuccess(movies: List<Movie>) {
+    private fun onQuerySuccess(movies: List<DatabaseMovie>) {
         onFailureFlag = false
 
         moviesList.postValue(movies)
@@ -240,6 +246,20 @@ class HomeFragmentViewModel : MoviesListFragmentViewModel() {
         moviesPerPage = TmdbInteractor.INITIAL_MOVIES_COUNT_PER_PAGE
 
         loadListFromDB()
+    }
+
+
+    class ViewModelFactory(private val interactor: TmdbInteractor) : ViewModelProvider.Factory {
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+
+            if (modelClass.isAssignableFrom(HomeFragmentViewModel::class.java)) {
+                return HomeFragmentViewModel(interactor) as T
+            }
+
+            throw IllegalArgumentException("Unknown ViewModel class")
+        }
     }
 
 

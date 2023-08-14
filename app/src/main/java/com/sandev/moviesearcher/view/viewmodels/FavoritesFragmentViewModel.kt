@@ -1,14 +1,12 @@
 package com.sandev.moviesearcher.view.viewmodels
 
-import com.sandev.moviesearcher.App
-import com.sandev.moviesearcher.domain.components_holders.FavoritesMoviesComponentHolder
-import javax.inject.Inject
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.sandev.cached_movies_feature.domain.CachedMoviesInteractor
 
 
-class FavoritesFragmentViewModel : SavedMoviesListViewModel() {
-
-    @Inject
-    lateinit var favoritesMoviesComponent: FavoritesMoviesComponentHolder
+class FavoritesFragmentViewModel(cachedMoviesInteractor: CachedMoviesInteractor)
+    : SavedMoviesListViewModel(cachedMoviesInteractor) {
 
     override var lastSearch: String
         set(value) { Companion.lastSearch = value }
@@ -18,15 +16,17 @@ class FavoritesFragmentViewModel : SavedMoviesListViewModel() {
         get() = Companion.isInSearchMode
 
 
-    init {
-        App.instance.getAppComponent().inject(this)
+    class ViewModelFactory(private val cachedMoviesInteractor: CachedMoviesInteractor) : ViewModelProvider.Factory {
 
-        savedMoviesComponent = favoritesMoviesComponent
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
-        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
+            if (modelClass.isAssignableFrom(FavoritesFragmentViewModel::class.java)) {
+                return FavoritesFragmentViewModel(cachedMoviesInteractor) as T
+            }
 
-        favoritesMoviesComponent.interactor.getDeletedMovie.observeForever(movieDeletedObserver)
-        favoritesMoviesComponent.interactor.getMovieAddedNotify.observeForever(movieAddedObserver)
+            throw IllegalArgumentException("Unknown ViewModel class")
+        }
     }
 
 

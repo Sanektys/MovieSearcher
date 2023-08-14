@@ -2,6 +2,7 @@ package com.sandev.moviesearcher.view.fragments
 
 import android.Manifest
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -45,16 +46,15 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
+import com.example.domain.constants.TmdbCommonConstants
+import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.sandev.cached_movies_feature.favorite_movies.FavoriteMoviesComponentViewModel
+import com.sandev.cached_movies_feature.watch_later_movies.WatchLaterMoviesComponentViewModel
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.data.db.entities.Movie
-import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants
-import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGES_URL
-import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_HIGH_SIZE
-import com.sandev.moviesearcher.data.themoviedatabase.TmdbApiConstants.IMAGE_MEDIUM_SIZE
 import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
 import com.sandev.moviesearcher.utils.changeAppearanceToSamsungOneUI
 import com.sandev.moviesearcher.view.MainActivity
@@ -87,6 +87,15 @@ class DetailsFragment : Fragment() {
     private val disposableContainer = CompositeDisposable()
 
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        val favoritesMoviesDatabaseComponent = ViewModelProvider(requireActivity())[FavoriteMoviesComponentViewModel::class.java]
+        viewModel.favoritesMoviesDatabaseInteractor = favoritesMoviesDatabaseComponent.interactor
+        val watchLaterMoviesDatabaseComponent = ViewModelProvider(requireActivity())[WatchLaterMoviesComponentViewModel::class.java]
+        viewModel.watchLaterMoviesDatabaseInteractor = watchLaterMoviesDatabaseComponent.interactor
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -105,7 +114,7 @@ class DetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        viewModel._movie = arguments?.getParcelable<Movie>(MainActivity.MOVIE_DATA_KEY)!!
+        viewModel._movie = arguments?.getParcelable<DatabaseMovie>(MainActivity.MOVIE_DATA_KEY)!!
 
         viewModel.fragmentThatLaunchedDetails = savedInstanceState
             ?.getString(FRAGMENT_LAUNCHED_KEY) ?: (activity as MainActivity).previousFragmentName
@@ -188,11 +197,11 @@ class DetailsFragment : Fragment() {
     }
 
     private fun checkFavoriteFloatButtonState() = viewLifecycleOwner.lifecycleScope.launch {
-        val disposable = viewModel.getFavoritesMovies.subscribe { favoritesMovies ->
-            val existedFavoriteMovie: Movie? = favoritesMovies.find {
+        val disposable = viewModel.getFavoritesMovies?.subscribe { favoritesMovies ->
+            val existedFavoriteDatabaseMovie: DatabaseMovie? = favoritesMovies.find {
                 it.title == viewModel.movie.title && it.description == viewModel.movie.description
             }
-            if (existedFavoriteMovie != null) {
+            if (existedFavoriteDatabaseMovie != null) {
                 viewModel.isFavoriteMovie = true
                 binding.fabToFavorite.isSelected = true
             } else {
@@ -201,15 +210,15 @@ class DetailsFragment : Fragment() {
             }
             binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
         }
-        disposableContainer.add(disposable)
+        disposableContainer.add(disposable ?: return@launch)
     }
 
     private fun checkWatchLaterFloatButtonState() = viewLifecycleOwner.lifecycleScope.launch {
-        val disposable = viewModel.getWatchLaterMovies.subscribe { watchLaterMovies ->
-            val existedWatchLaterMovie: Movie? = watchLaterMovies.find {
+        val disposable = viewModel.getWatchLaterMovies?.subscribe { watchLaterMovies ->
+            val existedWatchLaterDatabaseMovie: DatabaseMovie? = watchLaterMovies.find {
                 it.title == viewModel.movie.title && it.description == viewModel.movie.description
             }
-            if (existedWatchLaterMovie != null) {
+            if (existedWatchLaterDatabaseMovie != null) {
                 viewModel.isWatchLaterMovie = true
                 binding.fabToWatchLater.isSelected = true
             } else {
@@ -218,7 +227,7 @@ class DetailsFragment : Fragment() {
             }
             binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
         }
-        disposableContainer.add(disposable)
+        disposableContainer.add(disposable ?: return@launch)
     }
 
     private fun setFloatButtonOnClick() {
@@ -252,7 +261,7 @@ class DetailsFragment : Fragment() {
             binding.collapsingToolbarImage.apply {
                 if (viewModel.movie.poster != null) {
                     Glide.with(this@DetailsFragment)
-                        .load("${IMAGES_URL}${IMAGE_MEDIUM_SIZE}${viewModel.movie.poster}")
+                        .load("${TmdbCommonConstants.IMAGES_URL}${TmdbCommonConstants.IMAGE_MEDIUM_SIZE}${viewModel.movie.poster}")
                         .placeholder(R.drawable.dummy_poster)
                         .apply(RequestOptions().dontTransform())
                         .onlyRetrieveFromCache(true)
@@ -285,7 +294,7 @@ class DetailsFragment : Fragment() {
     private suspend fun downloadHighResolutionPosterImage() = withContext(Dispatchers.IO) download@ {
         if (viewModel.movie.poster != null) {
             val downloadingImage = Glide.with(this@DetailsFragment)
-                .load("${IMAGES_URL}${IMAGE_HIGH_SIZE}${viewModel.movie.poster}")
+                .load("${TmdbCommonConstants.IMAGES_URL}${TmdbCommonConstants.IMAGE_HIGH_SIZE}${viewModel.movie.poster}")
                 .submit()  // Дальнейшее в этом методе просто для того, чтобы не использовать placeholder т.к. он глючит с drawable из вью
             val imageDrawable = try {
                 downloadingImage.get()
@@ -534,7 +543,7 @@ class DetailsFragment : Fragment() {
             try {
                 saveToGallery(
                     viewModel.loadMoviePoster(
-                        "${IMAGES_URL}${TmdbApiConstants.IMAGE_FULL_SIZE}${viewModel.movie.poster}"
+                        "${TmdbCommonConstants.IMAGES_URL}${TmdbCommonConstants.IMAGE_FULL_SIZE}${viewModel.movie.poster}"
                     )
                 )
                 observer.onSuccess(Unit)

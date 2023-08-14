@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.view.fragments
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Gravity
@@ -17,27 +18,28 @@ import androidx.transition.Scene
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
+import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.BaseTransientBottomBar.ANIMATION_MODE_FADE
 import com.google.android.material.snackbar.Snackbar
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
-import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.databinding.FragmentHomeBinding
 import com.sandev.moviesearcher.databinding.MergeFragmentHomeContentBinding
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
+import com.sandev.tmdb_feature.TmdbComponentViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
 class HomeFragment : MoviesListFragment() {
 
-    override val viewModel: HomeFragmentViewModel by lazy {
-        ViewModelProvider(requireActivity())[HomeFragmentViewModel::class.java]
-    }
+    private var _viewModel: HomeFragmentViewModel? = null
+    override val viewModel: HomeFragmentViewModel
+        get() = _viewModel!!
 
     private var _bindingFull: MergeFragmentHomeContentBinding? = null
     private val bindingFull: MergeFragmentHomeContentBinding
@@ -58,6 +60,15 @@ class HomeFragment : MoviesListFragment() {
         backStackChangedListener = createChildFragmentsChangeListener()
     }
 
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        val tmdbComponent = ViewModelProvider(requireActivity())[TmdbComponentViewModel::class.java]
+
+        val viewModelFactory = HomeFragmentViewModel.ViewModelFactory(tmdbComponent.interactor)
+        _viewModel = ViewModelProvider(requireActivity(), viewModelFactory)[HomeFragmentViewModel::class.java]
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -108,9 +119,9 @@ class HomeFragment : MoviesListFragment() {
 
     private fun initializeMovieRecycler() {
         viewModel.recyclerAdapter.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
-            override fun onClick(movie: Movie, posterView: ShapeableImageView) {
+            override fun onClick(databaseMovie: DatabaseMovie, posterView: ShapeableImageView) {
                 resetExitReenterTransitionAnimations()
-                mainActivity?.startDetailsFragment(movie, posterView)
+                mainActivity?.startDetailsFragment(databaseMovie, posterView)
             }
         })
 

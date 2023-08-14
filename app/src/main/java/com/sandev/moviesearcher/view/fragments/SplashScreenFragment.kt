@@ -15,12 +15,16 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
+import com.sandev.tmdb_feature.TmdbComponentViewModel
 
 
 class SplashScreenFragment : Fragment() {
 
     private val preloadViewModel: HomeFragmentViewModel by lazy {
-        ViewModelProvider(requireActivity())[HomeFragmentViewModel::class.java]
+        val tmdbComponent = ViewModelProvider(requireActivity())[TmdbComponentViewModel::class.java]
+
+        val viewModelFactory = HomeFragmentViewModel.ViewModelFactory(tmdbComponent.interactor)
+        ViewModelProvider(requireActivity(), viewModelFactory)[HomeFragmentViewModel::class.java]
     }
 
     companion object {

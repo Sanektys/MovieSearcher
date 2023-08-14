@@ -23,9 +23,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.data.db.entities.Movie
 import com.sandev.moviesearcher.databinding.ActivityMainBinding
 import com.sandev.moviesearcher.view.fragments.DetailsFragment
 import com.sandev.moviesearcher.view.fragments.FavoritesFragment
@@ -208,9 +208,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun startDetailsFragment(movie: Movie, posterView: ShapeableImageView) {
+    fun startDetailsFragment(databaseMovie: DatabaseMovie, posterView: ShapeableImageView) {
         val bundle = Bundle()
-        bundle.putParcelable(MOVIE_DATA_KEY, movie)
+        bundle.putParcelable(MOVIE_DATA_KEY, databaseMovie)
         val transitionName = posterView.transitionName
         bundle.putString(POSTER_TRANSITION_KEY, transitionName)
 

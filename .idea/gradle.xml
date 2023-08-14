@@ -12,6 +12,11 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/cached_movies_feature" />
+            <option value="$PROJECT_DIR$/domain" />
+            <option value="$PROJECT_DIR$/domain/domain_api" />
+            <option value="$PROJECT_DIR$/domain/domain_impl" />
+            <option value="$PROJECT_DIR$/tmdb_feature" />
           </set>
         </option>
       </GradleProjectSettings>
