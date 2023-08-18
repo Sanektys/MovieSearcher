@@ -19,6 +19,8 @@ import com.sandev.moviesearcher.R
 class RatingDonutView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null)
     : View(context, attrs) {
 
+    var isRatingAnimationEnabled: Boolean = false
+
     private val oval = RectF()
     private val textRect = Rect()
 
@@ -155,24 +157,28 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
     }
 
     fun setProgress(progress: Int) {
-        post {
-            progressAnimationStartOffset = if (progress < ANIMATION_INTERPOLATION_THRESHOLD) {
-                (accelerateInterpolator.getInterpolation(progress.toFloat() / FULL_PROGRESS) *
-                        FULL_PROGRESS).toInt()
-            } else {
-                progress - PROGRESS_ANIMATION_START_OFFSET
+        if (isRatingAnimationEnabled) {
+            post {
+                progressAnimationStartOffset = if (progress < ANIMATION_INTERPOLATION_THRESHOLD) {
+                    (accelerateInterpolator.getInterpolation(progress.toFloat() / FULL_PROGRESS) *
+                            FULL_PROGRESS).toInt()
+                } else {
+                    progress - PROGRESS_ANIMATION_START_OFFSET
+                }
+
+                factualProgress = progress
+                progressAnimation = progressAnimationStartOffset
+                displayingProgress = 0f
+
+                isAllElementsDrawn = false
+
+                if (!isAnimationRunning) {
+                    isAnimationRunning = true
+                    loadingProgressAnimation()
+                }
             }
-
-            factualProgress = progress
-            progressAnimation = progressAnimationStartOffset
-            displayingProgress = 0f
-
-            isAllElementsDrawn = false
-
-            if (!isAnimationRunning) {
-                isAnimationRunning = true
-                loadingProgressAnimation()
-            }
+        } else {
+            instantProgressDrawing(progress)
         }
     }
 
@@ -241,6 +247,17 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         }
 
         increaseProgress()
+    }
+
+    private fun instantProgressDrawing(progress: Int) {
+        isAnimationRunning = false
+        isAllElementsDrawn = false
+
+        progressAnimation = progress
+        displayingProgress = progress.toFloat()
+
+        updatePaintsColors()
+        invalidate()
     }
 
     private fun initPaint() {
