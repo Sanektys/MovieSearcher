@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragmentSettingsRootView"
@@ -113,6 +114,19 @@
                         android:layout_height="wrap_content"
                         app:preference_description="@string/settings_fragment.splash_switch.description"
                         app:preference_title="@string/settings_fragment.splash_switch.title" />
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="@dimen/fragment_settings.element.short_margin_horizontal"
+                        app:dividerColor="?attr/colorOutlineVariant" />
+
+                    <com.sandev.moviesearcher.view.customviews.PreferenceSwitch
+                        android:id="@+id/ratingDonutSwitch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:preference_description="@string/settings_fragment.rating_donut.description"
+                        app:preference_title="@string/settings_fragment.rating_donut.title" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>

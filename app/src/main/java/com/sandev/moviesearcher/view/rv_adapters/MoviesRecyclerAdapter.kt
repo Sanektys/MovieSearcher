@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.view.rv_adapters
 
+import android.content.SharedPreferences
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -12,7 +13,8 @@ import com.sandev.moviesearcher.utils.rv_diffutils.MoviesListDiff
 import com.sandev.moviesearcher.view.rv_viewholders.MovieViewHolder
 
 
-class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
+class MoviesRecyclerAdapter(private var isDonutAnimationEnabled: Boolean)
+    : RecyclerView.Adapter<MovieViewHolder>() {
 
     private val moviesList: MutableList<DatabaseMovie> = mutableListOf()
     private var clickListener: OnClickListener? = null
@@ -99,5 +101,10 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
             notifyItemRemoved(lastClickedMoviePosition)
             lastClickedMoviePosition = DEFAULT_NON_CLICKED_POSITION
         }
+    }
+
+    private fun initializeSharedPreferencesCallback()
+            = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+
     }
 }

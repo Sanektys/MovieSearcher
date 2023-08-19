@@ -22,6 +22,8 @@
     <string name="settings_fragment.radio_group.category.playing">Playing</string>
     <string name="settings_fragment.splash_switch.title">Show splash screen</string>
     <string name="settings_fragment.splash_switch.description">Splash screen will be displayed each time in startup</string>
+    <string name="settings_fragment.rating_donut.title">Animate \"donuts\" with ratings</string>
+    <string name="settings_fragment.rating_donut.description">The rating bars will fill up in a short period of time</string>
 
 
     <!-- Details fragment -->

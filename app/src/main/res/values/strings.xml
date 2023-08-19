@@ -22,6 +22,8 @@
     <string name="settings_fragment.radio_group.category.playing">В прокате</string>
     <string name="settings_fragment.splash_switch.title">Показывать анимацию при запуске</string>
     <string name="settings_fragment.splash_switch.description">Анимация будет отображаться каждый раз при запуске приложения</string>
+    <string name="settings_fragment.rating_donut.title">Анимировать \"бублики\" с рейтингами</string>
+    <string name="settings_fragment.rating_donut.description">Полоски с рейтингами будут заполняться за короткий промежуток времени</string>
 
 
     <!-- Details fragment -->
@@ -60,4 +62,7 @@
     <string name="shared_preferences.settings.value.category.upcoming" translatable="false">upcoming</string>
     <string name="shared_preferences.settings.value.category.now_playing" translatable="false">now_playing</string>
     <string name="shared_preferences.settings.key.show_splash_screen" translatable="false">show_splash</string>
+    <string name="shared_preferences.settings.key.enable_rating_donut_animation" translatable="false">enable_rating_donut_anim</string>
+    <string name="shared_preferences.settings.key.splash_screen_switch_button_enabled" translatable="false">splash_switcher_enabled</string>
+    <string name="shared_preferences.settings.key.rating_donut_switch_button_enabled" translatable="false">rating_donut_switcher_enabled</string>
 </resources>

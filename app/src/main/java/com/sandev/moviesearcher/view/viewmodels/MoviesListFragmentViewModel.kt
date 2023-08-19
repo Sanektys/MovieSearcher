@@ -15,7 +15,7 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
     abstract var lastSearch: String
         protected set
 
-    val recyclerAdapter: MoviesRecyclerAdapter = MoviesRecyclerAdapter()
+    val recyclerAdapter: MoviesRecyclerAdapter = MoviesRecyclerAdapter(true)
 
     var isOffline: Boolean = false
         protected set

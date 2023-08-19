@@ -39,6 +39,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     private var vibrator: Vibrator? = null
     private var isSettingsScreenRevealed = false
     private var isSplashScreenSwitchInitialized = false
+    private var isRatingDonutSwitchInitialized = false
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -49,8 +50,10 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         setAppBarAppearance()
         setSearchBarAppearance()
         setNestedScrollAppearance()
+
         initializeCategoryRadioGroup()
         initializeSplashScreenSwitch()
+        initializeRatingDonutSwitch()
 
         view.doOnAttach {
             requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressed)
@@ -107,6 +110,35 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         binding.splashScreenSwitch.setOnClickListener {
             viewModel.setSplashScreenEnabling(!binding.splashScreenSwitch.switch.isChecked)
+        }
+
+        viewModel.getSplashScreenButtonState.observe(viewLifecycleOwner) { isButtonEnabled ->
+            binding.splashScreenSwitch.isEnabled = isButtonEnabled
+        }
+    }
+
+    private fun initializeRatingDonutSwitch() {
+        viewModel.getRatingDonutAnimationState.observe(viewLifecycleOwner) { isRatingDonutAnimationEnabled ->
+            if (isRatingDonutSwitchInitialized) {
+                binding.ratingDonutSwitch.switch.isChecked = isRatingDonutAnimationEnabled
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator?.vibrate(VibrationEffect.createOneShot(SWITCH_VIBRATION_LENGTH, VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    vibrator?.vibrate(SWITCH_VIBRATION_LENGTH)
+                }
+            } else {
+                binding.ratingDonutSwitch.switch.isChecked = isRatingDonutAnimationEnabled
+                binding.ratingDonutSwitch.switch.jumpDrawablesToCurrentState()
+                isRatingDonutSwitchInitialized = true
+            }
+        }
+
+        binding.ratingDonutSwitch.setOnClickListener {
+            viewModel.setRatingDonutAnimationState(!binding.ratingDonutSwitch.switch.isChecked)
+        }
+
+        viewModel.getRatingDonutButtonState.observe(viewLifecycleOwner) { isButtonEnabled ->
+            binding.ratingDonutSwitch.isEnabled = isButtonEnabled
         }
     }
 

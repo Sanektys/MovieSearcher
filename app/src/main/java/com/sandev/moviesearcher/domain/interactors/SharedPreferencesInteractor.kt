@@ -21,10 +21,27 @@ class SharedPreferencesInteractor(private val sharedPreferences: SharedPreferenc
     }
 
     suspend fun getSplashScreenEnabled() = withContext(Dispatchers.IO) {
-        sharedPreferences.isSplashScreenEnabled()
+        sharedPreferences.isSplashScreenEnabled() && sharedPreferences.isSplashScreenSwitchButtonEnabled()
     }
 
-    fun isSplashScreenEnabled() = sharedPreferences.isSplashScreenEnabled()
+    fun isSplashScreenEnabled()
+            = sharedPreferences.isSplashScreenEnabled() && sharedPreferences.isSplashScreenSwitchButtonEnabled()
+
+    fun setRatingDonutAnimationState(isEnabled: Boolean)
+            = sharedPreferences.setRatingDonutAnimationState(isEnabled)
+
+    fun isRatingDonutAnimationEnabled()
+            = sharedPreferences.isRatingDonutAnimationEnabled() && sharedPreferences.isRatingDonutSwitchButtonEnabled()
+
+    fun setSplashScreenSwitchButtonState(isEnabled: Boolean)
+            = sharedPreferences.setSplashScreenSwitchButtonState(isEnabled)
+
+    fun isSplashScreenSwitchButtonEnabled() = sharedPreferences.isSplashScreenSwitchButtonEnabled()
+
+    fun setRatingDonutSwitchButtonState(isEnabled: Boolean)
+            = sharedPreferences.setRatingDonutSwitchButtonState(isEnabled)
+
+    fun isRatingDonutSwitchButtonEnabled() = sharedPreferences.isRatingDonutSwitchButtonEnabled()
 
     fun addSharedPreferencesChangeListener(listener: OnSharedPreferenceChangeListener) =
         sharedPreferences.registerSharedPreferencesChangeListener(listener)
