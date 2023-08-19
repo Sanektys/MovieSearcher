@@ -11,6 +11,7 @@
     <string name="activity_main.press_back_for_exit_warning">Press \"back\" again for exit</string>
     <string name="activity_main.snackbar.message.failure_on_load_data">Error downloading, check internet connection</string>
     <string name="activity_main.snackbar.button.retry">Retry</string>
+    <string name="activity_main.toast.message.low_battery">Low battery, some animation disabled</string>
 
 
     <!-- Settings fragment -->

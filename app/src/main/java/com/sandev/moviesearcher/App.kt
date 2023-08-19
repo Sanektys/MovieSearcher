@@ -6,13 +6,9 @@ import com.sandev.moviesearcher.di.components.DaggerAppComponent
 
 
 class App : Application() {
+
     private var appComponent: AppComponent? = null
 
-    companion object {
-        private var _instance: App? = null
-        val instance
-            get() = _instance!!
-    }
 
     override fun onCreate() {
         super.onCreate()
@@ -24,4 +20,11 @@ class App : Application() {
     fun getAppComponent() = appComponent ?: DaggerAppComponent.builder()
         .context(this)
         .build().also { appComponent = it }
+
+
+    companion object {
+        private var _instance: App? = null
+        val instance
+            get() = _instance!!
+    }
 }

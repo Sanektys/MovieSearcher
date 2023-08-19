@@ -114,6 +114,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         viewModel.getSplashScreenButtonState.observe(viewLifecycleOwner) { isButtonEnabled ->
             binding.splashScreenSwitch.isEnabled = isButtonEnabled
+            binding.splashScreenSwitch.switch.isEnabled = isButtonEnabled
         }
     }
 
@@ -139,6 +140,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         viewModel.getRatingDonutButtonState.observe(viewLifecycleOwner) { isButtonEnabled ->
             binding.ratingDonutSwitch.isEnabled = isButtonEnabled
+            binding.ratingDonutSwitch.switch.isEnabled = isButtonEnabled
         }
     }
 

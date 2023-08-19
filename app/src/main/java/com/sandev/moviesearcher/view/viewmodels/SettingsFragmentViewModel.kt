@@ -83,24 +83,20 @@ class SettingsFragmentViewModel() : ViewModel() {
     private fun getSplashScreenButtonState()
             = isSplashScreenButtonEnabled.postValue(sharedPreferencesInteractor.isSplashScreenSwitchButtonEnabled())
 
-//    fun setSplashScreenButtonState(isEnabled: Boolean) {
-//        sharedPreferencesInteractor.setSplashScreenSwitchButtonState(isEnabled)
-//        getSplashScreenButtonState()
-//    }
-
     private fun getRatingDonutButtonState()
             = isRatingDonutButtonEnabled.postValue(sharedPreferencesInteractor.isRatingDonutSwitchButtonEnabled())
-
-//    fun setRatingDonutButtonState(isEnabled: Boolean) {
-//        sharedPreferencesInteractor.setRatingDonutSwitchButtonState(isEnabled)
-//        getRatingDonutButtonState()
-//    }
 
     private fun initializeSharedPreferencesCallback()
             = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         when (key) {
-            SharedPreferencesProvider.KEY_ENABLE_SPLASH_SCREEN_SWITCH_BUTTON -> getSplashScreenButtonState()
-            SharedPreferencesProvider.KEY_ENABLE_RATING_DONUT_SWITCH_BUTTON -> getRatingDonutButtonState()
+            SharedPreferencesProvider.KEY_ENABLE_SPLASH_SCREEN_SWITCH_BUTTON -> {
+                getSplashScreenEnabling()
+                getSplashScreenButtonState()
+            }
+            SharedPreferencesProvider.KEY_ENABLE_RATING_DONUT_SWITCH_BUTTON -> {
+                getRatingDonutAnimationState()
+                getRatingDonutButtonState()
+            }
         }
     }
 }

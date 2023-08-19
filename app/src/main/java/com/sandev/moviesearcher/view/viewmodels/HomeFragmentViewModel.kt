@@ -9,17 +9,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
-import com.sandev.moviesearcher.domain.interactors.SharedPreferencesInteractor
 import com.sandev.tmdb_feature.domain.interactors.TmdbInteractor
 import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 
 class HomeFragmentViewModel(private val interactor: TmdbInteractor) : MoviesListFragmentViewModel() {
-
-    @Inject
-    lateinit var sharedPreferencesInteractor: SharedPreferencesInteractor
 
     override val moviesList = MutableLiveData<List<DatabaseMovie>>()
 
@@ -49,8 +44,6 @@ class HomeFragmentViewModel(private val interactor: TmdbInteractor) : MoviesList
 
 
     init {
-        App.instance.getAppComponent().inject(this)
-
         moviesList.observeForever { newList ->
             moviesPerPage = newList.size
             moviesDatabase = newList.toList()

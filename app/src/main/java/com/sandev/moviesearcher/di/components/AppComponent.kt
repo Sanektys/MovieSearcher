@@ -2,12 +2,9 @@ package com.sandev.moviesearcher.di.components
 
 import android.content.Context
 import com.sandev.moviesearcher.di.modules.SharedPreferenceModule
-import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
-import com.sandev.moviesearcher.view.viewmodels.FavoritesFragmentViewModel
-import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
 import com.sandev.moviesearcher.view.viewmodels.MainActivityViewModel
+import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
 import com.sandev.moviesearcher.view.viewmodels.SettingsFragmentViewModel
-import com.sandev.moviesearcher.view.viewmodels.WatchLaterFragmentViewModel
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -19,7 +16,7 @@ import javax.inject.Singleton
 )
 interface AppComponent {
 
-    fun inject(homeFragmentViewModel: HomeFragmentViewModel)
+    fun inject(moviesListFragmentViewModel: MoviesListFragmentViewModel)
     fun inject(settingsFragmentViewModel: SettingsFragmentViewModel)
     fun inject(mainActivityViewModel: MainActivityViewModel)
 

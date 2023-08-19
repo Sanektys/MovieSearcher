@@ -1,8 +1,13 @@
 package com.sandev.moviesearcher.view
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Outline
+import android.os.BatteryManager
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -54,6 +59,8 @@ class MainActivity : AppCompatActivity() {
     private var favoritesFragment = FavoritesFragment()
     private var watchLaterFragment = WatchLaterFragment()
 
+    private var broadcastReceiver = AppBroadcastReceiver()
+
     private val dummyOnBackPressed = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {}
     }
@@ -69,9 +76,22 @@ class MainActivity : AppCompatActivity() {
         setOnBackPressedAction()
         menuButtonsInitial()
 
+        registerBroadcastReceiver()
+
+        if (viewModel.isBatteryCheckedDuringAppStart.not()) {
+            checkBatteryLevel()
+            viewModel.isBatteryCheckedDuringAppStart = true
+        }
+
         if (supportFragmentManager.backStackEntryCount == 0) {
             startSplashScreen()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        unregisterReceiver(broadcastReceiver)
     }
 
     fun startHomeFragment(isSplashScreenEnabled: Boolean = true) {
@@ -116,6 +136,25 @@ class MainActivity : AppCompatActivity() {
                 .commit()
         } else {
             startHomeFragment(isSplashScreenEnabled)
+        }
+    }
+
+    private fun registerBroadcastReceiver() {
+        val filters = IntentFilter().apply {
+            addAction(Intent.ACTION_BATTERY_LOW)
+            addAction(Intent.ACTION_BATTERY_OKAY)
+        }
+        registerReceiver(broadcastReceiver, filters)
+    }
+
+    private fun checkBatteryLevel() {
+        val batteryManager = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
+        val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+
+        if (batteryLevel <= BATTERY_LOW_LEVEL) {
+            onBatteryLevelLow()
+        } else {
+            onBatteryLevelOkay()
         }
     }
 
@@ -362,6 +401,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun onBatteryLevelLow() {
+        viewModel.sharedPreferencesInteractor.setSplashScreenSwitchButtonState(false)
+        viewModel.sharedPreferencesInteractor.setRatingDonutSwitchButtonState(false)
+        Toast.makeText(this, getString(R.string.activity_main_toast_message_low_battery), Toast.LENGTH_LONG).show()
+    }
+
+    private fun onBatteryLevelOkay() {
+        viewModel.sharedPreferencesInteractor.setSplashScreenSwitchButtonState(true)
+        viewModel.sharedPreferencesInteractor.setRatingDonutSwitchButtonState(true)
+    }
+
+
+    inner class AppBroadcastReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == Intent.ACTION_BATTERY_LOW) {
+                onBatteryLevelLow()
+            } else if (intent?.action == Intent.ACTION_BATTERY_OKAY) {
+                onBatteryLevelOkay()
+            }
+        }
+    }
+
 
     companion object {
         const val MOVIE_DATA_KEY = "MOVIE"
@@ -374,5 +435,6 @@ class MainActivity : AppCompatActivity() {
         private const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
         private const val ONE_FRAGMENT_IN_STACK = 1
         private const val LOOP_CYCLE_DELAY = 50L
+        private const val BATTERY_LOW_LEVEL = 15
     }
 }
