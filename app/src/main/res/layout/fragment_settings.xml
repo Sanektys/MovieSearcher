@@ -54,53 +54,12 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <RadioGroup
-                        android:id="@+id/categoryRadioGroup"
+                    <com.sandev.moviesearcher.view.customviews.PreferenceTextButton
+                        android:id="@+id/categoryButton"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/fragment_settings.element.short_margin_horizontal"
-                            android:layout_marginTop="@dimen/fragment_settings.radio_group.title.marginTop"
-                            android:layout_marginBottom="@dimen/fragment_settings.radio_group.title.marginBottom"
-                            android:alpha="@dimen/fragment_settings.radio_group.title.alpha"
-                            android:text="@string/settings_fragment.radio_group.category.title"
-                            android:textAppearance="@style/TextAppearance.Material3.LabelLarge" />
-
-                        <com.google.android.material.radiobutton.MaterialRadioButton
-                            android:id="@+id/RadioButtonPopular"
-                            android:layout_width="wrap_content"
-                            android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
-                            android:layout_marginStart="@dimen/fragment_settings.element.short_margin_horizontal"
-                            android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
-                            android:text="@string/settings_fragment.radio_group.category.popular" />
-
-                        <com.google.android.material.radiobutton.MaterialRadioButton
-                            android:id="@+id/RadioButtonTopRated"
-                            android:layout_width="wrap_content"
-                            android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
-                            android:layout_marginStart="@dimen/fragment_settings.element.short_margin_horizontal"
-                            android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
-                            android:text="@string/settings_fragment.radio_group.category.top_rated" />
-
-                        <com.google.android.material.radiobutton.MaterialRadioButton
-                            android:id="@+id/RadioButtonUpcoming"
-                            android:layout_width="wrap_content"
-                            android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
-                            android:layout_marginStart="@dimen/fragment_settings.element.short_margin_horizontal"
-                            android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
-                            android:text="@string/settings_fragment.radio_group.category.upcoming" />
-
-                        <com.google.android.material.radiobutton.MaterialRadioButton
-                            android:id="@+id/RadioButtonNowPlaying"
-                            android:layout_width="wrap_content"
-                            android:layout_height="@dimen/fragment_settings.radio_group.radio_button.height"
-                            android:layout_marginStart="@dimen/fragment_settings.element.short_margin_horizontal"
-                            android:paddingHorizontal="@dimen/fragment_settings.radio_group.radio_button.paddingHorizontal"
-                            android:text="@string/settings_fragment.radio_group.category.playing" />
-                    </RadioGroup>
+                        android:layout_height="wrap_content"
+                        app:preference_title="@string/settings_fragment.movie_category.title"
+                        tools:preference_description="@string/settings_fragment.movie_category.description" />
 
                     <com.google.android.material.divider.MaterialDivider
                         android:layout_width="match_parent"

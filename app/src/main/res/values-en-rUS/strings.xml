@@ -16,7 +16,8 @@
 
     <!-- Settings fragment -->
     <string name="settings_fragment.app_bar.search_bar.hint">Settings</string>
-    <string name="settings_fragment.radio_group.category.title">Selecting a movie category from the \"All Movies\" list</string>
+    <string name="settings_fragment.movie_category.title">Movie category in the \"All Movies\" list</string>
+    <string name="settings_fragment.movie_category.description">Current category: %s</string>
     <string name="settings_fragment.radio_group.category.top_rated">Top rated</string>
     <string name="settings_fragment.radio_group.category.popular">Popular</string>
     <string name="settings_fragment.radio_group.category.upcoming">Upcoming</string>
@@ -25,6 +26,8 @@
     <string name="settings_fragment.splash_switch.description">Splash screen will be displayed each time in startup</string>
     <string name="settings_fragment.rating_donut.title">Animate \"donuts\" with ratings</string>
     <string name="settings_fragment.rating_donut.description">The rating bars will fill up in a short period of time</string>
+    <string name="settings_fragment.alert_dialog.action.cancel">Cancel</string>
+    <string name="settings_fragment.alert_dialog.category.title">Select category</string>
 
 
     <!-- Details fragment -->

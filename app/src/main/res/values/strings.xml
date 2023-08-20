@@ -16,7 +16,8 @@
 
     <!-- Settings fragment -->
     <string name="settings_fragment.app_bar.search_bar.hint">Настройки</string>
-    <string name="settings_fragment.radio_group.category.title">Выбор категории фильмов в списке \"Все Фильмы\"</string>
+    <string name="settings_fragment.movie_category.title">Категория фильмов в списке \"Все Фильмы\"</string>
+    <string name="settings_fragment.movie_category.description">Текущая категория: %s</string>
     <string name="settings_fragment.radio_group.category.top_rated">С высоким рейтингом</string>
     <string name="settings_fragment.radio_group.category.popular">Популярное</string>
     <string name="settings_fragment.radio_group.category.upcoming">Скоро в прокате</string>
@@ -25,6 +26,8 @@
     <string name="settings_fragment.splash_switch.description">Анимация будет отображаться каждый раз при запуске приложения</string>
     <string name="settings_fragment.rating_donut.title">Анимировать \"бублики\" с рейтингами</string>
     <string name="settings_fragment.rating_donut.description">Полоски с рейтингами будут заполняться за короткий промежуток времени</string>
+    <string name="settings_fragment.alert_dialog.action.cancel">Отмена</string>
+    <string name="settings_fragment.alert_dialog.category.title">Выберите категорию</string>
 
 
     <!-- Details fragment -->

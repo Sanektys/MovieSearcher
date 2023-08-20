@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.view.Gravity
 import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.activity.OnBackPressedCallback
@@ -16,9 +17,11 @@ import androidx.core.view.doOnAttach
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.databinding.FragmentSettingsBinding
+import com.sandev.moviesearcher.utils.changeAppearanceToSamsungOneUI
 import com.sandev.moviesearcher.view.viewmodels.SettingsFragmentViewModel
 
 
@@ -51,7 +54,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         setSearchBarAppearance()
         setNestedScrollAppearance()
 
-        initializeCategoryRadioGroup()
+        initializeCategoryButton()
         initializeSplashScreenSwitch()
         initializeRatingDonutSwitch()
 
@@ -71,22 +74,66 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
     private fun destroy() = (parentFragment as MoviesListFragment).destroySettingsFragment()
 
-    private fun initializeCategoryRadioGroup() {
-        viewModel.getCategoryProperty.observe(viewLifecycleOwner) { currentCategory ->
-            when (currentCategory) {
-                SharedPreferencesProvider.CATEGORY_TOP      -> binding.categoryRadioGroup.check(R.id.RadioButtonTopRated)
-                SharedPreferencesProvider.CATEGORY_POPULAR  -> binding.categoryRadioGroup.check(R.id.RadioButtonPopular)
-                SharedPreferencesProvider.CATEGORY_UPCOMING -> binding.categoryRadioGroup.check(R.id.RadioButtonUpcoming)
-                SharedPreferencesProvider.CATEGORY_PLAYING  -> binding.categoryRadioGroup.check(R.id.RadioButtonNowPlaying)
-            }
+    private fun initializeCategoryButton() {
+        val roundButtons = arrayOf(
+            getString(R.string.settings_fragment_radio_group_category_popular),
+            getString(R.string.settings_fragment_radio_group_category_top_rated),
+            getString(R.string.settings_fragment_radio_group_category_upcoming),
+            getString(R.string.settings_fragment_radio_group_category_playing)
+        )
+
+        binding.categoryButton.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.settings_fragment_alert_dialog_category_title)
+                .setSingleChoiceItems(
+                    roundButtons,
+                    when (viewModel.getCategoryProperty.value) {
+                        SharedPreferencesProvider.CATEGORY_POPULAR  -> RADIO_BUTTON_CATEGORY_POPULAR
+                        SharedPreferencesProvider.CATEGORY_TOP      -> RADIO_BUTTON_CATEGORY_TOP
+                        SharedPreferencesProvider.CATEGORY_UPCOMING -> RADIO_BUTTON_CATEGORY_UPCOMING
+                        SharedPreferencesProvider.CATEGORY_PLAYING  -> RADIO_BUTTON_CATEGORY_PLAYING
+                        else -> return@setOnClickListener
+                    }
+                ) { dialogInterface, which ->
+                    when (which) {
+                        RADIO_BUTTON_CATEGORY_POPULAR -> viewModel.putCategoryProperty(
+                            SharedPreferencesProvider.CATEGORY_POPULAR
+                        )
+                        RADIO_BUTTON_CATEGORY_TOP -> viewModel.putCategoryProperty(
+                            SharedPreferencesProvider.CATEGORY_TOP
+                        )
+                        RADIO_BUTTON_CATEGORY_UPCOMING -> viewModel.putCategoryProperty(
+                            SharedPreferencesProvider.CATEGORY_UPCOMING
+                        )
+                        RADIO_BUTTON_CATEGORY_PLAYING -> viewModel.putCategoryProperty(
+                            SharedPreferencesProvider.CATEGORY_PLAYING
+                        )
+                    }
+                    dialogInterface.dismiss()
+                }
+                .setNegativeButton(R.string.settings_fragment_alert_dialog_action_cancel, null)
+                .create()
+                .changeAppearanceToSamsungOneUI(Gravity.CENTER)
+                .show()
         }
 
-        binding.categoryRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            when (checkedId) {
-                R.id.RadioButtonTopRated   -> viewModel.putCategoryProperty(SharedPreferencesProvider.CATEGORY_TOP)
-                R.id.RadioButtonPopular    -> viewModel.putCategoryProperty(SharedPreferencesProvider.CATEGORY_POPULAR)
-                R.id.RadioButtonUpcoming   -> viewModel.putCategoryProperty(SharedPreferencesProvider.CATEGORY_UPCOMING)
-                R.id.RadioButtonNowPlaying -> viewModel.putCategoryProperty(SharedPreferencesProvider.CATEGORY_PLAYING)
+        viewModel.getCategoryProperty.observe(viewLifecycleOwner) { newlySetCategory ->
+            when (newlySetCategory) {
+                SharedPreferencesProvider.CATEGORY_POPULAR  -> binding.categoryButton.description.text =
+                    getString(R.string.settings_fragment_movie_category_description,
+                        getString(R.string.settings_fragment_radio_group_category_popular))
+
+                SharedPreferencesProvider.CATEGORY_TOP      -> binding.categoryButton.description.text =
+                    getString(R.string.settings_fragment_movie_category_description,
+                        getString(R.string.settings_fragment_radio_group_category_top_rated))
+
+                SharedPreferencesProvider.CATEGORY_UPCOMING -> binding.categoryButton.description.text =
+                    getString(R.string.settings_fragment_movie_category_description,
+                        getString(R.string.settings_fragment_radio_group_category_upcoming))
+
+                SharedPreferencesProvider.CATEGORY_PLAYING  -> binding.categoryButton.description.text =
+                    getString(R.string.settings_fragment_movie_category_description,
+                        getString(R.string.settings_fragment_radio_group_category_playing))
             }
         }
     }
@@ -181,6 +228,11 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
 
     companion object {
-        const val SWITCH_VIBRATION_LENGTH = 50L
+        private const val SWITCH_VIBRATION_LENGTH = 50L
+
+        private const val RADIO_BUTTON_CATEGORY_POPULAR  = 0
+        private const val RADIO_BUTTON_CATEGORY_TOP      = 1
+        private const val RADIO_BUTTON_CATEGORY_UPCOMING = 2
+        private const val RADIO_BUTTON_CATEGORY_PLAYING  = 3
     }
 }

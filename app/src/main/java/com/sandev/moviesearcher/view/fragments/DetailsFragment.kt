@@ -456,7 +456,7 @@ class DetailsFragment : Fragment() {
                 dialogInterface.dismiss()
             }
             .create()
-            .changeAppearanceToSamsungOneUI()
+            .changeAppearanceToSamsungOneUI(Gravity.BOTTOM)
 
         initializeDialogButtons(alertDialog)
 
