@@ -11,7 +11,7 @@ class MainActivityViewModel : ViewModel() {
     @Inject
     lateinit var sharedPreferencesInteractor: SharedPreferencesInteractor
 
-    var isBatteryCheckedDuringAppStart = false
+    var isPrimaryInitializationPerformed = false
 
 
     init {

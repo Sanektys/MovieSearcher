@@ -55,6 +55,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         setNestedScrollAppearance()
 
         initializeCategoryButton()
+        initializeAppThemeButton()
         initializeSplashScreenSwitch()
         initializeRatingDonutSwitch()
 
@@ -134,6 +135,60 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 SharedPreferencesProvider.CATEGORY_PLAYING  -> binding.categoryButton.description.text =
                     getString(R.string.settings_fragment_movie_category_description,
                         getString(R.string.settings_fragment_radio_group_category_playing))
+            }
+        }
+    }
+
+    private fun initializeAppThemeButton() {
+        val radioButtons = arrayOf(
+            getString(R.string.settings_fragment_radio_group_night_mode_off),
+            getString(R.string.settings_fragment_radio_group_night_mode_on),
+            getString(R.string.settings_fragment_radio_group_night_mode_default)
+        )
+
+        binding.appThemeButton.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.settings_fragment_alert_dialog_night_mode_title)
+                .setSingleChoiceItems(
+                    radioButtons,
+                    when (viewModel.getAppTheme.value) {
+                        SharedPreferencesProvider.NIGHT_MODE_OFF     -> RADIO_BUTTON_NIGHT_MODE_OFF
+                        SharedPreferencesProvider.NIGHT_MODE_ON      -> RADIO_BUTTON_NIGHT_MODE_ON
+                        SharedPreferencesProvider.NIGHT_MODE_DEFAULT -> RADIO_BUTTON_NIGHT_MODE_DEFAULT
+                        else -> return@setOnClickListener
+                    }
+                ) { dialogInterface, which ->
+                    when (which) {
+                        RADIO_BUTTON_NIGHT_MODE_OFF -> viewModel.setAppTheme(
+                            SharedPreferencesProvider.NIGHT_MODE_OFF
+                        )
+
+                        RADIO_BUTTON_NIGHT_MODE_ON -> viewModel.setAppTheme(
+                            SharedPreferencesProvider.NIGHT_MODE_ON
+                        )
+
+                        RADIO_BUTTON_NIGHT_MODE_DEFAULT -> viewModel.setAppTheme(
+                            SharedPreferencesProvider.NIGHT_MODE_DEFAULT
+                        )
+                    }
+                    dialogInterface.dismiss()
+                }
+                .setNegativeButton(R.string.settings_fragment_alert_dialog_action_cancel, null)
+                .create()
+                .changeAppearanceToSamsungOneUI(Gravity.CENTER)
+                .show()
+        }
+
+        viewModel.getAppTheme.observe(viewLifecycleOwner) { newlySetTheme ->
+            when (newlySetTheme) {
+                SharedPreferencesProvider.NIGHT_MODE_OFF     -> binding.appThemeButton.description.text =
+                    getString(R.string.settings_fragment_radio_group_night_mode_off)
+
+                SharedPreferencesProvider.NIGHT_MODE_ON      -> binding.appThemeButton.description.text =
+                    getString(R.string.settings_fragment_radio_group_night_mode_on)
+
+                SharedPreferencesProvider.NIGHT_MODE_DEFAULT -> binding.appThemeButton.description.text =
+                    getString(R.string.settings_fragment_radio_group_night_mode_default)
             }
         }
     }
@@ -234,5 +289,9 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         private const val RADIO_BUTTON_CATEGORY_TOP      = 1
         private const val RADIO_BUTTON_CATEGORY_UPCOMING = 2
         private const val RADIO_BUTTON_CATEGORY_PLAYING  = 3
+
+        private const val RADIO_BUTTON_NIGHT_MODE_OFF = 0
+        private const val RADIO_BUTTON_NIGHT_MODE_ON  = 1
+        private const val RADIO_BUTTON_NIGHT_MODE_DEFAULT = 2
     }
 }

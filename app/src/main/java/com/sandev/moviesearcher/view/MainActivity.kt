@@ -1,9 +1,11 @@
 package com.sandev.moviesearcher.view
 
+import android.app.UiModeManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Outline
@@ -16,6 +18,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -31,6 +34,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.databinding.ActivityMainBinding
 import com.sandev.moviesearcher.view.fragments.DetailsFragment
 import com.sandev.moviesearcher.view.fragments.FavoritesFragment
@@ -65,9 +69,18 @@ class MainActivity : AppCompatActivity() {
         override fun handleOnBackPressed() {}
     }
 
+    private var sharedPreferencesCallback: SharedPreferences.OnSharedPreferenceChangeListener? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (viewModel.isPrimaryInitializationPerformed.not()) {
+            checkCurrentAppTheme()
+            checkBatteryLevel()
+            viewModel.isPrimaryInitializationPerformed = true
+        }
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -76,12 +89,8 @@ class MainActivity : AppCompatActivity() {
         setOnBackPressedAction()
         menuButtonsInitial()
 
+        registerSharedPreferencesChangeListener()
         registerBroadcastReceiver()
-
-        if (viewModel.isBatteryCheckedDuringAppStart.not()) {
-            checkBatteryLevel()
-            viewModel.isBatteryCheckedDuringAppStart = true
-        }
 
         if (supportFragmentManager.backStackEntryCount == 0) {
             startSplashScreen()
@@ -91,6 +100,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
+        removeSharedPreferencesChangeListener()
         unregisterReceiver(broadcastReceiver)
     }
 
@@ -410,6 +420,34 @@ class MainActivity : AppCompatActivity() {
     private fun onBatteryLevelOkay() {
         viewModel.sharedPreferencesInteractor.setSplashScreenSwitchButtonState(true)
         viewModel.sharedPreferencesInteractor.setRatingDonutSwitchButtonState(true)
+    }
+
+    private fun checkCurrentAppTheme() {
+        when (viewModel.sharedPreferencesInteractor.getAppTheme()) {
+            SharedPreferencesProvider.NIGHT_MODE_OFF ->
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+
+            SharedPreferencesProvider.NIGHT_MODE_ON ->
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+
+            SharedPreferencesProvider.NIGHT_MODE_DEFAULT ->
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        }
+    }
+
+    private fun registerSharedPreferencesChangeListener() {
+        sharedPreferencesCallback = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == SharedPreferencesProvider.KEY_NIGHT_MODE) {
+                checkCurrentAppTheme()
+            }
+        }
+        viewModel.sharedPreferencesInteractor.addSharedPreferencesChangeListener(sharedPreferencesCallback!!)
+    }
+
+    private fun removeSharedPreferencesChangeListener() {
+        viewModel.sharedPreferencesInteractor.removeSharedPreferencesChangeListener(
+            sharedPreferencesCallback ?: return
+        )
     }
 
 

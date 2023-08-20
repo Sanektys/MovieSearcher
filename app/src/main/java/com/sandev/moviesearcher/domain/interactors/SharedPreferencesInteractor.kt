@@ -16,6 +16,10 @@ class SharedPreferencesInteractor(private val sharedPreferences: SharedPreferenc
         sharedPreferences.getDefaultCategory()
     }
 
+    fun setAppTheme(nightMode: String) = sharedPreferences.setAppTheme(nightMode)
+
+    fun getAppTheme() = sharedPreferences.getAppTheme()
+
     suspend fun setShowingSplashScreen(isEnabled: Boolean) = withContext(Dispatchers.IO) {
         sharedPreferences.setShowingSplashScreen(isEnabled)
     }

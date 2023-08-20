@@ -28,6 +28,11 @@
     <string name="settings_fragment.rating_donut.description">The rating bars will fill up in a short period of time</string>
     <string name="settings_fragment.alert_dialog.action.cancel">Cancel</string>
     <string name="settings_fragment.alert_dialog.category.title">Select category</string>
+    <string name="settings_fragment.alert_dialog.night_mode.title">Select theme</string>
+    <string name="settings_fragment.radio_group.night_mode.on">Dark</string>
+    <string name="settings_fragment.radio_group.night_mode.off">Light</string>
+    <string name="settings_fragment.radio_group.night_mode.default">Default (follow system)</string>
+    <string name="settings_fragment.night_mode.title">App theme</string>
 
 
     <!-- Details fragment -->

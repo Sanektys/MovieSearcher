@@ -28,6 +28,11 @@
     <string name="settings_fragment.rating_donut.description">Полоски с рейтингами будут заполняться за короткий промежуток времени</string>
     <string name="settings_fragment.alert_dialog.action.cancel">Отмена</string>
     <string name="settings_fragment.alert_dialog.category.title">Выберите категорию</string>
+    <string name="settings_fragment.alert_dialog.night_mode.title">Выберите тему</string>
+    <string name="settings_fragment.radio_group.night_mode.on">Тёмная</string>
+    <string name="settings_fragment.radio_group.night_mode.off">Светлая</string>
+    <string name="settings_fragment.radio_group.night_mode.default">По умолчанию (как в системе)</string>
+    <string name="settings_fragment.night_mode.title">Тема приложения</string>
 
 
     <!-- Details fragment -->
@@ -69,4 +74,8 @@
     <string name="shared_preferences.settings.key.enable_rating_donut_animation" translatable="false">enable_rating_donut_anim</string>
     <string name="shared_preferences.settings.key.splash_screen_switch_button_enabled" translatable="false">splash_switcher_enabled</string>
     <string name="shared_preferences.settings.key.rating_donut_switch_button_enabled" translatable="false">rating_donut_switcher_enabled</string>
+    <string name="shared_preferences.settings.key.night_mode" translatable="false">night_mode</string>
+    <string name="shared_preferences.settings.value.night_mode.on" translatable="false">night_on</string>
+    <string name="shared_preferences.settings.value.night_mode.off" translatable="false">night_off</string>
+    <string name="shared_preferences.settings.value.night_mode.default" translatable="false">night_default</string>
 </resources>

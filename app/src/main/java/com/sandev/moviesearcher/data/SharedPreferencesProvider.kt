@@ -16,6 +16,7 @@ class SharedPreferencesProvider(context: Context) {
 
     private val keyFirstLaunch = appContext.getString(R.string.shared_preferences_settings_key_first_launch)
     private val defaultCategory = appContext.getString(R.string.shared_preferences_settings_default_category)
+    private val defaultTheme = NIGHT_MODE_DEFAULT
 
     private val isSplashScreenActivatedByDefault = true
     private val isRatingDonutAnimationEnabledByDefault = true
@@ -26,8 +27,9 @@ class SharedPreferencesProvider(context: Context) {
     init {
         if (sharedPreferences.getBoolean(keyFirstLaunch, true)) {
             sharedPreferences.edit { putBoolean(keyFirstLaunch, false) }
-            sharedPreferences.edit { putBoolean(KEY_SHOW_SPLASH_SCREEN, isSplashScreenActivatedByDefault) }
             sharedPreferences.edit { putString(KEY_CATEGORY, defaultCategory) }
+            sharedPreferences.edit { putString(KEY_NIGHT_MODE, defaultTheme) }
+            sharedPreferences.edit { putBoolean(KEY_SHOW_SPLASH_SCREEN, isSplashScreenActivatedByDefault) }
             sharedPreferences.edit { putBoolean(KEY_ENABLE_RATING_DONUT_ANIMATION, isRatingDonutAnimationEnabledByDefault)}
             sharedPreferences.edit { putBoolean(KEY_ENABLE_SPLASH_SCREEN_SWITCH_BUTTON, isSplashScreenSwitchButtonEnabledByDefault)}
             sharedPreferences.edit { putBoolean(KEY_ENABLE_RATING_DONUT_SWITCH_BUTTON, isRatingDonutSwitchButtonEnabledByDefault)}
@@ -38,6 +40,10 @@ class SharedPreferencesProvider(context: Context) {
     fun setDefaultCategory(category: String) = sharedPreferences.edit { putString(KEY_CATEGORY, category) }
 
     fun getDefaultCategory() = sharedPreferences.getString(KEY_CATEGORY, defaultCategory)!!
+
+    fun setAppTheme(nightMode: String) = sharedPreferences.edit { putString(KEY_NIGHT_MODE, nightMode) }
+
+    fun getAppTheme() = sharedPreferences.getString(KEY_NIGHT_MODE, defaultTheme)
 
     fun setShowingSplashScreen(isEnabled: Boolean) = sharedPreferences.edit {
         putBoolean(KEY_SHOW_SPLASH_SCREEN, isEnabled)
@@ -90,5 +96,11 @@ class SharedPreferencesProvider(context: Context) {
 
         val KEY_ENABLE_SPLASH_SCREEN_SWITCH_BUTTON = App.instance.getString(R.string.shared_preferences_settings_key_splash_screen_switch_button_enabled)
         val KEY_ENABLE_RATING_DONUT_SWITCH_BUTTON = App.instance.getString(R.string.shared_preferences_settings_key_rating_donut_switch_button_enabled)
+
+        val KEY_NIGHT_MODE = App.instance.getString(R.string.shared_preferences_settings_key_night_mode)
+
+        val NIGHT_MODE_ON = App.instance.getString(R.string.shared_preferences_settings_value_night_mode_on)
+        val NIGHT_MODE_OFF = App.instance.getString(R.string.shared_preferences_settings_value_night_mode_off)
+        val NIGHT_MODE_DEFAULT = App.instance.getString(R.string.shared_preferences_settings_value_night_mode_default)
     }
 }
