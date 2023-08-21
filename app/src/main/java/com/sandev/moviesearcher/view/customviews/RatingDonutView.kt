@@ -50,6 +50,12 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
     private val outerCirclePaint = Paint()
     private val innerCirclePaint = Paint()
 
+    private var ratingColorAwful:     Int? = null
+    private var ratingColorBad:       Int? = null
+    private var ratingColorNeutral:   Int? = null
+    private var ratingColorGood:      Int? = null
+    private var ratingColorExcellent: Int? = null
+
     private val staticPartBitmap by lazy(LazyThreadSafetyMode.NONE) { Bitmap.createBitmap(width, height ,Bitmap.Config.ARGB_8888) }
     private val allPartsBitmap   by lazy(LazyThreadSafetyMode.NONE) { Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888) }
     private val staticPartCanvas by lazy(LazyThreadSafetyMode.NONE) { Canvas(staticPartBitmap) }
@@ -81,13 +87,6 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         private val RATING_RANGE_NEUTRAL   = 40 .. 59
         private val RATING_RANGE_GOOD      = 60 .. 79
         private val RATING_RANGE_EXCELLENT = 80 .. FULL_PROGRESS
-
-        private var isColorsInitialized = false
-        private var RATING_COLOR_AWFUL:     Int? = null
-        private var RATING_COLOR_BAD:       Int? = null
-        private var RATING_COLOR_NEUTRAL:   Int? = null
-        private var RATING_COLOR_GOOD:      Int? = null
-        private var RATING_COLOR_EXCELLENT: Int? = null
     }
 
 
@@ -109,10 +108,7 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
         progressAnimation = factualProgress
         displayingProgress = factualProgress.toFloat()
 
-        if (!isColorsInitialized) {
-            initColors()
-        }
-
+        initColors()
         initPaint()
     }
 
@@ -288,13 +284,11 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
     }
 
     private fun initColors() {
-        RATING_COLOR_AWFUL     = RATING_COLOR_AWFUL     ?: resources.getColor(R.color.rating_color_awful, context.theme)
-        RATING_COLOR_BAD       = RATING_COLOR_BAD       ?: resources.getColor(R.color.rating_color_bad, context.theme)
-        RATING_COLOR_NEUTRAL   = RATING_COLOR_NEUTRAL   ?: resources.getColor(R.color.rating_color_neutral, context.theme)
-        RATING_COLOR_GOOD      = RATING_COLOR_GOOD      ?: resources.getColor(R.color.rating_color_good, context.theme)
-        RATING_COLOR_EXCELLENT = RATING_COLOR_EXCELLENT ?: resources.getColor(R.color.rating_color_excellent, context.theme)
-
-        isColorsInitialized = true
+        ratingColorAwful     = resources.getColor(R.color.rating_color_awful, context.theme)
+        ratingColorBad       = resources.getColor(R.color.rating_color_bad, context.theme)
+        ratingColorNeutral   = resources.getColor(R.color.rating_color_neutral, context.theme)
+        ratingColorGood      = resources.getColor(R.color.rating_color_good, context.theme)
+        ratingColorExcellent = resources.getColor(R.color.rating_color_excellent, context.theme)
     }
 
     private fun updatePaintsColors() {
@@ -303,11 +297,11 @@ class RatingDonutView @JvmOverloads constructor(context: Context, attrs: Attribu
     }
 
     private fun getPaintColor(progress: Int) = when (progress) {
-        in RATING_RANGE_AWFUL     -> RATING_COLOR_AWFUL!!
-        in RATING_RANGE_BAD       -> RATING_COLOR_BAD!!
-        in RATING_RANGE_NEUTRAL   -> RATING_COLOR_NEUTRAL!!
-        in RATING_RANGE_GOOD      -> RATING_COLOR_GOOD!!
-        in RATING_RANGE_EXCELLENT -> RATING_COLOR_EXCELLENT!!
+        in RATING_RANGE_AWFUL     -> ratingColorAwful!!
+        in RATING_RANGE_BAD       -> ratingColorBad!!
+        in RATING_RANGE_NEUTRAL   -> ratingColorNeutral!!
+        in RATING_RANGE_GOOD      -> ratingColorGood!!
+        in RATING_RANGE_EXCELLENT -> ratingColorExcellent!!
         else -> Color.DKGRAY
     }
 }
