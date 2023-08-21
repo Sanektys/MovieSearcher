@@ -33,6 +33,8 @@
     <string name="settings_fragment.radio_group.night_mode.off">Светлая</string>
     <string name="settings_fragment.radio_group.night_mode.default">По умолчанию (как в системе)</string>
     <string name="settings_fragment.night_mode.title">Тема приложения</string>
+    <string name="settings_fragment.movies_settings_group.title">Карточки фильмов</string>
+    <string name="settings_fragment.app_settings_group.title">Приложение</string>
 
 
     <!-- Details fragment -->

@@ -47,6 +47,8 @@
     <dimen name="fragment_settings.element.long_margin_horizontal">20dp</dimen>
     <dimen name="fragment_settings.block.margin_bottom">12dp</dimen>
     <dimen name="fragment_settings.block.corner_radius">24dp</dimen>
+    <dimen name="fragment_settings.block.title.height">20dp</dimen>
+    <dimen name="fragment_settings.block_group.paddingBottom">8dp</dimen>
     <dimen name="fragment_settings.radio_group.title.marginTop">12dp</dimen>
     <dimen name="fragment_settings.radio_group.title.marginBottom">8dp</dimen>
     <dimen name="fragment_settings.radio_group.title.alpha">0.5</dimen>
