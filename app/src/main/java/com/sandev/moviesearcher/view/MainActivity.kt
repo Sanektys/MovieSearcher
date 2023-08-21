@@ -1,6 +1,5 @@
 package com.sandev.moviesearcher.view
 
-import android.app.UiModeManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -140,10 +139,12 @@ class MainActivity : AppCompatActivity() {
             binding.navigationBar.doOnLayout { it.translationY = it.height.toFloat() }
             binding.navigationBar.menu.forEach { it.isEnabled = false }
 
-            supportFragmentManager
-                .beginTransaction()
-                .add(R.id.fragment, SplashScreenFragment())
-                .commit()
+            if (supportFragmentManager.fragments.find { it is SplashScreenFragment } == null) {
+                supportFragmentManager
+                    .beginTransaction()
+                    .add(R.id.fragment, SplashScreenFragment())
+                    .commit()
+            }
         } else {
             startHomeFragment(isSplashScreenEnabled)
         }
