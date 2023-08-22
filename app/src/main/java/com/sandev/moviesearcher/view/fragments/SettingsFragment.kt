@@ -10,6 +10,7 @@ import android.os.Vibrator
 import android.view.Gravity
 import android.view.View
 import android.view.ViewOutlineProvider
+import android.widget.CheckedTextView
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -56,6 +57,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         initializeCategoryButton()
         initializeAppThemeButton()
+        initializeAppLanguageButton()
         initializeSplashScreenSwitch()
         initializeRatingDonutSwitch()
 
@@ -189,6 +191,58 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
                 SharedPreferencesProvider.NIGHT_MODE_DEFAULT -> binding.appThemeButton.description.text =
                     getString(R.string.settings_fragment_radio_group_night_mode_default)
+            }
+        }
+    }
+
+    private fun initializeAppLanguageButton() {
+        binding.appLanguageButton.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.settings_fragment_alert_dialog_language_title)
+                .setMessage(R.string.settings_fragment_alert_dialog_language_description)
+                .setView(R.layout.alert_dialog_content_for_app_language)
+                .setNegativeButton(R.string.settings_fragment_alert_dialog_action_cancel) { dialogInterface, _ ->
+                    dialogInterface.dismiss()
+                }
+                .create()
+                .changeAppearanceToSamsungOneUI(Gravity.CENTER)
+                .apply {
+                    val russianLanguageRadioButton = findViewById<CheckedTextView>(R.id.radioButtonLanguageRussian)
+                    val englishLanguageRadioButton = findViewById<CheckedTextView>(R.id.radioButtonLanguageEnglish)
+
+                    viewModel.getAppLanguage.observe(this) { newlySetLanguage ->
+                        when (newlySetLanguage) {
+                            SharedPreferencesProvider.LANGUAGE_RUSSIAN -> {
+                                russianLanguageRadioButton?.isChecked = true
+                                englishLanguageRadioButton?.isChecked = false
+                                dismiss()
+                            }
+
+                            SharedPreferencesProvider.LANGUAGE_ENGLISH -> {
+                                englishLanguageRadioButton?.isChecked = true
+                                russianLanguageRadioButton?.isChecked = false
+                                dismiss()
+                            }
+                        }
+                    }
+
+                    russianLanguageRadioButton?.setOnClickListener {
+                        viewModel.setAppLanguage(SharedPreferencesProvider.LANGUAGE_RUSSIAN)
+                    }
+                    englishLanguageRadioButton?.setOnClickListener {
+                        viewModel.setAppLanguage(SharedPreferencesProvider.LANGUAGE_ENGLISH)
+                    }
+                }
+                .show()
+        }
+
+        viewModel.getAppLanguage.observe(viewLifecycleOwner) { newlySetLanguage ->
+            when (newlySetLanguage) {
+                SharedPreferencesProvider.LANGUAGE_RUSSIAN -> binding.appLanguageButton.description.text =
+                    getString(R.string.settings_fragment_radio_group_language_russian)
+
+                SharedPreferencesProvider.LANGUAGE_ENGLISH -> binding.appLanguageButton.description.text =
+                    getString(R.string.settings_fragment_radio_group_language_english)
             }
         }
     }

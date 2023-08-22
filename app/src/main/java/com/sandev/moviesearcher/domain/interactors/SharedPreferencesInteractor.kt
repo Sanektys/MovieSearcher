@@ -20,6 +20,10 @@ class SharedPreferencesInteractor(private val sharedPreferences: SharedPreferenc
 
     fun getAppTheme() = sharedPreferences.getAppTheme()
 
+    fun setAppLanguage(language: String) = sharedPreferences.setAppLanguage(language)
+
+    fun getAppLanguage() = sharedPreferences.getAppLanguage()
+
     suspend fun setShowingSplashScreen(isEnabled: Boolean) = withContext(Dispatchers.IO) {
         sharedPreferences.setShowingSplashScreen(isEnabled)
     }

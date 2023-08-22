@@ -10,7 +10,7 @@
         <attr name="elements_shadow_color" format="color" />
     </declare-styleable>
 
-    <!--  -->
+    <!-- Common attributes for setting button -->
     <declare-styleable name="PreferenceButton">
         <attr name="preference_title" format="string" />
         <attr name="preference_description" format="string" />

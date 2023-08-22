@@ -84,7 +84,10 @@
     <dimen name="alert_dialog.content.list_item.icon_size">24dp</dimen>
     <dimen name="alert_dialog.content.list_item.margin_vertical">16dp</dimen>
     <dimen name="alert_dialog.content.list_item.padding_horizontal">24dp</dimen>
+    <dimen name="alert_dialog.content.list_item.margin_horizontal">20dp</dimen>
     <dimen name="alert_dialog.content.list_item.text.margin_start">16dp</dimen>
+    <dimen name="alert_dialog.content.radio_group.item.icon.paddingStart">24dp</dimen>
+    <dimen name="alert_dialog.content.radio_group.item.icon.paddingEnd">24dp</dimen>
 
 
     <!-- preference switch view -->

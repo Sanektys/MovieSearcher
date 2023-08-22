@@ -25,6 +25,9 @@ class SettingsFragmentViewModel() : ViewModel() {
     private val appTheme: MutableLiveData<String> = MutableLiveData()
     val getAppTheme: LiveData<String> = appTheme
 
+    private val appLanguage: MutableLiveData<String> = MutableLiveData()
+    val getAppLanguage: LiveData<String> = appLanguage
+
     private val splashScreenEnabling: MutableLiveData<Boolean> = MutableLiveData()
     val getSplashScreenEnabling: LiveData<Boolean> = splashScreenEnabling
 
@@ -46,6 +49,7 @@ class SettingsFragmentViewModel() : ViewModel() {
         getCategoryProperty()
 
         getAppTheme()
+        getAppLanguage()
 
         getSplashScreenButtonState()
         getRatingDonutButtonState()
@@ -73,6 +77,13 @@ class SettingsFragmentViewModel() : ViewModel() {
     fun setAppTheme(nightMode: String) {
         sharedPreferencesInteractor.setAppTheme(nightMode)
         getAppTheme()
+    }
+
+    private fun getAppLanguage() = appLanguage.postValue(sharedPreferencesInteractor.getAppLanguage())
+
+    fun setAppLanguage(language: String) {
+        sharedPreferencesInteractor.setAppLanguage(language)
+        getAppLanguage()
     }
 
     private fun getSplashScreenEnabling() = viewModelScope.launch {

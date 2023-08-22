@@ -105,6 +105,19 @@
                         android:layout_marginHorizontal="@dimen/fragment_settings.element.short_margin_horizontal"
                         app:dividerColor="?attr/colorOutlineVariant" />
 
+                    <com.sandev.moviesearcher.view.customviews.PreferenceTextButton
+                        android:id="@+id/appLanguageButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:preference_title="@string/settings_fragment.language.title"
+                        tools:preference_description="@string/settings_fragment.radio_group.language.russian" />
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="@dimen/fragment_settings.element.short_margin_horizontal"
+                        app:dividerColor="?attr/colorOutlineVariant" />
+
                     <com.sandev.moviesearcher.view.customviews.PreferenceSwitch
                         android:id="@+id/splashScreenSwitch"
                         android:layout_width="match_parent"

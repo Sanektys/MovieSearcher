@@ -35,6 +35,11 @@
     <string name="settings_fragment.night_mode.title">Тема приложения</string>
     <string name="settings_fragment.movies_settings_group.title">Карточки фильмов</string>
     <string name="settings_fragment.app_settings_group.title">Приложение</string>
+    <string name="settings_fragment.radio_group.language.russian" translatable="false">Русский</string>
+    <string name="settings_fragment.radio_group.language.english" translatable="false">English</string>
+    <string name="settings_fragment.language.title">Язык приложения</string>
+    <string name="settings_fragment.alert_dialog.language.title">Выберите язык</string>
+    <string name="settings_fragment.alert_dialog.language.description">Язык не поменяется у сохранённых или кэшированных карточек фильмов, только у вновь загруженных из сети</string>
 
 
     <!-- Details fragment -->
@@ -80,4 +85,7 @@
     <string name="shared_preferences.settings.value.night_mode.on" translatable="false">night_on</string>
     <string name="shared_preferences.settings.value.night_mode.off" translatable="false">night_off</string>
     <string name="shared_preferences.settings.value.night_mode.default" translatable="false">night_default</string>
+    <string name="shared_preferences.settings.key.language" translatable="false">language</string>
+    <string name="shared_preferences.settings.value.language.russian" translatable="false">russian</string>
+    <string name="shared_preferences.settings.value.language.english" translatable="false">english</string>
 </resources>

@@ -17,6 +17,7 @@ class SharedPreferencesProvider(context: Context) {
     private val keyFirstLaunch = appContext.getString(R.string.shared_preferences_settings_key_first_launch)
     private val defaultCategory = appContext.getString(R.string.shared_preferences_settings_default_category)
     private val defaultTheme = NIGHT_MODE_DEFAULT
+    private val defaultLanguage = LANGUAGE_ENGLISH
 
     private val isSplashScreenActivatedByDefault = true
     private val isRatingDonutAnimationEnabledByDefault = true
@@ -44,6 +45,10 @@ class SharedPreferencesProvider(context: Context) {
     fun setAppTheme(nightMode: String) = sharedPreferences.edit { putString(KEY_NIGHT_MODE, nightMode) }
 
     fun getAppTheme() = sharedPreferences.getString(KEY_NIGHT_MODE, defaultTheme)
+
+    fun setAppLanguage(language: String) = sharedPreferences.edit { putString(KEY_LANGUAGE, language) }
+
+    fun getAppLanguage() = sharedPreferences.getString(KEY_LANGUAGE, defaultLanguage)
 
     fun setShowingSplashScreen(isEnabled: Boolean) = sharedPreferences.edit {
         putBoolean(KEY_SHOW_SPLASH_SCREEN, isEnabled)
@@ -102,5 +107,10 @@ class SharedPreferencesProvider(context: Context) {
         val NIGHT_MODE_ON = App.instance.getString(R.string.shared_preferences_settings_value_night_mode_on)
         val NIGHT_MODE_OFF = App.instance.getString(R.string.shared_preferences_settings_value_night_mode_off)
         val NIGHT_MODE_DEFAULT = App.instance.getString(R.string.shared_preferences_settings_value_night_mode_default)
+
+        val KEY_LANGUAGE = App.instance.getString(R.string.shared_preferences_settings_key_language)
+
+        val LANGUAGE_RUSSIAN = App.instance.getString(R.string.shared_preferences_settings_value_language_russian)
+        val LANGUAGE_ENGLISH = App.instance.getString(R.string.shared_preferences_settings_value_language_english)
     }
 }

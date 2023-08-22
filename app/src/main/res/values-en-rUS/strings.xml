@@ -35,6 +35,9 @@
     <string name="settings_fragment.night_mode.title">App theme</string>
     <string name="settings_fragment.movies_settings_group.title">Movies cards</string>
     <string name="settings_fragment.app_settings_group.title">Application</string>
+    <string name="settings_fragment.language.title">App language</string>
+    <string name="settings_fragment.alert_dialog.language.title">Select language</string>
+    <string name="settings_fragment.alert_dialog.language.description">The language will not change for saved or cached movie cards, only for newly downloaded ones from network</string>
 
 
     <!-- Details fragment -->

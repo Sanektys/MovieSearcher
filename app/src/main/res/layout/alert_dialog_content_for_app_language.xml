@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/alert_dialog.margin_vertical">
+
+    <CheckedTextView
+        android:id="@+id/radioButtonLanguageRussian"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:minHeight="?attr/listPreferredItemHeightSmall"
+        android:gravity="start|center_vertical"
+        android:textAlignment="viewStart"
+        android:paddingStart="@dimen/alert_dialog.content.radio_group.item.icon.paddingStart"
+        android:paddingEnd="?attr/dialogPreferredPadding"
+        app:drawableEndCompat="?android:attr/listChoiceIndicatorSingle"
+        android:drawableStart="@drawable/russia_flag"
+        android:drawablePadding="@dimen/alert_dialog.content.radio_group.item.icon.paddingEnd"
+        android:ellipsize="marquee"
+        android:text="@string/settings_fragment.radio_group.language.russian" />
+
+    <CheckedTextView
+        android:id="@+id/radioButtonLanguageEnglish"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:minHeight="?attr/listPreferredItemHeightSmall"
+        android:gravity="start|center_vertical"
+        android:textAlignment="viewStart"
+        android:paddingStart="@dimen/alert_dialog.content.radio_group.item.icon.paddingStart"
+        android:paddingEnd="?attr/dialogPreferredPadding"
+        app:drawableEndCompat="?android:attr/listChoiceIndicatorSingle"
+        android:drawableStart="@drawable/united_kingdom_flag"
+        android:drawablePadding="@dimen/alert_dialog.content.radio_group.item.icon.paddingEnd"
+        android:ellipsize="marquee"
+        android:text="@string/settings_fragment.radio_group.language.english" />
+</LinearLayout>
