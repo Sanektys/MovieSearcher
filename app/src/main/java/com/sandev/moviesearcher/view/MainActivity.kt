@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun startHomeFragment(isSplashScreenEnabled: Boolean = true) {
-        if (!HomeFragment.isFragmentClassOnceCreated && isSplashScreenEnabled) {
+        if (isSplashScreenEnabled) {
             binding.navigationBar.run {
                 animate()
                 .setDuration(
