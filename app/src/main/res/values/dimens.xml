@@ -81,6 +81,7 @@
     <dimen name="alert_dialog.margin_horizontal">8dp</dimen>
     <dimen name="alert_dialog.margin_vertical">24dp</dimen>
     <dimen name="alert_dialog.corner_radius">28dp</dimen>
+    <dimen name="alert_dialog.content.paddingTop">16dp</dimen>
     <dimen name="alert_dialog.content.list_item.icon_size">24dp</dimen>
     <dimen name="alert_dialog.content.list_item.margin_vertical">16dp</dimen>
     <dimen name="alert_dialog.content.list_item.padding_horizontal">24dp</dimen>

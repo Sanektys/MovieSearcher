@@ -14,7 +14,7 @@ import android.widget.CheckedTextView
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.doOnAttach
+import androidx.core.view.doOnNextLayout
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -61,7 +61,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         initializeSplashScreenSwitch()
         initializeRatingDonutSwitch()
 
-        view.doOnAttach {
+        view.doOnNextLayout {
             requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressed)
         }
     }

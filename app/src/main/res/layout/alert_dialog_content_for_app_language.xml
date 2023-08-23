@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="@dimen/alert_dialog.margin_vertical">
+    android:paddingTop="@dimen/alert_dialog.content.paddingTop">
 
     <CheckedTextView
         android:id="@+id/radioButtonLanguageRussian"
