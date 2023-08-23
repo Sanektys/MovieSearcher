@@ -86,6 +86,7 @@
     <string name="shared_preferences.settings.value.night_mode.off" translatable="false">night_off</string>
     <string name="shared_preferences.settings.value.night_mode.default" translatable="false">night_default</string>
     <string name="shared_preferences.settings.key.language" translatable="false">language</string>
-    <string name="shared_preferences.settings.value.language.russian" translatable="false">russian</string>
-    <string name="shared_preferences.settings.value.language.english" translatable="false">english</string>
+    <string name="shared_preferences.settings.value.language.russian" translatable="false">ru-RU</string>
+    <string name="shared_preferences.settings.value.language.english" translatable="false">en-US</string>
+    <string name="shared_preferences.settings.value.language.unspecified" translatable="false">language_unspecified</string>
 </resources>

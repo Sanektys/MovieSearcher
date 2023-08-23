@@ -120,6 +120,7 @@ class SettingsFragmentViewModel() : ViewModel() {
                 getRatingDonutAnimationState()
                 getRatingDonutButtonState()
             }
+            SharedPreferencesProvider.KEY_LANGUAGE -> getAppLanguage()
         }
     }
 }

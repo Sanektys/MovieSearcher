@@ -1,7 +1,6 @@
 package com.sandev.moviesearcher.view.fragments
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -24,7 +23,6 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.BaseTransientBottomBar.ANIMATION_MODE_FADE
 import com.google.android.material.snackbar.Snackbar
 import com.sandev.moviesearcher.R
-import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.databinding.FragmentHomeBinding
 import com.sandev.moviesearcher.databinding.MergeFragmentHomeContentBinding
 import com.sandev.moviesearcher.view.MainActivity
@@ -53,7 +51,6 @@ class HomeFragment : MoviesListFragment() {
     private var snackbar: Snackbar? = null
 
     private val backStackChangedListener: OnBackStackChangedListener
-    private var sharedPreferencesChangeListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
 
 
     init {
@@ -85,10 +82,10 @@ class HomeFragment : MoviesListFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initializeSwipeRefreshLayout()
+        initializeSwipeRefreshStateListener()
         prepareErrorConnectionSnackbar()
 
         childFragmentManager.addOnBackStackChangedListener(backStackChangedListener)
-        initializeOnSharedPreferenceChangeListener()
 
         super.onViewCreated(view, savedInstanceState)
 
@@ -105,12 +102,6 @@ class HomeFragment : MoviesListFragment() {
 
         _bindingFull = null
         _bindingBlank = null
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-        removeOnSharedPreferenceChangeListener()
     }
 
     override fun setRecyclerViewAppearance(view: View) {
@@ -167,30 +158,14 @@ class HomeFragment : MoviesListFragment() {
         }
     }
 
-    private fun initializeOnSharedPreferenceChangeListener() {
-        sharedPreferencesChangeListener =
-            SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-                when (key) {
-                    SharedPreferencesProvider.KEY_CATEGORY -> {
-                        _bindingFull?.swipeRefresh?.isRefreshing = true
-                    }
-                }
-            }
-        viewModel.sharedPreferencesInteractor.addSharedPreferencesChangeListener(
-            sharedPreferencesChangeListener ?: return
-        )
-    }
-
-    private fun removeOnSharedPreferenceChangeListener() {
-        viewModel.sharedPreferencesInteractor.removeSharedPreferencesChangeListener(
-            sharedPreferencesChangeListener ?: return
-        )
+    private fun initializeSwipeRefreshStateListener() {
+        viewModel.getSwipeRefreshState.observe(viewLifecycleOwner) { isActive ->
+            _bindingFull?.swipeRefresh?.isRefreshing = isActive
+        }
     }
 
     private fun setupViewModelObserving() {
         viewModel.getOnFailureFlag.observe(viewLifecycleOwner) { failureFlag ->
-            bindingFull.swipeRefresh.isRefreshing = false
-
             if (failureFlag) {
                 if (childFragmentManager.fragments.size == 0) {
                     if (snackbar?.isShown == false) {

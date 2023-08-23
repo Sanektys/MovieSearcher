@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.domain_api.local_database.entities.DatabaseMovie
-import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.tmdb_feature.domain.interactors.TmdbInteractor
 import io.reactivex.rxjava3.disposables.Disposable
@@ -21,6 +20,9 @@ class HomeFragmentViewModel(private val interactor: TmdbInteractor) : MoviesList
     private val onFailureFlagLiveData = MutableLiveData<Boolean>()
     val getOnFailureFlag: LiveData<Boolean> = onFailureFlagLiveData
 
+    private val isSwipeRefreshActive = MutableLiveData<Boolean>()
+    val getSwipeRefreshState: LiveData<Boolean> = isSwipeRefreshActive
+
     private val sharedPreferencesStateListener: SharedPreferences.OnSharedPreferenceChangeListener
 
     private var currentRepositoryType: TmdbInteractor.RepositoryType = TmdbInteractor.RepositoryType.POPULAR_MOVIES
@@ -29,6 +31,7 @@ class HomeFragmentViewModel(private val interactor: TmdbInteractor) : MoviesList
         private set(value) {
             field = value
             onFailureFlagLiveData.postValue(value)
+            isSwipeRefreshActive.postValue(false)
         }
 
     override var lastSearch: String
@@ -51,11 +54,13 @@ class HomeFragmentViewModel(private val interactor: TmdbInteractor) : MoviesList
 
         sharedPreferencesStateListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             when (key) {
-                SharedPreferencesProvider.KEY_CATEGORY ->  viewModelScope.launch {
-                    currentRepositoryType = provideCurrentMovieListTypeByCategoryInSettings()
+                SharedPreferencesProvider.KEY_CATEGORY, SharedPreferencesProvider.KEY_LANGUAGE ->
+                    viewModelScope.launch {
+                        isSwipeRefreshActive.postValue(true)
+                        currentRepositoryType = provideCurrentMovieListTypeByCategoryInSettings()
 
-                    dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
-                }
+                        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
+                    }
             }
         }
         sharedPreferencesInteractor.addSharedPreferencesChangeListener(sharedPreferencesStateListener)

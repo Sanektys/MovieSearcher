@@ -97,7 +97,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:preference_title="@string/settings_fragment.night_mode.title"
-                        tools:preference_description="@string/settings_fragment.radio_group.night_mode.on" />
+                        tools:preference_description="@string/settings_fragment.radio_group.night_mode.default" />
 
                     <com.google.android.material.divider.MaterialDivider
                         android:layout_width="match_parent"

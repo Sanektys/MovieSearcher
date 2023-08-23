@@ -1,5 +1,8 @@
 package com.sandev.tmdb_feature.domain.interactors
 
+import android.os.LocaleList
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import com.example.domain_api.local_database.repository.MoviesListRepository
 import com.example.domain_api.the_movie_database.api.TmdbApi
 import com.example.domain_impl.the_movie_database.constants.TmdbApiKey
@@ -26,8 +29,6 @@ class TmdbInteractor(
     private vararg val moviesListRepositories: MoviesListRepository
 ) {
 
-    private val systemLanguage = Locale.getDefault().toLanguageTag()
-
     private var popularMoviesRepositoryIndex: Int = 0
     private var topMoviesRepositoryIndex: Int = 0
     private var upcomingMoviesRepositoryIndex: Int = 0
@@ -49,7 +50,7 @@ class TmdbInteractor(
             = retrofitService.getMovies(
         apiKey = TmdbApiKey.KEY,
         category = moviesCategory,
-        language = systemLanguage,
+        language = AppCompatDelegate.getApplicationLocales()[0]!!.language,
         page = page
     ).subscribeOn(Schedulers.io()).map {
         val movies = when (repositoryType) {
@@ -65,7 +66,7 @@ class TmdbInteractor(
             = retrofitService.getSearchedMovies(
         apiKey = TmdbApiKey.KEY,
         query = query,
-        language = systemLanguage,
+        language = AppCompatDelegate.getApplicationLocales()[0]!!.language,
         page = page
     ).subscribeOn(Schedulers.io()).map {
         val movies = convertApiDtoListToMovieList(it.results)

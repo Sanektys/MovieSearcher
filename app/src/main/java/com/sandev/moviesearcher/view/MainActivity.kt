@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -44,6 +45,7 @@ import com.sandev.moviesearcher.view.fragments.WatchLaterFragment
 import com.sandev.moviesearcher.view.viewmodels.MainActivityViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 
 class MainActivity : AppCompatActivity() {
@@ -82,6 +84,8 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        checkCurrentLocaleInSystemSettings()
 
         setSystemBarsAppearanceAndBehavior()
         setNavigationBarAppearance()
@@ -436,10 +440,44 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkCurrentLocaleInSystemSettings() {
+        val currentLocale = AppCompatDelegate.getApplicationLocales()[0]
+        when (currentLocale?.language) {
+            Locale.forLanguageTag(SharedPreferencesProvider.LANGUAGE_RUSSIAN).language ->
+                viewModel.sharedPreferencesInteractor.setAppLanguage(SharedPreferencesProvider.LANGUAGE_RUSSIAN)
+
+            Locale.forLanguageTag(SharedPreferencesProvider.LANGUAGE_ENGLISH).language ->
+                viewModel.sharedPreferencesInteractor.setAppLanguage(SharedPreferencesProvider.LANGUAGE_ENGLISH)
+
+            null -> {
+                when (LocaleListCompat.getDefault()[0]!!.language) {
+                    Locale.forLanguageTag(SharedPreferencesProvider.LANGUAGE_RUSSIAN).language ->
+                        viewModel.sharedPreferencesInteractor.setAppLanguage(SharedPreferencesProvider.LANGUAGE_RUSSIAN)
+
+                    Locale.forLanguageTag(SharedPreferencesProvider.LANGUAGE_ENGLISH).language ->
+                        viewModel.sharedPreferencesInteractor.setAppLanguage(SharedPreferencesProvider.LANGUAGE_ENGLISH)
+                }
+            }
+        }
+        checkCurrentLocaleInAppSettings()
+    }
+
+    private fun checkCurrentLocaleInAppSettings() {
+        when (viewModel.sharedPreferencesInteractor.getAppLanguage()) {
+            SharedPreferencesProvider.LANGUAGE_RUSSIAN -> AppCompatDelegate.setApplicationLocales(
+                LocaleListCompat.forLanguageTags(SharedPreferencesProvider.LANGUAGE_RUSSIAN))
+
+            SharedPreferencesProvider.LANGUAGE_ENGLISH -> AppCompatDelegate.setApplicationLocales(
+                LocaleListCompat.forLanguageTags(SharedPreferencesProvider.LANGUAGE_ENGLISH)
+            )
+        }
+    }
+
     private fun registerSharedPreferencesChangeListener() {
         sharedPreferencesCallback = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            if (key == SharedPreferencesProvider.KEY_NIGHT_MODE) {
-                checkCurrentAppTheme()
+            when (key) {
+                SharedPreferencesProvider.KEY_NIGHT_MODE -> checkCurrentAppTheme()
+                SharedPreferencesProvider.KEY_LANGUAGE -> checkCurrentLocaleInAppSettings()
             }
         }
         viewModel.sharedPreferencesInteractor.addSharedPreferencesChangeListener(sharedPreferencesCallback!!)

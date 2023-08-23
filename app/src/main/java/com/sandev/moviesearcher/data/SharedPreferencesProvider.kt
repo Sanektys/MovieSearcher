@@ -112,5 +112,6 @@ class SharedPreferencesProvider(context: Context) {
 
         val LANGUAGE_RUSSIAN = App.instance.getString(R.string.shared_preferences_settings_value_language_russian)
         val LANGUAGE_ENGLISH = App.instance.getString(R.string.shared_preferences_settings_value_language_english)
+        val LANGUAGE_UNSPECIFIED = App.instance.getString(R.string.shared_preferences_settings_value_language_unspecified)
     }
 }
