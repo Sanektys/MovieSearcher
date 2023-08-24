@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.view.rv_adapters
 
+import android.content.SharedPreferences
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -7,24 +8,35 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.databinding.MovieCardBinding
 import com.sandev.moviesearcher.utils.rv_diffutils.MoviesListDiff
 import com.sandev.moviesearcher.view.rv_viewholders.MovieViewHolder
+import java.util.Collections
+import java.util.WeakHashMap
 
 
-class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
+class MoviesRecyclerAdapter(private var isDonutAnimationEnabled: Boolean)
+    : RecyclerView.Adapter<MovieViewHolder>() {
+
+    val sharedPreferencesCallback: SharedPreferences.OnSharedPreferenceChangeListener = initializeSharedPreferencesCallback()
 
     private val moviesList: MutableList<DatabaseMovie> = mutableListOf()
     private var clickListener: OnClickListener? = null
     var lastClickedMoviePosition = DEFAULT_NON_CLICKED_POSITION
         private set
 
-    companion object {
-        const val DEFAULT_NON_CLICKED_POSITION = -1
-    }
+    private val viewHolders = Collections.newSetFromMap(WeakHashMap<MovieViewHolder, Boolean>())
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        MovieViewHolder(MovieCardBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
+        val viewHolder = MovieViewHolder(MovieCardBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+
+        viewHolder.ratingDonut.isRatingAnimationEnabled = isDonutAnimationEnabled
+        viewHolders.add(viewHolder)
+
+        return viewHolder
+    }
 
     override fun getItemCount() = moviesList.size
 
@@ -99,5 +111,29 @@ class MoviesRecyclerAdapter : RecyclerView.Adapter<MovieViewHolder>() {
             notifyItemRemoved(lastClickedMoviePosition)
             lastClickedMoviePosition = DEFAULT_NON_CLICKED_POSITION
         }
+    }
+
+    private fun initializeSharedPreferencesCallback()
+            = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+        if (key == SharedPreferencesProvider.KEY_ENABLE_RATING_DONUT_SWITCH_BUTTON
+            || key == SharedPreferencesProvider.KEY_ENABLE_RATING_DONUT_ANIMATION) {
+
+            val isRatingDonutSwitchButtonEnabled = sharedPreferences.getBoolean(SharedPreferencesProvider.KEY_ENABLE_RATING_DONUT_SWITCH_BUTTON, false)
+            val isRatingDonutAnimationEnabled = sharedPreferences.getBoolean(SharedPreferencesProvider.KEY_ENABLE_RATING_DONUT_ANIMATION, false)
+            isDonutAnimationEnabled = isRatingDonutAnimationEnabled && isRatingDonutSwitchButtonEnabled
+
+            updateAnimationStateInItems()
+        }
+    }
+
+    private fun updateAnimationStateInItems() {
+        for (item in viewHolders) {
+            item.ratingDonut.isRatingAnimationEnabled = isDonutAnimationEnabled
+        }
+    }
+
+
+    companion object {
+        const val DEFAULT_NON_CLICKED_POSITION = -1
     }
 }

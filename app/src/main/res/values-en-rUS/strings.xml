@@ -11,17 +11,33 @@
     <string name="activity_main.press_back_for_exit_warning">Press \"back\" again for exit</string>
     <string name="activity_main.snackbar.message.failure_on_load_data">Error downloading, check internet connection</string>
     <string name="activity_main.snackbar.button.retry">Retry</string>
+    <string name="activity_main.toast.message.low_battery">Low battery, some animation disabled</string>
 
 
     <!-- Settings fragment -->
     <string name="settings_fragment.app_bar.search_bar.hint">Settings</string>
-    <string name="settings_fragment.radio_group.category.title">Selecting a movie category from the \"All Movies\" list</string>
+    <string name="settings_fragment.movie_category.title">Movie category in the \"All Movies\" list</string>
+    <string name="settings_fragment.movie_category.description">Current category: %s</string>
     <string name="settings_fragment.radio_group.category.top_rated">Top rated</string>
     <string name="settings_fragment.radio_group.category.popular">Popular</string>
     <string name="settings_fragment.radio_group.category.upcoming">Upcoming</string>
     <string name="settings_fragment.radio_group.category.playing">Playing</string>
     <string name="settings_fragment.splash_switch.title">Show splash screen</string>
     <string name="settings_fragment.splash_switch.description">Splash screen will be displayed each time in startup</string>
+    <string name="settings_fragment.rating_donut.title">Animate \"donuts\" with ratings</string>
+    <string name="settings_fragment.rating_donut.description">The rating bars will fill up in a short period of time</string>
+    <string name="settings_fragment.alert_dialog.action.cancel">Cancel</string>
+    <string name="settings_fragment.alert_dialog.category.title">Select category</string>
+    <string name="settings_fragment.alert_dialog.night_mode.title">Select theme</string>
+    <string name="settings_fragment.radio_group.night_mode.on">Dark</string>
+    <string name="settings_fragment.radio_group.night_mode.off">Light</string>
+    <string name="settings_fragment.radio_group.night_mode.default">Default (follow system)</string>
+    <string name="settings_fragment.night_mode.title">App theme</string>
+    <string name="settings_fragment.movies_settings_group.title">Movies cards</string>
+    <string name="settings_fragment.app_settings_group.title">Application</string>
+    <string name="settings_fragment.language.title">App language</string>
+    <string name="settings_fragment.alert_dialog.language.title">Select language</string>
+    <string name="settings_fragment.alert_dialog.language.description">The language will not change for saved or cached movie cards, only for newly downloaded ones from network</string>
 
 
     <!-- Details fragment -->

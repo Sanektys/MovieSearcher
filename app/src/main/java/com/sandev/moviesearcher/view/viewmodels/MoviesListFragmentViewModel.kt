@@ -4,18 +4,24 @@ import android.view.Gravity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.domain_api.local_database.entities.DatabaseMovie
+import com.sandev.moviesearcher.App
+import com.sandev.moviesearcher.domain.interactors.SharedPreferencesInteractor
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
+import javax.inject.Inject
 import kotlin.math.roundToInt
 
 
 abstract class MoviesListFragmentViewModel : ViewModel() {
+
+    @Inject
+    lateinit var sharedPreferencesInteractor: SharedPreferencesInteractor
 
     protected abstract val moviesList: MutableLiveData<List<DatabaseMovie>>
 
     abstract var lastSearch: String
         protected set
 
-    val recyclerAdapter: MoviesRecyclerAdapter = MoviesRecyclerAdapter()
+    val recyclerAdapter: MoviesRecyclerAdapter
 
     var isOffline: Boolean = false
         protected set
@@ -39,6 +45,19 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
             initializeRecyclerAdapterList()
         }
 
+
+    init {
+        App.instance.getAppComponent().inject(this)
+
+        recyclerAdapter = MoviesRecyclerAdapter(sharedPreferencesInteractor.isRatingDonutAnimationEnabled())
+
+        sharedPreferencesInteractor.addSharedPreferencesChangeListener(recyclerAdapter.sharedPreferencesCallback)
+    }
+
+
+    override fun onCleared() {
+        sharedPreferencesInteractor.removeSharedPreferencesChangeListener(recyclerAdapter.sharedPreferencesCallback)
+    }
 
     fun searchInSearchView(query: String) {
         if (query == lastSearch) return

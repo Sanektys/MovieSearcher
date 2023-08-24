@@ -2,23 +2,23 @@ package com.sandev.moviesearcher.view.fragments
 
 import android.animation.Animator
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.postDelayed
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.airbnb.lottie.LottieAnimationView
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.databinding.FragmentSplashScreenBinding
+import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.viewmodels.HomeFragmentViewModel
 import com.sandev.tmdb_feature.TmdbComponentViewModel
 
 
-class SplashScreenFragment : Fragment() {
+class SplashScreenFragment : Fragment(R.layout.fragment_splash_screen) {
+
+    private var binding: FragmentSplashScreenBinding? = null
 
     private val preloadViewModel: HomeFragmentViewModel by lazy {
         val tmdbComponent = ViewModelProvider(requireActivity())[TmdbComponentViewModel::class.java]
@@ -34,11 +34,9 @@ class SplashScreenFragment : Fragment() {
             private set
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_splash_screen, container, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        binding = FragmentSplashScreenBinding.bind(view)
+
         preloadViewModel
         if (!isSplashWasCreated) {
             initializeSplashScreen()
@@ -47,19 +45,29 @@ class SplashScreenFragment : Fragment() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+
+        binding?.splashAnimation?.cancelAnimation()
+    }
+
     private fun initializeSplashScreen() {
         requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bar).doOnPreDraw { bottomNavigation ->
             val navigationHeight = bottomNavigation.height.toFloat() / 2f
 
-            requireView().findViewById<LottieAnimationView>(R.id.splash_animation).let { lottie ->
+            binding?.splashAnimation?.let { lottie ->
                 lottie.translationY = navigationHeight
 
                 lottie.addAnimatorListener(object : Animator.AnimatorListener {
                     override fun onAnimationStart(animation: Animator) {}
-                    override fun onAnimationCancel(animation: Animator) {}
                     override fun onAnimationRepeat(animation: Animator) {}
 
+                    override fun onAnimationCancel(animation: Animator) {
+                        binding?.splashAnimation?.removeAllAnimatorListeners()
+                    }
+
                     override fun onAnimationEnd(animation: Animator) {
+                        isSplashWasCreated = true
                         (activity as MainActivity).startHomeFragment()
 
                         lottie.animate()
@@ -74,12 +82,11 @@ class SplashScreenFragment : Fragment() {
                     }
                 })
             }
-            isSplashWasCreated = true
         }
     }
 
     private fun initializeRemovingSplashScreen() {
-        requireView().findViewById<LottieAnimationView>(R.id.splash_animation).apply {
+        binding?.splashAnimation?.apply {
             cancelAnimation()
             alpha = 0f
             postDelayed(REMOVING_DELAY) {  // Если запускать удаление сразу, то ломается transition animation

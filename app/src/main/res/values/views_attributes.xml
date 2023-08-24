@@ -10,8 +10,19 @@
         <attr name="elements_shadow_color" format="color" />
     </declare-styleable>
 
-    <declare-styleable name="PreferenceSwitch">
+    <!-- Common attributes for setting button -->
+    <declare-styleable name="PreferenceButton">
         <attr name="preference_title" format="string" />
         <attr name="preference_description" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="PreferenceSwitch">
+        <attr name="preference_title" />
+        <attr name="preference_description" />
+    </declare-styleable>
+    
+    <declare-styleable name="PreferenceTextButton">
+        <attr name="preference_title" />
+        <attr name="preference_description" />
     </declare-styleable>
 </resources>

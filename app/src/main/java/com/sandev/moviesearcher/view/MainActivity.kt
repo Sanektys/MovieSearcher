@@ -1,8 +1,14 @@
 package com.sandev.moviesearcher.view
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Outline
+import android.os.BatteryManager
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -11,6 +17,8 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -26,6 +34,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.moviesearcher.R
+import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.databinding.ActivityMainBinding
 import com.sandev.moviesearcher.view.fragments.DetailsFragment
 import com.sandev.moviesearcher.view.fragments.FavoritesFragment
@@ -36,6 +45,7 @@ import com.sandev.moviesearcher.view.fragments.WatchLaterFragment
 import com.sandev.moviesearcher.view.viewmodels.MainActivityViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 
 class MainActivity : AppCompatActivity() {
@@ -54,28 +64,51 @@ class MainActivity : AppCompatActivity() {
     private var favoritesFragment = FavoritesFragment()
     private var watchLaterFragment = WatchLaterFragment()
 
+    private var broadcastReceiver = AppBroadcastReceiver()
+
     private val dummyOnBackPressed = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {}
     }
 
+    private var sharedPreferencesCallback: SharedPreferences.OnSharedPreferenceChangeListener? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (viewModel.isPrimaryInitializationPerformed.not()) {
+            checkCurrentAppTheme()
+            checkBatteryLevel()
+            viewModel.isPrimaryInitializationPerformed = true
+        }
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        checkCurrentLocaleInSystemSettings()
 
         setSystemBarsAppearanceAndBehavior()
         setNavigationBarAppearance()
         setOnBackPressedAction()
         menuButtonsInitial()
 
+        registerSharedPreferencesChangeListener()
+        registerBroadcastReceiver()
+
         if (supportFragmentManager.backStackEntryCount == 0) {
             startSplashScreen()
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+
+        removeSharedPreferencesChangeListener()
+        unregisterReceiver(broadcastReceiver)
+    }
+
     fun startHomeFragment(isSplashScreenEnabled: Boolean = true) {
-        if (!HomeFragment.isFragmentClassOnceCreated && isSplashScreenEnabled) {
+        if (isSplashScreenEnabled) {
             binding.navigationBar.run {
                 animate()
                 .setDuration(
@@ -110,12 +143,33 @@ class MainActivity : AppCompatActivity() {
             binding.navigationBar.doOnLayout { it.translationY = it.height.toFloat() }
             binding.navigationBar.menu.forEach { it.isEnabled = false }
 
-            supportFragmentManager
-                .beginTransaction()
-                .add(R.id.fragment, SplashScreenFragment())
-                .commit()
+            if (supportFragmentManager.fragments.find { it is SplashScreenFragment } == null) {
+                supportFragmentManager
+                    .beginTransaction()
+                    .add(R.id.fragment, SplashScreenFragment())
+                    .commit()
+            }
         } else {
             startHomeFragment(isSplashScreenEnabled)
+        }
+    }
+
+    private fun registerBroadcastReceiver() {
+        val filters = IntentFilter().apply {
+            addAction(Intent.ACTION_BATTERY_LOW)
+            addAction(Intent.ACTION_BATTERY_OKAY)
+        }
+        registerReceiver(broadcastReceiver, filters)
+    }
+
+    private fun checkBatteryLevel() {
+        val batteryManager = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
+        val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+
+        if (batteryLevel <= BATTERY_LOW_LEVEL) {
+            onBatteryLevelLow()
+        } else {
+            onBatteryLevelOkay()
         }
     }
 
@@ -362,6 +416,90 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun onBatteryLevelLow() {
+        viewModel.sharedPreferencesInteractor.setSplashScreenSwitchButtonState(false)
+        viewModel.sharedPreferencesInteractor.setRatingDonutSwitchButtonState(false)
+        Toast.makeText(this, getString(R.string.activity_main_toast_message_low_battery), Toast.LENGTH_LONG).show()
+    }
+
+    private fun onBatteryLevelOkay() {
+        viewModel.sharedPreferencesInteractor.setSplashScreenSwitchButtonState(true)
+        viewModel.sharedPreferencesInteractor.setRatingDonutSwitchButtonState(true)
+    }
+
+    private fun checkCurrentAppTheme() {
+        when (viewModel.sharedPreferencesInteractor.getAppTheme()) {
+            SharedPreferencesProvider.NIGHT_MODE_OFF ->
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+
+            SharedPreferencesProvider.NIGHT_MODE_ON ->
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+
+            SharedPreferencesProvider.NIGHT_MODE_DEFAULT ->
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        }
+    }
+
+    private fun checkCurrentLocaleInSystemSettings() {
+        val currentLocale = AppCompatDelegate.getApplicationLocales()[0]
+        when (currentLocale?.language) {
+            Locale.forLanguageTag(SharedPreferencesProvider.LANGUAGE_RUSSIAN).language ->
+                viewModel.sharedPreferencesInteractor.setAppLanguage(SharedPreferencesProvider.LANGUAGE_RUSSIAN)
+
+            Locale.forLanguageTag(SharedPreferencesProvider.LANGUAGE_ENGLISH).language ->
+                viewModel.sharedPreferencesInteractor.setAppLanguage(SharedPreferencesProvider.LANGUAGE_ENGLISH)
+
+            null -> {
+                when (LocaleListCompat.getDefault()[0]!!.language) {
+                    Locale.forLanguageTag(SharedPreferencesProvider.LANGUAGE_RUSSIAN).language ->
+                        viewModel.sharedPreferencesInteractor.setAppLanguage(SharedPreferencesProvider.LANGUAGE_RUSSIAN)
+
+                    Locale.forLanguageTag(SharedPreferencesProvider.LANGUAGE_ENGLISH).language ->
+                        viewModel.sharedPreferencesInteractor.setAppLanguage(SharedPreferencesProvider.LANGUAGE_ENGLISH)
+                }
+            }
+        }
+        checkCurrentLocaleInAppSettings()
+    }
+
+    private fun checkCurrentLocaleInAppSettings() {
+        when (viewModel.sharedPreferencesInteractor.getAppLanguage()) {
+            SharedPreferencesProvider.LANGUAGE_RUSSIAN -> AppCompatDelegate.setApplicationLocales(
+                LocaleListCompat.forLanguageTags(SharedPreferencesProvider.LANGUAGE_RUSSIAN))
+
+            SharedPreferencesProvider.LANGUAGE_ENGLISH -> AppCompatDelegate.setApplicationLocales(
+                LocaleListCompat.forLanguageTags(SharedPreferencesProvider.LANGUAGE_ENGLISH)
+            )
+        }
+    }
+
+    private fun registerSharedPreferencesChangeListener() {
+        sharedPreferencesCallback = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            when (key) {
+                SharedPreferencesProvider.KEY_NIGHT_MODE -> checkCurrentAppTheme()
+                SharedPreferencesProvider.KEY_LANGUAGE -> checkCurrentLocaleInAppSettings()
+            }
+        }
+        viewModel.sharedPreferencesInteractor.addSharedPreferencesChangeListener(sharedPreferencesCallback!!)
+    }
+
+    private fun removeSharedPreferencesChangeListener() {
+        viewModel.sharedPreferencesInteractor.removeSharedPreferencesChangeListener(
+            sharedPreferencesCallback ?: return
+        )
+    }
+
+
+    inner class AppBroadcastReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == Intent.ACTION_BATTERY_LOW) {
+                onBatteryLevelLow()
+            } else if (intent?.action == Intent.ACTION_BATTERY_OKAY) {
+                onBatteryLevelOkay()
+            }
+        }
+    }
+
 
     companion object {
         const val MOVIE_DATA_KEY = "MOVIE"
@@ -374,5 +512,6 @@ class MainActivity : AppCompatActivity() {
         private const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
         private const val ONE_FRAGMENT_IN_STACK = 1
         private const val LOOP_CYCLE_DELAY = 50L
+        private const val BATTERY_LOW_LEVEL = 15
     }
 }

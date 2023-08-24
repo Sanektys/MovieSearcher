@@ -11,17 +11,35 @@
     <string name="activity_main.press_back_for_exit_warning">Чтобы выйти, нажмите \"назад\" ещё раз</string>
     <string name="activity_main.snackbar.message.failure_on_load_data">Ошибка загрузки, проверьте интернет-соединение и/или VPN</string>
     <string name="activity_main.snackbar.button.retry">Повторить</string>
+    <string name="activity_main.toast.message.low_battery">Низкий заряд батареи, отключены некоторые анимации</string>
 
 
     <!-- Settings fragment -->
     <string name="settings_fragment.app_bar.search_bar.hint">Настройки</string>
-    <string name="settings_fragment.radio_group.category.title">Выбор категории фильмов в списке \"Все Фильмы\"</string>
+    <string name="settings_fragment.movie_category.title">Категория фильмов в списке \"Все Фильмы\"</string>
+    <string name="settings_fragment.movie_category.description">Текущая категория: %s</string>
     <string name="settings_fragment.radio_group.category.top_rated">С высоким рейтингом</string>
     <string name="settings_fragment.radio_group.category.popular">Популярное</string>
     <string name="settings_fragment.radio_group.category.upcoming">Скоро в прокате</string>
     <string name="settings_fragment.radio_group.category.playing">В прокате</string>
     <string name="settings_fragment.splash_switch.title">Показывать анимацию при запуске</string>
     <string name="settings_fragment.splash_switch.description">Анимация будет отображаться каждый раз при запуске приложения</string>
+    <string name="settings_fragment.rating_donut.title">Анимировать \"бублики\" с рейтингами</string>
+    <string name="settings_fragment.rating_donut.description">Полоски с рейтингами будут заполняться за короткий промежуток времени</string>
+    <string name="settings_fragment.alert_dialog.action.cancel">Отмена</string>
+    <string name="settings_fragment.alert_dialog.category.title">Выберите категорию</string>
+    <string name="settings_fragment.alert_dialog.night_mode.title">Выберите тему</string>
+    <string name="settings_fragment.radio_group.night_mode.on">Тёмная</string>
+    <string name="settings_fragment.radio_group.night_mode.off">Светлая</string>
+    <string name="settings_fragment.radio_group.night_mode.default">По умолчанию (как в системе)</string>
+    <string name="settings_fragment.night_mode.title">Тема приложения</string>
+    <string name="settings_fragment.movies_settings_group.title">Карточки фильмов</string>
+    <string name="settings_fragment.app_settings_group.title">Приложение</string>
+    <string name="settings_fragment.radio_group.language.russian" translatable="false">Русский</string>
+    <string name="settings_fragment.radio_group.language.english" translatable="false">English</string>
+    <string name="settings_fragment.language.title">Язык приложения</string>
+    <string name="settings_fragment.alert_dialog.language.title">Выберите язык</string>
+    <string name="settings_fragment.alert_dialog.language.description">Язык не поменяется у сохранённых или кэшированных карточек фильмов, только у вновь загруженных из сети</string>
 
 
     <!-- Details fragment -->
@@ -60,4 +78,15 @@
     <string name="shared_preferences.settings.value.category.upcoming" translatable="false">upcoming</string>
     <string name="shared_preferences.settings.value.category.now_playing" translatable="false">now_playing</string>
     <string name="shared_preferences.settings.key.show_splash_screen" translatable="false">show_splash</string>
+    <string name="shared_preferences.settings.key.enable_rating_donut_animation" translatable="false">enable_rating_donut_anim</string>
+    <string name="shared_preferences.settings.key.splash_screen_switch_button_enabled" translatable="false">splash_switcher_enabled</string>
+    <string name="shared_preferences.settings.key.rating_donut_switch_button_enabled" translatable="false">rating_donut_switcher_enabled</string>
+    <string name="shared_preferences.settings.key.night_mode" translatable="false">night_mode</string>
+    <string name="shared_preferences.settings.value.night_mode.on" translatable="false">night_on</string>
+    <string name="shared_preferences.settings.value.night_mode.off" translatable="false">night_off</string>
+    <string name="shared_preferences.settings.value.night_mode.default" translatable="false">night_default</string>
+    <string name="shared_preferences.settings.key.language" translatable="false">language</string>
+    <string name="shared_preferences.settings.value.language.russian" translatable="false">ru-RU</string>
+    <string name="shared_preferences.settings.value.language.english" translatable="false">en-US</string>
+    <string name="shared_preferences.settings.value.language.unspecified" translatable="false">language_unspecified</string>
 </resources>

@@ -1,14 +1,13 @@
 package com.sandev.moviesearcher.utils
 
 import android.content.DialogInterface
-import android.view.Gravity
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import com.sandev.moviesearcher.R
 
 
-fun AlertDialog.changeAppearanceToSamsungOneUI(): AlertDialog {
-    window?.setGravity(Gravity.BOTTOM)
+fun AlertDialog.changeAppearanceToSamsungOneUI(gravity: Int): AlertDialog {
+    window?.setGravity(gravity)
     window?.setBackgroundDrawableResource(R.drawable.alert_dialog_background)
 
     show()  // Без show() getButton выдаст null

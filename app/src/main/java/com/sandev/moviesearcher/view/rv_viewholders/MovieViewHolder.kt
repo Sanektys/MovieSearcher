@@ -11,10 +11,8 @@ import com.sandev.moviesearcher.databinding.MovieCardBinding
 
 class MovieViewHolder(private val binding: MovieCardBinding) : RecyclerView.ViewHolder(binding.root) {
     val poster = binding.movieCardPoster
+    val ratingDonut = binding.ratingDonut
 
-    companion object {
-        const val MOVIE_RATING_MULTIPLIER = 10
-    }
 
     fun onBind(databaseMovieData: DatabaseMovie, position: Int) {
         if (databaseMovieData.poster != null) {
@@ -33,5 +31,10 @@ class MovieViewHolder(private val binding: MovieCardBinding) : RecyclerView.View
         binding.movieCardMovieTitle.text = databaseMovieData.title
         binding.movieCardMovieDescription.text = databaseMovieData.description
         binding.ratingDonut.setProgress((databaseMovieData.rating * MOVIE_RATING_MULTIPLIER).toInt())
+    }
+
+
+    companion object {
+        const val MOVIE_RATING_MULTIPLIER = 10
     }
 }

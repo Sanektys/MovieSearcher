@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/view_switch_preference_switch"
-        android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
         tools:text="Settings title" />
 
     <com.google.android.material.textview.MaterialTextView

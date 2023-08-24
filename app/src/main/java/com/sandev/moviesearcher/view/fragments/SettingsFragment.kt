@@ -7,18 +7,22 @@ import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.view.Gravity
 import android.view.View
 import android.view.ViewOutlineProvider
+import android.widget.CheckedTextView
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.doOnAttach
+import androidx.core.view.doOnNextLayout
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.databinding.FragmentSettingsBinding
+import com.sandev.moviesearcher.utils.changeAppearanceToSamsungOneUI
 import com.sandev.moviesearcher.view.viewmodels.SettingsFragmentViewModel
 
 
@@ -39,6 +43,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     private var vibrator: Vibrator? = null
     private var isSettingsScreenRevealed = false
     private var isSplashScreenSwitchInitialized = false
+    private var isRatingDonutSwitchInitialized = false
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -49,10 +54,14 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         setAppBarAppearance()
         setSearchBarAppearance()
         setNestedScrollAppearance()
-        initializeCategoryRadioGroup()
-        initializeSplashScreenSwitch()
 
-        view.doOnAttach {
+        initializeCategoryButton()
+        initializeAppThemeButton()
+        initializeAppLanguageButton()
+        initializeSplashScreenSwitch()
+        initializeRatingDonutSwitch()
+
+        view.doOnNextLayout {
             requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressed)
         }
     }
@@ -68,22 +77,172 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
     private fun destroy() = (parentFragment as MoviesListFragment).destroySettingsFragment()
 
-    private fun initializeCategoryRadioGroup() {
-        viewModel.getCategoryProperty.observe(viewLifecycleOwner) { currentCategory ->
-            when (currentCategory) {
-                SharedPreferencesProvider.CATEGORY_TOP      -> binding.categoryRadioGroup.check(R.id.RadioButtonTopRated)
-                SharedPreferencesProvider.CATEGORY_POPULAR  -> binding.categoryRadioGroup.check(R.id.RadioButtonPopular)
-                SharedPreferencesProvider.CATEGORY_UPCOMING -> binding.categoryRadioGroup.check(R.id.RadioButtonUpcoming)
-                SharedPreferencesProvider.CATEGORY_PLAYING  -> binding.categoryRadioGroup.check(R.id.RadioButtonNowPlaying)
-            }
+    private fun initializeCategoryButton() {
+        val roundButtons = arrayOf(
+            getString(R.string.settings_fragment_radio_group_category_popular),
+            getString(R.string.settings_fragment_radio_group_category_top_rated),
+            getString(R.string.settings_fragment_radio_group_category_upcoming),
+            getString(R.string.settings_fragment_radio_group_category_playing)
+        )
+
+        binding.categoryButton.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.settings_fragment_alert_dialog_category_title)
+                .setSingleChoiceItems(
+                    roundButtons,
+                    when (viewModel.getCategoryProperty.value) {
+                        SharedPreferencesProvider.CATEGORY_POPULAR  -> RADIO_BUTTON_CATEGORY_POPULAR
+                        SharedPreferencesProvider.CATEGORY_TOP      -> RADIO_BUTTON_CATEGORY_TOP
+                        SharedPreferencesProvider.CATEGORY_UPCOMING -> RADIO_BUTTON_CATEGORY_UPCOMING
+                        SharedPreferencesProvider.CATEGORY_PLAYING  -> RADIO_BUTTON_CATEGORY_PLAYING
+                        else -> return@setOnClickListener
+                    }
+                ) { dialogInterface, which ->
+                    when (which) {
+                        RADIO_BUTTON_CATEGORY_POPULAR -> viewModel.putCategoryProperty(
+                            SharedPreferencesProvider.CATEGORY_POPULAR
+                        )
+                        RADIO_BUTTON_CATEGORY_TOP -> viewModel.putCategoryProperty(
+                            SharedPreferencesProvider.CATEGORY_TOP
+                        )
+                        RADIO_BUTTON_CATEGORY_UPCOMING -> viewModel.putCategoryProperty(
+                            SharedPreferencesProvider.CATEGORY_UPCOMING
+                        )
+                        RADIO_BUTTON_CATEGORY_PLAYING -> viewModel.putCategoryProperty(
+                            SharedPreferencesProvider.CATEGORY_PLAYING
+                        )
+                    }
+                    dialogInterface.dismiss()
+                }
+                .setNegativeButton(R.string.settings_fragment_alert_dialog_action_cancel, null)
+                .create()
+                .changeAppearanceToSamsungOneUI(Gravity.CENTER)
+                .show()
         }
 
-        binding.categoryRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            when (checkedId) {
-                R.id.RadioButtonTopRated   -> viewModel.putCategoryProperty(SharedPreferencesProvider.CATEGORY_TOP)
-                R.id.RadioButtonPopular    -> viewModel.putCategoryProperty(SharedPreferencesProvider.CATEGORY_POPULAR)
-                R.id.RadioButtonUpcoming   -> viewModel.putCategoryProperty(SharedPreferencesProvider.CATEGORY_UPCOMING)
-                R.id.RadioButtonNowPlaying -> viewModel.putCategoryProperty(SharedPreferencesProvider.CATEGORY_PLAYING)
+        viewModel.getCategoryProperty.observe(viewLifecycleOwner) { newlySetCategory ->
+            when (newlySetCategory) {
+                SharedPreferencesProvider.CATEGORY_POPULAR  -> binding.categoryButton.description.text =
+                    getString(R.string.settings_fragment_movie_category_description,
+                        getString(R.string.settings_fragment_radio_group_category_popular))
+
+                SharedPreferencesProvider.CATEGORY_TOP      -> binding.categoryButton.description.text =
+                    getString(R.string.settings_fragment_movie_category_description,
+                        getString(R.string.settings_fragment_radio_group_category_top_rated))
+
+                SharedPreferencesProvider.CATEGORY_UPCOMING -> binding.categoryButton.description.text =
+                    getString(R.string.settings_fragment_movie_category_description,
+                        getString(R.string.settings_fragment_radio_group_category_upcoming))
+
+                SharedPreferencesProvider.CATEGORY_PLAYING  -> binding.categoryButton.description.text =
+                    getString(R.string.settings_fragment_movie_category_description,
+                        getString(R.string.settings_fragment_radio_group_category_playing))
+            }
+        }
+    }
+
+    private fun initializeAppThemeButton() {
+        val radioButtons = arrayOf(
+            getString(R.string.settings_fragment_radio_group_night_mode_off),
+            getString(R.string.settings_fragment_radio_group_night_mode_on),
+            getString(R.string.settings_fragment_radio_group_night_mode_default)
+        )
+
+        binding.appThemeButton.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.settings_fragment_alert_dialog_night_mode_title)
+                .setSingleChoiceItems(
+                    radioButtons,
+                    when (viewModel.getAppTheme.value) {
+                        SharedPreferencesProvider.NIGHT_MODE_OFF     -> RADIO_BUTTON_NIGHT_MODE_OFF
+                        SharedPreferencesProvider.NIGHT_MODE_ON      -> RADIO_BUTTON_NIGHT_MODE_ON
+                        SharedPreferencesProvider.NIGHT_MODE_DEFAULT -> RADIO_BUTTON_NIGHT_MODE_DEFAULT
+                        else -> return@setOnClickListener
+                    }
+                ) { dialogInterface, which ->
+                    when (which) {
+                        RADIO_BUTTON_NIGHT_MODE_OFF -> viewModel.setAppTheme(
+                            SharedPreferencesProvider.NIGHT_MODE_OFF
+                        )
+
+                        RADIO_BUTTON_NIGHT_MODE_ON -> viewModel.setAppTheme(
+                            SharedPreferencesProvider.NIGHT_MODE_ON
+                        )
+
+                        RADIO_BUTTON_NIGHT_MODE_DEFAULT -> viewModel.setAppTheme(
+                            SharedPreferencesProvider.NIGHT_MODE_DEFAULT
+                        )
+                    }
+                    dialogInterface.dismiss()
+                }
+                .setNegativeButton(R.string.settings_fragment_alert_dialog_action_cancel, null)
+                .create()
+                .changeAppearanceToSamsungOneUI(Gravity.CENTER)
+                .show()
+        }
+
+        viewModel.getAppTheme.observe(viewLifecycleOwner) { newlySetTheme ->
+            when (newlySetTheme) {
+                SharedPreferencesProvider.NIGHT_MODE_OFF     -> binding.appThemeButton.description.text =
+                    getString(R.string.settings_fragment_radio_group_night_mode_off)
+
+                SharedPreferencesProvider.NIGHT_MODE_ON      -> binding.appThemeButton.description.text =
+                    getString(R.string.settings_fragment_radio_group_night_mode_on)
+
+                SharedPreferencesProvider.NIGHT_MODE_DEFAULT -> binding.appThemeButton.description.text =
+                    getString(R.string.settings_fragment_radio_group_night_mode_default)
+            }
+        }
+    }
+
+    private fun initializeAppLanguageButton() {
+        binding.appLanguageButton.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.settings_fragment_alert_dialog_language_title)
+                .setMessage(R.string.settings_fragment_alert_dialog_language_description)
+                .setView(R.layout.alert_dialog_content_for_app_language)
+                .setNegativeButton(R.string.settings_fragment_alert_dialog_action_cancel) { dialogInterface, _ ->
+                    dialogInterface.dismiss()
+                }
+                .create()
+                .changeAppearanceToSamsungOneUI(Gravity.CENTER)
+                .apply {
+                    val russianLanguageRadioButton = findViewById<CheckedTextView>(R.id.radioButtonLanguageRussian)
+                    val englishLanguageRadioButton = findViewById<CheckedTextView>(R.id.radioButtonLanguageEnglish)
+
+                    viewModel.getAppLanguage.observe(this) { newlySetLanguage ->
+                        when (newlySetLanguage) {
+                            SharedPreferencesProvider.LANGUAGE_RUSSIAN -> {
+                                russianLanguageRadioButton?.isChecked = true
+                                englishLanguageRadioButton?.isChecked = false
+                                dismiss()
+                            }
+
+                            SharedPreferencesProvider.LANGUAGE_ENGLISH -> {
+                                englishLanguageRadioButton?.isChecked = true
+                                russianLanguageRadioButton?.isChecked = false
+                                dismiss()
+                            }
+                        }
+                    }
+
+                    russianLanguageRadioButton?.setOnClickListener {
+                        viewModel.setAppLanguage(SharedPreferencesProvider.LANGUAGE_RUSSIAN)
+                    }
+                    englishLanguageRadioButton?.setOnClickListener {
+                        viewModel.setAppLanguage(SharedPreferencesProvider.LANGUAGE_ENGLISH)
+                    }
+                }
+                .show()
+        }
+
+        viewModel.getAppLanguage.observe(viewLifecycleOwner) { newlySetLanguage ->
+            when (newlySetLanguage) {
+                SharedPreferencesProvider.LANGUAGE_RUSSIAN -> binding.appLanguageButton.description.text =
+                    getString(R.string.settings_fragment_radio_group_language_russian)
+
+                SharedPreferencesProvider.LANGUAGE_ENGLISH -> binding.appLanguageButton.description.text =
+                    getString(R.string.settings_fragment_radio_group_language_english)
             }
         }
     }
@@ -107,6 +266,37 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         binding.splashScreenSwitch.setOnClickListener {
             viewModel.setSplashScreenEnabling(!binding.splashScreenSwitch.switch.isChecked)
+        }
+
+        viewModel.getSplashScreenButtonState.observe(viewLifecycleOwner) { isButtonEnabled ->
+            binding.splashScreenSwitch.isEnabled = isButtonEnabled
+            binding.splashScreenSwitch.switch.isEnabled = isButtonEnabled
+        }
+    }
+
+    private fun initializeRatingDonutSwitch() {
+        viewModel.getRatingDonutAnimationState.observe(viewLifecycleOwner) { isRatingDonutAnimationEnabled ->
+            if (isRatingDonutSwitchInitialized) {
+                binding.ratingDonutSwitch.switch.isChecked = isRatingDonutAnimationEnabled
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator?.vibrate(VibrationEffect.createOneShot(SWITCH_VIBRATION_LENGTH, VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    vibrator?.vibrate(SWITCH_VIBRATION_LENGTH)
+                }
+            } else {
+                binding.ratingDonutSwitch.switch.isChecked = isRatingDonutAnimationEnabled
+                binding.ratingDonutSwitch.switch.jumpDrawablesToCurrentState()
+                isRatingDonutSwitchInitialized = true
+            }
+        }
+
+        binding.ratingDonutSwitch.setOnClickListener {
+            viewModel.setRatingDonutAnimationState(!binding.ratingDonutSwitch.switch.isChecked)
+        }
+
+        viewModel.getRatingDonutButtonState.observe(viewLifecycleOwner) { isButtonEnabled ->
+            binding.ratingDonutSwitch.isEnabled = isButtonEnabled
+            binding.ratingDonutSwitch.switch.isEnabled = isButtonEnabled
         }
     }
 
@@ -147,6 +337,15 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
 
     companion object {
-        const val SWITCH_VIBRATION_LENGTH = 50L
+        private const val SWITCH_VIBRATION_LENGTH = 50L
+
+        private const val RADIO_BUTTON_CATEGORY_POPULAR  = 0
+        private const val RADIO_BUTTON_CATEGORY_TOP      = 1
+        private const val RADIO_BUTTON_CATEGORY_UPCOMING = 2
+        private const val RADIO_BUTTON_CATEGORY_PLAYING  = 3
+
+        private const val RADIO_BUTTON_NIGHT_MODE_OFF = 0
+        private const val RADIO_BUTTON_NIGHT_MODE_ON  = 1
+        private const val RADIO_BUTTON_NIGHT_MODE_DEFAULT = 2
     }
 }
