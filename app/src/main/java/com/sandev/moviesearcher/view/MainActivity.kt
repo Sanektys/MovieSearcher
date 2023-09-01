@@ -166,10 +166,33 @@ class MainActivity : AppCompatActivity() {
         val batteryManager = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
         val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
 
-        if (batteryLevel <= BATTERY_LOW_LEVEL) {
-            onBatteryLevelLow()
+        if (batteryLevel == 0 || batteryLevel == Integer.MIN_VALUE) {
+            // Альтернативный вариант получения уровня заряда, если код выше не сработал. НО работает "асинхронно", splashscreen уже отработает к моменту получения
+            val batteryLevelReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent) {
+                    unregisterReceiver(this)
+
+                    val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0)
+                    val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 0)
+                    if (level > 0 && scale > 0) {
+                        if (level * BATTERY_MAX_LEVEL / scale <= BATTERY_LOW_LEVEL) {
+                            onBatteryLevelLow()
+                        } else {
+                            onBatteryLevelOkay()
+                        }
+                    }
+                }
+            }
+
+            IntentFilter(Intent.ACTION_BATTERY_CHANGED).also {
+                registerReceiver(batteryLevelReceiver, it)
+            }
         } else {
-            onBatteryLevelOkay()
+            if (batteryLevel <= BATTERY_LOW_LEVEL) {
+                onBatteryLevelLow()
+            } else {
+                onBatteryLevelOkay()
+            }
         }
     }
 
@@ -513,5 +536,6 @@ class MainActivity : AppCompatActivity() {
         private const val ONE_FRAGMENT_IN_STACK = 1
         private const val LOOP_CYCLE_DELAY = 50L
         private const val BATTERY_LOW_LEVEL = 15
+        private const val BATTERY_MAX_LEVEL = 100
     }
 }
