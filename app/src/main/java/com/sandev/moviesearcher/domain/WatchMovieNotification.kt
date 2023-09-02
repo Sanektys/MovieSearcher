@@ -37,7 +37,7 @@ class WatchMovieNotification(private val context: Context) {
                 .setContentText(context.getString(R.string.notification_watch_movie_description, movie.title))
                 .setStyle(Notification.BigTextStyle().bigText(context.getString(R.string.notification_watch_movie_description, movie.title)))
                 .setSmallIcon(R.drawable.movie_searcher_action_icon)
-                .setColor(context.getColor(R.color.md_theme_primaryContainer))
+                .setColor(context.getColor(R.color.md_theme_primary))
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
         } else {
@@ -46,7 +46,7 @@ class WatchMovieNotification(private val context: Context) {
                 .setContentText(context.getString(R.string.notification_watch_movie_description, movie.title))
                 .setStyle(Notification.BigTextStyle().bigText(context.getString(R.string.notification_watch_movie_description, movie.title)))
                 .setSmallIcon(R.drawable.movie_searcher_action_icon)
-                .setColor(context.getColor(R.color.md_theme_primaryContainer))
+                .setColor(context.getColor(R.color.md_theme_primary))
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .setPriority(Notification.PRIORITY_LOW)
