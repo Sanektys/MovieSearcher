@@ -51,6 +51,7 @@
     <string name="details_fragment.alert_dialog.title">Select the action:</string>
     <string name="details_fragment.alert_dialog.action.sharing">Share this movie</string>
     <string name="details_fragment.alert_dialog.action.download_poster">Download the movie poster</string>
+    <string name="details_fragment.alert_dialog.action.create_notification">Create a movie watch notification</string>
     <string name="details_fragment.alert_dialog.action.cancel">Cancel</string>
     <string name="details_fragment.poster_download.success">Poster successfully uploaded to the gallery</string>
     <string name="details_fragment.poster_download.success.action">Open gallery</string>
@@ -63,4 +64,11 @@
 
     <!-- Watch later fragment -->
     <string name="watch_later_fragment.top_app_bar.search_bar.hint">Search a movie from watch later</string>
+
+
+    <!-- Notification "watch movie" -->
+    <string name="notification.watch_movie.channel.name">Watch movie</string>
+    <string name="notification.watch_movie.channel.description">Reminder of what movie you wanted to watch</string>
+    <string name="notification.watch_movie.title">Reminder about movie</string>
+    <string name="notification.watch_movie.description">You wanted to watch this movie 🎬: %s</string>
 </resources>

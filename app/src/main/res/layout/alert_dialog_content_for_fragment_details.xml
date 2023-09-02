@@ -4,14 +4,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/alert_dialog.content.list_item.margin_vertical">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/alert_dialog.create_notification_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/alert_dialog.content.list_item.padding_horizontal"
+        style="@style/Widget.Material3.Button.TextButton.Icon"
+        android:text="@string/details_fragment.alert_dialog.action.create_notification"
+        android:textColor="?attr/colorOnPrimaryContainer"
+        android:textAlignment="viewStart"
+        app:icon="@drawable/outline_notification_add"
+        app:iconPadding="@dimen/alert_dialog.content.list_item.text.margin_start"
+        app:iconSize="@dimen/alert_dialog.content.list_item.icon_size" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/alert_dialog.share_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="@dimen/alert_dialog.content.list_item.padding_horizontal"
-        android:layout_marginTop="@dimen/alert_dialog.content.list_item.margin_vertical"
         style="@style/Widget.Material3.Button.TextButton.Icon"
         android:text="@string/details_fragment.alert_dialog.action.sharing"
         android:textColor="?attr/colorOnPrimaryContainer"

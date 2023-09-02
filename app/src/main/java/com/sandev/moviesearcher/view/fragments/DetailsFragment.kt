@@ -464,6 +464,11 @@ class DetailsFragment : Fragment() {
     }
 
     private fun initializeDialogButtons(alertDialog: AlertDialog) {
+        alertDialog.findViewById<Button>(R.id.alert_dialog_create_notification_button)?.setOnClickListener {
+            viewModel.watchMovieNotification.notify(viewModel.movie)
+
+            menuFabDialog?.dismiss()
+        }
         alertDialog.findViewById<Button>(R.id.alert_dialog_share_button)?.setOnClickListener {
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "text/plain"
