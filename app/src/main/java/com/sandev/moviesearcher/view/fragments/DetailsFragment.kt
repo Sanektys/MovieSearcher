@@ -20,6 +20,7 @@ import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.animation.DecelerateInterpolator
 import android.widget.Button
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -85,6 +86,8 @@ class DetailsFragment : Fragment() {
     private var posterDownloadDisposable: Disposable? = null
 
     private val disposableContainer = CompositeDisposable()
+
+    private val requestNotificationPermissionActivity = registerRequestNotificationPermissionActivity()
 
 
     override fun onAttach(context: Context) {
@@ -465,9 +468,14 @@ class DetailsFragment : Fragment() {
 
     private fun initializeDialogButtons(alertDialog: AlertDialog) {
         alertDialog.findViewById<Button>(R.id.alert_dialog_create_notification_button)?.setOnClickListener {
-            viewModel.watchMovieNotification.notify(viewModel.movie)
-
             menuFabDialog?.dismiss()
+
+            if (checkNotificationPermission().not()) {
+                requestNotificationPermission()
+                return@setOnClickListener
+            }
+
+            viewModel.watchMovieNotification.notify(viewModel.movie)
         }
         alertDialog.findViewById<Button>(R.id.alert_dialog_share_button)?.setOnClickListener {
             val intent = Intent(Intent.ACTION_SEND)
@@ -506,6 +514,30 @@ class DetailsFragment : Fragment() {
             arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
             EXTERNAL_WRITE_PERMISSION_REQUEST_CODE
         )
+    }
+
+    private fun checkNotificationPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val permission = ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+            permission == PackageManager.PERMISSION_GRANTED
+        } else true
+    }
+
+    private fun registerRequestNotificationPermissionActivity() = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isNotificationGranted ->
+        if (isNotificationGranted) {
+            viewModel.watchMovieNotification.notify(viewModel.movie)
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestNotificationPermissionActivity.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 
     private fun saveToGallery(bitmap: Bitmap) {
