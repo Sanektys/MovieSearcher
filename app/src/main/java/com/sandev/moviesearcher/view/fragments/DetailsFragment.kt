@@ -14,8 +14,6 @@ import android.provider.MediaStore
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.animation.DecelerateInterpolator
@@ -28,7 +26,6 @@ import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnPreDraw
-import androidx.core.view.forEach
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
@@ -50,8 +47,8 @@ import com.bumptech.glide.request.target.Target
 import com.example.domain.constants.TmdbCommonConstants
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.sandev.cached_movies_feature.favorite_movies.FavoriteMoviesComponentViewModel
 import com.sandev.cached_movies_feature.watch_later_movies.WatchLaterMoviesComponentViewModel
@@ -118,6 +115,7 @@ class DetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         viewModel._movie = arguments?.getParcelable<DatabaseMovie>(MainActivity.MOVIE_DATA_KEY)!!
+        viewModel.isFragmentSeparate = arguments?.getBoolean(KEY_SEPARATE_DETAILS_FRAGMENT) ?: false
 
         viewModel.fragmentThatLaunchedDetails = savedInstanceState
             ?.getString(FRAGMENT_LAUNCHED_KEY) ?: (activity as MainActivity).previousFragmentName
@@ -125,7 +123,6 @@ class DetailsFragment : Fragment() {
         initializeContent()
         setToolbarBackButton()
         setFloatButtonOnClick()
-        setFloatButtonsState()
 
         if (savedInstanceState != null) {
             binding.fabToFavorite.isSelected = savedInstanceState.getBoolean(
@@ -136,27 +133,26 @@ class DetailsFragment : Fragment() {
                 WATCH_LATER_BUTTON_SELECTED_KEY
             )
             binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
+        } else {
+            setFloatButtonsState()
         }
 
         setTransitionAnimation()
         prepareMenuFabDialog()
         binding.fabDialogMenuProgressIndicator.hide()
-
-        activity?.findViewById<BottomNavigationView>(R.id.navigation_bar)?.run {
-            animate()  // Убрать нижний navigation view
-                .translationY(height.toFloat())
-                .setDuration(resources.getInteger(R.integer.activity_main_animations_durations_poster_transition).toLong())
-                .withStartAction { menu.forEach { it.isEnabled = false } }
-                .withEndAction { visibility = GONE }
-                .start()
-        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString(FRAGMENT_LAUNCHED_KEY, viewModel.fragmentThatLaunchedDetails)
-        outState.putBoolean(FAVORITE_BUTTON_SELECTED_KEY, binding.fabToFavorite.isSelected)
-        outState.putBoolean(WATCH_LATER_BUTTON_SELECTED_KEY, binding.fabToWatchLater.isSelected)
+//        outState.putString(FRAGMENT_LAUNCHED_KEY, viewModel.fragmentThatLaunchedDetails)
+//        outState.putBoolean(
+//            FAVORITE_BUTTON_SELECTED_KEY,
+//            activity?.findViewById<FloatingActionButton>(R.id.fab_to_favorite)?.isSelected ?: false
+//        )
+//        outState.putBoolean(
+//            WATCH_LATER_BUTTON_SELECTED_KEY,
+//            activity?.findViewById<FloatingActionButton>(R.id.fab_to_watch_later)?.isSelected ?: false
+//        )
     }
 
     override fun onStop() {
@@ -167,16 +163,6 @@ class DetailsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         if (!viewModel.isConfigurationChanged) {
-            activity?.findViewById<BottomNavigationView>(R.id.navigation_bar)?.run {
-                animate()
-                    .translationY(0f)
-                    .setDuration(
-                        resources.getInteger(R.integer.activity_main_animations_durations_poster_transition)
-                            .toLong()
-                    )
-                    .withStartAction { visibility = VISIBLE; menu.forEach { it.isEnabled = true } }
-                    .start()
-            }
             // Принятие решения о добавлении/удалении фильма в избранном
             changeFavoriteMoviesList()
             changeWatchLaterMoviesList()
@@ -207,9 +193,11 @@ class DetailsFragment : Fragment() {
             if (existedFavoriteDatabaseMovie != null) {
                 viewModel.isFavoriteMovie = true
                 binding.fabToFavorite.isSelected = true
+                viewModel.isFavoriteButtonSelected = true
             } else {
                 viewModel.isFavoriteMovie = false
                 binding.fabToFavorite.isSelected = false
+                viewModel.isFavoriteButtonSelected = false
             }
             binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
         }
@@ -224,9 +212,11 @@ class DetailsFragment : Fragment() {
             if (existedWatchLaterDatabaseMovie != null) {
                 viewModel.isWatchLaterMovie = true
                 binding.fabToWatchLater.isSelected = true
+                viewModel.isWatchLaterButtonSelected = true
             } else {
                 viewModel.isWatchLaterMovie = false
                 binding.fabToWatchLater.isSelected = false
+                viewModel.isWatchLaterButtonSelected = false
             }
             binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
         }
@@ -630,6 +620,8 @@ class DetailsFragment : Fragment() {
 
     companion object {
         const val EXTERNAL_WRITE_PERMISSION_REQUEST_CODE = 20
+
+        const val KEY_SEPARATE_DETAILS_FRAGMENT = "SEPARATE_DETAILS_FRAGMENT"
 
         private const val FRAGMENT_LAUNCHED_KEY = "FRAGMENT_LAUNCHED"
         private const val FAVORITE_BUTTON_SELECTED_KEY = "FAVORITE_BUTTON_SELECTED"

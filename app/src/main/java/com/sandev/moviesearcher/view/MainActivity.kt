@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewOutlineProvider
+import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -24,6 +25,8 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.doOnLayout
+import androidx.core.view.doOnNextLayout
+import androidx.core.view.doOnPreDraw
 import androidx.core.view.forEach
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
@@ -41,6 +44,7 @@ import com.sandev.moviesearcher.view.fragments.DetailsFragment
 import com.sandev.moviesearcher.view.fragments.FavoritesFragment
 import com.sandev.moviesearcher.view.fragments.HomeFragment
 import com.sandev.moviesearcher.view.fragments.MoviesListFragment
+import com.sandev.moviesearcher.view.fragments.SettingsFragment
 import com.sandev.moviesearcher.view.fragments.SplashScreenFragment
 import com.sandev.moviesearcher.view.fragments.WatchLaterFragment
 import com.sandev.moviesearcher.view.viewmodels.MainActivityViewModel
@@ -96,6 +100,8 @@ class MainActivity : AppCompatActivity() {
         registerSharedPreferencesChangeListener()
         registerBroadcastReceiver()
 
+        initializeFragmentsCallbacks()
+
         if (supportFragmentManager.backStackEntryCount == 0) {
             startSplashScreen()
         }
@@ -119,21 +125,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun startHomeFragment(isSplashScreenEnabled: Boolean = true) {
-        if (isSplashScreenEnabled) {
-            binding.navigationBar.run {
-                animate()
-                .setDuration(
-                    resources.getInteger(
-                        R.integer.activity_main_animations_durations_first_appearance_navigation_bar
-                    ).toLong()
-                )
-                .translationY(0f)
-                .setInterpolator(DecelerateInterpolator())
-                .withEndAction { binding.navigationBar.menu.forEach { it.isEnabled = true } }
-                .start()
-            }
-        }
+    fun startHomeFragment() {
         supportFragmentManager
             .beginTransaction()
             .add(R.id.fragment, homeFragment)
@@ -152,9 +144,6 @@ class MainActivity : AppCompatActivity() {
         val isSplashScreenEnabled = viewModel.isSplashScreenEnabled()
 
         if (!SplashScreenFragment.isSplashWasCreated && isSplashScreenEnabled) {
-            binding.navigationBar.doOnLayout { it.translationY = it.height.toFloat() }
-            binding.navigationBar.menu.forEach { it.isEnabled = false }
-
             if (supportFragmentManager.fragments.find { it is SplashScreenFragment } == null) {
                 supportFragmentManager
                     .beginTransaction()
@@ -162,7 +151,7 @@ class MainActivity : AppCompatActivity() {
                     .commit()
             }
         } else {
-            startHomeFragment(isSplashScreenEnabled)
+            startHomeFragment()
         }
     }
 
@@ -320,6 +309,7 @@ class MainActivity : AppCompatActivity() {
     private fun startDetailsFragment(databaseMovie: DatabaseMovie) {
         val bundle = Bundle().also {
             it.putParcelable(MOVIE_DATA_KEY, databaseMovie)
+            it.putBoolean(DetailsFragment.KEY_SEPARATE_DETAILS_FRAGMENT, true)
         }
         val detailsFragment = DetailsFragment().apply {
             arguments = bundle
@@ -538,6 +528,99 @@ class MainActivity : AppCompatActivity() {
         viewModel.sharedPreferencesInteractor.removeSharedPreferencesChangeListener(
             sharedPreferencesCallback ?: return
         )
+    }
+
+    private fun initializeFragmentsCallbacks() {
+        supportFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentLifecycleCallbacks() {
+            override fun onFragmentViewCreated(
+                fm: FragmentManager,
+                fragment: Fragment,
+                v: View,
+                savedInstanceState: Bundle?
+            ) {
+                when (fragment) {
+                    is SplashScreenFragment -> {
+                        binding.navigationBar.run {
+                            doOnNextLayout { it.translationY = it.height.toFloat() }
+                            menu.forEach { it.isEnabled = false }
+                        }
+                    }
+                    is HomeFragment -> {
+                        if (viewModel.isSplashScreenEnabled()) {
+                            binding.navigationBar.run {
+                                animate()
+                                    .translationY(0f)
+                                    .setDuration(
+                                        if (HomeFragment.isFragmentClassOnceCreated) {
+                                            resources.getInteger(
+                                                R.integer.activity_main_animations_durations_poster_transition
+                                            ).toLong()
+                                        } else {
+                                            resources.getInteger(
+                                                R.integer.activity_main_animations_durations_first_appearance_navigation_bar
+                                            ).toLong()
+                                        }
+                                    )
+                                    .setInterpolator(DecelerateInterpolator())
+                                    .withStartAction {
+                                        visibility = View.VISIBLE
+                                        menu.forEach { it.isEnabled = true }
+                                    }
+                                    .start()
+                            }
+                        }
+                    }
+                    is MoviesListFragment -> {
+                        binding.navigationBar.run {
+                            animate()
+                                .translationY(0f)
+                                .setDuration(
+                                    resources.getInteger(
+                                        R.integer.activity_main_animations_durations_poster_transition
+                                    ).toLong()
+                                )
+                                .setInterpolator(DecelerateInterpolator())
+                                .withStartAction {
+                                    visibility = View.VISIBLE
+                                    menu.forEach { it.isEnabled = true }
+                                }
+                                .start()
+                        }
+                    }
+                    is DetailsFragment -> {
+                        binding.navigationBar.run {
+                            animate()  // Убрать нижний navigation view
+                                .translationY(height.toFloat())
+                                .setDuration(
+                                    resources.getInteger(R.integer.activity_main_animations_durations_poster_transition)
+                                        .toLong()
+                                )
+                                .setInterpolator(AccelerateInterpolator())
+                                .withStartAction { menu.forEach { it.isEnabled = false } }
+                                .withEndAction { visibility = View.GONE }
+                                .start()
+                        }
+                    }
+                    is SettingsFragment -> {
+                        binding.navigationBar.run {
+                            doOnPreDraw {
+                                menu.forEach { item -> item.isEnabled = false }
+                            }
+                        }
+                    }
+                }
+            }
+
+            override fun onFragmentViewDestroyed(fm: FragmentManager, fragment: Fragment) {
+                when (fragment) {
+                    is SettingsFragment -> {
+                        binding.navigationBar.run {
+                            menu.forEach { item -> item.isEnabled = true }
+                        }
+                    }
+                }
+            }
+        }, true)
     }
 
 

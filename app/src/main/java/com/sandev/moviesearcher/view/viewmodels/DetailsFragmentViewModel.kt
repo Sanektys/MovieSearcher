@@ -37,8 +37,13 @@ class DetailsFragmentViewModel : ViewModel() {
     val movie: DatabaseMovie
         get() = _movie!!
 
+    var isFragmentSeparate: Boolean = false
+
     var isFavoriteMovie: Boolean = false
     var isWatchLaterMovie: Boolean = false
+
+    var isFavoriteButtonSelected: Boolean = false
+    var isWatchLaterButtonSelected: Boolean = false
 
     var isConfigurationChanged: Boolean = false
     var isLowQualityPosterDownloaded: Boolean = false
