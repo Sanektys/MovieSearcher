@@ -29,7 +29,12 @@ class WatchMovieNotification(private val context: Context) {
     fun notify(movie: DatabaseMovie) {
         val watchMovieIntent = Intent(context, MainActivity::class.java)
         watchMovieIntent.putExtra(MainActivity.MOVIE_DATA_KEY, movie)
-        val pendingIntent = PendingIntent.getActivity(context, PENDING_INTENT_WATCH_MOVIE, watchMovieIntent, PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            PENDING_INTENT_WATCH_MOVIE,
+            watchMovieIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Notification.Builder(context, CHANNEL_ID)

@@ -29,6 +29,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.domain_api.local_database.entities.DatabaseMovie
@@ -105,6 +106,17 @@ class MainActivity : AppCompatActivity() {
 
         removeSharedPreferencesChangeListener()
         unregisterReceiver(broadcastReceiver)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        intent?.run {
+            val movieFromNotification = getParcelableExtra(MOVIE_DATA_KEY) as DatabaseMovie?
+            if (movieFromNotification != null) {
+                startDetailsFragment(movieFromNotification)
+            }
+        }
     }
 
     fun startHomeFragment(isSplashScreenEnabled: Boolean = true) {
@@ -300,6 +312,22 @@ class MainActivity : AppCompatActivity() {
             .beginTransaction()
             .setReorderingAllowed(true)
             .addSharedElement(posterView, transitionName)
+            .replace(R.id.fragment, detailsFragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun startDetailsFragment(databaseMovie: DatabaseMovie) {
+        val bundle = Bundle().also {
+            it.putParcelable(MOVIE_DATA_KEY, databaseMovie)
+        }
+        val detailsFragment = DetailsFragment().apply {
+            arguments = bundle
+        }
+
+        supportFragmentManager
+            .beginTransaction()
+            .setReorderingAllowed(true)
             .replace(R.id.fragment, detailsFragment)
             .addToBackStack(null)
             .commit()
