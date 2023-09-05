@@ -117,13 +117,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-
-        intent?.run {
-            val movieFromNotification = getParcelableExtra(MOVIE_DATA_KEY) as DatabaseMovie?
-            if (movieFromNotification != null) {
-                startDetailsFragment(movieFromNotification)
-            }
-        }
+        checkIntentForLaunchSeparateDetailsFromNotification(intent)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -138,6 +132,8 @@ class MainActivity : AppCompatActivity() {
             .add(R.id.fragment, homeFragment)
             .addToBackStack(HOME_FRAGMENT_COMMIT)
             .commit()
+
+        checkIntentForLaunchSeparateDetailsFromNotification(intent)
     }
 
     fun removeSplashScreen(splashScreenFragment: SplashScreenFragment) {
@@ -161,6 +157,14 @@ class MainActivity : AppCompatActivity() {
             startHomeFragment()
         }
     }
+
+    private fun checkIntentForLaunchSeparateDetailsFromNotification(intent: Intent?) = intent?.run {
+        val movieFromNotification = getParcelableExtra(MOVIE_DATA_KEY) as DatabaseMovie?
+        if (movieFromNotification != null) {
+            startDetailsFragment(movieFromNotification)
+        }
+    }
+
 
     private fun registerBroadcastReceiver() {
         val filters = IntentFilter().apply {
@@ -553,12 +557,12 @@ class MainActivity : AppCompatActivity() {
                 when (fragment) {
                     is SplashScreenFragment -> {
                         binding.navigationBar.run {
-                            doOnNextLayout { it.translationY = it.height.toFloat() }
+                            doOnNextLayout { translationY = height.toFloat() }
                             menu.forEach { it.isEnabled = false }
                         }
                     }
                     is HomeFragment -> {
-                        if (viewModel.isSplashScreenEnabled()) {
+                        if (viewModel.isSplashScreenEnabled() || HomeFragment.isFragmentClassOnceCreated) {
                             binding.navigationBar.run {
                                 animate()
                                     .translationY(0f)
@@ -601,16 +605,18 @@ class MainActivity : AppCompatActivity() {
                     }
                     is DetailsFragment -> {
                         binding.navigationBar.run {
-                            animate()  // Убрать нижний navigation view
-                                .translationY(height.toFloat())
-                                .setDuration(
-                                    resources.getInteger(R.integer.activity_main_animations_durations_poster_transition)
-                                        .toLong()
-                                )
-                                .setInterpolator(AccelerateInterpolator())
-                                .withStartAction { menu.forEach { it.isEnabled = false } }
-                                .withEndAction { visibility = View.GONE }
-                                .start()
+                            doOnPreDraw {
+                                animate()  // Убрать нижний navigation view
+                                    .translationY(height.toFloat())
+                                    .setDuration(
+                                        resources.getInteger(R.integer.activity_main_animations_durations_poster_transition)
+                                            .toLong()
+                                    )
+                                    .setInterpolator(AccelerateInterpolator())
+                                    .withStartAction { menu.forEach { it.isEnabled = false } }
+                                    .withEndAction { visibility = View.GONE }
+                                    .start()
+                            }
                         }
                     }
                     is SettingsFragment -> {

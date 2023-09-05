@@ -48,7 +48,6 @@ import com.example.domain.constants.TmdbCommonConstants
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.sandev.cached_movies_feature.favorite_movies.FavoriteMoviesComponentViewModel
 import com.sandev.cached_movies_feature.watch_later_movies.WatchLaterMoviesComponentViewModel
@@ -103,7 +102,7 @@ class DetailsFragment : Fragment() {
         _binding = FragmentDetailsBinding.inflate(inflater, container, false)
 
         setToolbarAppearance()
-        
+
         viewModel.isLowQualityPosterDownloaded = false
 
         return binding.root
@@ -610,9 +609,7 @@ class DetailsFragment : Fragment() {
         const val KEY_SEPARATE_DETAILS_FRAGMENT = "SEPARATE_DETAILS_FRAGMENT"
 
         private const val FRAGMENT_LAUNCHED_KEY = "FRAGMENT_LAUNCHED"
-        private const val FAVORITE_BUTTON_SELECTED_KEY = "FAVORITE_BUTTON_SELECTED"
 
-        private const val WATCH_LATER_BUTTON_SELECTED_KEY = "WATCH_LATER_BUTTON_SELECTED"
         private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
 
         private const val DIVIDER_MILLISECONDS_TO_SECONDS = 1000
