@@ -10,6 +10,7 @@ import android.content.res.Configuration
 import android.graphics.Outline
 import android.os.BatteryManager
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewOutlineProvider
@@ -93,7 +94,7 @@ class MainActivity : AppCompatActivity() {
         checkCurrentLocaleInSystemSettings()
 
         setSystemBarsAppearanceAndBehavior()
-        setNavigationBarAppearance()
+        setNavigationBarAppearance(savedInstanceState)
         setOnBackPressedAction()
         menuButtonsInitial()
 
@@ -123,6 +124,12 @@ class MainActivity : AppCompatActivity() {
                 startDetailsFragment(movieFromNotification)
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        viewModel.navigationBarTranslationY = binding.navigationBar.translationY
+        viewModel.navigationBarVisibility = binding.navigationBar.visibility
     }
 
     fun startHomeFragment() {
@@ -433,7 +440,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setNavigationBarAppearance() {
+    private fun setNavigationBarAppearance(savedInstanceState: Bundle?) {
         binding.navigationBar.apply {
             ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
                 updatePadding(bottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom)
@@ -454,6 +461,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             clipToOutline = true
+
+            if (savedInstanceState != null) {
+                translationY = viewModel.navigationBarTranslationY
+                visibility = viewModel.navigationBarVisibility
+            }
         }
     }
 

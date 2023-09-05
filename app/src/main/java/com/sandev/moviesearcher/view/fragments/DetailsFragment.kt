@@ -103,10 +103,7 @@ class DetailsFragment : Fragment() {
         _binding = FragmentDetailsBinding.inflate(inflater, container, false)
 
         setToolbarAppearance()
-
-        viewModel.isFavoriteMovie = false
-        viewModel.isWatchLaterMovie = false
-        viewModel.isConfigurationChanged = false
+        
         viewModel.isLowQualityPosterDownloaded = false
 
         return binding.root
@@ -117,21 +114,21 @@ class DetailsFragment : Fragment() {
         viewModel._movie = arguments?.getParcelable<DatabaseMovie>(MainActivity.MOVIE_DATA_KEY)!!
         viewModel.isFragmentSeparate = arguments?.getBoolean(KEY_SEPARATE_DETAILS_FRAGMENT) ?: false
 
-        viewModel.fragmentThatLaunchedDetails = savedInstanceState
-            ?.getString(FRAGMENT_LAUNCHED_KEY) ?: (activity as MainActivity).previousFragmentName
+        if (viewModel.isFragmentSeparate.not()) {
+            viewModel.fragmentThatLaunchedDetails = savedInstanceState
+                ?.getString(FRAGMENT_LAUNCHED_KEY)
+                ?: (activity as MainActivity).previousFragmentName
+        }
 
         initializeContent()
         setToolbarBackButton()
         setFloatButtonOnClick()
 
         if (savedInstanceState != null) {
-            binding.fabToFavorite.isSelected = savedInstanceState.getBoolean(
-                FAVORITE_BUTTON_SELECTED_KEY
-            )
+            binding.fabToFavorite.isSelected = viewModel.isFavoriteButtonSelected
             binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
-            binding.fabToWatchLater.isSelected = savedInstanceState.getBoolean(
-                WATCH_LATER_BUTTON_SELECTED_KEY
-            )
+
+            binding.fabToWatchLater.isSelected = viewModel.isWatchLaterButtonSelected
             binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
         } else {
             setFloatButtonsState()
@@ -140,19 +137,6 @@ class DetailsFragment : Fragment() {
         setTransitionAnimation()
         prepareMenuFabDialog()
         binding.fabDialogMenuProgressIndicator.hide()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-//        outState.putString(FRAGMENT_LAUNCHED_KEY, viewModel.fragmentThatLaunchedDetails)
-//        outState.putBoolean(
-//            FAVORITE_BUTTON_SELECTED_KEY,
-//            activity?.findViewById<FloatingActionButton>(R.id.fab_to_favorite)?.isSelected ?: false
-//        )
-//        outState.putBoolean(
-//            WATCH_LATER_BUTTON_SELECTED_KEY,
-//            activity?.findViewById<FloatingActionButton>(R.id.fab_to_watch_later)?.isSelected ?: false
-//        )
     }
 
     override fun onStop() {
@@ -168,7 +152,7 @@ class DetailsFragment : Fragment() {
             changeWatchLaterMoviesList()
         }
         _binding = null
-        disposableContainer.dispose()
+        disposableContainer.clear()
     }
 
     override fun onDestroy() {
@@ -227,6 +211,7 @@ class DetailsFragment : Fragment() {
         binding.fabToFavorite.setOnClickListener {
             binding.fabToFavorite.isSelected = !binding.fabToFavorite.isSelected
             binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
+            viewModel.isFavoriteButtonSelected = binding.fabToFavorite.isSelected
 
             Snackbar.make(requireContext(), binding.root,
                 if (binding.fabToFavorite.isSelected) getString(R.string.details_fragment_fab_add_favorite)
@@ -237,6 +222,7 @@ class DetailsFragment : Fragment() {
         binding.fabToWatchLater.setOnClickListener {
             binding.fabToWatchLater.isSelected = !binding.fabToWatchLater.isSelected
             binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
+            viewModel.isWatchLaterButtonSelected = binding.fabToWatchLater.isSelected
 
             Snackbar.make(requireContext(), binding.root,
                 if (binding.fabToWatchLater.isSelected) getString(R.string.details_fragment_fab_add_watch_later)
@@ -368,9 +354,9 @@ class DetailsFragment : Fragment() {
     }
 
     private fun changeFavoriteMoviesList() {
-        if (!viewModel.isFavoriteMovie && binding.fabToFavorite.isSelected) {
+        if (!viewModel.isFavoriteMovie && viewModel.isFavoriteButtonSelected) {
             viewModel.addToFavorite(viewModel.movie)
-        } else if (viewModel.isFavoriteMovie && !binding.fabToFavorite.isSelected) {
+        } else if (viewModel.isFavoriteMovie && !viewModel.isFavoriteButtonSelected) {
             if (viewModel.fragmentThatLaunchedDetails == FavoritesFragment::class.qualifiedName) {
                 requireActivity().supportFragmentManager.setFragmentResult(
                     FavoritesFragment.FAVORITES_DETAILS_RESULT_KEY,
@@ -383,9 +369,9 @@ class DetailsFragment : Fragment() {
     }
 
     private fun changeWatchLaterMoviesList() {
-        if (!viewModel.isWatchLaterMovie && binding.fabToWatchLater.isSelected) {
+        if (!viewModel.isWatchLaterMovie && viewModel.isWatchLaterButtonSelected) {
             viewModel.addToWatchLater(viewModel.movie)
-        } else if (viewModel.isWatchLaterMovie && !binding.fabToWatchLater.isSelected) {
+        } else if (viewModel.isWatchLaterMovie && !viewModel.isWatchLaterButtonSelected) {
             if (viewModel.fragmentThatLaunchedDetails == WatchLaterFragment::class.qualifiedName) {
                 requireActivity().supportFragmentManager.setFragmentResult(
                     WatchLaterFragment.WATCH_LATER_DETAILS_RESULT_KEY,
