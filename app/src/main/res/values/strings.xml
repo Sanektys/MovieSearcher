@@ -40,6 +40,8 @@
     <string name="settings_fragment.language.title">Язык приложения</string>
     <string name="settings_fragment.alert_dialog.language.title">Выберите язык</string>
     <string name="settings_fragment.alert_dialog.language.description">Язык не поменяется у сохранённых или кэшированных карточек фильмов, только у вновь загруженных из сети</string>
+    <string name="settings_fragment.movie_notification.title">Уведомления о фильмах</string>
+    <string name="settings_fragment.movie_notification.description">Перейти в настройки уведомлений-напоминаний о просмотре фильмов</string>
 
 
     <!-- Details fragment -->

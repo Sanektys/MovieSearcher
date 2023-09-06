@@ -38,6 +38,8 @@
     <string name="settings_fragment.language.title">App language</string>
     <string name="settings_fragment.alert_dialog.language.title">Select language</string>
     <string name="settings_fragment.alert_dialog.language.description">The language will not change for saved or cached movie cards, only for newly downloaded ones from network</string>
+    <string name="settings_fragment.movie_notification.title">Notifications about movies</string>
+    <string name="settings_fragment.movie_notification.description">Go to the notifications-reminders settings for watching movies</string>
 
 
     <!-- Details fragment -->
