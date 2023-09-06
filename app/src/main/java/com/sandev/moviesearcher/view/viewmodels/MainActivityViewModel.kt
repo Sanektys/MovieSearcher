@@ -3,7 +3,7 @@ package com.sandev.moviesearcher.view.viewmodels
 import android.view.View
 import androidx.lifecycle.ViewModel
 import com.sandev.moviesearcher.App
-import com.sandev.moviesearcher.domain.WatchMovieNotification
+import com.sandev.moviesearcher.view.notifications.WatchMovieNotification
 import com.sandev.moviesearcher.domain.interactors.SharedPreferencesInteractor
 import javax.inject.Inject
 

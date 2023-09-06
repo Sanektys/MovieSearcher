@@ -1,4 +1,4 @@
-package com.sandev.moviesearcher.domain
+package com.sandev.moviesearcher.view.notifications
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -31,7 +31,7 @@ class WatchMovieNotification(private val context: Context) {
         watchMovieIntent.putExtra(MainActivity.MOVIE_DATA_KEY, movie)
         val pendingIntent = PendingIntent.getActivity(
             context,
-            PENDING_INTENT_WATCH_MOVIE,
+            movie.hashCode(),
             watchMovieIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
@@ -43,6 +43,7 @@ class WatchMovieNotification(private val context: Context) {
                 .setStyle(Notification.BigTextStyle().bigText(context.getString(R.string.notification_watch_movie_description, movie.title)))
                 .setSmallIcon(R.drawable.movie_searcher_action_icon)
                 .setColor(context.getColor(R.color.md_theme_primary))
+                .setOnlyAlertOnce(true)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
         } else {
@@ -52,21 +53,19 @@ class WatchMovieNotification(private val context: Context) {
                 .setStyle(Notification.BigTextStyle().bigText(context.getString(R.string.notification_watch_movie_description, movie.title)))
                 .setSmallIcon(R.drawable.movie_searcher_action_icon)
                 .setColor(context.getColor(R.color.md_theme_primary))
+                .setOnlyAlertOnce(true)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .setPriority(Notification.PRIORITY_LOW)
         }
 
         (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).apply {
-            notify(NOTIFICATION_ID, notification.build())
+            notify(movie.hashCode(), notification.build())
         }
     }
 
 
     companion object {
         const val CHANNEL_ID = "watch_movie_channel"
-
-        private const val PENDING_INTENT_WATCH_MOVIE = 1
-        private const val NOTIFICATION_ID = 1
     }
 }

@@ -24,7 +24,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.databinding.FragmentSettingsBinding
-import com.sandev.moviesearcher.domain.WatchMovieNotification
+import com.sandev.moviesearcher.view.notifications.WatchMovieNotification
 import com.sandev.moviesearcher.utils.changeAppearanceToSamsungOneUI
 import com.sandev.moviesearcher.view.viewmodels.SettingsFragmentViewModel
 

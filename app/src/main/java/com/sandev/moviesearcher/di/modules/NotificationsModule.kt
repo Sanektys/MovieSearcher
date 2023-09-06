@@ -1,7 +1,7 @@
 package com.sandev.moviesearcher.di.modules
 
 import android.content.Context
-import com.sandev.moviesearcher.domain.WatchMovieNotification
+import com.sandev.moviesearcher.view.notifications.WatchMovieNotification
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton

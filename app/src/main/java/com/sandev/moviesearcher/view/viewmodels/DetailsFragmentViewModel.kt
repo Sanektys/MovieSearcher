@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.sandev.cached_movies_feature.domain.CachedMoviesInteractor
 import com.sandev.moviesearcher.App
-import com.sandev.moviesearcher.domain.WatchMovieNotification
+import com.sandev.moviesearcher.view.notifications.WatchMovieNotification
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.Disposable
 import java.io.IOException
