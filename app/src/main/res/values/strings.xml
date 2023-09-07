@@ -40,6 +40,8 @@
     <string name="settings_fragment.language.title">Язык приложения</string>
     <string name="settings_fragment.alert_dialog.language.title">Выберите язык</string>
     <string name="settings_fragment.alert_dialog.language.description">Язык не поменяется у сохранённых или кэшированных карточек фильмов, только у вновь загруженных из сети</string>
+    <string name="settings_fragment.movie_notification.title">Уведомления о фильмах</string>
+    <string name="settings_fragment.movie_notification.description">Перейти в настройки уведомлений-напоминаний о просмотре фильмов</string>
 
 
     <!-- Details fragment -->
@@ -53,6 +55,7 @@
     <string name="details_fragment.alert_dialog.title">Выберите действие:</string>
     <string name="details_fragment.alert_dialog.action.sharing">Поделиться фильмом</string>
     <string name="details_fragment.alert_dialog.action.download_poster">Скачать постер фильма</string>
+    <string name="details_fragment.alert_dialog.action.create_notification">Создать напоминание о просмотре фильма</string>
     <string name="details_fragment.alert_dialog.action.cancel">Отмена</string>
     <string name="details_fragment.poster_download.success">Постер успешно загружен в галерею</string>
     <string name="details_fragment.poster_download.success.action">Открыть галерею</string>
@@ -62,11 +65,21 @@
     <!-- Favorites fragment -->
     <string name="favorites_fragment.top_app_bar.search_bar.hint">Найти избранный фильм</string>
 
+
     <!-- Watch later fragment -->
     <string name="watch_later_fragment.top_app_bar.search_bar.hint">Найти фильм из отложенного</string>
 
+
     <!-- Movie view holder -->
     <string name="movie_view_holder.transition_name" translatable="false">MOVIE_POSTER_TRANSITION%d</string>
+
+
+    <!-- Notification "watch movie" -->
+    <string name="notification.watch_movie.channel.name">Посмотреть фильм</string>
+    <string name="notification.watch_movie.channel.description">Напоминание о том, какой фильм хотелось посмотреть</string>
+    <string name="notification.watch_movie.title">Напоминание о фильме</string>
+    <string name="notification.watch_movie.description">Вы хотели посмотреть этот фильм 🎬: %s</string>
+
 
     <!-- SharedPreferences -->
     <string name="shared_preferences.settings" translatable="false">settings</string>

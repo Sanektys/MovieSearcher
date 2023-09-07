@@ -6,13 +6,18 @@ import androidx.lifecycle.ViewModel
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.sandev.cached_movies_feature.domain.CachedMoviesInteractor
 import com.sandev.moviesearcher.App
+import com.sandev.moviesearcher.view.notifications.WatchMovieNotification
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.Disposable
 import java.io.IOException
 import java.net.URL
+import javax.inject.Inject
 
 
 class DetailsFragmentViewModel : ViewModel() {
+
+    @Inject
+    lateinit var watchMovieNotification: WatchMovieNotification
 
     var favoritesMoviesDatabaseInteractor: CachedMoviesInteractor? = null
         set(value) {
@@ -32,13 +37,23 @@ class DetailsFragmentViewModel : ViewModel() {
     val movie: DatabaseMovie
         get() = _movie!!
 
+    var isFragmentSeparate: Boolean = false
+
     var isFavoriteMovie: Boolean = false
     var isWatchLaterMovie: Boolean = false
+
+    var isFavoriteButtonSelected: Boolean = false
+    var isWatchLaterButtonSelected: Boolean = false
 
     var isConfigurationChanged: Boolean = false
     var isLowQualityPosterDownloaded: Boolean = false
 
     var fragmentThatLaunchedDetails: String? = null
+
+
+    init {
+        App.instance.getAppComponent().inject(this)
+    }
 
 
     fun loadMoviePoster(posterUrl: String): Bitmap {

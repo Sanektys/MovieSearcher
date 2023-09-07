@@ -2,19 +2,21 @@ package com.sandev.moviesearcher.view.fragments
 
 import android.animation.AnimatorInflater
 import android.content.Context
+import android.content.Intent
 import android.graphics.Outline
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.provider.Settings
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.CheckedTextView
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.doOnNextLayout
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -22,6 +24,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.databinding.FragmentSettingsBinding
+import com.sandev.moviesearcher.view.notifications.WatchMovieNotification
 import com.sandev.moviesearcher.utils.changeAppearanceToSamsungOneUI
 import com.sandev.moviesearcher.view.viewmodels.SettingsFragmentViewModel
 
@@ -58,21 +61,26 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         initializeCategoryButton()
         initializeAppThemeButton()
         initializeAppLanguageButton()
+        initializeMovieNotificationButton()
         initializeSplashScreenSwitch()
         initializeRatingDonutSwitch()
-
-        view.doOnNextLayout {
-            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressed)
-        }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
 
         if (!isSettingsScreenRevealed) {
             (parentFragment as MoviesListFragment).revealSettingsFragment()
             isSettingsScreenRevealed = true
         }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressed)
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        onBackPressed.remove()
     }
 
     private fun destroy() = (parentFragment as MoviesListFragment).destroySettingsFragment()
@@ -244,6 +252,23 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 SharedPreferencesProvider.LANGUAGE_ENGLISH -> binding.appLanguageButton.description.text =
                     getString(R.string.settings_fragment_radio_group_language_english)
             }
+        }
+    }
+
+    private fun initializeMovieNotificationButton() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            binding.movieNotificationButton.setOnClickListener {
+                val intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
+                    putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().packageName)
+                    putExtra(Settings.EXTRA_CHANNEL_ID, WatchMovieNotification.CHANNEL_ID)
+                }
+                startActivity(intent)
+            }
+        } else {
+            val linearLayout = binding.movieNotificationButton.parent as ViewGroup
+            val indexOfDivider = linearLayout.indexOfChild(binding.movieNotificationButton) + 1
+            linearLayout.removeViewAt(indexOfDivider)
+            linearLayout.removeView(binding.movieNotificationButton)
         }
     }
 

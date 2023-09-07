@@ -44,4 +44,6 @@
     <!-- other colors -->
     <color name="transparent_status_bar">#32000000</color>
     <color name="transparent_navigation_bar">#14000000</color>
+
+    <color name="movie_searcher_background">#FFFFFF</color>
 </resources>

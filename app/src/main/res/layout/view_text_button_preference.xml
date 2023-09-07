@@ -17,6 +17,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:maxLines="@integer/fragment_settings.item.title.max_lines"
+        android:ellipsize="end"
         android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
         tools:text="Settings title" />
 

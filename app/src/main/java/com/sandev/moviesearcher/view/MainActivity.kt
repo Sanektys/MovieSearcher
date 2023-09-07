@@ -10,9 +10,11 @@ import android.content.res.Configuration
 import android.graphics.Outline
 import android.os.BatteryManager
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewOutlineProvider
+import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -24,11 +26,14 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.doOnLayout
+import androidx.core.view.doOnNextLayout
+import androidx.core.view.doOnPreDraw
 import androidx.core.view.forEach
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.domain_api.local_database.entities.DatabaseMovie
@@ -40,6 +45,7 @@ import com.sandev.moviesearcher.view.fragments.DetailsFragment
 import com.sandev.moviesearcher.view.fragments.FavoritesFragment
 import com.sandev.moviesearcher.view.fragments.HomeFragment
 import com.sandev.moviesearcher.view.fragments.MoviesListFragment
+import com.sandev.moviesearcher.view.fragments.SettingsFragment
 import com.sandev.moviesearcher.view.fragments.SplashScreenFragment
 import com.sandev.moviesearcher.view.fragments.WatchLaterFragment
 import com.sandev.moviesearcher.view.viewmodels.MainActivityViewModel
@@ -88,12 +94,14 @@ class MainActivity : AppCompatActivity() {
         checkCurrentLocaleInSystemSettings()
 
         setSystemBarsAppearanceAndBehavior()
-        setNavigationBarAppearance()
+        setNavigationBarAppearance(savedInstanceState)
         setOnBackPressedAction()
         menuButtonsInitial()
 
         registerSharedPreferencesChangeListener()
         registerBroadcastReceiver()
+
+        initializeFragmentsCallbacks()
 
         if (supportFragmentManager.backStackEntryCount == 0) {
             startSplashScreen()
@@ -107,26 +115,25 @@ class MainActivity : AppCompatActivity() {
         unregisterReceiver(broadcastReceiver)
     }
 
-    fun startHomeFragment(isSplashScreenEnabled: Boolean = true) {
-        if (isSplashScreenEnabled) {
-            binding.navigationBar.run {
-                animate()
-                .setDuration(
-                    resources.getInteger(
-                        R.integer.activity_main_animations_durations_first_appearance_navigation_bar
-                    ).toLong()
-                )
-                .translationY(0f)
-                .setInterpolator(DecelerateInterpolator())
-                .withEndAction { binding.navigationBar.menu.forEach { it.isEnabled = true } }
-                .start()
-            }
-        }
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        checkIntentForLaunchSeparateDetailsFromNotification(intent)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        viewModel.navigationBarTranslationY = binding.navigationBar.translationY
+        viewModel.navigationBarVisibility = binding.navigationBar.visibility
+    }
+
+    fun startHomeFragment() {
         supportFragmentManager
             .beginTransaction()
             .add(R.id.fragment, homeFragment)
             .addToBackStack(HOME_FRAGMENT_COMMIT)
             .commit()
+
+        checkIntentForLaunchSeparateDetailsFromNotification(intent)
     }
 
     fun removeSplashScreen(splashScreenFragment: SplashScreenFragment) {
@@ -140,9 +147,6 @@ class MainActivity : AppCompatActivity() {
         val isSplashScreenEnabled = viewModel.isSplashScreenEnabled()
 
         if (!SplashScreenFragment.isSplashWasCreated && isSplashScreenEnabled) {
-            binding.navigationBar.doOnLayout { it.translationY = it.height.toFloat() }
-            binding.navigationBar.menu.forEach { it.isEnabled = false }
-
             if (supportFragmentManager.fragments.find { it is SplashScreenFragment } == null) {
                 supportFragmentManager
                     .beginTransaction()
@@ -150,9 +154,17 @@ class MainActivity : AppCompatActivity() {
                     .commit()
             }
         } else {
-            startHomeFragment(isSplashScreenEnabled)
+            startHomeFragment()
         }
     }
+
+    private fun checkIntentForLaunchSeparateDetailsFromNotification(intent: Intent?) = intent?.run {
+        val movieFromNotification = getParcelableExtra(MOVIE_DATA_KEY) as DatabaseMovie?
+        if (movieFromNotification != null) {
+            startDetailsFragment(movieFromNotification)
+        }
+    }
+
 
     private fun registerBroadcastReceiver() {
         val filters = IntentFilter().apply {
@@ -166,10 +178,33 @@ class MainActivity : AppCompatActivity() {
         val batteryManager = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
         val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
 
-        if (batteryLevel <= BATTERY_LOW_LEVEL) {
-            onBatteryLevelLow()
+        if (batteryLevel == 0 || batteryLevel == Integer.MIN_VALUE) {
+            // Альтернативный вариант получения уровня заряда, если код выше не сработал. НО работает "асинхронно", splashscreen уже отработает к моменту получения
+            val batteryLevelReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent) {
+                    unregisterReceiver(this)
+
+                    val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0)
+                    val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 0)
+                    if (level > 0 && scale > 0) {
+                        if (level * BATTERY_MAX_LEVEL / scale <= BATTERY_LOW_LEVEL) {
+                            onBatteryLevelLow()
+                        } else {
+                            onBatteryLevelOkay()
+                        }
+                    }
+                }
+            }
+
+            IntentFilter(Intent.ACTION_BATTERY_CHANGED).also {
+                registerReceiver(batteryLevelReceiver, it)
+            }
         } else {
-            onBatteryLevelOkay()
+            if (batteryLevel <= BATTERY_LOW_LEVEL) {
+                onBatteryLevelLow()
+            } else {
+                onBatteryLevelOkay()
+            }
         }
     }
 
@@ -277,6 +312,23 @@ class MainActivity : AppCompatActivity() {
             .beginTransaction()
             .setReorderingAllowed(true)
             .addSharedElement(posterView, transitionName)
+            .replace(R.id.fragment, detailsFragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun startDetailsFragment(databaseMovie: DatabaseMovie) {
+        val bundle = Bundle().also {
+            it.putParcelable(MOVIE_DATA_KEY, databaseMovie)
+            it.putBoolean(DetailsFragment.KEY_SEPARATE_DETAILS_FRAGMENT, true)
+        }
+        val detailsFragment = DetailsFragment().apply {
+            arguments = bundle
+        }
+
+        supportFragmentManager
+            .beginTransaction()
+            .setReorderingAllowed(true)
             .replace(R.id.fragment, detailsFragment)
             .addToBackStack(null)
             .commit()
@@ -392,7 +444,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setNavigationBarAppearance() {
+    private fun setNavigationBarAppearance(savedInstanceState: Bundle?) {
         binding.navigationBar.apply {
             ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
                 updatePadding(bottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom)
@@ -413,6 +465,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             clipToOutline = true
+
+            if (savedInstanceState != null) {
+                translationY = viewModel.navigationBarTranslationY
+                visibility = viewModel.navigationBarVisibility
+            }
         }
     }
 
@@ -489,6 +546,101 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    private fun initializeFragmentsCallbacks() {
+        supportFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentLifecycleCallbacks() {
+            override fun onFragmentViewCreated(
+                fm: FragmentManager,
+                fragment: Fragment,
+                v: View,
+                savedInstanceState: Bundle?
+            ) {
+                when (fragment) {
+                    is SplashScreenFragment -> {
+                        binding.navigationBar.run {
+                            doOnNextLayout { translationY = height.toFloat() }
+                            menu.forEach { it.isEnabled = false }
+                        }
+                    }
+                    is HomeFragment -> {
+                        if (viewModel.isSplashScreenEnabled() || HomeFragment.isFragmentClassOnceCreated) {
+                            binding.navigationBar.run {
+                                animate()
+                                    .translationY(0f)
+                                    .setDuration(
+                                        if (HomeFragment.isFragmentClassOnceCreated) {
+                                            resources.getInteger(
+                                                R.integer.activity_main_animations_durations_poster_transition
+                                            ).toLong()
+                                        } else {
+                                            resources.getInteger(
+                                                R.integer.activity_main_animations_durations_first_appearance_navigation_bar
+                                            ).toLong()
+                                        }
+                                    )
+                                    .setInterpolator(DecelerateInterpolator())
+                                    .withStartAction {
+                                        visibility = View.VISIBLE
+                                        menu.forEach { it.isEnabled = true }
+                                    }
+                                    .start()
+                            }
+                        }
+                    }
+                    is MoviesListFragment -> {
+                        binding.navigationBar.run {
+                            animate()
+                                .translationY(0f)
+                                .setDuration(
+                                    resources.getInteger(
+                                        R.integer.activity_main_animations_durations_poster_transition
+                                    ).toLong()
+                                )
+                                .setInterpolator(DecelerateInterpolator())
+                                .withStartAction {
+                                    visibility = View.VISIBLE
+                                    menu.forEach { it.isEnabled = true }
+                                }
+                                .start()
+                        }
+                    }
+                    is DetailsFragment -> {
+                        binding.navigationBar.run {
+                            doOnPreDraw {
+                                animate()  // Убрать нижний navigation view
+                                    .translationY(height.toFloat())
+                                    .setDuration(
+                                        resources.getInteger(R.integer.activity_main_animations_durations_poster_transition)
+                                            .toLong()
+                                    )
+                                    .setInterpolator(AccelerateInterpolator())
+                                    .withStartAction { menu.forEach { it.isEnabled = false } }
+                                    .withEndAction { visibility = View.GONE }
+                                    .start()
+                            }
+                        }
+                    }
+                    is SettingsFragment -> {
+                        binding.navigationBar.run {
+                            doOnPreDraw {
+                                menu.forEach { item -> item.isEnabled = false }
+                            }
+                        }
+                    }
+                }
+            }
+
+            override fun onFragmentViewDestroyed(fm: FragmentManager, fragment: Fragment) {
+                when (fragment) {
+                    is SettingsFragment -> {
+                        binding.navigationBar.run {
+                            menu.forEach { item -> item.isEnabled = true }
+                        }
+                    }
+                }
+            }
+        }, true)
+    }
+
 
     inner class AppBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -513,5 +665,6 @@ class MainActivity : AppCompatActivity() {
         private const val ONE_FRAGMENT_IN_STACK = 1
         private const val LOOP_CYCLE_DELAY = 50L
         private const val BATTERY_LOW_LEVEL = 15
+        private const val BATTERY_MAX_LEVEL = 100
     }
 }

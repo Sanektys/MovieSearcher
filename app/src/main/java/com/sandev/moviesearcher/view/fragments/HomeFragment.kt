@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.transition.Scene
 import androidx.transition.Slide
+import androidx.transition.Transition
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
 import com.example.domain_api.local_database.entities.DatabaseMovie
@@ -206,9 +207,17 @@ class HomeFragment : MoviesListFragment() {
             val appearingTransition = TransitionSet().apply {
                 addTransition(appBarSlideTransition)
                 addTransition(moviesRecyclerTransition)
+                addListener(object : Transition.TransitionListener {
+                    override fun onTransitionStart(transition: Transition) {}
+                    override fun onTransitionCancel(transition: Transition) {}
+                    override fun onTransitionPause(transition: Transition) {}
+                    override fun onTransitionResume(transition: Transition) {}
+                    override fun onTransitionEnd(transition: Transition) {
+                        isFragmentClassOnceCreated = true
+                    }
+                })
             }
             TransitionManager.go(scene, appearingTransition)
-            isFragmentClassOnceCreated = true
         } else {
             if (!isFragmentClassOnceCreated) {
                 isFragmentClassOnceCreated = true

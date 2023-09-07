@@ -35,7 +35,7 @@ open class DatabaseMovie(
     }
 
     final override fun hashCode(): Int {
-        return Objects.hash(poster, title, description, rating)
+        return Objects.hash(poster, title, description)
     }
 
     companion object {

@@ -239,9 +239,6 @@ abstract class MoviesListFragment : Fragment() {
     }
 
     private fun createSettingsFragment() {
-        requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bar).let {
-            it.menu.forEach { item -> item.isEnabled = false }
-        }
         searchBar.menu.forEach { menuItem -> menuItem.isEnabled = false }
 
         if (childFragmentManager.fragments.size == 0) {
@@ -298,9 +295,6 @@ abstract class MoviesListFragment : Fragment() {
             appBar.postDelayed(circularRevealAnimator?.animationDuration ?: 0) {
                 childFragmentManager.popBackStack()
 
-                requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bar).let {
-                    it.menu.forEach { item -> item.isEnabled = true }
-                }
                 searchBar.menu.forEach { menuItem -> menuItem.isEnabled = true }
             }
         }
