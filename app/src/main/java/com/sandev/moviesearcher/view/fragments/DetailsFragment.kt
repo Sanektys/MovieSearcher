@@ -244,11 +244,11 @@ class DetailsFragment : Fragment() {
                         .apply(RequestOptions().dontTransform())
                         .onlyRetrieveFromCache(true)
                         .listener(object : RequestListener<Drawable>{  // Подождать полной загрузки из кэша и только потом делать перенос постера
-                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>, isFirstResource: Boolean): Boolean {
                                 startPostponedEnterTransition()
                                 return false
                             }
-                            override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                            override fun onResourceReady(resource: Drawable, model: Any, target: Target<Drawable>?, dataSource: DataSource, isFirstResource: Boolean): Boolean {
                                 startPostponedEnterTransition()  // Если запускать без паузы сразу transition, то будут глитчи из-за Glide
                                 return false
                             }
@@ -531,7 +531,7 @@ class DetailsFragment : Fragment() {
                 contentValues
             ) ?: throw IOException("Failure on write to external storage")
             contentResolver.openOutputStream(url).use { stream ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_COMPRESS_QUALITY, stream)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_COMPRESS_QUALITY, stream ?: return@use )
             }
         } else {
             @Suppress("DEPRECATION")
