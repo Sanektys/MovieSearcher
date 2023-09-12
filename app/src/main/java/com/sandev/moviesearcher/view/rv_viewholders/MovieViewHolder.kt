@@ -9,12 +9,14 @@ import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.MovieCardBinding
 
 
-class MovieViewHolder(private val binding: MovieCardBinding) : RecyclerView.ViewHolder(binding.root) {
-    val poster = binding.movieCardPoster
+class MovieViewHolder(private val binding: MovieCardBinding)
+    : RecyclerView.ViewHolder(binding.root), MovieBinding, PosterBinding {
+
+    override val poster = binding.movieCardPoster
     val ratingDonut = binding.ratingDonut
 
 
-    fun onBind(databaseMovieData: DatabaseMovie, position: Int) {
+    override fun onBind(databaseMovieData: DatabaseMovie, position: Int) {
         if (databaseMovieData.poster != null) {
             Glide.with(binding.root)
                 .load("${TmdbCommonConstants.IMAGES_URL}${TmdbCommonConstants.IMAGE_MEDIUM_SIZE}${databaseMovieData.poster}")

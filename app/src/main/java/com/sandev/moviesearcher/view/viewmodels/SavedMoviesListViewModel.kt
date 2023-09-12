@@ -19,8 +19,8 @@ abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: Cach
 
     var clickOnPosterCallbackSetupSynchronizeBlock: Channel<Nothing>? = null
 
-    protected val databaseMovieDeletedObserver: Observer<DatabaseMovie>
-    protected val movieAddedObserver: Observer<Nothing?>
+    private val databaseMovieDeletedObserver: Observer<DatabaseMovie>
+    private val movieAddedObserver: Observer<Nothing?>
 
     private var moviesPaginationOffset: Int = 0
     private var isPaginationHardResetOnProcess: Boolean = false
@@ -72,7 +72,7 @@ abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: Cach
         recyclerAdapter.setPosterOnClickListener(null)
     }
 
-    fun unblockCallbackOnPosterClick(callback: MoviesRecyclerAdapter.OnClickListener) {
+    fun unblockCallbackOnPosterClick(callback: MoviesRecyclerAdapter.OnPosterClickListener) {
         recyclerAdapter.setPosterOnClickListener(callback)
     }
 

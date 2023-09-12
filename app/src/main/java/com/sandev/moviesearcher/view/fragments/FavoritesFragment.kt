@@ -37,7 +37,7 @@ class FavoritesFragment : MoviesListFragment() {
 
     private var mainActivity: MainActivity? = null
 
-    private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
+    private val posterOnClick = object : MoviesRecyclerAdapter.OnPosterClickListener {
         override fun onClick(databaseMovie: DatabaseMovie, posterView: ShapeableImageView) {
             resetExitReenterTransitionAnimations()
             viewModel.lastClickedDatabaseMovie = databaseMovie

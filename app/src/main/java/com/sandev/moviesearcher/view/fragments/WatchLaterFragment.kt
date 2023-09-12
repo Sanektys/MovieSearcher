@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.Toast
 import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -19,6 +20,7 @@ import com.sandev.moviesearcher.databinding.FragmentWatchLaterBinding
 import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
+import com.sandev.moviesearcher.view.rv_adapters.WatchLaterRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.WatchLaterFragmentViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,13 +39,14 @@ class WatchLaterFragment : MoviesListFragment() {
 
     private var mainActivity: MainActivity? = null
 
-    private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
+    private val posterOnClick = object : MoviesRecyclerAdapter.OnPosterClickListener {
         override fun onClick(databaseMovie: DatabaseMovie, posterView: ShapeableImageView) {
             resetExitReenterTransitionAnimations()
             viewModel.lastClickedDatabaseMovie = databaseMovie
             mainActivity?.startDetailsFragment(databaseMovie, posterView)
         }
     }
+    private val scheduleButtonOnClick by lazy { initializeScheduleNotificationButton() }
 
 
     override fun onAttach(context: Context) {
@@ -109,6 +112,14 @@ class WatchLaterFragment : MoviesListFragment() {
         }
     }
 
+    private fun initializeScheduleNotificationButton(): WatchLaterRecyclerAdapter.ScheduleNotificationButtonClick {
+        return object : WatchLaterRecyclerAdapter.ScheduleNotificationButtonClick {
+            override fun onButtonClick() {
+                Toast.makeText(requireContext(), "Test", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     private fun initializeMovieRecyclerList() {
         binding.moviesListRecycler.apply {
             setHasFixedSize(true)
@@ -127,8 +138,8 @@ class WatchLaterFragment : MoviesListFragment() {
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
         if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {
-            // Пока не прошла анимация не обрабатывать клики на постеры
-            viewModel.blockCallbackOnPosterClick()
+            // Пока не прошла анимация не обрабатывать клики на постеры и кнопки настройки нотификаций
+            viewModel.blockOnClickCallbacksOnMovieCardElements()
 
             resetExitReenterTransitionAnimations()
 
@@ -145,7 +156,7 @@ class WatchLaterFragment : MoviesListFragment() {
                         launch(Dispatchers.Default) {  // Запускать удаление карточки фильма только после отрисовки анимации recycler
                             viewModel.checkForMovieDeletionNecessary()
                             viewModel.clickOnPosterCallbackSetupSynchronizeBlock?.receiveCatching()
-                            viewModel.unblockCallbackOnPosterClick(posterOnClick)
+                            viewModel.unblockOnClickCallbacksOnMovieCardElements(posterOnClick, scheduleButtonOnClick)
                         }
                     }
                 }
@@ -155,7 +166,7 @@ class WatchLaterFragment : MoviesListFragment() {
                 requireContext(), R.anim.posters_appearance
             )
         } else {
-            viewModel.unblockCallbackOnPosterClick(posterOnClick)
+            viewModel.unblockOnClickCallbacksOnMovieCardElements(posterOnClick, scheduleButtonOnClick)
         }
     }
 

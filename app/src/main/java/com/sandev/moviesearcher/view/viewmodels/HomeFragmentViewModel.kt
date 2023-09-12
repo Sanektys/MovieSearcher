@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
+import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.tmdb_feature.domain.interactors.TmdbInteractor
 import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.launch
@@ -34,6 +35,9 @@ class HomeFragmentViewModel(private val interactor: TmdbInteractor) : MoviesList
             isSwipeRefreshActive.postValue(false)
         }
 
+    override val recyclerAdapter: MoviesRecyclerAdapter =
+        MoviesRecyclerAdapter(sharedPreferencesInteractor.isRatingDonutAnimationEnabled())
+
     override var lastSearch: String
         set(value) {
             Companion.lastSearch = value
@@ -47,6 +51,8 @@ class HomeFragmentViewModel(private val interactor: TmdbInteractor) : MoviesList
 
 
     init {
+        sharedPreferencesInteractor.addSharedPreferencesChangeListener(recyclerAdapter.sharedPreferencesCallback)
+
         moviesList.observeForever { newList ->
             moviesPerPage = newList.size
             moviesDatabase = newList.toList()

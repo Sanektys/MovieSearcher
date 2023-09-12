@@ -11,25 +11,28 @@ import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.databinding.MovieCardBinding
 import com.sandev.moviesearcher.utils.rv_diffutils.MoviesListDiff
+import com.sandev.moviesearcher.view.rv_viewholders.MovieBinding
 import com.sandev.moviesearcher.view.rv_viewholders.MovieViewHolder
+import com.sandev.moviesearcher.view.rv_viewholders.PosterBinding
 import java.util.Collections
 import java.util.WeakHashMap
 
 
-class MoviesRecyclerAdapter(private var isDonutAnimationEnabled: Boolean)
-    : RecyclerView.Adapter<MovieViewHolder>() {
+open class MoviesRecyclerAdapter(protected var isDonutAnimationEnabled: Boolean)
+    : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     val sharedPreferencesCallback: SharedPreferences.OnSharedPreferenceChangeListener = initializeSharedPreferencesCallback()
 
     private val moviesList: MutableList<DatabaseMovie> = mutableListOf()
-    private var clickListener: OnClickListener? = null
-    var lastClickedMoviePosition = DEFAULT_NON_CLICKED_POSITION
-        private set
 
-    private val viewHolders = Collections.newSetFromMap(WeakHashMap<MovieViewHolder, Boolean>())
+    private var posterClickListener: OnPosterClickListener? = null
+    private var lastClickedMoviePosition = DEFAULT_NON_CLICKED_POSITION
+
+    protected val viewHolders: MutableSet<RecyclerView.ViewHolder>
+            = Collections.newSetFromMap(WeakHashMap())
 
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val viewHolder = MovieViewHolder(MovieCardBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
         viewHolder.ratingDonut.isRatingAnimationEnabled = isDonutAnimationEnabled
@@ -40,23 +43,23 @@ class MoviesRecyclerAdapter(private var isDonutAnimationEnabled: Boolean)
 
     override fun getItemCount() = moviesList.size
 
-    override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
-        holder.onBind(moviesList[position], position)
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        (holder as MovieBinding).onBind(moviesList[position], position)
 
-        holder.poster.setOnClickListener {
+        (holder as PosterBinding).poster.setOnClickListener {
             lastClickedMoviePosition = holder.bindingAdapterPosition
             holder.poster.transitionName = it.resources.getString(R.string.movie_view_holder_transition_name,
                 lastClickedMoviePosition)
-            clickListener?.onClick(moviesList[lastClickedMoviePosition], holder.poster)
+            posterClickListener?.onClick(moviesList[lastClickedMoviePosition], holder.poster)
         }
     }
 
-    interface OnClickListener {
+    interface OnPosterClickListener {
         fun onClick(databaseMovie: DatabaseMovie, posterView: ShapeableImageView)
     }
 
-    fun setPosterOnClickListener(onClickListener: OnClickListener?) {
-        clickListener = onClickListener
+    fun setPosterOnClickListener(onPosterClickListener: OnPosterClickListener?) {
+        posterClickListener = onPosterClickListener
     }
 
     fun getMovieAt(position: Int): DatabaseMovie? = moviesList.getOrNull(position)
@@ -128,7 +131,7 @@ class MoviesRecyclerAdapter(private var isDonutAnimationEnabled: Boolean)
 
     private fun updateAnimationStateInItems() {
         for (item in viewHolders) {
-            item.ratingDonut.isRatingAnimationEnabled = isDonutAnimationEnabled
+            (item as MovieViewHolder).ratingDonut.isRatingAnimationEnabled = isDonutAnimationEnabled
         }
     }
 
