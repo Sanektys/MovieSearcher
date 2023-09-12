@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.Material3.CardView.Outlined"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/activity_main.movies_recycler.movie_card.height"
+    android:layout_marginHorizontal="@dimen/activity_main.movies_recycler.movie_card.margin_horizontal"
+    android:layout_marginBottom="@dimen/activity_main.movies_recycler.movie_card.margin_bottom"
+    app:strokeColor="?attr/colorOutline"
+    app:cardBackgroundColor="?attr/colorPrimaryContainer"
+    app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/movie_card.poster"
+            android:layout_width="@dimen/activity_main.movies_recycler.movie_card.poster.width"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:clickable="true"
+            android:focusable="true"
+            android:alpha="@dimen/activity_main.movies_recycler.movie_card.poster.alpha"
+            android:stateListAnimator="@animator/poster_card_click_animation"
+            app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:src="@drawable/dummy_poster" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/movie_card.movie_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_main.movies_recycler.movie_card.title.margin_top"
+            android:textAlignment="center"
+            android:maxLines="2"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/movie_card.poster"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Title"/>
+
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/activity_main.movies_recycler.movie_card.separator.margin_horizontal"
+            android:layout_marginTop="@dimen/activity_main.movies_recycler.movie_card.divider.margin_top"
+            app:dividerColor="?attr/colorOutline"
+            app:layout_constraintStart_toEndOf="@id/movie_card.poster"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/movie_card.movie_title"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/movie_card.notification.title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_main.movies_recycler.movie_card.description.margin_horizontal"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+            android:textAlignment="textStart"
+            android:text="@string/watch_later_movie_card.body.notification.title"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintStart_toEndOf="@id/movie_card.poster"
+            app:layout_constraintEnd_toStartOf="@id/schedule_button"
+            app:layout_constraintTop_toBottomOf="@id/movie_card.movie_title"
+            app:layout_constraintBottom_toTopOf="@id/movie_card.notification.date"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:layout_constraintHorizontal_chainStyle="packed"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/movie_card.notification.date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/activity_main.movies_recycler.movie_card.description.margin_horizontal"
+            android:layout_marginTop="@dimen/activity_main.movies_recycler.movie_card.description.margin_top"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textAlignment="textStart"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintStart_toStartOf="@id/movie_card.notification.title"
+            app:layout_constraintEnd_toEndOf="@id/movie_card.notification.title"
+            app:layout_constraintTop_toBottomOf="@id/movie_card.notification.title"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="1 January 1970 18:45" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/schedule_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/activity_main.movies_recycler.movie_card.description.margin_horizontal"
+            app:icon="@drawable/outline_manage_history"
+            app:iconSize="@dimen/watch_later_movie_card.body.notification.icon.size"
+            app:iconTint="?attr/colorOnSecondaryContainer"
+            style="@style/Widget.Material3.Button.IconButton"
+            app:layout_constraintStart_toEndOf="@id/movie_card.notification.title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/movie_card.notification.title"
+            app:layout_constraintBottom_toBottomOf="@id/movie_card.notification.date" />
+
+        <com.sandev.moviesearcher.view.customviews.RatingDonutView
+            android:id="@+id/rating_donut"
+            android:layout_width="@dimen/activity_main.movies_recycler.movie_card.rating_donut.width"
+            android:layout_height="@dimen/activity_main.movies_recycler.movie_card.rating_donut.height"
+            android:layout_marginEnd="@dimen/activity_main.movies_recycler.movie_card.rating_donut.margin_end"
+            app:outer_background_color="?attr/colorPrimaryContainer"
+            app:inner_background_color="?attr/colorSecondaryContainer"
+            app:elements_shadow_color="@color/rating_view_shadow"
+            app:digits_size="@dimen/activity_main.movies_recycler.movie_card.rating_donut.digit_size"
+            app:stroke_width="@dimen/activity_main.movies_recycler.movie_card.rating_donut.stroke_width"
+            app:stroke_offset="@dimen/activity_main.movies_recycler.movie_card.rating_donut.stroke_offset"
+            app:layout_constraintEnd_toEndOf="@id/movie_card.poster"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:progress="64" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -68,6 +68,10 @@
     <string name="watch_later_fragment.top_app_bar.search_bar.hint">Search a movie from watch later</string>
 
 
+    <!-- Watch later movie card -->
+    <string name="watch_later_movie_card.body.notification.title">Notification scheduled at</string>
+
+
     <!-- Notification "watch movie" -->
     <string name="notification.watch_movie.channel.name">Watch movie</string>
     <string name="notification.watch_movie.channel.description">Reminder of what movie you wanted to watch</string>

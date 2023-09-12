@@ -70,6 +70,11 @@
     <string name="watch_later_fragment.top_app_bar.search_bar.hint">Найти фильм из отложенного</string>
 
 
+    <!-- Watch later movie card -->
+    <string name="watch_later_movie_card.body.notification.title">Уведомление намечено на</string>
+    <string name="watch_later_movie_card.body.notification.scheduled_time" translatable="false">HH MM DD YY</string>
+
+
     <!-- Movie view holder -->
     <string name="movie_view_holder.transition_name" translatable="false">MOVIE_POSTER_TRANSITION%d</string>
 
