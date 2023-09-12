@@ -14,4 +14,6 @@
 
     <!-- watch later movie card -->
     <dimen name="watch_later_movie_card.body.notification.icon.size">28dp</dimen>
+    <dimen name="watch_later_movie_card.poster.height">120dp</dimen>
+    <dimen name="watch_later_movie_card.poster.width">88dp</dimen>
 </resources>
