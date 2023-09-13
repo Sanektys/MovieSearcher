@@ -8,8 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.Toast
+import androidx.appcompat.view.ContextThemeWrapper
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.doOnPreDraw
+import androidx.core.view.forEach
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.domain_api.local_database.entities.DatabaseMovie
@@ -114,8 +117,25 @@ class WatchLaterFragment : MoviesListFragment() {
 
     private fun initializeScheduleNotificationButton(): WatchLaterRecyclerAdapter.ScheduleNotificationButtonClick {
         return object : WatchLaterRecyclerAdapter.ScheduleNotificationButtonClick {
-            override fun onButtonClick() {
-                Toast.makeText(requireContext(), "Test", Toast.LENGTH_SHORT).show()
+            override fun onButtonClick(button: View) {
+                val popupMenuTheme = ContextThemeWrapper(requireContext(), R.style.Widget_MovieSearcher_PopupMenu)
+                val popupMenu = PopupMenu(requireContext(), button, Gravity.BOTTOM, 0, popupMenuTheme.themeResId)
+                popupMenu.menuInflater.inflate(R.menu.watch_later_movie_card_popup_menu, popupMenu.menu)
+
+                popupMenu.setOnMenuItemClickListener { menuItem ->
+                    when (menuItem.itemId) {
+                        R.id.watch_later_card_popup_change_button -> {
+
+                            true
+                        }
+                        R.id.watch_later_card_popup_remove_button -> {
+
+                            true
+                        }
+                        else -> false
+                    }
+                }
+                popupMenu.show()
             }
         }
     }

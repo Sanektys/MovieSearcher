@@ -68,4 +68,12 @@
     <style name="MaterialAlertDialogText" parent="MaterialAlertDialog.Material3.Title.Text">
         <item name="android:textAppearance">@style/TextAppearance.Material3.TitleMedium</item>
     </style>
+
+
+    <!-- Theme for popup menu -->
+    <style name="Widget.MovieSearcher.PopupMenu" parent="Widget.Material3.PopupMenu">
+        <item name="android:textAppearanceSmallPopupMenu">?attr/textAppearanceBodySmall</item>
+        <item name="android:textAppearanceLargePopupMenu">?attr/textAppearanceBodySmall</item>
+        <item name="android:popupBackground">@drawable/popup_menu_background</item>
+    </style>
 </resources>

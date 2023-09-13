@@ -26,7 +26,7 @@
     <dimen name="activity_main.movies_recycler.movie_card.divider.margin_top">4dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.separator.margin_horizontal">12dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.description.margin_horizontal">10dp</dimen>
-    <dimen name="activity_main.movies_recycler.movie_card.description.margin_top">4dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.description.margin_top">8dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.description.fade_to_background.height">40dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.rating_donut.width">50dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.rating_donut.height">50dp</dimen>
@@ -78,7 +78,9 @@
 
     <!-- watch later movie card -->
     <dimen name="watch_later_movie_card.body.notification.title.margin_start">12dp</dimen>
+    <dimen name="watch_later_movie_card.body.notification.date.margin_top">4dp</dimen>
     <dimen name="watch_later_movie_card.body.notification.icon.size">32dp</dimen>
+    <dimen name="watch_later_movie_card.body.notification.alpha">0.85</dimen>
     <dimen name="watch_later_movie_card.poster.height">140dp</dimen>
     <dimen name="watch_later_movie_card.poster.width">100dp</dimen>
 
@@ -96,6 +98,12 @@
     <dimen name="alert_dialog.content.list_item.text.margin_start">16dp</dimen>
     <dimen name="alert_dialog.content.radio_group.item.icon.paddingStart">24dp</dimen>
     <dimen name="alert_dialog.content.radio_group.item.icon.paddingEnd">24dp</dimen>
+
+
+    <!-- popup menu -->
+    <dimen name="popup_menu.margin_horizontal">8dp</dimen>
+    <dimen name="popup_menu.corner_radius">16dp</dimen>
+    <dimen name="popup_menu.stroke_width">1dp</dimen>
 
 
     <!-- preference switch view -->

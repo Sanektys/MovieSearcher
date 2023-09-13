@@ -70,6 +70,8 @@
 
     <!-- Watch later movie card -->
     <string name="watch_later_movie_card.body.notification.title">Notification scheduled at</string>
+    <string name="watch_later_movie_card.popup_menu.button_change">Change</string>
+    <string name="watch_later_movie_card.popup_menu.button_remove">Remove</string>
 
 
     <!-- Notification "watch movie" -->

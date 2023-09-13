@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/watch_later_card_popup_change_button"
+        android:title="@string/watch_later_movie_card.popup_menu.button_change" />
+    <item
+        android:id="@+id/watch_later_card_popup_remove_button"
+        android:title="@string/watch_later_movie_card.popup_menu.button_remove" />
+</menu>

@@ -1,6 +1,7 @@
 package com.sandev.moviesearcher.view.rv_adapters
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.sandev.moviesearcher.databinding.WatchLaterMovieCardBinding
@@ -28,8 +29,8 @@ class WatchLaterRecyclerAdapter(isDonutAnimationEnabled: Boolean) :
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)
 
-        (holder as WatchLaterMovieViewHolder).scheduleButton.setOnClickListener {
-            onScheduleNotificationButtonClick?.onButtonClick()
+        (holder as WatchLaterMovieViewHolder).scheduleButton.setOnClickListener { button ->
+            onScheduleNotificationButtonClick?.onButtonClick(button)
         }
     }
 
@@ -39,6 +40,6 @@ class WatchLaterRecyclerAdapter(isDonutAnimationEnabled: Boolean) :
 
 
     interface ScheduleNotificationButtonClick {
-        fun onButtonClick()
+        fun onButtonClick(button: View)
     }
 }
