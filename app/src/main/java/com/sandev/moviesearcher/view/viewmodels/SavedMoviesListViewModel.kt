@@ -19,8 +19,8 @@ abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: Cach
 
     var clickOnPosterCallbackSetupSynchronizeBlock: Channel<Nothing>? = null
 
-    private val databaseMovieDeletedObserver: Observer<DatabaseMovie>
-    private val movieAddedObserver: Observer<Nothing?>
+    private var databaseMovieDeletedObserver: Observer<DatabaseMovie>? = null
+    private var movieAddedObserver: Observer<Nothing?>? = null
 
     private var moviesPaginationOffset: Int = 0
     private var isPaginationHardResetOnProcess: Boolean = false
@@ -29,30 +29,6 @@ abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: Cach
     init {
         isOffline = true
         moviesPerPage = CachedMoviesInteractor.MOVIES_PER_PAGE
-
-        databaseMovieDeletedObserver = Observer<DatabaseMovie> { deletedMovie ->
-            val isMovieDeleted = recyclerAdapter.removeMovieCard(deletedMovie)
-            if (isMovieDeleted && moviesPaginationOffset > 0) {
-                --moviesPaginationOffset
-                nextPage = INITIAL_PAGE_IN_RECYCLER
-            }
-            unblockCallbackOnPosterClick()
-        }
-        movieAddedObserver = Observer<Nothing?> {
-            if (recyclerAdapter.itemCount == 0) {
-                dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
-            } else {
-                // Сохранённые списки не зависят от nextPage напрямую, только от moviesPaginationOffset,
-                // поэтому сбрасываем страницу при каждом обновлении чтобы пагинация загружала новые страницы
-                nextPage = INITIAL_PAGE_IN_RECYCLER
-                if (moviesPerPage == 0) {  // Пагинация в последний раз дошла до конца списка
-                    softResetPagination()
-                }
-            }
-        }
-
-        cachedMoviesInteractor.getDeletedDatabaseMovie.observeForever(databaseMovieDeletedObserver)
-        cachedMoviesInteractor.getMovieAddedNotify.observeForever(movieAddedObserver)
 
         moviesList.observeForever { newList ->
             moviesPerPage = newList.size
@@ -76,9 +52,41 @@ abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: Cach
         recyclerAdapter.setPosterOnClickListener(callback)
     }
 
+    protected fun registerMovieInListStateChangeObservers() {
+        databaseMovieDeletedObserver = Observer<DatabaseMovie> { deletedMovie ->
+            val isMovieDeleted = recyclerAdapter.removeMovieCard(deletedMovie)
+            if (isMovieDeleted && moviesPaginationOffset > 0) {
+                --moviesPaginationOffset
+                nextPage = INITIAL_PAGE_IN_RECYCLER
+            }
+            unblockCallbackOnPosterClick()
+        }
+        movieAddedObserver = Observer<Nothing?> {
+            if (recyclerAdapter.itemCount == 0) {
+                dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
+            } else {
+                // Сохранённые списки не зависят от nextPage напрямую, только от moviesPaginationOffset,
+                // поэтому сбрасываем страницу при каждом обновлении чтобы пагинация загружала новые страницы
+                nextPage = INITIAL_PAGE_IN_RECYCLER
+                if (moviesPerPage == 0) {  // Пагинация в последний раз дошла до конца списка
+                    softResetPagination()
+                }
+            }
+        }
+
+        cachedMoviesInteractor.getDeletedDatabaseMovie.observeForever(databaseMovieDeletedObserver!!)
+        cachedMoviesInteractor.getMovieAddedNotify.observeForever(movieAddedObserver!!)
+    }
+
     override fun onCleared() {
-        cachedMoviesInteractor.getDeletedDatabaseMovie.removeObserver(databaseMovieDeletedObserver)
-        cachedMoviesInteractor.getMovieAddedNotify.removeObserver(movieAddedObserver)
+        if (databaseMovieDeletedObserver != null) {
+            cachedMoviesInteractor.getDeletedDatabaseMovie.removeObserver(
+                databaseMovieDeletedObserver!!
+            )
+        }
+        if (movieAddedObserver != null) {
+            cachedMoviesInteractor.getMovieAddedNotify.removeObserver(movieAddedObserver!!)
+        }
     }
 
     final override fun dispatchQueryToInteractor(page: Int?) {

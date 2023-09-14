@@ -10,10 +10,10 @@ import com.sandev.moviesearcher.databinding.MovieCardBinding
 
 
 class MovieViewHolder(private val binding: MovieCardBinding)
-    : RecyclerView.ViewHolder(binding.root), MovieBinding, PosterBinding {
+    : RecyclerView.ViewHolder(binding.root), MovieBinding, PosterBinding, RatingDonut {
 
     override val poster = binding.movieCardPoster
-    val ratingDonut = binding.ratingDonut
+    override val ratingDonut = binding.ratingDonut
 
 
     override fun onBind(databaseMovieData: DatabaseMovie, position: Int) {

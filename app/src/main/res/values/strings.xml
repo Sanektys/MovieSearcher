@@ -60,6 +60,8 @@
     <string name="details_fragment.poster_download.success">Постер успешно загружен в галерею</string>
     <string name="details_fragment.poster_download.success.action">Открыть галерею</string>
     <string name="details_fragment.poster_download.failure">Не удалось загрузить постер фильма</string>
+    <string name="details_fragment.fab.add_watch_later.date_picker.title">Задайте дату напоминания о фильме</string>
+    <string name="details_fragment.fab.add_watch_later.time_picker.title">Задайте время напоминания о фильме</string>
 
 
     <!-- Favorites fragment -->

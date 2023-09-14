@@ -25,6 +25,8 @@ class WatchLaterFragmentViewModel(cachedMoviesInteractor: CachedMoviesInteractor
 
     init {
         sharedPreferencesInteractor.addSharedPreferencesChangeListener(recyclerAdapter.sharedPreferencesCallback)
+
+        registerMovieInListStateChangeObservers()
     }
 
 

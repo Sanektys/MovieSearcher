@@ -14,6 +14,7 @@ import com.sandev.moviesearcher.utils.rv_diffutils.MoviesListDiff
 import com.sandev.moviesearcher.view.rv_viewholders.MovieBinding
 import com.sandev.moviesearcher.view.rv_viewholders.MovieViewHolder
 import com.sandev.moviesearcher.view.rv_viewholders.PosterBinding
+import com.sandev.moviesearcher.view.rv_viewholders.RatingDonut
 import java.util.Collections
 import java.util.WeakHashMap
 
@@ -131,7 +132,7 @@ open class MoviesRecyclerAdapter(protected var isDonutAnimationEnabled: Boolean)
 
     private fun updateAnimationStateInItems() {
         for (item in viewHolders) {
-            (item as MovieViewHolder).ratingDonut.isRatingAnimationEnabled = isDonutAnimationEnabled
+            (item as RatingDonut).ratingDonut.isRatingAnimationEnabled = isDonutAnimationEnabled
         }
     }
 

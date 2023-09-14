@@ -20,6 +20,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
@@ -55,6 +56,7 @@ import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
 import com.sandev.moviesearcher.utils.changeAppearanceToSamsungOneUI
 import com.sandev.moviesearcher.view.MainActivity
+import com.sandev.moviesearcher.view.dialogs.DateTimePickerDialog
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
@@ -219,14 +221,35 @@ class DetailsFragment : Fragment() {
         }
 
         binding.fabToWatchLater.setOnClickListener {
-            binding.fabToWatchLater.isSelected = !binding.fabToWatchLater.isSelected
-            binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
-            viewModel.isWatchLaterButtonSelected = binding.fabToWatchLater.isSelected
+            if (viewModel.isWatchLaterButtonSelected.not()) {
+                DateTimePickerDialog.show(
+                    activity = requireActivity(),
+                    datePickerTitle = R.string.details_fragment_fab_add_watch_later_date_picker_title,
+                    timePickerTitle = R.string.details_fragment_fab_add_watch_later_time_picker_title
+                ) { setDate ->
 
-            Snackbar.make(requireContext(), binding.root,
-                if (binding.fabToWatchLater.isSelected) getString(R.string.details_fragment_fab_add_watch_later)
-                else getString(R.string.details_fragment_fab_remove_watch_later),
-                Snackbar.LENGTH_SHORT).show()
+                    binding.fabToWatchLater.isSelected = true
+                    viewModel.isWatchLaterButtonSelected = true
+
+                    Snackbar.make(
+                        requireContext(), binding.root,
+                        getString(R.string.details_fragment_fab_add_watch_later),
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+            } else {
+                binding.fabToWatchLater.isSelected = false
+                viewModel.isWatchLaterButtonSelected = false
+
+                Snackbar.make(
+                    requireContext(), binding.root,
+                    getString(R.string.details_fragment_fab_remove_watch_later),
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+            binding.fabToWatchLater.setImageDrawable(
+                AppCompatResources.getDrawable(requireContext(), R.drawable.watch_later_icon_selector)
+            )
         }
 
         binding.fabDialogMenu.setOnClickListener {

@@ -11,11 +11,11 @@ import com.sandev.moviesearcher.databinding.WatchLaterMovieCardBinding
 
 
 class WatchLaterMovieViewHolder(private val binding: WatchLaterMovieCardBinding)
-    : RecyclerView.ViewHolder(binding.root), MovieBinding, PosterBinding {
+    : RecyclerView.ViewHolder(binding.root), MovieBinding, PosterBinding, RatingDonut {
 
     override val poster = binding.movieCardPoster
+    override val ratingDonut = binding.ratingDonut
     val scheduleButton = binding.scheduleButton
-    val ratingDonut = binding.ratingDonut
 
     override fun onBind(databaseMovieData: DatabaseMovie, position: Int) {
         val poster = binding.movieCardPoster
