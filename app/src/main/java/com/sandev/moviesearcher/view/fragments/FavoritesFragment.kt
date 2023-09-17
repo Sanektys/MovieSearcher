@@ -49,7 +49,12 @@ class FavoritesFragment : MoviesListFragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        val favoriteMoviesDatabaseComponent = ViewModelProvider(requireActivity())[FavoriteMoviesComponentViewModel::class.java]
+        val favoriteMoviesDatabaseComponentFactory
+                = FavoriteMoviesComponentViewModel.ViewModelFactory(context)
+        val favoriteMoviesDatabaseComponent = ViewModelProvider(
+            requireActivity(),
+            favoriteMoviesDatabaseComponentFactory
+        )[FavoriteMoviesComponentViewModel::class.java]
 
         val viewModelFactory = FavoritesFragmentViewModel.ViewModelFactory(favoriteMoviesDatabaseComponent.interactor)
         _viewModel = ViewModelProvider(requireActivity(), viewModelFactory)[FavoritesFragmentViewModel::class.java]

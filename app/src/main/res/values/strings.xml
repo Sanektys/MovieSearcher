@@ -62,6 +62,8 @@
     <string name="details_fragment.poster_download.failure">Не удалось загрузить постер фильма</string>
     <string name="details_fragment.fab.add_watch_later.date_picker.title">Задайте дату напоминания о фильме</string>
     <string name="details_fragment.fab.add_watch_later.time_picker.title">Задайте время напоминания о фильме</string>
+    <string name="details_fragment.fab.add_watch_later.notifications_disabled.message">Уведомления о просмотре фильма отключены в настройках</string>
+    <string name="details_fragment.fab.add_watch_later.notifications_disabled.button">Настройки</string>
 
 
     <!-- Favorites fragment -->

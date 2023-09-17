@@ -55,6 +55,7 @@ import com.sandev.cached_movies_feature.watch_later_movies.WatchLaterMoviesCompo
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
 import com.sandev.moviesearcher.utils.changeAppearanceToSamsungOneUI
+import com.sandev.moviesearcher.utils.workers.WorkRequests
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.dialogs.DateTimePickerDialog
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
@@ -91,9 +92,20 @@ class DetailsFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        val favoritesMoviesDatabaseComponent = ViewModelProvider(requireActivity())[FavoriteMoviesComponentViewModel::class.java]
+        val favoritesMoviesDatabaseComponentFactory
+                = FavoriteMoviesComponentViewModel.ViewModelFactory(context)
+        val favoritesMoviesDatabaseComponent = ViewModelProvider(
+            requireActivity(),
+            favoritesMoviesDatabaseComponentFactory
+        )[FavoriteMoviesComponentViewModel::class.java]
         viewModel.favoritesMoviesDatabaseInteractor = favoritesMoviesDatabaseComponent.interactor
-        val watchLaterMoviesDatabaseComponent = ViewModelProvider(requireActivity())[WatchLaterMoviesComponentViewModel::class.java]
+
+        val watchLaterMoviesDatabaseComponentFactory
+                = WatchLaterMoviesComponentViewModel.ViewModelFactory(context)
+        val watchLaterMoviesDatabaseComponent = ViewModelProvider(
+            requireActivity(),
+            watchLaterMoviesDatabaseComponentFactory
+        )[WatchLaterMoviesComponentViewModel::class.java]
         viewModel.watchLaterMoviesDatabaseInteractor = watchLaterMoviesDatabaseComponent.interactor
     }
 
@@ -221,12 +233,26 @@ class DetailsFragment : Fragment() {
         }
 
         binding.fabToWatchLater.setOnClickListener {
+            if (checkNotificationPermission().not()) {
+                requestNotificationPermission()
+                return@setOnClickListener
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (viewModel.watchMovieNotification.checkIsChannelEnabledWithSnackbar(
+                        requireActivity(),
+                        binding.root
+                ).not()) {
+                    return@setOnClickListener
+                }
+            }
+
             if (viewModel.isWatchLaterButtonSelected.not()) {
                 DateTimePickerDialog.show(
                     activity = requireActivity(),
                     datePickerTitle = R.string.details_fragment_fab_add_watch_later_date_picker_title,
                     timePickerTitle = R.string.details_fragment_fab_add_watch_later_time_picker_title
                 ) { setDate ->
+                    viewModel.watchLaterNotificationDate = setDate
 
                     binding.fabToWatchLater.isSelected = true
                     viewModel.isWatchLaterButtonSelected = true
@@ -392,6 +418,14 @@ class DetailsFragment : Fragment() {
 
     private fun changeWatchLaterMoviesList() {
         if (!viewModel.isWatchLaterMovie && viewModel.isWatchLaterButtonSelected) {
+            if (viewModel.watchLaterNotificationDate == null) return
+
+            WorkRequests.enqueueWatchLaterNotificationWork(
+                requireContext(),
+                viewModel.movie,
+                viewModel.watchLaterNotificationDate!!
+            )
+
             viewModel.addToWatchLater(viewModel.movie)
         } else if (viewModel.isWatchLaterMovie && !viewModel.isWatchLaterButtonSelected) {
             if (viewModel.fragmentThatLaunchedDetails == WatchLaterFragment::class.qualifiedName) {
@@ -402,6 +436,8 @@ class DetailsFragment : Fragment() {
             } else {
                 viewModel.removeFromWatchLater(viewModel.movie)
             }
+
+            WorkRequests.cancelWatchLaterNotificationWork(requireContext(), viewModel.movie)
         }
     }
 
@@ -528,7 +564,7 @@ class DetailsFragment : Fragment() {
         ActivityResultContracts.RequestPermission()
     ) { isNotificationGranted ->
         if (isNotificationGranted) {
-            viewModel.watchMovieNotification.notify(viewModel.movie)
+            binding.fabToWatchLater.performClick()
         }
     }
 

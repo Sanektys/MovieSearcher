@@ -50,6 +50,8 @@ class DetailsFragmentViewModel : ViewModel() {
 
     var fragmentThatLaunchedDetails: String? = null
 
+    var watchLaterNotificationDate: Long? = null
+
 
     init {
         App.instance.getAppComponent().inject(this)

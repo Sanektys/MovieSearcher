@@ -60,6 +60,8 @@
     <string name="details_fragment.poster_download.failure">Unable to download the movie poster</string>
     <string name="details_fragment.fab.add_watch_later.date_picker.title">Set a movie notification date</string>
     <string name="details_fragment.fab.add_watch_later.time_picker.title">Set a movie notification time</string>
+    <string name="details_fragment.fab.add_watch_later.notifications_disabled.message">Movie notifications are disabled in settings</string>
+    <string name="details_fragment.fab.add_watch_later.notifications_disabled.button">Settings</string>
 
 
     <!-- Favorites fragment -->

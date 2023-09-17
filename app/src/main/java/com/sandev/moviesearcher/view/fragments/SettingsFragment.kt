@@ -258,11 +258,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     private fun initializeMovieNotificationButton() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             binding.movieNotificationButton.setOnClickListener {
-                val intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
-                    putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().packageName)
-                    putExtra(Settings.EXTRA_CHANNEL_ID, WatchMovieNotification.CHANNEL_ID)
-                }
-                startActivity(intent)
+                viewModel.watchLaterNotification.openChannelSettings(requireActivity())
             }
         } else {
             val linearLayout = binding.movieNotificationButton.parent as ViewGroup

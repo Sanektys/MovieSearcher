@@ -53,9 +53,14 @@ class WatchLaterFragment : MoviesListFragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        val favoriteMoviesDatabaseComponent = ViewModelProvider(requireActivity())[WatchLaterMoviesComponentViewModel::class.java]
+        val watchLaterMoviesDatabaseComponentFactory
+                = WatchLaterMoviesComponentViewModel.ViewModelFactory(context)
+        val watchLaterMoviesDatabaseComponent = ViewModelProvider(
+            requireActivity(),
+            watchLaterMoviesDatabaseComponentFactory
+        )[WatchLaterMoviesComponentViewModel::class.java]
 
-        val viewModelFactory = WatchLaterFragmentViewModel.ViewModelFactory(favoriteMoviesDatabaseComponent.interactor)
+        val viewModelFactory = WatchLaterFragmentViewModel.ViewModelFactory(watchLaterMoviesDatabaseComponent.interactor)
         _viewModel = ViewModelProvider(requireActivity(), viewModelFactory)[WatchLaterFragmentViewModel::class.java]
     }
 

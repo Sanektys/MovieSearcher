@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.domain.interactors.SharedPreferencesInteractor
+import com.sandev.moviesearcher.view.notifications.WatchMovieNotification
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,6 +17,9 @@ class SettingsFragmentViewModel() : ViewModel() {
 
     @Inject
     lateinit var sharedPreferencesInteractor: SharedPreferencesInteractor
+
+    @Inject
+    lateinit var watchLaterNotification: WatchMovieNotification
 
     private val sharedPreferencesCallback = initializeSharedPreferencesCallback()
 
