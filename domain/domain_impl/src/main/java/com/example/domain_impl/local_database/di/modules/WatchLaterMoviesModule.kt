@@ -8,8 +8,9 @@ import com.example.domain_api.local_database.db_contracts.WatchLaterDatabaseCont
 import com.example.domain_api.local_database.repository.MoviesListRepository
 import com.example.domain_api.local_database.repository.MoviesListRepositoryForSavedLists
 import com.example.domain_impl.local_database.databases.WatchLaterMoviesDatabase
-import com.example.domain_impl.local_database.repositories.MoviesListRepositoryForSavedListsImpl
 import com.example.domain_impl.local_database.di.scopes.WatchLaterMoviesScope
+import com.example.domain_impl.local_database.migrations.WatchLaterMoviesDatabaseMigrations
+import com.example.domain_impl.local_database.repositories.MoviesListRepositoryForSavedListsImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -21,6 +22,7 @@ class WatchLaterMoviesModule {
     @[Provides WatchLaterMoviesScope]
     fun provideWatchLaterMoviesDatabase(context: Context): WatchLaterDatabaseContract = Room
         .databaseBuilder(context, WatchLaterMoviesDatabase::class.java, WatchLaterMoviesDatabase.DATABASE_NAME)
+        .addMigrations(WatchLaterMoviesDatabaseMigrations.migration_1_2)
         .build()
 
     @[Provides WatchLaterMoviesScope]

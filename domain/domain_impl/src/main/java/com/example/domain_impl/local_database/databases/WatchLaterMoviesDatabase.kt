@@ -6,7 +6,7 @@ import com.example.domain_api.local_database.db_contracts.WatchLaterDatabaseCont
 import com.example.domain_api.local_database.entities.WatchLaterDatabaseMovie
 
 
-@Database(version = 1, exportSchema = true, entities = [WatchLaterDatabaseMovie::class])
+@Database(version = 2, exportSchema = true, entities = [WatchLaterDatabaseMovie::class])
 abstract class WatchLaterMoviesDatabase : RoomDatabase(), WatchLaterDatabaseContract {
 
     companion object {
