@@ -6,7 +6,7 @@ import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.example.domain_api.local_database.entities.TitleAndDescription
 
 
-class MoviesListRepositoryForSavedListsImpl(private val savedMovieDao: SavedMovieDao)
+open class MoviesListRepositoryForSavedListsImpl(private val savedMovieDao: SavedMovieDao)
     : MoviesListRepositoryImpl(savedMovieDao), MoviesListRepositoryForSavedLists {
 
     override fun deleteFromDB(databaseMovie: DatabaseMovie) {

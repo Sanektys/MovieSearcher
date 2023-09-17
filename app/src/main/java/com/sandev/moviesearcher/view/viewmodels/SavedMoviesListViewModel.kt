@@ -9,7 +9,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.channels.Channel
 
 
-abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: CachedMoviesInteractor)
+abstract class SavedMoviesListViewModel(protected open val cachedMoviesInteractor: CachedMoviesInteractor)
     : MoviesListFragmentViewModel() {
 
     final override val moviesList = MutableLiveData<List<DatabaseMovie>>()
@@ -38,8 +38,6 @@ abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: Cach
 
             if (isPaginationHardResetOnProcess) isPaginationHardResetOnProcess = false
         }
-
-        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
     }
 
 
@@ -126,7 +124,7 @@ abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: Cach
         }
     }
 
-    private fun getMoviesFromDB(offset: Int) {
+    protected open fun getMoviesFromDB(offset: Int) {
         var disposable: Disposable? = null
         disposable = cachedMoviesInteractor.getFewMoviesFromList(
             from = offset,
@@ -137,7 +135,7 @@ abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: Cach
         }
     }
 
-    private fun getSearchedMoviesFromDB(query: String, offset: Int) {
+    protected open fun getSearchedMoviesFromDB(query: String, offset: Int) {
         var disposable: Disposable? = null
         disposable = cachedMoviesInteractor.getFewSearchedMoviesFromList(
                 query = query,

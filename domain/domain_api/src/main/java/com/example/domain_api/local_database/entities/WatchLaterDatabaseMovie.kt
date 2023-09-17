@@ -24,6 +24,13 @@ data class WatchLaterDatabaseMovie(
     var notificationDate: Long? = null
 ) :  DatabaseMovie(id, poster, title, description, rating) {
 
+    constructor(movie: DatabaseMovie, notificationDate: Long?)
+            : this(id = movie.id, poster = movie.poster, title = movie.title,
+        description = movie.description, rating = movie.rating
+    ) {
+        this.notificationDate = notificationDate
+    }
+
     companion object {
         const val TABLE_NAME = "cached_watch_later_movies"
 

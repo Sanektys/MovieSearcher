@@ -1,12 +1,11 @@
 package com.sandev.cached_movies_feature.watch_later_movies
 
-import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.domain.provideWatchLaterMoviesDatabase
-import com.sandev.cached_movies_feature.domain.CachedMoviesInteractor
 import com.sandev.cached_movies_feature.watch_later_movies.di.components.DaggerWatchLaterMoviesInteractorComponent
+import com.sandev.cached_movies_feature.watch_later_movies.domain.WatchLaterMoviesInteractor
 import javax.inject.Inject
 
 
@@ -17,7 +16,7 @@ class WatchLaterMoviesComponentViewModel(context: Context) : ViewModel() {
         .build()
 
     @Inject
-    lateinit var interactor: CachedMoviesInteractor
+    lateinit var interactor: WatchLaterMoviesInteractor
 
 
     init {

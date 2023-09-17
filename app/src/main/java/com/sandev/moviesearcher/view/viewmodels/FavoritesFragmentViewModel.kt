@@ -24,6 +24,8 @@ class FavoritesFragmentViewModel(cachedMoviesInteractor: CachedMoviesInteractor)
         sharedPreferencesInteractor.addSharedPreferencesChangeListener(recyclerAdapter.sharedPreferencesCallback)
 
         registerMovieInListStateChangeObservers()
+
+        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
     }
 
 

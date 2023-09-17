@@ -1,6 +1,5 @@
 package com.example.domain_api.local_database.daos
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -17,33 +16,8 @@ abstract class PopularMovieDao : MovieDao {
     @Query("SELECT * FROM ${PopularDatabaseMovie.TABLE_NAME}")
     abstract override fun getAllCachedMovies(): Observable<List<DatabaseMovie>>
 
-    @Query("SELECT *" +
-            "FROM " +
-            "(SELECT * " +
-            "FROM ${PopularDatabaseMovie.TABLE_NAME} " +
-            "ORDER BY ${DatabaseMovie.COLUMN_ID} DESC " +
-            "LIMIT :moviesCount) AS q " +
-            "ORDER BY ${DatabaseMovie.COLUMN_ID} ASC")
-    abstract override fun getLastFewCachedMovies(moviesCount: Int): LiveData<List<DatabaseMovie>>
-
     @Query("SELECT * FROM ${PopularDatabaseMovie.TABLE_NAME} LIMIT :from, :moviesCount")
     abstract override fun getFewCachedMoviesFromOffset(from: Int, moviesCount: Int): List<DatabaseMovie>
-
-    @Query("SELECT * " +
-            "FROM ${PopularDatabaseMovie.TABLE_NAME} " +
-            "WHERE ${DatabaseMovie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
-            "ORDER BY ${DatabaseMovie.COLUMN_ID} ASC")
-    abstract override fun getAllSearchedCachedMovies(query: String): LiveData<List<DatabaseMovie>>
-
-    @Query("SELECT * " +
-            "FROM" +
-            "(SELECT * " +
-            "FROM ${PopularDatabaseMovie.TABLE_NAME} " +
-            "WHERE ${DatabaseMovie.COLUMN_TITLE} LIKE '%' || :query || '%' " +
-            "ORDER BY ${DatabaseMovie.COLUMN_ID} DESC " +
-            "LIMIT :moviesCount) AS q " +
-            "ORDER BY ${DatabaseMovie.COLUMN_ID} ASC")
-    abstract override fun getLastFewSearchedCachedMovies(query: String, moviesCount: Int): LiveData<List<DatabaseMovie>>
 
     @Query("SELECT * " +
             "FROM ${PopularDatabaseMovie.TABLE_NAME} " +

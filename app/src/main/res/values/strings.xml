@@ -76,7 +76,7 @@
 
     <!-- Watch later movie card -->
     <string name="watch_later_movie_card.body.notification.title">Уведомление намечено на</string>
-    <string name="watch_later_movie_card.body.notification.scheduled_time" translatable="false">HH MM DD YY</string>
+    <string name="watch_later_movie_card.body.notification.scheduled_time.null">незаданную дату</string>
     <string name="watch_later_movie_card.popup_menu.button_change">Изменить</string>
     <string name="watch_later_movie_card.popup_menu.button_remove">Удалить</string>
 

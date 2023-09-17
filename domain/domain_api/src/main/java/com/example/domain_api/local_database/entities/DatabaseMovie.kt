@@ -38,14 +38,6 @@ open class DatabaseMovie(
         return Objects.hash(poster, title, description)
     }
 
-    fun getCopy(
-        id: Int = this.id,
-        poster: String? = this.poster,
-        title: String = this.title,
-        description: String = this.description,
-        rating: Float = this.rating
-    ) = DatabaseMovie(id, poster, title, description, rating)
-
     companion object {
         const val COLUMN_ID = "_id"
         const val COLUMN_POSTER = "poster"

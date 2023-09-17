@@ -29,7 +29,7 @@ class WatchLaterNotificationWorker(context: Context, workerParams: WorkerParamet
         var moviesWithSameTitle: List<DatabaseMovie>? = null
 
         watchLaterMoviesDatabase.interactor
-            .getFewSearchedMoviesFromList(
+            .getFewSearchedWatchLaterMoviesFromList(
                 query = targetMovieTitle,
                 from = 0,
                 moviesCount = Int.MAX_VALUE)

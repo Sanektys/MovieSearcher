@@ -4,7 +4,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModel
 import com.example.domain_api.local_database.entities.DatabaseMovie
+import com.example.domain_api.local_database.entities.WatchLaterDatabaseMovie
 import com.sandev.cached_movies_feature.domain.CachedMoviesInteractor
+import com.sandev.cached_movies_feature.watch_later_movies.domain.WatchLaterMoviesInteractor
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.view.notifications.WatchMovieNotification
 import io.reactivex.rxjava3.core.Observable
@@ -24,14 +26,14 @@ class DetailsFragmentViewModel : ViewModel() {
             field = value
             getFavoritesMovies = favoritesMoviesDatabaseInteractor?.getAllFromList()
         }
-    var watchLaterMoviesDatabaseInteractor: CachedMoviesInteractor? = null
+    var watchLaterMoviesDatabaseInteractor: WatchLaterMoviesInteractor? = null
         set(value) {
             field = value
-            getWatchLaterMovies = watchLaterMoviesDatabaseInteractor?.getAllFromList()
+            getWatchLaterMovies = watchLaterMoviesDatabaseInteractor?.getAllWatchLaterMoviesFromList()
         }
 
     var getFavoritesMovies: Observable<List<DatabaseMovie>>? = null
-    var getWatchLaterMovies: Observable<List<DatabaseMovie>>? = null
+    var getWatchLaterMovies: Observable<List<WatchLaterDatabaseMovie>>? = null
 
     var _movie: DatabaseMovie? = null
     val movie: DatabaseMovie

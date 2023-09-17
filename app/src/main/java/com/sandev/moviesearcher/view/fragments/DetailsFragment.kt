@@ -47,6 +47,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import com.example.domain.constants.TmdbCommonConstants
 import com.example.domain_api.local_database.entities.DatabaseMovie
+import com.example.domain_api.local_database.entities.WatchLaterDatabaseMovie
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -426,7 +427,9 @@ class DetailsFragment : Fragment() {
                 viewModel.watchLaterNotificationDate!!
             )
 
-            viewModel.addToWatchLater(viewModel.movie)
+            val watchLaterMovie = WatchLaterDatabaseMovie(viewModel.movie, viewModel.watchLaterNotificationDate)
+
+            viewModel.addToWatchLater(watchLaterMovie)
         } else if (viewModel.isWatchLaterMovie && !viewModel.isWatchLaterButtonSelected) {
             if (viewModel.fragmentThatLaunchedDetails == WatchLaterFragment::class.qualifiedName) {
                 requireActivity().supportFragmentManager.setFragmentResult(
