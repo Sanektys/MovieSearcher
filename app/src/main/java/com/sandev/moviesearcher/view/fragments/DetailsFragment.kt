@@ -227,6 +227,8 @@ class DetailsFragment : Fragment() {
             binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
             viewModel.isFavoriteButtonSelected = binding.fabToFavorite.isSelected
 
+            viewModel.changeFavoriteListImmediatelyIfPossible()
+
             Snackbar.make(requireContext(), binding.root,
                 if (binding.fabToFavorite.isSelected) getString(R.string.details_fragment_fab_add_favorite)
                 else getString(R.string.details_fragment_fab_remove_favorite),
@@ -253,10 +255,10 @@ class DetailsFragment : Fragment() {
                     datePickerTitle = R.string.details_fragment_fab_add_watch_later_date_picker_title,
                     timePickerTitle = R.string.details_fragment_fab_add_watch_later_time_picker_title
                 ) { setDate ->
-                    viewModel.watchLaterNotificationDate = setDate
-
                     binding.fabToWatchLater.isSelected = true
                     viewModel.isWatchLaterButtonSelected = true
+
+                    viewModel.changeWatchLaterListImmediatelyIfPossible(requireContext(), setDate)
 
                     Snackbar.make(
                         requireContext(), binding.root,
@@ -267,6 +269,8 @@ class DetailsFragment : Fragment() {
             } else {
                 binding.fabToWatchLater.isSelected = false
                 viewModel.isWatchLaterButtonSelected = false
+
+                viewModel.changeWatchLaterListImmediatelyIfPossible(requireContext(), null)
 
                 Snackbar.make(
                     requireContext(), binding.root,
@@ -403,44 +407,25 @@ class DetailsFragment : Fragment() {
     }
 
     private fun changeFavoriteMoviesList() {
-        if (!viewModel.isFavoriteMovie && viewModel.isFavoriteButtonSelected) {
-            viewModel.addToFavorite(viewModel.movie)
-        } else if (viewModel.isFavoriteMovie && !viewModel.isFavoriteButtonSelected) {
-            if (viewModel.fragmentThatLaunchedDetails == FavoritesFragment::class.qualifiedName) {
+        if (viewModel.fragmentThatLaunchedDetails == FavoritesFragment::class.qualifiedName) {
+            if (viewModel.isFavoriteMovie && !viewModel.isFavoriteButtonSelected) {
                 requireActivity().supportFragmentManager.setFragmentResult(
                     FavoritesFragment.FAVORITES_DETAILS_RESULT_KEY,
                     bundleOf(FavoritesFragment.MOVIE_NOW_NOT_FAVORITE_KEY to true)
                 )
-            } else {
-                viewModel.removeFromFavorite(viewModel.movie)
             }
         }
     }
 
     private fun changeWatchLaterMoviesList() {
-        if (!viewModel.isWatchLaterMovie && viewModel.isWatchLaterButtonSelected) {
-            if (viewModel.watchLaterNotificationDate == null) return
-
-            WorkRequests.enqueueWatchLaterNotificationWork(
-                requireContext(),
-                viewModel.movie,
-                viewModel.watchLaterNotificationDate!!
-            )
-
-            val watchLaterMovie = WatchLaterDatabaseMovie(viewModel.movie, viewModel.watchLaterNotificationDate)
-
-            viewModel.addToWatchLater(watchLaterMovie)
-        } else if (viewModel.isWatchLaterMovie && !viewModel.isWatchLaterButtonSelected) {
-            if (viewModel.fragmentThatLaunchedDetails == WatchLaterFragment::class.qualifiedName) {
+        if (viewModel.fragmentThatLaunchedDetails == WatchLaterFragment::class.qualifiedName) {
+            if (viewModel.isWatchLaterMovie && !viewModel.isWatchLaterButtonSelected) {
                 requireActivity().supportFragmentManager.setFragmentResult(
                     WatchLaterFragment.WATCH_LATER_DETAILS_RESULT_KEY,
                     bundleOf(WatchLaterFragment.MOVIE_NOW_NOT_WATCH_LATER_KEY to true)
                 )
-            } else {
-                viewModel.removeFromWatchLater(viewModel.movie)
+                WorkRequests.cancelWatchLaterNotificationWork(requireContext(), viewModel.movie)
             }
-
-            WorkRequests.cancelWatchLaterNotificationWork(requireContext(), viewModel.movie)
         }
     }
 

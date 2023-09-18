@@ -34,8 +34,8 @@ class WatchLaterFragmentViewModel(override val cachedMoviesInteractor: WatchLate
     }
 
 
-    fun blockOnClickCallbacksOnMovieCardElements() {
-        super.blockCallbackOnPosterClick()
+    fun blockOnClickCallbacksOnMovieCardElementsAndMovieDeletion() {
+        super.blockCallbackOnPosterClickAndMovieDeletion()
         (recyclerAdapter as WatchLaterRecyclerAdapter).setOnScheduleNotificationButtonClick(null)
     }
 

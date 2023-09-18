@@ -23,9 +23,11 @@ import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.rv_adapters.WatchLaterRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.WatchLaterFragmentViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.EmptyCoroutineContext
 
 
 class WatchLaterFragment : MoviesListFragment() {
@@ -72,8 +74,6 @@ class WatchLaterFragment : MoviesListFragment() {
 
         mainActivity = activity as MainActivity
 
-        viewModel.isMovieMoreNotInSavedList = false
-
         val previousFragmentName = mainActivity?.previousFragmentName
         if (previousFragmentName != DetailsFragment::class.qualifiedName) {
             if (previousFragmentName == HomeFragment::class.qualifiedName) {
@@ -94,7 +94,13 @@ class WatchLaterFragment : MoviesListFragment() {
 
         requireActivity().supportFragmentManager.setFragmentResultListener(
             WATCH_LATER_DETAILS_RESULT_KEY, this) { _, bundle ->
-            viewModel.isMovieMoreNotInSavedList = bundle.getBoolean(MOVIE_NOW_NOT_WATCH_LATER_KEY)
+            if (bundle.getBoolean(MOVIE_NOW_NOT_WATCH_LATER_KEY)) {
+                val job = CoroutineScope(Dispatchers.IO)
+                job.launch {
+                    viewModel.deleteMovieFromListAndDB()
+                    job.cancel()
+                }
+            }
         }
 
         initializeMovieRecyclerList()
@@ -103,8 +109,10 @@ class WatchLaterFragment : MoviesListFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
 
-        runBlocking {   // Если пользователь быстро нажимал "назад", то это предотвращает неудаление карточки
-            viewModel.checkForMovieDeletionNecessary()
+        val job = CoroutineScope(EmptyCoroutineContext)
+        job.launch {  // Если пользователь быстро нажимал "назад", то это предотвращает неудаление карточки
+            viewModel.unblockMovieDeletion()
+            job.cancel()
         }
 
         _binding = null
@@ -162,7 +170,7 @@ class WatchLaterFragment : MoviesListFragment() {
 
         if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {
             // Пока не прошла анимация не обрабатывать клики на постеры и кнопки настройки нотификаций
-            viewModel.blockOnClickCallbacksOnMovieCardElements()
+            viewModel.blockOnClickCallbacksOnMovieCardElementsAndMovieDeletion()
 
             resetExitReenterTransitionAnimations()
 
@@ -177,8 +185,7 @@ class WatchLaterFragment : MoviesListFragment() {
                             setTransitionAnimation(Gravity.END)
                         }
                         launch(Dispatchers.Default) {  // Запускать удаление карточки фильма только после отрисовки анимации recycler
-                            viewModel.checkForMovieDeletionNecessary()
-                            viewModel.clickOnPosterCallbackSetupSynchronizeBlock?.receiveCatching()
+                            viewModel.unblockMovieDeletion()
                             viewModel.unblockOnClickCallbacksOnMovieCardElements(posterOnClick, scheduleButtonOnClick)
                         }
                     }

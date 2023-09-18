@@ -14,10 +14,9 @@ abstract class SavedMoviesListViewModel(protected open val cachedMoviesInteracto
 
     final override val moviesList = MutableLiveData<List<DatabaseMovie>>()
 
-    var isMovieMoreNotInSavedList: Boolean = false
     var lastClickedDatabaseMovie: DatabaseMovie? = null
 
-    var clickOnPosterCallbackSetupSynchronizeBlock: Channel<Nothing>? = null
+    private var movieDeletionBlock: Channel<Nothing>? = null
 
     private var databaseMovieDeletedObserver: Observer<DatabaseMovie>? = null
     private var movieAddedObserver: Observer<Nothing?>? = null
@@ -41,8 +40,8 @@ abstract class SavedMoviesListViewModel(protected open val cachedMoviesInteracto
     }
 
 
-    fun blockCallbackOnPosterClick() {
-        clickOnPosterCallbackSetupSynchronizeBlock = Channel()
+    fun blockCallbackOnPosterClickAndMovieDeletion() {
+        movieDeletionBlock = Channel()
         recyclerAdapter.setPosterOnClickListener(null)
     }
 
@@ -57,7 +56,6 @@ abstract class SavedMoviesListViewModel(protected open val cachedMoviesInteracto
                 --moviesPaginationOffset
                 nextPage = INITIAL_PAGE_IN_RECYCLER
             }
-            unblockCallbackOnPosterClick()
         }
         movieAddedObserver = Observer<Nothing?> {
             if (recyclerAdapter.itemCount == 0) {
@@ -109,18 +107,15 @@ abstract class SavedMoviesListViewModel(protected open val cachedMoviesInteracto
         }
     }
 
-    fun checkForMovieDeletionNecessary() {
-        if (isMovieMoreNotInSavedList) {
-            removeMovieFromList()
-        } else {
-            unblockCallbackOnPosterClick()
-        }
+    suspend fun deleteMovieFromListAndDB() {
+        movieDeletionBlock?.receiveCatching()
+        removeMovieFromList()
     }
 
-    private fun unblockCallbackOnPosterClick() {
-        clickOnPosterCallbackSetupSynchronizeBlock?.run {
+    fun unblockMovieDeletion() {
+        movieDeletionBlock?.run {
             cancel()
-            clickOnPosterCallbackSetupSynchronizeBlock = null
+            movieDeletionBlock = null
         }
     }
 
@@ -159,7 +154,6 @@ abstract class SavedMoviesListViewModel(protected open val cachedMoviesInteracto
             removeFromSavedList(lastClickedDatabaseMovie!!)
             lastClickedDatabaseMovie = null
         }
-        isMovieMoreNotInSavedList = false
     }
 
     private fun hardResetPagination() {

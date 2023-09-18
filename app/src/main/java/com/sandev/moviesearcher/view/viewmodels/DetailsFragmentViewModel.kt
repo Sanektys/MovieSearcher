@@ -1,5 +1,6 @@
 package com.sandev.moviesearcher.view.viewmodels
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModel
@@ -8,6 +9,9 @@ import com.example.domain_api.local_database.entities.WatchLaterDatabaseMovie
 import com.sandev.cached_movies_feature.domain.CachedMoviesInteractor
 import com.sandev.cached_movies_feature.watch_later_movies.domain.WatchLaterMoviesInteractor
 import com.sandev.moviesearcher.App
+import com.sandev.moviesearcher.utils.workers.WorkRequests
+import com.sandev.moviesearcher.view.fragments.FavoritesFragment
+import com.sandev.moviesearcher.view.fragments.WatchLaterFragment
 import com.sandev.moviesearcher.view.notifications.WatchMovieNotification
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.Disposable
@@ -52,8 +56,6 @@ class DetailsFragmentViewModel : ViewModel() {
 
     var fragmentThatLaunchedDetails: String? = null
 
-    var watchLaterNotificationDate: Long? = null
-
 
     init {
         App.instance.getAppComponent().inject(this)
@@ -73,6 +75,31 @@ class DetailsFragmentViewModel : ViewModel() {
             throw IOException("Connection lost or server didn't respond")
         }
         return bitmap
+    }
+
+    fun changeFavoriteListImmediatelyIfPossible() {
+        if (isFavoriteMovie.not() || fragmentThatLaunchedDetails != FavoritesFragment::class.qualifiedName) {
+            if (isFavoriteButtonSelected) {
+                addToFavorite(movie)
+            } else {
+                removeFromFavorite(movie)
+            }
+        }
+    }
+
+    fun changeWatchLaterListImmediatelyIfPossible(context: Context, notificationDate: Long?) {
+        if (isWatchLaterMovie.not() || fragmentThatLaunchedDetails != WatchLaterFragment::class.qualifiedName) {
+            if (isWatchLaterButtonSelected && notificationDate != null) {
+                WorkRequests.enqueueWatchLaterNotificationWork(context, movie, notificationDate)
+
+                val watchLaterMovie = WatchLaterDatabaseMovie(movie, notificationDate)
+                addToWatchLater(watchLaterMovie)
+            } else {
+                WorkRequests.cancelWatchLaterNotificationWork(context, movie)
+
+                removeFromWatchLater(movie)
+            }
+        }
     }
 
     fun addToFavorite(databaseMovie: DatabaseMovie) {
