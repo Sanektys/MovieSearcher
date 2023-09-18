@@ -24,7 +24,7 @@ open class MoviesRecyclerAdapter(protected var isDonutAnimationEnabled: Boolean)
 
     val sharedPreferencesCallback: SharedPreferences.OnSharedPreferenceChangeListener = initializeSharedPreferencesCallback()
 
-    private val moviesList: MutableList<DatabaseMovie> = mutableListOf()
+    protected val moviesList: MutableList<DatabaseMovie> = mutableListOf()
 
     private var posterClickListener: OnPosterClickListener? = null
     private var lastClickedMoviePosition = DEFAULT_NON_CLICKED_POSITION

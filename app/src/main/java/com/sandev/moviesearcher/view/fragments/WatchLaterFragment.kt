@@ -14,6 +14,7 @@ import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.domain_api.local_database.entities.DatabaseMovie
+import com.example.domain_api.local_database.entities.WatchLaterDatabaseMovie
 import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.cached_movies_feature.watch_later_movies.WatchLaterMoviesComponentViewModel
 import com.sandev.moviesearcher.R
@@ -22,6 +23,7 @@ import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.rv_adapters.WatchLaterRecyclerAdapter
+import com.sandev.moviesearcher.view.rv_viewholders.WatchLaterMovieViewHolder
 import com.sandev.moviesearcher.view.viewmodels.WatchLaterFragmentViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -128,25 +130,40 @@ class WatchLaterFragment : MoviesListFragment() {
 
     private fun initializeScheduleNotificationButton(): WatchLaterRecyclerAdapter.ScheduleNotificationButtonClick {
         return object : WatchLaterRecyclerAdapter.ScheduleNotificationButtonClick {
-            override fun onButtonClick(button: View) {
+            override fun onButtonClick(viewHolder: WatchLaterMovieViewHolder, movie: WatchLaterDatabaseMovie) {
                 val popupMenuTheme = ContextThemeWrapper(requireContext(), R.style.Widget_MovieSearcher_PopupMenu)
-                val popupMenu = PopupMenu(requireContext(), button, Gravity.BOTTOM, 0, popupMenuTheme.themeResId)
-                popupMenu.menuInflater.inflate(R.menu.watch_later_movie_card_popup_menu, popupMenu.menu)
+                PopupMenu(
+                    requireContext(), viewHolder.scheduleButton, Gravity.BOTTOM,
+                    0, popupMenuTheme.themeResId
+                ).apply {
+                    menuInflater.inflate(R.menu.watch_later_movie_card_popup_menu, menu)
 
-                popupMenu.setOnMenuItemClickListener { menuItem ->
-                    when (menuItem.itemId) {
-                        R.id.watch_later_card_popup_change_button -> {
+                    setOnMenuItemClickListener { menuItem ->
+                        when (menuItem.itemId) {
+                            R.id.watch_later_card_popup_change_button -> {
+                                viewModel.rescheduleMovieNotificationDate(
+                                    activity = requireActivity(),
+                                    viewHolder = viewHolder,
+                                    movie = movie,
+                                    datePickerTitle = R.string.watch_later_fragment_popup_menu_date_picker_title,
+                                    timePickerTitle = R.string.watch_later_fragment_popup_menu_time_picker_title
+                                )
+                                true
+                            }
 
-                            true
+                            R.id.watch_later_card_popup_remove_button -> {
+                                viewModel.removeMovieFromWatchLaterListAndSchedule(
+                                    context = requireContext(),
+                                    movie = movie
+                                )
+                                true
+                            }
+
+                            else -> false
                         }
-                        R.id.watch_later_card_popup_remove_button -> {
-
-                            true
-                        }
-                        else -> false
                     }
+                    show()
                 }
-                popupMenu.show()
             }
         }
     }

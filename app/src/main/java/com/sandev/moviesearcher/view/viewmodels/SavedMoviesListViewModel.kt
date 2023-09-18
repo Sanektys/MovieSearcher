@@ -142,7 +142,7 @@ abstract class SavedMoviesListViewModel(protected open val cachedMoviesInteracto
         }
     }
 
-    private fun removeFromSavedList(databaseMovie: DatabaseMovie) {
+    protected fun removeFromSavedList(databaseMovie: DatabaseMovie) {
         var disposable: Disposable? = null
         disposable = cachedMoviesInteractor.removeFromList(databaseMovie).subscribe {
             disposable?.dispose()

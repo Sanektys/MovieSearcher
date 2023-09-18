@@ -7,7 +7,6 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.domain.constants.TmdbCommonConstants
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.example.domain_api.local_database.entities.WatchLaterDatabaseMovie
-import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.WatchLaterMovieCardBinding
 import java.util.Date
@@ -20,8 +19,8 @@ class WatchLaterMovieViewHolder(private val binding: WatchLaterMovieCardBinding)
     override val ratingDonut = binding.ratingDonut
     val scheduleButton = binding.scheduleButton
 
-    private val dateFormat = DateFormat.getMediumDateFormat(App.instance)
-    private val timeFormat = DateFormat.getTimeFormat(App.instance)
+    private val dateFormat = DateFormat.getMediumDateFormat(itemView.context)
+    private val timeFormat = DateFormat.getTimeFormat(itemView.context)
 
     override fun onBind(databaseMovieData: DatabaseMovie, position: Int) {
         databaseMovieData as WatchLaterDatabaseMovie
@@ -41,12 +40,17 @@ class WatchLaterMovieViewHolder(private val binding: WatchLaterMovieCardBinding)
         poster.transitionName =
             binding.root.resources.getString(R.string.movie_view_holder_transition_name, position)
         binding.movieCardMovieTitle.text = databaseMovieData.title
+        binding.ratingDonut.setProgress((databaseMovieData.rating * MOVIE_RATING_MULTIPLIER).toInt())
+
+        setTextOfNotificationScheduledDate(databaseMovieData)
+    }
+
+    fun setTextOfNotificationScheduledDate(databaseMovieData: WatchLaterDatabaseMovie) {
         binding.movieCardNotificationDate.text =
             if (databaseMovieData.notificationDate != null)
                 "${dateFormat.format(Date(databaseMovieData.notificationDate!!))} ${timeFormat.format(Date(databaseMovieData.notificationDate!!))}"
             else
-                App.instance.getString(R.string.watch_later_movie_card_body_notification_scheduled_time_null)
-        binding.ratingDonut.setProgress((databaseMovieData.rating * MOVIE_RATING_MULTIPLIER).toInt())
+                itemView.context.getString(R.string.watch_later_movie_card_body_notification_scheduled_time_null)
     }
 
 

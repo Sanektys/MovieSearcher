@@ -72,11 +72,13 @@
 
     <!-- Watch later fragment -->
     <string name="watch_later_fragment.top_app_bar.search_bar.hint">Найти фильм из отложенного</string>
+    <string name="watch_later_fragment.popup_menu.date_picker.title">Измените дату напоминания о фильме</string>
+    <string name="watch_later_fragment.popup_menu.time_picker.title">Измените время напоминания</string>
 
 
     <!-- Watch later movie card -->
     <string name="watch_later_movie_card.body.notification.title">Уведомление намечено на</string>
-    <string name="watch_later_movie_card.body.notification.scheduled_time.null">незаданную дату</string>
+    <string name="watch_later_movie_card.body.notification.scheduled_time.null">дата не задана</string>
     <string name="watch_later_movie_card.popup_menu.button_change">Изменить</string>
     <string name="watch_later_movie_card.popup_menu.button_remove">Удалить</string>
 

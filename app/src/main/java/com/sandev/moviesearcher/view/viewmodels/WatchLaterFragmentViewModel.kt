@@ -1,11 +1,19 @@
 package com.sandev.moviesearcher.view.viewmodels
 
+import android.content.Context
+import androidx.annotation.StringRes
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.domain_api.local_database.entities.DatabaseMovie
+import com.example.domain_api.local_database.entities.WatchLaterDatabaseMovie
 import com.sandev.cached_movies_feature.domain.CachedMoviesInteractor
 import com.sandev.cached_movies_feature.watch_later_movies.domain.WatchLaterMoviesInteractor
+import com.sandev.moviesearcher.utils.workers.WorkRequests
+import com.sandev.moviesearcher.view.dialogs.DateTimePickerDialog
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.rv_adapters.WatchLaterRecyclerAdapter
+import com.sandev.moviesearcher.view.rv_viewholders.WatchLaterMovieViewHolder
 import io.reactivex.rxjava3.disposables.Disposable
 
 
@@ -43,6 +51,26 @@ class WatchLaterFragmentViewModel(override val cachedMoviesInteractor: WatchLate
                                                    onScheduleButtonClick: WatchLaterRecyclerAdapter.ScheduleNotificationButtonClick) {
         super.unblockCallbackOnPosterClick(onPosterClick)
         (recyclerAdapter as WatchLaterRecyclerAdapter).setOnScheduleNotificationButtonClick(onScheduleButtonClick)
+    }
+
+    fun rescheduleMovieNotificationDate(
+        activity: FragmentActivity,
+        viewHolder: WatchLaterMovieViewHolder, movie: WatchLaterDatabaseMovie,
+        @StringRes datePickerTitle: Int?, @StringRes timePickerTitle: Int?
+    ) {
+        DateTimePickerDialog.show(
+            activity = activity, datePickerTitle = datePickerTitle, timePickerTitle = timePickerTitle
+        ) { newDate ->
+            WorkRequests.enqueueWatchLaterNotificationWork(activity, movie, newDate)
+
+            movie.notificationDate = newDate
+            viewHolder.setTextOfNotificationScheduledDate(movie)
+        }
+    }
+
+    fun removeMovieFromWatchLaterListAndSchedule(context: Context, movie: DatabaseMovie) {
+        WorkRequests.cancelWatchLaterNotificationWork(context, movie)
+        removeFromSavedList(movie)
     }
 
     override fun getMoviesFromDB(offset: Int) {
