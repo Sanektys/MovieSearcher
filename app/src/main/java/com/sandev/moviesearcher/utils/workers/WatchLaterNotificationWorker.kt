@@ -25,7 +25,9 @@ class WatchLaterNotificationWorker(context: Context, workerParams: WorkerParamet
         val targetMovieTitle = inputData.getString(KEY_TARGET_MOVIE_TITLE) ?: return Result.failure()
         val targetMovieHash  = inputData.getInt(KEY_TARGET_MOVIE_HASH, 0)
 
-        val watchLaterMoviesDatabase = WatchLaterMoviesComponentViewModel(applicationContext)
+        val watchLaterMoviesDatabase = WatchLaterMoviesComponentViewModel.instance
+            ?: WatchLaterMoviesComponentViewModel(applicationContext)
+
         var moviesWithSameTitle: List<DatabaseMovie>? = null
 
         watchLaterMoviesDatabase.interactor

@@ -21,6 +21,13 @@ class WatchLaterMoviesComponentViewModel(context: Context) : ViewModel() {
 
     init {
         watchLaterMoviesComponent.inject(this)
+
+        instance = this
+    }
+
+
+    override fun onCleared() {
+        instance = null
     }
 
 
@@ -35,5 +42,10 @@ class WatchLaterMoviesComponentViewModel(context: Context) : ViewModel() {
 
             throw IllegalArgumentException("Unknown ViewModel class")
         }
+    }
+
+
+    companion object {
+        var instance: WatchLaterMoviesComponentViewModel? = null
     }
 }
