@@ -55,7 +55,6 @@
     <string name="details_fragment.alert_dialog.title">Выберите действие:</string>
     <string name="details_fragment.alert_dialog.action.sharing">Поделиться фильмом</string>
     <string name="details_fragment.alert_dialog.action.download_poster">Скачать постер фильма</string>
-    <string name="details_fragment.alert_dialog.action.create_notification">Создать напоминание о просмотре фильма</string>
     <string name="details_fragment.alert_dialog.action.cancel">Отмена</string>
     <string name="details_fragment.poster_download.success">Постер успешно загружен в галерею</string>
     <string name="details_fragment.poster_download.success.action">Открыть галерею</string>

@@ -49,11 +49,6 @@
     <dimen name="fragment_settings.block.corner_radius">24dp</dimen>
     <dimen name="fragment_settings.block.title.height">20dp</dimen>
     <dimen name="fragment_settings.block_group.paddingBottom">8dp</dimen>
-    <dimen name="fragment_settings.radio_group.title.marginTop">12dp</dimen>
-    <dimen name="fragment_settings.radio_group.title.marginBottom">8dp</dimen>
-    <dimen name="fragment_settings.radio_group.title.alpha">0.5</dimen>
-    <dimen name="fragment_settings.radio_group.radio_button.height">44dp</dimen>
-    <dimen name="fragment_settings.radio_group.radio_button.paddingHorizontal">12dp</dimen>
 
 
     <!-- details fragment -->
@@ -94,7 +89,6 @@
     <dimen name="alert_dialog.content.list_item.icon_size">24dp</dimen>
     <dimen name="alert_dialog.content.list_item.margin_vertical">16dp</dimen>
     <dimen name="alert_dialog.content.list_item.padding_horizontal">24dp</dimen>
-    <dimen name="alert_dialog.content.list_item.margin_horizontal">20dp</dimen>
     <dimen name="alert_dialog.content.list_item.text.margin_start">16dp</dimen>
     <dimen name="alert_dialog.content.radio_group.item.icon.paddingStart">24dp</dimen>
     <dimen name="alert_dialog.content.radio_group.item.icon.paddingEnd">24dp</dimen>

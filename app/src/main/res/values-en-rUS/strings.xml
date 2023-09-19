@@ -53,7 +53,6 @@
     <string name="details_fragment.alert_dialog.title">Select the action:</string>
     <string name="details_fragment.alert_dialog.action.sharing">Share this movie</string>
     <string name="details_fragment.alert_dialog.action.download_poster">Download the movie poster</string>
-    <string name="details_fragment.alert_dialog.action.create_notification">Create a movie watch notification</string>
     <string name="details_fragment.alert_dialog.action.cancel">Cancel</string>
     <string name="details_fragment.poster_download.success">Poster successfully uploaded to the gallery</string>
     <string name="details_fragment.poster_download.success.action">Open gallery</string>
