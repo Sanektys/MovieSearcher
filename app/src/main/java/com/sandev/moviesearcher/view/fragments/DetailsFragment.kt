@@ -489,16 +489,6 @@ class DetailsFragment : Fragment() {
     }
 
     private fun initializeDialogButtons(alertDialog: AlertDialog) {
-        alertDialog.findViewById<Button>(R.id.alert_dialog_create_notification_button)?.setOnClickListener {
-            menuFabDialog?.dismiss()
-
-            if (checkNotificationPermission().not()) {
-                requestNotificationPermission()
-                return@setOnClickListener
-            }
-
-            viewModel.watchMovieNotification.notify(viewModel.movie)
-        }
         alertDialog.findViewById<Button>(R.id.alert_dialog_share_button)?.setOnClickListener {
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "text/plain"
