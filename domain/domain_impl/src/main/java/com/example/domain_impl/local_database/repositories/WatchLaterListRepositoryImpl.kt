@@ -34,4 +34,12 @@ class WatchLaterListRepositoryImpl(private val watchLaterMovieDao: WatchLaterMov
         moviesCount: Int
     ): List<WatchLaterDatabaseMovie>
             = watchLaterMovieDao.getFewSearchedWatchLaterMoviesFromOffset(query, from, moviesCount)
+
+    override fun updateNotificationDate(movie: WatchLaterDatabaseMovie) {
+        watchLaterMovieDao.setNotificationDate(
+            title = movie.title,
+            description = movie.description,
+            notificationDate = movie.notificationDate ?: return
+        )
+    }
 }

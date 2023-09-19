@@ -64,6 +64,12 @@ class WatchLaterFragmentViewModel(override val cachedMoviesInteractor: WatchLate
             WorkRequests.enqueueWatchLaterNotificationWork(activity, movie, newDate)
 
             movie.notificationDate = newDate
+
+            var disposable: Disposable? = null
+            disposable = cachedMoviesInteractor.updateWatchLaterNotificationDate(movie).subscribe {
+                disposable?.dispose()
+            }
+
             viewHolder.setTextOfNotificationScheduledDate(movie)
         }
     }

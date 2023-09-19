@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.RewriteQueriesToDropUnusedColumns
+import androidx.room.Update
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.example.domain_api.local_database.entities.TitleAndDescription
 import com.example.domain_api.local_database.entities.WatchLaterDatabaseMovie
@@ -65,6 +66,11 @@ interface WatchLaterMovieDao : SavedMovieDao {
         rating: Float,
         notificationDate: Long?
     ): Long
+
+    @Query("UPDATE ${WatchLaterDatabaseMovie.TABLE_NAME} " +
+            "SET ${WatchLaterDatabaseMovie.COLUMN_NOTIFICATION_DATE}=:notificationDate  " +
+            "WHERE ${DatabaseMovie.COLUMN_TITLE}=:title AND ${DatabaseMovie.COLUMN_DESCRIPTION}=:description")
+    fun setNotificationDate(title: String, description: String, notificationDate: Long)
 
     @Delete(entity = WatchLaterDatabaseMovie::class)
     override fun deleteFromCachedMovies(certainMovie: TitleAndDescription): Int

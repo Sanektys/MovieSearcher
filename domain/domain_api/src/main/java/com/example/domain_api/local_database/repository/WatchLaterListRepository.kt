@@ -11,4 +11,6 @@ interface WatchLaterListRepository: MoviesListRepositoryForSavedLists {
     fun getWatchLaterMoviesFromDB(from: Int, moviesCount: Int): List<WatchLaterDatabaseMovie>
 
     fun getSearchedWatchLaterMovieFromDB(query: String, from: Int, moviesCount: Int): List<WatchLaterDatabaseMovie>
+
+    fun updateNotificationDate(movie: WatchLaterDatabaseMovie)
 }
