@@ -1,27 +1,24 @@
 package com.sandev.tmdb_feature.domain.interactors
 
-import android.os.LocaleList
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
+import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.example.domain_api.local_database.repository.MoviesListRepository
 import com.example.domain_api.the_movie_database.api.TmdbApi
-import com.example.domain_impl.the_movie_database.constants.TmdbApiKey
 import com.example.domain_api.the_movie_database.dto.TmdbMoviesListDto
 import com.example.domain_impl.local_database.repositories.PlayingMoviesListRepository
 import com.example.domain_impl.local_database.repositories.PopularMoviesListRepository
 import com.example.domain_impl.local_database.repositories.TopMoviesListRepository
 import com.example.domain_impl.local_database.repositories.UpcomingMoviesListRepository
+import com.example.domain_impl.the_movie_database.constants.TmdbApiKey
 import com.sandev.tmdb_feature.domain.converters.convertApiDtoListToMovieList
 import com.sandev.tmdb_feature.domain.converters.convertApiDtoListToPlayingMovieList
 import com.sandev.tmdb_feature.domain.converters.convertApiDtoListToPopularMovieList
 import com.sandev.tmdb_feature.domain.converters.convertApiDtoListToTopMovieList
 import com.sandev.tmdb_feature.domain.converters.convertApiDtoListToUpcomingMovieList
-import com.example.domain_api.local_database.entities.DatabaseMovie
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.Locale
 
 
 class TmdbInteractor(

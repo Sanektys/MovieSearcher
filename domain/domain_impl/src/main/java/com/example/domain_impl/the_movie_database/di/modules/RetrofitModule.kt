@@ -1,9 +1,9 @@
 package com.example.domain_impl.the_movie_database.di.modules
 
 import com.example.domain_api.the_movie_database.api.TmdbApi
-import com.example.domain_impl.the_movie_database.di.TmdbRetrofitScope
 import com.example.domain_impl.the_movie_database.builders.OkHttpBuilder
 import com.example.domain_impl.the_movie_database.builders.retrofitBuilder
+import com.example.domain_impl.the_movie_database.di.TmdbRetrofitScope
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient

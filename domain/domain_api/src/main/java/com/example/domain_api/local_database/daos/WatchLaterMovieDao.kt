@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.RewriteQueriesToDropUnusedColumns
-import androidx.room.Update
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.example.domain_api.local_database.entities.TitleAndDescription
 import com.example.domain_api.local_database.entities.WatchLaterDatabaseMovie

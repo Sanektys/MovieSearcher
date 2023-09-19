@@ -10,12 +10,12 @@ import com.example.domain_api.local_database.daos.UpcomingMovieDao
 import com.example.domain_api.local_database.db_contracts.AllMoviesDatabaseContract
 import com.example.domain_api.local_database.repository.MoviesListRepository
 import com.example.domain_impl.local_database.databases.AllMoviesDatabase
+import com.example.domain_impl.local_database.di.scopes.AllMoviesScope
 import com.example.domain_impl.local_database.repositories.MoviesListRepositoryImpl
 import com.example.domain_impl.local_database.repositories.PlayingMoviesListRepository
 import com.example.domain_impl.local_database.repositories.PopularMoviesListRepository
 import com.example.domain_impl.local_database.repositories.TopMoviesListRepository
 import com.example.domain_impl.local_database.repositories.UpcomingMoviesListRepository
-import com.example.domain_impl.local_database.di.scopes.AllMoviesScope
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

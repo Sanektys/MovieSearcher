@@ -2,13 +2,11 @@ package com.sandev.moviesearcher.view.fragments
 
 import android.animation.AnimatorInflater
 import android.content.Context
-import android.content.Intent
 import android.graphics.Outline
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.provider.Settings
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -24,7 +22,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.databinding.FragmentSettingsBinding
-import com.sandev.moviesearcher.view.notifications.WatchMovieNotification
 import com.sandev.moviesearcher.utils.changeAppearanceToSamsungOneUI
 import com.sandev.moviesearcher.view.viewmodels.SettingsFragmentViewModel
 
