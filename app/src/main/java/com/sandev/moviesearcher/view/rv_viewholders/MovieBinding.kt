@@ -4,5 +4,5 @@ import com.example.domain_api.local_database.entities.DatabaseMovie
 
 
 interface MovieBinding {
-    fun onBind(databaseMovieData: DatabaseMovie, position: Int)
+    fun onBind(databaseMovieData: DatabaseMovie)
 }

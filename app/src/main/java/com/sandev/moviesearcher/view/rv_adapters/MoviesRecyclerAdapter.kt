@@ -45,7 +45,7 @@ open class MoviesRecyclerAdapter(protected var isDonutAnimationEnabled: Boolean)
     override fun getItemCount() = moviesList.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as MovieBinding).onBind(moviesList[position], position)
+        (holder as MovieBinding).onBind(moviesList[position])
 
         (holder as PosterBinding).poster.setOnClickListener {
             lastClickedMoviePosition = holder.bindingAdapterPosition

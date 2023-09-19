@@ -32,7 +32,7 @@ class WatchLaterRecyclerAdapter(isDonutAnimationEnabled: Boolean) :
         (holder as WatchLaterMovieViewHolder).scheduleButton.setOnClickListener {
             onScheduleNotificationButtonClick?.onButtonClick(
                 viewHolder = holder,
-                movie = moviesList[position] as WatchLaterDatabaseMovie
+                movie = moviesList[holder.bindingAdapterPosition] as WatchLaterDatabaseMovie
             )
         }
     }

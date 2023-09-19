@@ -22,7 +22,7 @@ class WatchLaterMovieViewHolder(private val binding: WatchLaterMovieCardBinding)
     private val dateFormat = DateFormat.getMediumDateFormat(itemView.context)
     private val timeFormat = DateFormat.getTimeFormat(itemView.context)
 
-    override fun onBind(databaseMovieData: DatabaseMovie, position: Int) {
+    override fun onBind(databaseMovieData: DatabaseMovie) {
         databaseMovieData as WatchLaterDatabaseMovie
 
         val poster = binding.movieCardPoster
@@ -38,7 +38,7 @@ class WatchLaterMovieViewHolder(private val binding: WatchLaterMovieCardBinding)
                 .into(poster)
         }
         poster.transitionName =
-            binding.root.resources.getString(R.string.movie_view_holder_transition_name, position)
+            binding.root.resources.getString(R.string.movie_view_holder_transition_name, bindingAdapterPosition)
         binding.movieCardMovieTitle.text = databaseMovieData.title
         binding.ratingDonut.setProgress((databaseMovieData.rating * MOVIE_RATING_MULTIPLIER).toInt())
 
