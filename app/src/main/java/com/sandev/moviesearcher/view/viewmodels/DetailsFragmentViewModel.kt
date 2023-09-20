@@ -51,7 +51,6 @@ class DetailsFragmentViewModel : ViewModel() {
     var isFavoriteButtonSelected: Boolean = false
     var isWatchLaterButtonSelected: Boolean = false
 
-    var isConfigurationChanged: Boolean = false
     var isLowQualityPosterDownloaded: Boolean = false
 
     var fragmentThatLaunchedDetails: String? = null
@@ -102,28 +101,28 @@ class DetailsFragmentViewModel : ViewModel() {
         }
     }
 
-    fun addToFavorite(databaseMovie: DatabaseMovie) {
+    private fun addToFavorite(databaseMovie: DatabaseMovie) {
         var disposable: Disposable? = null
         disposable = favoritesMoviesDatabaseInteractor?.addToList(databaseMovie)?.subscribe {
             disposable?.dispose()
         }
     }
 
-    fun removeFromFavorite(databaseMovie: DatabaseMovie) {
+    private fun removeFromFavorite(databaseMovie: DatabaseMovie) {
         var disposable: Disposable? = null
         disposable = favoritesMoviesDatabaseInteractor?.removeFromList(databaseMovie)?.subscribe {
             disposable?.dispose()
         }
     }
 
-    fun addToWatchLater(databaseMovie: DatabaseMovie) {
+    private fun addToWatchLater(databaseMovie: DatabaseMovie) {
         var disposable: Disposable? = null
         disposable = watchLaterMoviesDatabaseInteractor?.addToList(databaseMovie)?.subscribe {
             disposable?.dispose()
         }
     }
 
-    fun removeFromWatchLater(databaseMovie: DatabaseMovie) {
+    private fun removeFromWatchLater(databaseMovie: DatabaseMovie) {
         var disposable: Disposable? = null
         disposable = watchLaterMoviesDatabaseInteractor?.removeFromList(databaseMovie)?.subscribe {
             disposable?.dispose()

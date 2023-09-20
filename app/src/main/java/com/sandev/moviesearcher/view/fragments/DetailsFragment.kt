@@ -124,13 +124,18 @@ class DetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        viewModel._movie = arguments?.getParcelable<DatabaseMovie>(MainActivity.MOVIE_DATA_KEY)!!
-        viewModel.isFragmentSeparate = arguments?.getBoolean(KEY_SEPARATE_DETAILS_FRAGMENT) ?: false
+        if (savedInstanceState == null) {
+            viewModel._movie = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arguments?.getParcelable(MainActivity.MOVIE_DATA_KEY, DatabaseMovie::class.java)
+            } else {
+                arguments?.getParcelable<DatabaseMovie>(MainActivity.MOVIE_DATA_KEY)!!
+            }
+            viewModel.isFragmentSeparate =
+                arguments?.getBoolean(KEY_SEPARATE_DETAILS_FRAGMENT) ?: false
 
-        if (viewModel.isFragmentSeparate.not()) {
-            viewModel.fragmentThatLaunchedDetails = savedInstanceState
-                ?.getString(FRAGMENT_LAUNCHED_KEY)
-                ?: (activity as MainActivity).previousFragmentName
+            if (viewModel.isFragmentSeparate.not()) {
+                viewModel.fragmentThatLaunchedDetails = (activity as MainActivity).previousFragmentName
+            }
         }
 
         initializeContent()
@@ -152,14 +157,9 @@ class DetailsFragment : Fragment() {
         binding.fabDialogMenuProgressIndicator.hide()
     }
 
-    override fun onStop() {
-        super.onStop()
-        viewModel.isConfigurationChanged = requireActivity().isChangingConfigurations
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
-        if (!viewModel.isConfigurationChanged) {
+        if (requireActivity().isChangingConfigurations.not()) {
             // Принятие решения о добавлении/удалении фильма в избранном
             changeFavoriteMoviesList()
             changeWatchLaterMoviesList()
@@ -170,9 +170,6 @@ class DetailsFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-
-        viewModel._movie = null
-        viewModel.fragmentThatLaunchedDetails = null
 
         posterDownloadDisposable?.dispose()
     }
@@ -248,34 +245,36 @@ class DetailsFragment : Fragment() {
                 }
             }
 
-            if (viewModel.isWatchLaterButtonSelected.not()) {
-                DateTimePickerDialog.show(
-                    activity = requireActivity(),
-                    datePickerTitle = R.string.details_fragment_fab_add_watch_later_date_picker_title,
-                    timePickerTitle = R.string.details_fragment_fab_add_watch_later_time_picker_title
-                ) { setDate ->
-                    binding.fabToWatchLater.isSelected = true
-                    viewModel.isWatchLaterButtonSelected = true
+            fun handleClick(isButtonSelected: Boolean, scheduledDate: Long?) {
+                binding.fabToWatchLater.isSelected = isButtonSelected
+                viewModel.isWatchLaterButtonSelected = isButtonSelected
 
-                    viewModel.changeWatchLaterListImmediatelyIfPossible(requireContext(), setDate)
-
-                    Snackbar.make(
-                        requireContext(), binding.root,
-                        getString(R.string.details_fragment_fab_add_watch_later),
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                }
-            } else {
-                binding.fabToWatchLater.isSelected = false
-                viewModel.isWatchLaterButtonSelected = false
-
-                viewModel.changeWatchLaterListImmediatelyIfPossible(requireContext(), null)
+                viewModel.changeWatchLaterListImmediatelyIfPossible(requireContext(), scheduledDate)
 
                 Snackbar.make(
                     requireContext(), binding.root,
-                    getString(R.string.details_fragment_fab_remove_watch_later),
+                    if (viewModel.isWatchLaterButtonSelected)
+                        getString(R.string.details_fragment_fab_add_watch_later)
+                    else
+                        getString(R.string.details_fragment_fab_remove_watch_later),
                     Snackbar.LENGTH_SHORT
                 ).show()
+            }
+
+            if (viewModel.isWatchLaterButtonSelected.not()) {
+                if (viewModel.fragmentThatLaunchedDetails != WatchLaterFragment::class.qualifiedName) {
+                    DateTimePickerDialog.show(
+                        activity = requireActivity(),
+                        datePickerTitle = R.string.details_fragment_fab_add_watch_later_date_picker_title,
+                        timePickerTitle = R.string.details_fragment_fab_add_watch_later_time_picker_title
+                    ) { date ->
+                        handleClick(isButtonSelected = true, scheduledDate = date)
+                    }
+                } else {
+                    handleClick(isButtonSelected = true, scheduledDate = null)
+                }
+            } else {
+                handleClick(isButtonSelected = false, scheduledDate = null)
             }
             binding.fabToWatchLater.setImageDrawable(
                 AppCompatResources.getDrawable(requireContext(), R.drawable.watch_later_icon_selector)
@@ -643,8 +642,6 @@ class DetailsFragment : Fragment() {
         const val EXTERNAL_WRITE_PERMISSION_REQUEST_CODE = 20
 
         const val KEY_SEPARATE_DETAILS_FRAGMENT = "SEPARATE_DETAILS_FRAGMENT"
-
-        private const val FRAGMENT_LAUNCHED_KEY = "FRAGMENT_LAUNCHED"
 
         private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
 
