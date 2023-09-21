@@ -12,7 +12,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 
-class CachedMoviesInteractor(private val repo: MoviesListRepositoryForSavedLists) {
+open class CachedMoviesInteractor(protected open val repo: MoviesListRepositoryForSavedLists) {
 
     private val deletedDatabaseMovie = MutableLiveData<DatabaseMovie>()
     val getDeletedDatabaseMovie: LiveData<DatabaseMovie> = deletedDatabaseMovie

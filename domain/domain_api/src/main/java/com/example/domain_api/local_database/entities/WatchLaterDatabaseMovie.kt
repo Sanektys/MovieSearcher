@@ -19,10 +19,21 @@ data class WatchLaterDatabaseMovie(
     @ColumnInfo(name = DatabaseMovie.COLUMN_DESCRIPTION, defaultValue = "")
     override val description: String,
     @ColumnInfo(name = DatabaseMovie.COLUMN_RATING, defaultValue = "0")
-    override var rating: Float = 0f
+    override var rating: Float = 0f,
+    @ColumnInfo(name = COLUMN_NOTIFICATION_DATE, defaultValue = "null")
+    var notificationDate: Long? = null
 ) :  DatabaseMovie(id, poster, title, description, rating) {
+
+    constructor(movie: DatabaseMovie, notificationDate: Long?)
+            : this(id = movie.id, poster = movie.poster, title = movie.title,
+        description = movie.description, rating = movie.rating
+    ) {
+        this.notificationDate = notificationDate
+    }
 
     companion object {
         const val TABLE_NAME = "cached_watch_later_movies"
+
+        const val COLUMN_NOTIFICATION_DATE = "notification_date"
     }
 }

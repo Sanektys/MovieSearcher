@@ -17,12 +17,12 @@ ext {
     roomRxJavaExtension = "androidx.room:room-rxjava3:$roomVersion"
 
     // Dagger
-    def daggerVersion = "2.47"
+    def daggerVersion = "2.48"
     dagger = "com.google.dagger:dagger:$daggerVersion"
     daggerCompiler = "com.google.dagger:dagger-compiler:$daggerVersion"
 
     // RXJava
-    def rxJavaVersion = '3.1.6'
+    def rxJavaVersion = '3.1.7'
     def rxJavaVersionForAndroid = "3.0.2"
     rxJava = "io.reactivex.rxjava3:rxjava:$rxJavaVersion"
     rxJavaAndroid = "io.reactivex.rxjava3:rxandroid:$rxJavaVersionForAndroid"

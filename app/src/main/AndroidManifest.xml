@@ -22,7 +22,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MovieSearcher"
         android:localeConfig="@xml/locales_config"
-        tools:targetApi="33">
+        tools:targetApi="34">
         <activity
             android:theme="@style/Theme.MovieSearcher.TransparentSystemBars"
             android:name=".view.MainActivity"

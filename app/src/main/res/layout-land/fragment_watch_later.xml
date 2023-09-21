@@ -20,7 +20,7 @@
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:layout_below="@id/app_bar"
-        tools:listitem="@layout/movie_card" />
+        tools:listitem="@layout/watch_later_movie_card" />
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"

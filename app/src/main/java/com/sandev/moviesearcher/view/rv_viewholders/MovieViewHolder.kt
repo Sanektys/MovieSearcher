@@ -9,12 +9,14 @@ import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.MovieCardBinding
 
 
-class MovieViewHolder(private val binding: MovieCardBinding) : RecyclerView.ViewHolder(binding.root) {
-    val poster = binding.movieCardPoster
-    val ratingDonut = binding.ratingDonut
+class MovieViewHolder(private val binding: MovieCardBinding)
+    : RecyclerView.ViewHolder(binding.root), MovieBinding, PosterBinding, RatingDonut {
+
+    override val poster = binding.movieCardPoster
+    override val ratingDonut = binding.ratingDonut
 
 
-    fun onBind(databaseMovieData: DatabaseMovie, position: Int) {
+    override fun onBind(databaseMovieData: DatabaseMovie) {
         if (databaseMovieData.poster != null) {
             Glide.with(binding.root)
                 .load("${TmdbCommonConstants.IMAGES_URL}${TmdbCommonConstants.IMAGE_MEDIUM_SIZE}${databaseMovieData.poster}")
@@ -27,7 +29,7 @@ class MovieViewHolder(private val binding: MovieCardBinding) : RecyclerView.View
                 .into(poster)
         }
         poster.transitionName =
-            binding.root.resources.getString(R.string.movie_view_holder_transition_name, position)
+            binding.root.resources.getString(R.string.movie_view_holder_transition_name, bindingAdapterPosition)
         binding.movieCardMovieTitle.text = databaseMovieData.title
         binding.movieCardMovieDescription.text = databaseMovieData.description
         binding.ratingDonut.setProgress((databaseMovieData.rating * MOVIE_RATING_MULTIPLIER).toInt())

@@ -8,8 +8,8 @@ import com.example.domain_api.local_database.db_contracts.FavoriteDatabaseContra
 import com.example.domain_api.local_database.repository.MoviesListRepository
 import com.example.domain_api.local_database.repository.MoviesListRepositoryForSavedLists
 import com.example.domain_impl.local_database.databases.FavoriteMoviesDatabase
-import com.example.domain_impl.local_database.repositories.MoviesListRepositoryForSavedListsImpl
 import com.example.domain_impl.local_database.di.scopes.FavoriteMoviesScope
+import com.example.domain_impl.local_database.repositories.MoviesListRepositoryForSavedListsImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

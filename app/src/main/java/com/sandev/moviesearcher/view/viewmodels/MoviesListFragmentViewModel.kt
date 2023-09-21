@@ -21,7 +21,7 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
     abstract var lastSearch: String
         protected set
 
-    val recyclerAdapter: MoviesRecyclerAdapter
+    abstract val recyclerAdapter: MoviesRecyclerAdapter
 
     var isOffline: Boolean = false
         protected set
@@ -48,10 +48,6 @@ abstract class MoviesListFragmentViewModel : ViewModel() {
 
     init {
         App.instance.getAppComponent().inject(this)
-
-        recyclerAdapter = MoviesRecyclerAdapter(sharedPreferencesInteractor.isRatingDonutAnimationEnabled())
-
-        sharedPreferencesInteractor.addSharedPreferencesChangeListener(recyclerAdapter.sharedPreferencesCallback)
     }
 
 

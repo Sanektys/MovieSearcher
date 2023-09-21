@@ -20,9 +20,11 @@ import com.sandev.moviesearcher.utils.rv_animators.MovieItemAnimator
 import com.sandev.moviesearcher.view.MainActivity
 import com.sandev.moviesearcher.view.rv_adapters.MoviesRecyclerAdapter
 import com.sandev.moviesearcher.view.viewmodels.FavoritesFragmentViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.EmptyCoroutineContext
 
 
 class FavoritesFragment : MoviesListFragment() {
@@ -37,7 +39,7 @@ class FavoritesFragment : MoviesListFragment() {
 
     private var mainActivity: MainActivity? = null
 
-    private val posterOnClick = object : MoviesRecyclerAdapter.OnClickListener {
+    private val posterOnClick = object : MoviesRecyclerAdapter.OnPosterClickListener {
         override fun onClick(databaseMovie: DatabaseMovie, posterView: ShapeableImageView) {
             resetExitReenterTransitionAnimations()
             viewModel.lastClickedDatabaseMovie = databaseMovie
@@ -49,7 +51,12 @@ class FavoritesFragment : MoviesListFragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        val favoriteMoviesDatabaseComponent = ViewModelProvider(requireActivity())[FavoriteMoviesComponentViewModel::class.java]
+        val favoriteMoviesDatabaseComponentFactory
+                = FavoriteMoviesComponentViewModel.ViewModelFactory(context)
+        val favoriteMoviesDatabaseComponent = ViewModelProvider(
+            requireActivity(),
+            favoriteMoviesDatabaseComponentFactory
+        )[FavoriteMoviesComponentViewModel::class.java]
 
         val viewModelFactory = FavoritesFragmentViewModel.ViewModelFactory(favoriteMoviesDatabaseComponent.interactor)
         _viewModel = ViewModelProvider(requireActivity(), viewModelFactory)[FavoritesFragmentViewModel::class.java]
@@ -63,8 +70,6 @@ class FavoritesFragment : MoviesListFragment() {
 
         mainActivity = activity as MainActivity
 
-        viewModel.isMovieMoreNotInSavedList = false
-
         initializeViewsReferences(binding.root)
         setAllAnimationTransition()
 
@@ -76,7 +81,13 @@ class FavoritesFragment : MoviesListFragment() {
 
         requireActivity().supportFragmentManager.setFragmentResultListener(
             FAVORITES_DETAILS_RESULT_KEY, this) { _, bundle ->
-            viewModel.isMovieMoreNotInSavedList = bundle.getBoolean(MOVIE_NOW_NOT_FAVORITE_KEY)
+            if (bundle.getBoolean(MOVIE_NOW_NOT_FAVORITE_KEY)) {
+                val job = CoroutineScope(Dispatchers.IO)
+                job.launch {
+                    viewModel.deleteMovieFromListAndDB()
+                    job.cancel()
+                }
+            }
         }
 
         initializeMovieRecyclerList()
@@ -85,8 +96,10 @@ class FavoritesFragment : MoviesListFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
 
-        runBlocking {  // Если пользователь быстро нажимал "назад", то это предотвращает неудаление карточки
-            viewModel.checkForMovieDeletionNecessary()
+        val job = CoroutineScope(EmptyCoroutineContext)
+        job.launch {  // Если пользователь быстро нажимал "назад", то это предотвращает неудаление карточки
+            viewModel.unblockMovieDeletion()
+            job.cancel()
         }
 
         _binding = null
@@ -111,7 +124,7 @@ class FavoritesFragment : MoviesListFragment() {
 
         if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {
             // Пока не прошла анимация не обрабатывать клики на постеры
-            viewModel.blockCallbackOnPosterClick()
+            viewModel.blockCallbackOnPosterClickAndMovieDeletion()
 
             resetExitReenterTransitionAnimations()
 
@@ -126,8 +139,7 @@ class FavoritesFragment : MoviesListFragment() {
                             setTransitionAnimation(Gravity.END)
                         }
                         launch(Dispatchers.Default) {
-                            viewModel.checkForMovieDeletionNecessary()  // Запускать удаление карточки фильма только после отрисовки анимации recycler
-                            viewModel.clickOnPosterCallbackSetupSynchronizeBlock?.receiveCatching()
+                            viewModel.unblockMovieDeletion()  // Запускать удаление карточки фильма только после отрисовки анимации recycler
                             viewModel.unblockCallbackOnPosterClick(posterOnClick)
                         }
                     }

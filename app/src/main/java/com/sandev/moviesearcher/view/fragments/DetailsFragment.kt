@@ -20,6 +20,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
@@ -54,7 +55,9 @@ import com.sandev.cached_movies_feature.watch_later_movies.WatchLaterMoviesCompo
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
 import com.sandev.moviesearcher.utils.changeAppearanceToSamsungOneUI
+import com.sandev.moviesearcher.utils.workers.WorkRequests
 import com.sandev.moviesearcher.view.MainActivity
+import com.sandev.moviesearcher.view.dialogs.DateTimePickerDialog
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
@@ -89,9 +92,20 @@ class DetailsFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        val favoritesMoviesDatabaseComponent = ViewModelProvider(requireActivity())[FavoriteMoviesComponentViewModel::class.java]
+        val favoritesMoviesDatabaseComponentFactory
+                = FavoriteMoviesComponentViewModel.ViewModelFactory(context)
+        val favoritesMoviesDatabaseComponent = ViewModelProvider(
+            requireActivity(),
+            favoritesMoviesDatabaseComponentFactory
+        )[FavoriteMoviesComponentViewModel::class.java]
         viewModel.favoritesMoviesDatabaseInteractor = favoritesMoviesDatabaseComponent.interactor
-        val watchLaterMoviesDatabaseComponent = ViewModelProvider(requireActivity())[WatchLaterMoviesComponentViewModel::class.java]
+
+        val watchLaterMoviesDatabaseComponentFactory
+                = WatchLaterMoviesComponentViewModel.ViewModelFactory(context)
+        val watchLaterMoviesDatabaseComponent = ViewModelProvider(
+            requireActivity(),
+            watchLaterMoviesDatabaseComponentFactory
+        )[WatchLaterMoviesComponentViewModel::class.java]
         viewModel.watchLaterMoviesDatabaseInteractor = watchLaterMoviesDatabaseComponent.interactor
     }
 
@@ -110,13 +124,18 @@ class DetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        viewModel._movie = arguments?.getParcelable<DatabaseMovie>(MainActivity.MOVIE_DATA_KEY)!!
-        viewModel.isFragmentSeparate = arguments?.getBoolean(KEY_SEPARATE_DETAILS_FRAGMENT) ?: false
+        if (savedInstanceState == null) {
+            viewModel._movie = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arguments?.getParcelable(MainActivity.MOVIE_DATA_KEY, DatabaseMovie::class.java)
+            } else {
+                arguments?.getParcelable<DatabaseMovie>(MainActivity.MOVIE_DATA_KEY)!!
+            }
+            viewModel.isFragmentSeparate =
+                arguments?.getBoolean(KEY_SEPARATE_DETAILS_FRAGMENT) ?: false
 
-        if (viewModel.isFragmentSeparate.not()) {
-            viewModel.fragmentThatLaunchedDetails = savedInstanceState
-                ?.getString(FRAGMENT_LAUNCHED_KEY)
-                ?: (activity as MainActivity).previousFragmentName
+            if (viewModel.isFragmentSeparate.not()) {
+                viewModel.fragmentThatLaunchedDetails = (activity as MainActivity).previousFragmentName
+            }
         }
 
         initializeContent()
@@ -138,14 +157,9 @@ class DetailsFragment : Fragment() {
         binding.fabDialogMenuProgressIndicator.hide()
     }
 
-    override fun onStop() {
-        super.onStop()
-        viewModel.isConfigurationChanged = requireActivity().isChangingConfigurations
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
-        if (!viewModel.isConfigurationChanged) {
+        if (requireActivity().isChangingConfigurations.not()) {
             // Принятие решения о добавлении/удалении фильма в избранном
             changeFavoriteMoviesList()
             changeWatchLaterMoviesList()
@@ -156,9 +170,6 @@ class DetailsFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-
-        viewModel._movie = null
-        viewModel.fragmentThatLaunchedDetails = null
 
         posterDownloadDisposable?.dispose()
     }
@@ -212,6 +223,8 @@ class DetailsFragment : Fragment() {
             binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
             viewModel.isFavoriteButtonSelected = binding.fabToFavorite.isSelected
 
+            viewModel.changeFavoriteListImmediatelyIfPossible()
+
             Snackbar.make(requireContext(), binding.root,
                 if (binding.fabToFavorite.isSelected) getString(R.string.details_fragment_fab_add_favorite)
                 else getString(R.string.details_fragment_fab_remove_favorite),
@@ -219,14 +232,53 @@ class DetailsFragment : Fragment() {
         }
 
         binding.fabToWatchLater.setOnClickListener {
-            binding.fabToWatchLater.isSelected = !binding.fabToWatchLater.isSelected
-            binding.fabToWatchLater.setImageResource(R.drawable.watch_later_icon_selector)
-            viewModel.isWatchLaterButtonSelected = binding.fabToWatchLater.isSelected
+            if (checkNotificationPermission().not()) {
+                requestNotificationPermission()
+                return@setOnClickListener
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (viewModel.watchMovieNotification.checkIsChannelEnabledWithSnackbar(
+                        requireActivity(),
+                        binding.root
+                ).not()) {
+                    return@setOnClickListener
+                }
+            }
 
-            Snackbar.make(requireContext(), binding.root,
-                if (binding.fabToWatchLater.isSelected) getString(R.string.details_fragment_fab_add_watch_later)
-                else getString(R.string.details_fragment_fab_remove_watch_later),
-                Snackbar.LENGTH_SHORT).show()
+            fun handleClick(isButtonSelected: Boolean, scheduledDate: Long?) {
+                binding.fabToWatchLater.isSelected = isButtonSelected
+                viewModel.isWatchLaterButtonSelected = isButtonSelected
+
+                viewModel.changeWatchLaterListImmediatelyIfPossible(requireContext(), scheduledDate)
+
+                Snackbar.make(
+                    requireContext(), binding.root,
+                    if (viewModel.isWatchLaterButtonSelected)
+                        getString(R.string.details_fragment_fab_add_watch_later)
+                    else
+                        getString(R.string.details_fragment_fab_remove_watch_later),
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+
+            if (viewModel.isWatchLaterButtonSelected.not()) {
+                if (viewModel.fragmentThatLaunchedDetails != WatchLaterFragment::class.qualifiedName) {
+                    DateTimePickerDialog.show(
+                        activity = requireActivity(),
+                        datePickerTitle = R.string.details_fragment_fab_add_watch_later_date_picker_title,
+                        timePickerTitle = R.string.details_fragment_fab_add_watch_later_time_picker_title
+                    ) { date ->
+                        handleClick(isButtonSelected = true, scheduledDate = date)
+                    }
+                } else {
+                    handleClick(isButtonSelected = true, scheduledDate = null)
+                }
+            } else {
+                handleClick(isButtonSelected = false, scheduledDate = null)
+            }
+            binding.fabToWatchLater.setImageDrawable(
+                AppCompatResources.getDrawable(requireContext(), R.drawable.watch_later_icon_selector)
+            )
         }
 
         binding.fabDialogMenu.setOnClickListener {
@@ -244,11 +296,11 @@ class DetailsFragment : Fragment() {
                         .apply(RequestOptions().dontTransform())
                         .onlyRetrieveFromCache(true)
                         .listener(object : RequestListener<Drawable>{  // Подождать полной загрузки из кэша и только потом делать перенос постера
-                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>, isFirstResource: Boolean): Boolean {
                                 startPostponedEnterTransition()
                                 return false
                             }
-                            override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                            override fun onResourceReady(resource: Drawable, model: Any, target: Target<Drawable>?, dataSource: DataSource, isFirstResource: Boolean): Boolean {
                                 startPostponedEnterTransition()  // Если запускать без паузы сразу transition, то будут глитчи из-за Glide
                                 return false
                             }
@@ -353,31 +405,24 @@ class DetailsFragment : Fragment() {
     }
 
     private fun changeFavoriteMoviesList() {
-        if (!viewModel.isFavoriteMovie && viewModel.isFavoriteButtonSelected) {
-            viewModel.addToFavorite(viewModel.movie)
-        } else if (viewModel.isFavoriteMovie && !viewModel.isFavoriteButtonSelected) {
-            if (viewModel.fragmentThatLaunchedDetails == FavoritesFragment::class.qualifiedName) {
+        if (viewModel.fragmentThatLaunchedDetails == FavoritesFragment::class.qualifiedName) {
+            if (viewModel.isFavoriteMovie && !viewModel.isFavoriteButtonSelected) {
                 requireActivity().supportFragmentManager.setFragmentResult(
                     FavoritesFragment.FAVORITES_DETAILS_RESULT_KEY,
                     bundleOf(FavoritesFragment.MOVIE_NOW_NOT_FAVORITE_KEY to true)
                 )
-            } else {
-                viewModel.removeFromFavorite(viewModel.movie)
             }
         }
     }
 
     private fun changeWatchLaterMoviesList() {
-        if (!viewModel.isWatchLaterMovie && viewModel.isWatchLaterButtonSelected) {
-            viewModel.addToWatchLater(viewModel.movie)
-        } else if (viewModel.isWatchLaterMovie && !viewModel.isWatchLaterButtonSelected) {
-            if (viewModel.fragmentThatLaunchedDetails == WatchLaterFragment::class.qualifiedName) {
+        if (viewModel.fragmentThatLaunchedDetails == WatchLaterFragment::class.qualifiedName) {
+            if (viewModel.isWatchLaterMovie && !viewModel.isWatchLaterButtonSelected) {
                 requireActivity().supportFragmentManager.setFragmentResult(
                     WatchLaterFragment.WATCH_LATER_DETAILS_RESULT_KEY,
                     bundleOf(WatchLaterFragment.MOVIE_NOW_NOT_WATCH_LATER_KEY to true)
                 )
-            } else {
-                viewModel.removeFromWatchLater(viewModel.movie)
+                WorkRequests.cancelWatchLaterNotificationWork(requireContext(), viewModel.movie)
             }
         }
     }
@@ -442,16 +487,6 @@ class DetailsFragment : Fragment() {
     }
 
     private fun initializeDialogButtons(alertDialog: AlertDialog) {
-        alertDialog.findViewById<Button>(R.id.alert_dialog_create_notification_button)?.setOnClickListener {
-            menuFabDialog?.dismiss()
-
-            if (checkNotificationPermission().not()) {
-                requestNotificationPermission()
-                return@setOnClickListener
-            }
-
-            viewModel.watchMovieNotification.notify(viewModel.movie)
-        }
         alertDialog.findViewById<Button>(R.id.alert_dialog_share_button)?.setOnClickListener {
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "text/plain"
@@ -505,7 +540,7 @@ class DetailsFragment : Fragment() {
         ActivityResultContracts.RequestPermission()
     ) { isNotificationGranted ->
         if (isNotificationGranted) {
-            viewModel.watchMovieNotification.notify(viewModel.movie)
+            binding.fabToWatchLater.performClick()
         }
     }
 
@@ -531,7 +566,7 @@ class DetailsFragment : Fragment() {
                 contentValues
             ) ?: throw IOException("Failure on write to external storage")
             contentResolver.openOutputStream(url).use { stream ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_COMPRESS_QUALITY, stream)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_COMPRESS_QUALITY, stream ?: return@use )
             }
         } else {
             @Suppress("DEPRECATION")
@@ -607,8 +642,6 @@ class DetailsFragment : Fragment() {
         const val EXTERNAL_WRITE_PERMISSION_REQUEST_CODE = 20
 
         const val KEY_SEPARATE_DETAILS_FRAGMENT = "SEPARATE_DETAILS_FRAGMENT"
-
-        private const val FRAGMENT_LAUNCHED_KEY = "FRAGMENT_LAUNCHED"
 
         private const val TOOLBAR_SCRIM_VISIBLE_TRIGGER_POSITION_MULTIPLIER = 2
 

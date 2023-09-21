@@ -18,7 +18,7 @@
         android:paddingStart="@dimen/alert_dialog.content.radio_group.item.icon.paddingStart"
         android:paddingEnd="?attr/dialogPreferredPadding"
         app:drawableEndCompat="?android:attr/listChoiceIndicatorSingle"
-        android:drawableStart="@drawable/russia_flag"
+        android:drawableStart="@drawable/russian_round_flag"
         android:drawablePadding="@dimen/alert_dialog.content.radio_group.item.icon.paddingEnd"
         android:ellipsize="marquee"
         android:text="@string/settings_fragment.radio_group.language.russian" />
@@ -34,7 +34,7 @@
         android:paddingStart="@dimen/alert_dialog.content.radio_group.item.icon.paddingStart"
         android:paddingEnd="?attr/dialogPreferredPadding"
         app:drawableEndCompat="?android:attr/listChoiceIndicatorSingle"
-        android:drawableStart="@drawable/united_kingdom_flag"
+        android:drawableStart="@drawable/great_britain_round_flag"
         android:drawablePadding="@dimen/alert_dialog.content.radio_group.item.icon.paddingEnd"
         android:ellipsize="marquee"
         android:text="@string/settings_fragment.radio_group.language.english" />

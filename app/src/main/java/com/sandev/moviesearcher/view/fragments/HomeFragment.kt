@@ -110,7 +110,7 @@ class HomeFragment : MoviesListFragment() {
     }
 
     private fun initializeMovieRecycler() {
-        viewModel.recyclerAdapter.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnClickListener {
+        viewModel.recyclerAdapter.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnPosterClickListener {
             override fun onClick(databaseMovie: DatabaseMovie, posterView: ShapeableImageView) {
                 resetExitReenterTransitionAnimations()
                 mainActivity?.startDetailsFragment(databaseMovie, posterView)

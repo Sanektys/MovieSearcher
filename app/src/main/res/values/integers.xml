@@ -20,7 +20,6 @@
 
 
     <!-- Favorites fragment -->
-    <integer name="fragment_favorites.delay.recyclerViewAppearance">400</integer>
 
 
     <!-- Rating view -->

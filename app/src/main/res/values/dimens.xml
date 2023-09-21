@@ -23,10 +23,10 @@
     <dimen name="activity_main.movies_recycler.movie_card.poster.width">120dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.poster.alpha">0.8</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.title.margin_top">8dp</dimen>
-    <dimen name="activity_main.movies_recycler.movie_card.title.margin_bottom">4dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.divider.margin_top">4dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.separator.margin_horizontal">12dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.description.margin_horizontal">10dp</dimen>
-    <dimen name="activity_main.movies_recycler.movie_card.description.margin_top">4dp</dimen>
+    <dimen name="activity_main.movies_recycler.movie_card.description.margin_top">8dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.description.fade_to_background.height">40dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.rating_donut.width">50dp</dimen>
     <dimen name="activity_main.movies_recycler.movie_card.rating_donut.height">50dp</dimen>
@@ -49,11 +49,6 @@
     <dimen name="fragment_settings.block.corner_radius">24dp</dimen>
     <dimen name="fragment_settings.block.title.height">20dp</dimen>
     <dimen name="fragment_settings.block_group.paddingBottom">8dp</dimen>
-    <dimen name="fragment_settings.radio_group.title.marginTop">12dp</dimen>
-    <dimen name="fragment_settings.radio_group.title.marginBottom">8dp</dimen>
-    <dimen name="fragment_settings.radio_group.title.alpha">0.5</dimen>
-    <dimen name="fragment_settings.radio_group.radio_button.height">44dp</dimen>
-    <dimen name="fragment_settings.radio_group.radio_button.paddingHorizontal">12dp</dimen>
 
 
     <!-- details fragment -->
@@ -76,6 +71,15 @@
     <dimen name="activity_details.description.margin_horizontal">20dp</dimen>
 
 
+    <!-- watch later movie card -->
+    <dimen name="watch_later_movie_card.body.notification.title.margin_start">12dp</dimen>
+    <dimen name="watch_later_movie_card.body.notification.date.margin_top">4dp</dimen>
+    <dimen name="watch_later_movie_card.body.notification.icon.size">32dp</dimen>
+    <dimen name="watch_later_movie_card.body.notification.alpha">0.85</dimen>
+    <dimen name="watch_later_movie_card.poster.height">140dp</dimen>
+    <dimen name="watch_later_movie_card.poster.width">100dp</dimen>
+
+
     <!-- alert dialog -->
     <dimen name="alert_dialog.background_dim_percent">0.25</dimen>
     <dimen name="alert_dialog.margin_horizontal">8dp</dimen>
@@ -85,10 +89,15 @@
     <dimen name="alert_dialog.content.list_item.icon_size">24dp</dimen>
     <dimen name="alert_dialog.content.list_item.margin_vertical">16dp</dimen>
     <dimen name="alert_dialog.content.list_item.padding_horizontal">24dp</dimen>
-    <dimen name="alert_dialog.content.list_item.margin_horizontal">20dp</dimen>
     <dimen name="alert_dialog.content.list_item.text.margin_start">16dp</dimen>
     <dimen name="alert_dialog.content.radio_group.item.icon.paddingStart">24dp</dimen>
     <dimen name="alert_dialog.content.radio_group.item.icon.paddingEnd">24dp</dimen>
+
+
+    <!-- popup menu -->
+    <dimen name="popup_menu.margin_horizontal">8dp</dimen>
+    <dimen name="popup_menu.corner_radius">16dp</dimen>
+    <dimen name="popup_menu.stroke_width">1dp</dimen>
 
 
     <!-- preference switch view -->

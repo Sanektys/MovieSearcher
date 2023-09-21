@@ -3,6 +3,7 @@ package com.sandev.moviesearcher.di.components
 import android.content.Context
 import com.sandev.moviesearcher.di.modules.NotificationsModule
 import com.sandev.moviesearcher.di.modules.SharedPreferenceModule
+import com.sandev.moviesearcher.utils.workers.WatchLaterNotificationWorker
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
 import com.sandev.moviesearcher.view.viewmodels.MainActivityViewModel
 import com.sandev.moviesearcher.view.viewmodels.MoviesListFragmentViewModel
@@ -25,6 +26,7 @@ interface AppComponent {
     fun inject(detailsFragmentViewModel: DetailsFragmentViewModel)
     fun inject(settingsFragmentViewModel: SettingsFragmentViewModel)
     fun inject(mainActivityViewModel: MainActivityViewModel)
+    fun inject(watchLaterNotificationWorker: WatchLaterNotificationWorker)
 
     @Component.Builder
     interface Builder {

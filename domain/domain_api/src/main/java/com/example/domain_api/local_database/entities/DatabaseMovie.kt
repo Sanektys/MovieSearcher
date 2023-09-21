@@ -14,7 +14,7 @@ open class DatabaseMovie(
     override val id: Int = 0,
     @ColumnInfo(name = COLUMN_POSTER)
     override val poster: String?,
-    @ColumnInfo(name = COLUMN_TITLE, index = true, defaultValue = DEFAULT_TITLE)
+    @ColumnInfo(name = COLUMN_TITLE, defaultValue = DEFAULT_TITLE)
     override val title: String,
     @ColumnInfo(name = COLUMN_DESCRIPTION, defaultValue = "")
     override val description: String,

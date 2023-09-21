@@ -55,11 +55,14 @@
     <string name="details_fragment.alert_dialog.title">Выберите действие:</string>
     <string name="details_fragment.alert_dialog.action.sharing">Поделиться фильмом</string>
     <string name="details_fragment.alert_dialog.action.download_poster">Скачать постер фильма</string>
-    <string name="details_fragment.alert_dialog.action.create_notification">Создать напоминание о просмотре фильма</string>
     <string name="details_fragment.alert_dialog.action.cancel">Отмена</string>
     <string name="details_fragment.poster_download.success">Постер успешно загружен в галерею</string>
     <string name="details_fragment.poster_download.success.action">Открыть галерею</string>
     <string name="details_fragment.poster_download.failure">Не удалось загрузить постер фильма</string>
+    <string name="details_fragment.fab.add_watch_later.date_picker.title">Задайте дату напоминания о фильме</string>
+    <string name="details_fragment.fab.add_watch_later.time_picker.title">Задайте время напоминания о фильме</string>
+    <string name="details_fragment.fab.add_watch_later.notifications_disabled.message">Уведомления о просмотре фильма отключены в настройках</string>
+    <string name="details_fragment.fab.add_watch_later.notifications_disabled.button">Настройки</string>
 
 
     <!-- Favorites fragment -->
@@ -68,6 +71,15 @@
 
     <!-- Watch later fragment -->
     <string name="watch_later_fragment.top_app_bar.search_bar.hint">Найти фильм из отложенного</string>
+    <string name="watch_later_fragment.popup_menu.date_picker.title">Измените дату напоминания о фильме</string>
+    <string name="watch_later_fragment.popup_menu.time_picker.title">Измените время напоминания</string>
+
+
+    <!-- Watch later movie card -->
+    <string name="watch_later_movie_card.body.notification.title">Уведомление намечено на</string>
+    <string name="watch_later_movie_card.body.notification.scheduled_time.null">дата не задана</string>
+    <string name="watch_later_movie_card.popup_menu.button_change">Изменить</string>
+    <string name="watch_later_movie_card.popup_menu.button_remove">Удалить</string>
 
 
     <!-- Movie view holder -->

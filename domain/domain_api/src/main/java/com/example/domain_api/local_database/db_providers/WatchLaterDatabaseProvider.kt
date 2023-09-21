@@ -1,9 +1,9 @@
 package com.example.domain_api.local_database.db_providers
 
-import com.example.domain_api.local_database.repository.MoviesListRepositoryForSavedLists
+import com.example.domain_api.local_database.repository.WatchLaterListRepository
 
 
 interface WatchLaterDatabaseProvider {
 
-    fun provideRepository(): MoviesListRepositoryForSavedLists
+    fun provideRepository(): WatchLaterListRepository
 }

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "35b19e8a7fa76fe235644d6e856906a0",
+    "identityHash": "2decffc5a39d671b79c37ba6357cef13",
     "entities": [
       {
         "tableName": "cached_watch_later_movies",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `poster` TEXT, `title` TEXT NOT NULL DEFAULT 'no title', `description` TEXT NOT NULL DEFAULT '', `rating` REAL NOT NULL DEFAULT 0)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `poster` TEXT, `title` TEXT NOT NULL DEFAULT 'no title', `description` TEXT NOT NULL DEFAULT '', `rating` REAL NOT NULL DEFAULT 0, `notification_date` INTEGER DEFAULT null)",
         "fields": [
           {
             "fieldPath": "id",
@@ -40,6 +40,13 @@
             "affinity": "REAL",
             "notNull": true,
             "defaultValue": "0"
+          },
+          {
+            "fieldPath": "notificationDate",
+            "columnName": "notification_date",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "null"
           }
         ],
         "primaryKey": {
@@ -66,7 +73,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '35b19e8a7fa76fe235644d6e856906a0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2decffc5a39d671b79c37ba6357cef13')"
     ]
   }
 }

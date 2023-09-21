@@ -53,11 +53,14 @@
     <string name="details_fragment.alert_dialog.title">Select the action:</string>
     <string name="details_fragment.alert_dialog.action.sharing">Share this movie</string>
     <string name="details_fragment.alert_dialog.action.download_poster">Download the movie poster</string>
-    <string name="details_fragment.alert_dialog.action.create_notification">Create a movie watch notification</string>
     <string name="details_fragment.alert_dialog.action.cancel">Cancel</string>
     <string name="details_fragment.poster_download.success">Poster successfully uploaded to the gallery</string>
     <string name="details_fragment.poster_download.success.action">Open gallery</string>
     <string name="details_fragment.poster_download.failure">Unable to download the movie poster</string>
+    <string name="details_fragment.fab.add_watch_later.date_picker.title">Set a movie notification date</string>
+    <string name="details_fragment.fab.add_watch_later.time_picker.title">Set a movie notification time</string>
+    <string name="details_fragment.fab.add_watch_later.notifications_disabled.message">Movie notifications are disabled in settings</string>
+    <string name="details_fragment.fab.add_watch_later.notifications_disabled.button">Settings</string>
 
 
     <!-- Favorites fragment -->
@@ -66,6 +69,15 @@
 
     <!-- Watch later fragment -->
     <string name="watch_later_fragment.top_app_bar.search_bar.hint">Search a movie from watch later</string>
+    <string name="watch_later_fragment.popup_menu.date_picker.title">Change a movie notification date</string>
+    <string name="watch_later_fragment.popup_menu.time_picker.title">Change notification time</string>
+
+
+    <!-- Watch later movie card -->
+    <string name="watch_later_movie_card.body.notification.title">Notification scheduled at</string>
+    <string name="watch_later_movie_card.body.notification.scheduled_time.null">date unspecified</string>
+    <string name="watch_later_movie_card.popup_menu.button_change">Change</string>
+    <string name="watch_later_movie_card.popup_menu.button_remove">Remove</string>
 
 
     <!-- Notification "watch movie" -->

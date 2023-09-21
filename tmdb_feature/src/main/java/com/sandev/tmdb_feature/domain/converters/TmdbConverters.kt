@@ -1,11 +1,11 @@
 package com.sandev.tmdb_feature.domain.converters
 
-import com.example.domain_api.the_movie_database.dto.TmdbMovieDto
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.example.domain_api.local_database.entities.PlayingDatabaseMovie
 import com.example.domain_api.local_database.entities.PopularDatabaseMovie
 import com.example.domain_api.local_database.entities.TopDatabaseMovie
 import com.example.domain_api.local_database.entities.UpcomingDatabaseMovie
+import com.example.domain_api.the_movie_database.dto.TmdbMovieDto
 
 
 internal fun convertApiDtoListToPlayingMovieList(list: List<TmdbMovieDto>?): List<PlayingDatabaseMovie> {

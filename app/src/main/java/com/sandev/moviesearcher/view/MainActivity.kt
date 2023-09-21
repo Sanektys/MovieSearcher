@@ -10,7 +10,6 @@ import android.content.res.Configuration
 import android.graphics.Outline
 import android.os.BatteryManager
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewOutlineProvider
@@ -25,7 +24,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.doOnLayout
 import androidx.core.view.doOnNextLayout
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.forEach
@@ -41,6 +39,7 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.databinding.ActivityMainBinding
+import com.sandev.moviesearcher.utils.broadcast_receivers.BatteryBroadcastReceiver
 import com.sandev.moviesearcher.view.fragments.DetailsFragment
 import com.sandev.moviesearcher.view.fragments.FavoritesFragment
 import com.sandev.moviesearcher.view.fragments.HomeFragment
@@ -70,7 +69,10 @@ class MainActivity : AppCompatActivity() {
     private var favoritesFragment = FavoritesFragment()
     private var watchLaterFragment = WatchLaterFragment()
 
-    private var broadcastReceiver = AppBroadcastReceiver()
+    private var batteryBroadcastReceiver = BatteryBroadcastReceiver(
+        onBatteryLow = this::onBatteryLevelLow,
+        onBatteryOkay = this::onBatteryLevelOkay
+    )
 
     private val dummyOnBackPressed = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {}
@@ -112,7 +114,7 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
 
         removeSharedPreferencesChangeListener()
-        unregisterReceiver(broadcastReceiver)
+        unregisterReceiver(batteryBroadcastReceiver)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -171,7 +173,7 @@ class MainActivity : AppCompatActivity() {
             addAction(Intent.ACTION_BATTERY_LOW)
             addAction(Intent.ACTION_BATTERY_OKAY)
         }
-        registerReceiver(broadcastReceiver, filters)
+        registerReceiver(batteryBroadcastReceiver, filters)
     }
 
     private fun checkBatteryLevel() {
@@ -639,17 +641,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }, true)
-    }
-
-
-    inner class AppBroadcastReceiver : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == Intent.ACTION_BATTERY_LOW) {
-                onBatteryLevelLow()
-            } else if (intent?.action == Intent.ACTION_BATTERY_OKAY) {
-                onBatteryLevelOkay()
-            }
-        }
     }
 
 

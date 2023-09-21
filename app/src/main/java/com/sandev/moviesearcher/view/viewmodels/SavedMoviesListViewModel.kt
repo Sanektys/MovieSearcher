@@ -9,18 +9,17 @@ import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.channels.Channel
 
 
-abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: CachedMoviesInteractor)
+abstract class SavedMoviesListViewModel(protected open val cachedMoviesInteractor: CachedMoviesInteractor)
     : MoviesListFragmentViewModel() {
 
     final override val moviesList = MutableLiveData<List<DatabaseMovie>>()
 
-    var isMovieMoreNotInSavedList: Boolean = false
     var lastClickedDatabaseMovie: DatabaseMovie? = null
 
-    var clickOnPosterCallbackSetupSynchronizeBlock: Channel<Nothing>? = null
+    private var movieDeletionBlock: Channel<Nothing>? = null
 
-    protected val databaseMovieDeletedObserver: Observer<DatabaseMovie>
-    protected val movieAddedObserver: Observer<Nothing?>
+    private var databaseMovieDeletedObserver: Observer<DatabaseMovie>? = null
+    private var movieAddedObserver: Observer<Nothing?>? = null
 
     private var moviesPaginationOffset: Int = 0
     private var isPaginationHardResetOnProcess: Boolean = false
@@ -30,13 +29,33 @@ abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: Cach
         isOffline = true
         moviesPerPage = CachedMoviesInteractor.MOVIES_PER_PAGE
 
+        moviesList.observeForever { newList ->
+            moviesPerPage = newList.size
+            moviesPaginationOffset += moviesPerPage
+
+            moviesDatabase = newList.toList()
+
+            if (isPaginationHardResetOnProcess) isPaginationHardResetOnProcess = false
+        }
+    }
+
+
+    fun blockCallbackOnPosterClickAndMovieDeletion() {
+        movieDeletionBlock = Channel()
+        recyclerAdapter.setPosterOnClickListener(null)
+    }
+
+    fun unblockCallbackOnPosterClick(callback: MoviesRecyclerAdapter.OnPosterClickListener) {
+        recyclerAdapter.setPosterOnClickListener(callback)
+    }
+
+    protected fun registerMovieInListStateChangeObservers() {
         databaseMovieDeletedObserver = Observer<DatabaseMovie> { deletedMovie ->
             val isMovieDeleted = recyclerAdapter.removeMovieCard(deletedMovie)
             if (isMovieDeleted && moviesPaginationOffset > 0) {
                 --moviesPaginationOffset
                 nextPage = INITIAL_PAGE_IN_RECYCLER
             }
-            unblockCallbackOnPosterClick()
         }
         movieAddedObserver = Observer<Nothing?> {
             if (recyclerAdapter.itemCount == 0) {
@@ -51,34 +70,19 @@ abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: Cach
             }
         }
 
-        cachedMoviesInteractor.getDeletedDatabaseMovie.observeForever(databaseMovieDeletedObserver)
-        cachedMoviesInteractor.getMovieAddedNotify.observeForever(movieAddedObserver)
-
-        moviesList.observeForever { newList ->
-            moviesPerPage = newList.size
-            moviesPaginationOffset += moviesPerPage
-
-            moviesDatabase = newList.toList()
-
-            if (isPaginationHardResetOnProcess) isPaginationHardResetOnProcess = false
-        }
-
-        dispatchQueryToInteractor(page = INITIAL_PAGE_IN_RECYCLER)
-    }
-
-
-    fun blockCallbackOnPosterClick() {
-        clickOnPosterCallbackSetupSynchronizeBlock = Channel()
-        recyclerAdapter.setPosterOnClickListener(null)
-    }
-
-    fun unblockCallbackOnPosterClick(callback: MoviesRecyclerAdapter.OnClickListener) {
-        recyclerAdapter.setPosterOnClickListener(callback)
+        cachedMoviesInteractor.getDeletedDatabaseMovie.observeForever(databaseMovieDeletedObserver!!)
+        cachedMoviesInteractor.getMovieAddedNotify.observeForever(movieAddedObserver!!)
     }
 
     override fun onCleared() {
-        cachedMoviesInteractor.getDeletedDatabaseMovie.removeObserver(databaseMovieDeletedObserver)
-        cachedMoviesInteractor.getMovieAddedNotify.removeObserver(movieAddedObserver)
+        if (databaseMovieDeletedObserver != null) {
+            cachedMoviesInteractor.getDeletedDatabaseMovie.removeObserver(
+                databaseMovieDeletedObserver!!
+            )
+        }
+        if (movieAddedObserver != null) {
+            cachedMoviesInteractor.getMovieAddedNotify.removeObserver(movieAddedObserver!!)
+        }
     }
 
     final override fun dispatchQueryToInteractor(page: Int?) {
@@ -103,22 +107,19 @@ abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: Cach
         }
     }
 
-    fun checkForMovieDeletionNecessary() {
-        if (isMovieMoreNotInSavedList) {
-            removeMovieFromList()
-        } else {
-            unblockCallbackOnPosterClick()
-        }
+    suspend fun deleteMovieFromListAndDB() {
+        movieDeletionBlock?.receiveCatching()
+        removeMovieFromList()
     }
 
-    private fun unblockCallbackOnPosterClick() {
-        clickOnPosterCallbackSetupSynchronizeBlock?.run {
+    fun unblockMovieDeletion() {
+        movieDeletionBlock?.run {
             cancel()
-            clickOnPosterCallbackSetupSynchronizeBlock = null
+            movieDeletionBlock = null
         }
     }
 
-    private fun getMoviesFromDB(offset: Int) {
+    protected open fun getMoviesFromDB(offset: Int) {
         var disposable: Disposable? = null
         disposable = cachedMoviesInteractor.getFewMoviesFromList(
             from = offset,
@@ -129,7 +130,7 @@ abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: Cach
         }
     }
 
-    private fun getSearchedMoviesFromDB(query: String, offset: Int) {
+    protected open fun getSearchedMoviesFromDB(query: String, offset: Int) {
         var disposable: Disposable? = null
         disposable = cachedMoviesInteractor.getFewSearchedMoviesFromList(
                 query = query,
@@ -141,7 +142,7 @@ abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: Cach
         }
     }
 
-    private fun removeFromSavedList(databaseMovie: DatabaseMovie) {
+    protected fun removeFromSavedList(databaseMovie: DatabaseMovie) {
         var disposable: Disposable? = null
         disposable = cachedMoviesInteractor.removeFromList(databaseMovie).subscribe {
             disposable?.dispose()
@@ -153,7 +154,6 @@ abstract class SavedMoviesListViewModel(private val cachedMoviesInteractor: Cach
             removeFromSavedList(lastClickedDatabaseMovie!!)
             lastClickedDatabaseMovie = null
         }
-        isMovieMoreNotInSavedList = false
     }
 
     private fun hardResetPagination() {
