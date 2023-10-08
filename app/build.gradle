@@ -20,6 +20,19 @@ android {
         resourceConfigurations += ["en-rUS", "ru"]
     }
 
+    flavorDimensions = ['tier']
+    productFlavors {
+        full {
+            dimension 'tier'
+            applicationIdSuffix '.full'
+        }
+        demo {
+            dimension 'tier'
+            applicationIdSuffix '.demo'
+            versionNameSuffix '-demo'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
