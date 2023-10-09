@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Demo info screen -->
+    <dimen name="home_fragment.info_screen.arrow.height">50dp</dimen>
+    <dimen name="home_fragment.info_screen.arrow.width">50dp</dimen>
+    <dimen name="home_fragment.info_screen.arrow.marginTop">-12dp</dimen>
+    <dimen name="home_fragment.info_screen.label.paddingHorizontal">12dp</dimen>
+    <dimen name="home_fragment.info_screen.label.paddingVertical">8dp</dimen>
+    <dimen name="home_fragment.info_screen.label.elevation">4dp</dimen>
+    <dimen name="home_fragment.info_screen.guideline.height_from_bottom">120dp</dimen>
+    <dimen name="home_fragment.info_screen.ok_button.elevation">12dp</dimen>
+    <dimen name="home_fragment.info_screen.ok_button.marginTop">24dp</dimen>
+    <dimen name="home_fragment.info_screen.message.marginHorizontal">32dp</dimen>
+    <dimen name="home_fragment.info_screen.message.verticalBias">0.4</dimen>
+    <dimen name="home_fragment.info_screen.message.padding">12dp</dimen>
+    <dimen name="home_fragment.info_screen.message.elevation">8dp</dimen>
+    <dimen name="home_fragment.info_screen.shadow.alpha">0.5</dimen>
+    <dimen name="home_fragment.info_screen.button_highlight.height">50dp</dimen>
+    <dimen name="home_fragment.info_screen.button_highlight.width">50dp</dimen>
+    <dimen name="home_fragment.info_screen.elevation">100dp</dimen>
+</resources>

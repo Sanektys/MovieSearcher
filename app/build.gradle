@@ -25,11 +25,15 @@ android {
         full {
             dimension 'tier'
             applicationIdSuffix '.full'
+
+            buildConfigField 'boolean', 'DEMO', 'false'
         }
         demo {
             dimension 'tier'
             applicationIdSuffix '.demo'
             versionNameSuffix '-demo'
+
+            buildConfigField 'boolean', 'DEMO', 'true'
         }
     }
 

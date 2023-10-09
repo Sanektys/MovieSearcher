@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Movie Searcher</string>
+    <string name="app_name" translatable="false">Movie Searcher</string>
 
     <!-- Main activity -->
     <string name="activity_main.bottom_navigation.all_movies.title">ВСЕ ФИЛЬМЫ</string>

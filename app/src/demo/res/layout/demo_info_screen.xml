@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/demoInfo"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:elevation="@dimen/home_fragment.info_screen.elevation"
+    android:clickable="true"
+    android:focusable="true"
+    tools:showIn="@layout/activity_main">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/black"
+        android:alpha="@dimen/home_fragment.info_screen.shadow.alpha">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/watchLaterInfoHighlight"
+            android:layout_width="@dimen/home_fragment.info_screen.button_highlight.width"
+            android:layout_height="@dimen/home_fragment.info_screen.button_highlight.height"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:src="@drawable/button_highlight_gradient"
+            app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Full" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/favoriteInfoHighlight"
+            android:layout_width="@dimen/home_fragment.info_screen.button_highlight.width"
+            android:layout_height="@dimen/home_fragment.info_screen.button_highlight.height"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:src="@drawable/button_highlight_gradient"
+            app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Full" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/infoMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/home_fragment.info_screen.message.marginHorizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintVertical_bias="@dimen/home_fragment.info_screen.message.verticalBias"
+        app:contentPadding="@dimen/home_fragment.info_screen.message.padding"
+        app:cardCornerRadius="@dimen/general.corner_radius.large"
+        style="@style/Widget.Material3.CardView.Elevated"
+        app:cardElevation="@dimen/home_fragment.info_screen.message.elevation"
+        app:cardBackgroundColor="?attr/colorSurfaceVariant">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textAlignment="center"
+            android:text="@string/home_fragment.info_screen.message" />
+    </androidx.cardview.widget.CardView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/infoButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:elevation="@dimen/home_fragment.info_screen.ok_button.elevation"
+        app:layout_constraintTop_toBottomOf="@id/infoMessage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/home_fragment.info_screen.ok_button.marginTop"
+        app:backgroundTint="?attr/colorSurfaceVariant"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        app:icon="@drawable/baseline_check_24"
+        app:iconTint="?attr/colorOnSurfaceVariant"
+        style="@style/Widget.Material3.Button.ElevatedButton.Icon"
+        android:text="@string/home_fragment.info_screen.ok_button" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/horizontalGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="@dimen/home_fragment.info_screen.guideline.height_from_bottom"/>
+
+    <ImageView
+        android:id="@+id/watchLaterInfoArrow"
+        android:layout_width="@dimen/home_fragment.info_screen.arrow.width"
+        android:layout_height="@dimen/home_fragment.info_screen.arrow.height"
+        android:layout_marginTop="@dimen/home_fragment.info_screen.arrow.marginTop"
+        app:layout_constraintTop_toBottomOf="@id/infoWatchLaterLabel"
+        app:layout_constraintStart_toStartOf="@id/infoWatchLaterLabel"
+        app:layout_constraintEnd_toEndOf="@id/infoWatchLaterLabel"
+        android:src="@drawable/arrow_right_alt_24"
+        android:rotation="@integer/home_fragment.info_screen.arrow.rotation"
+        app:tint="?attr/colorSurfaceVariant" />
+
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/infoWatchLaterLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/horizontalGuideline"
+        app:contentPadding="@dimen/home_fragment.info_screen.label.paddingVertical"
+        app:contentPaddingLeft="@dimen/home_fragment.info_screen.label.paddingHorizontal"
+        app:contentPaddingRight="@dimen/home_fragment.info_screen.label.paddingHorizontal"
+        app:cardCornerRadius="@dimen/general.corner_radius.large"
+        style="@style/Widget.Material3.CardView.Elevated"
+        app:cardElevation="@dimen/home_fragment.info_screen.label.elevation"
+        app:cardBackgroundColor="?attr/colorSurfaceVariant">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+            android:textAlignment="center"
+            android:text="@string/home_fragment.info_screen.label.watch_later" />
+    </androidx.cardview.widget.CardView>
+
+    <ImageView
+        android:id="@+id/favoriteInfoArrow"
+        android:layout_width="@dimen/home_fragment.info_screen.arrow.width"
+        android:layout_height="@dimen/home_fragment.info_screen.arrow.height"
+        android:layout_marginTop="@dimen/home_fragment.info_screen.arrow.marginTop"
+        app:layout_constraintTop_toBottomOf="@id/favoriteLaterLabel"
+        app:layout_constraintStart_toStartOf="@id/favoriteLaterLabel"
+        app:layout_constraintEnd_toEndOf="@id/favoriteLaterLabel"
+        android:src="@drawable/arrow_right_alt_24"
+        android:rotation="@integer/home_fragment.info_screen.arrow.rotation"
+        app:tint="?attr/colorSurfaceVariant" />
+
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/favoriteLaterLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/horizontalGuideline"
+        app:contentPadding="@dimen/home_fragment.info_screen.label.paddingVertical"
+        app:contentPaddingLeft="@dimen/home_fragment.info_screen.label.paddingHorizontal"
+        app:contentPaddingRight="@dimen/home_fragment.info_screen.label.paddingHorizontal"
+        app:cardCornerRadius="@dimen/general.corner_radius.large"
+        style="@style/Widget.Material3.CardView.Elevated"
+        app:cardElevation="@dimen/home_fragment.info_screen.label.elevation"
+        app:cardBackgroundColor="?attr/colorSurfaceVariant">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+            android:textAlignment="center"
+            android:text="@string/home_fragment.info_screen.label.favorite" />
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

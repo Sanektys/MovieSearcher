@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Demo general -->
+    <integer name="demo_general.unblocked_features_lifespan">7</integer>
+
+
+    <!-- Demo info screen -->
+    <integer name="home_fragment.info_screen.arrow.rotation">90</integer>
+</resources>
