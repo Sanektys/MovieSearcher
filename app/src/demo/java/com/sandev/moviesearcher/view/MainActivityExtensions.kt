@@ -148,7 +148,7 @@ private fun setupMenuItemsPointersAppearance(binding: ActivityMainBinding) {
         val navigationViewDeltaHeight = binding.navigationBar.height - navigationViewOriginalHeight
 
         val buttonCoordinate = IntArray(2)
-        favoriteMenuButton.getLocationOnScreen(buttonCoordinate)
+        favoriteMenuButton.getLocationInWindow(buttonCoordinate)
         var menuButtonCenterX = buttonCoordinate[0] + (favoriteMenuButton.width / 2)
         var menuButtonCenterY = buttonCoordinate[1] + (favoriteMenuButton.height / 2)
 
@@ -165,7 +165,7 @@ private fun setupMenuItemsPointersAppearance(binding: ActivityMainBinding) {
             y = menuButtonCenterY - height / 2f
         }
 
-        watchLaterMenuButton.getLocationOnScreen(buttonCoordinate)
+        watchLaterMenuButton.getLocationInWindow(buttonCoordinate)
         menuButtonCenterX = buttonCoordinate[0] + (watchLaterMenuButton.width / 2)
         menuButtonCenterY = buttonCoordinate[1] + (watchLaterMenuButton.height / 2)
 

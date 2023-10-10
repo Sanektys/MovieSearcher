@@ -108,6 +108,10 @@ class MainActivity : AppCompatActivity() {
 
         if (supportFragmentManager.backStackEntryCount == 0) {
             startSplashScreen()
+        } else {
+            if (BuildConfig.DEMO) {
+                showDemoInfoScreen(view = binding.root, isAnimated = false)
+            }
         }
     }
 
