@@ -3,7 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/demoInfo"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:elevation="@dimen/home_fragment.info_screen.elevation"
@@ -126,16 +125,16 @@
         android:layout_width="@dimen/home_fragment.info_screen.arrow.width"
         android:layout_height="@dimen/home_fragment.info_screen.arrow.height"
         android:layout_marginTop="@dimen/home_fragment.info_screen.arrow.marginTop"
-        app:layout_constraintTop_toBottomOf="@id/favoriteLaterLabel"
-        app:layout_constraintStart_toStartOf="@id/favoriteLaterLabel"
-        app:layout_constraintEnd_toEndOf="@id/favoriteLaterLabel"
+        app:layout_constraintTop_toBottomOf="@id/infoFavoriteLaterLabel"
+        app:layout_constraintStart_toStartOf="@id/infoFavoriteLaterLabel"
+        app:layout_constraintEnd_toEndOf="@id/infoFavoriteLaterLabel"
         android:src="@drawable/arrow_right_alt_24"
         android:rotation="@integer/home_fragment.info_screen.arrow.rotation"
         app:tint="?attr/colorSurfaceVariant" />
 
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/favoriteLaterLabel"
+        android:id="@+id/infoFavoriteLaterLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"

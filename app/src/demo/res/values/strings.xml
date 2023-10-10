@@ -3,7 +3,7 @@
     <string name="app_name" translatable="false">Movie Searcher (Demo)</string>
 
     <!-- Demo info screen -->
-    <string name="home_fragment.info_screen.message">Вы используете демо-версию приложения\n\nПосле <b>%d</b> дней нельзя будет пользоваться списками <big><b>"смотреть позже"</b></big> и <big><b>"избранное"</b></big></string>
+    <string name="home_fragment.info_screen.message">Вы используете демо-версию приложения&lt;br/>&lt;br/>После &lt;b>%d&lt;/b> дней нельзя будет пользоваться списками &lt;big>&lt;b>"смотреть позже"&lt;/b>&lt;/big> и &lt;big>&lt;b>"избранное"&lt;/b>&lt;/big></string>
     <string name="home_fragment.info_screen.ok_button">Понятно</string>
     <string name="home_fragment.info_screen.label.watch_later">смотреть позже</string>
     <string name="home_fragment.info_screen.label.favorite">избранное</string>

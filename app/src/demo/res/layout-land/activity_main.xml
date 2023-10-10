@@ -38,5 +38,7 @@
 
     <include
         layout="@layout/demo_info_screen"
-        android:visibility="visible" />
+        android:id="@+id/demoInfo"
+        android:visibility="gone"
+        tools:visibility="visible"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

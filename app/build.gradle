@@ -24,7 +24,6 @@ android {
     productFlavors {
         full {
             dimension 'tier'
-            applicationIdSuffix '.full'
 
             buildConfigField 'boolean', 'DEMO', 'false'
         }

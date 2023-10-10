@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Demo info screen -->
-    <string name="home_fragment.info_screen.message">You are using the demo version of the app\n\nAfter <b>%d</b> days, you will not be able to use the <big><b>"watch later"</b></big> and <big><b>"favorite"</b></big> lists</string>
+    <string name="home_fragment.info_screen.message">You are using the demo version of the app&lt;br/>&lt;br/>After &lt;b>%d&lt;/b> days, you will not be able to use the &lt;big>&lt;b>"watch later"&lt;/b>&lt;/big> and &lt;big>&lt;b>"favorite"&lt;/b>&lt;/big> lists</string>
     <string name="home_fragment.info_screen.ok_button">It\'s clear</string>
     <string name="home_fragment.info_screen.label.watch_later">watch later</string>
     <string name="home_fragment.info_screen.label.favorite">favorite</string>

@@ -36,6 +36,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.google.android.material.imageview.ShapeableImageView
+import com.sandev.moviesearcher.BuildConfig
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.data.SharedPreferencesProvider
 import com.sandev.moviesearcher.databinding.ActivityMainBinding
@@ -134,6 +135,11 @@ class MainActivity : AppCompatActivity() {
             .add(R.id.fragment, homeFragment)
             .addToBackStack(HOME_FRAGMENT_COMMIT)
             .commit()
+
+        if (BuildConfig.DEMO) {
+            showDemoInfoScreen(view = binding.root, isAnimated = true)
+            return
+        }
 
         checkIntentForLaunchSeparateDetailsFromNotification(intent)
     }

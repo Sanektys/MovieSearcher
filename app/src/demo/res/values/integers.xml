@@ -7,4 +7,6 @@
 
     <!-- Demo info screen -->
     <integer name="home_fragment.info_screen.arrow.rotation">90</integer>
+    <integer name="home_fragment.info_screen.enter_animation.duration">600</integer>
+    <integer name="home_fragment.info_screen.exit_animation.duration">350</integer>
 </resources>
