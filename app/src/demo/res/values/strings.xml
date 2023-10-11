@@ -7,4 +7,13 @@
     <string name="home_fragment.info_screen.ok_button">Понятно</string>
     <string name="home_fragment.info_screen.label.watch_later">смотреть позже</string>
     <string name="home_fragment.info_screen.label.favorite">избранное</string>
+
+
+    <!-- Demo expired messages -->
+    <string name="home_fragment.toast.demo_expired">Пробный период окончился\nНекоторые функции отключены</string>
+    <string name="home_fragment.navigation.button.watch_later.toast.demo_expired">Пробный период истёк\nСписок "смотреть позже" недоступен</string>
+    <string name="home_fragment.navigation.button.favorite.toast.demo_expired">Пробный период истёк\nСписок "избранное" недоступен</string>
+
+    <string name="details_fragment.fab.add_watch_later.toast.demo_expired">@string/home_fragment.navigation.button.watch_later.toast.demo_expired</string>
+    <string name="details_fragment.fab.add_favorite.toast.demo_expired">@string/home_fragment.navigation.button.favorite.toast.demo_expired</string>
 </resources>

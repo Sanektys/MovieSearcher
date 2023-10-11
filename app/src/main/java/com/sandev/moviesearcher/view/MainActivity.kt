@@ -109,9 +109,7 @@ class MainActivity : AppCompatActivity() {
         if (supportFragmentManager.backStackEntryCount == 0) {
             startSplashScreen()
         } else {
-            if (BuildConfig.DEMO) {
-                showDemoInfoScreen(view = binding.root, isAnimated = false)
-            }
+            showDemoInfoScreenIfNeeded(isAnimated = false)
         }
     }
 
@@ -140,10 +138,7 @@ class MainActivity : AppCompatActivity() {
             .addToBackStack(HOME_FRAGMENT_COMMIT)
             .commit()
 
-        if (BuildConfig.DEMO) {
-            showDemoInfoScreen(view = binding.root, isAnimated = true)
-            return
-        }
+        showDemoInfoScreenIfNeeded(isAnimated = true)
 
         checkIntentForLaunchSeparateDetailsFromNotification(intent)
     }
@@ -167,6 +162,20 @@ class MainActivity : AppCompatActivity() {
             }
         } else {
             startHomeFragment()
+        }
+    }
+
+    private fun showDemoInfoScreenIfNeeded(isAnimated: Boolean) {
+        if (BuildConfig.DEMO) {
+            if (checkDemoExpired().not()) {
+                if (viewModel.sharedPreferencesInteractor.isDemoInfoScreenShowing()) {
+                    showDemoInfoScreen(view = binding.root, isAnimated = isAnimated) {
+                        viewModel.sharedPreferencesInteractor.setShowingDemoInfoScreen(false)
+                    }
+                }
+            } else {
+                Toast.makeText(this, getString(R.string.home_fragment_toast_demo_expired), Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -227,7 +236,6 @@ class MainActivity : AppCompatActivity() {
                 if (lastFragmentInBackStack is MoviesListFragment) {
                     if (lastFragmentInBackStack.isSearchViewHidden()) {
                         navigationMenuItemClick(lastFragmentInBackStack, menuItem)
-                        true
                     } else {
                         lastFragmentInBackStack.hideSearchView()
                         lifecycleScope.launch {
@@ -241,7 +249,6 @@ class MainActivity : AppCompatActivity() {
                     }
                 } else {
                     navigationMenuItemClick(lastFragmentInBackStack, menuItem)
-                    true
                 }
             }
             // Navigation bar будет отслеживать backstack чтобы вовремя переключать кнопки меню
@@ -265,8 +272,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun navigationMenuItemClick(lastFragmentInBackStack: Fragment, menuItem: MenuItem) {
-        when (menuItem.itemId) {
+    private fun navigationMenuItemClick(lastFragmentInBackStack: Fragment, menuItem: MenuItem): Boolean {
+        return when (menuItem.itemId) {
             R.id.bottom_navigation_all_movies_button -> {
                 if (lastFragmentInBackStack !is HomeFragment) {
                     if (lastFragmentInBackStack is WatchLaterFragment) {
@@ -274,16 +281,28 @@ class MainActivity : AppCompatActivity() {
                     }
                     supportFragmentManager.popBackStackWithSavingFragments(HOME_FRAGMENT_COMMIT)
                 }
+                true
             }
             R.id.bottom_navigation_watch_later_button -> {
+                if (BuildConfig.DEMO) {
+                    if (checkDemoExpiredWithToast(R.string.home_fragment_navigation_button_watch_later_toast_demo_expired)) return false
+                }
+
                 startFragmentFromNavigation(watchLaterFragment, WATCH_LATER_FRAGMENT_COMMIT)
+                true
             }
             R.id.bottom_navigation_favorites_button -> {
+                if (BuildConfig.DEMO) {
+                    if (checkDemoExpiredWithToast(R.string.home_fragment_navigation_button_favorite_toast_demo_expired)) return false
+                }
+
                 if (lastFragmentInBackStack is WatchLaterFragment) {
                     lastFragmentInBackStack.prepareTransitionBeforeNewFragment(false)
                 }
                 startFragmentFromNavigation(favoritesFragment, FAVORITES_FRAGMENT_COMMIT)
+                true
             }
+            else -> false
         }
     }
 

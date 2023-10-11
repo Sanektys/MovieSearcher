@@ -51,6 +51,10 @@ class SharedPreferencesInteractor(private val sharedPreferences: SharedPreferenc
 
     fun isRatingDonutSwitchButtonEnabled() = sharedPreferences.isRatingDonutSwitchButtonEnabled()
 
+    fun setShowingDemoInfoScreen(isShowing: Boolean) = sharedPreferences.setShowingDemoInfoScreen(isShowing)
+
+    fun isDemoInfoScreenShowing() = sharedPreferences.isDemoInfoScreenShowing()
+
     fun addSharedPreferencesChangeListener(listener: OnSharedPreferenceChangeListener) =
         sharedPreferences.registerSharedPreferencesChangeListener(listener)
 

@@ -2,17 +2,22 @@ package com.sandev.moviesearcher.view
 
 import android.animation.Animator
 import android.animation.Animator.AnimatorListener
+import android.content.pm.PackageManager
 import android.os.Build
 import android.text.Html
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewPropertyAnimator
 import android.widget.TextView
+import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.get
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.ActivityMainBinding
+import java.util.Calendar
+import java.util.Date
 
 
 fun MainActivity.showDemoInfoScreen(view: View, isAnimated: Boolean, okButtonCallback: (() -> Unit)? = null) {
@@ -29,6 +34,24 @@ fun MainActivity.showDemoInfoScreen(view: View, isAnimated: Boolean, okButtonCal
     } else {
         setupMenuItemsPointersAppearance(binding)
     }
+}
+
+fun MainActivity.checkDemoExpired(): Boolean {
+    val appInstallationTime = packageManager.getPackageInfo(packageName, 0).firstInstallTime
+    val demoFullAccessExpirationDate = Calendar.getInstance().apply {
+        time = Date(appInstallationTime)
+        add(Calendar.DAY_OF_YEAR, resources.getInteger(R.integer.demo_general_unblocked_features_lifespan))
+    }
+    val currentDate = Calendar.getInstance().apply { time = Date(System.currentTimeMillis()) }
+
+    return currentDate.after(demoFullAccessExpirationDate)
+}
+
+fun MainActivity.checkDemoExpiredWithToast(@StringRes featureExpiredMessage: Int): Boolean {
+    return if (checkDemoExpired()) {
+        Toast.makeText(this, getString(featureExpiredMessage), Toast.LENGTH_SHORT).show()
+        true
+    } else false
 }
 
 private fun performEnterAnimation(binding: ActivityMainBinding) {
