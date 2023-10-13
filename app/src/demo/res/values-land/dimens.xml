@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Demo info screen -->
+    <dimen name="home_fragment.info_screen.arrow.marginTop">-24dp</dimen>
+    <dimen name="home_fragment.info_screen.guideline.height_from_bottom">108dp</dimen>
+    <dimen name="home_fragment.info_screen.message.marginHorizontal">88dp</dimen>
+    <dimen name="home_fragment.info_screen.message.verticalBias">0.3</dimen>
+</resources>

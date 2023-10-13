@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Movie Searcher</string>
+    <string name="app_name" translatable="false">Movie Searcher</string>
 
     <!-- Main activity -->
     <string name="activity_main.bottom_navigation.all_movies.title">ВСЕ ФИЛЬМЫ</string>
@@ -114,4 +114,14 @@
     <string name="shared_preferences.settings.value.language.russian" translatable="false">ru-RU</string>
     <string name="shared_preferences.settings.value.language.english" translatable="false">en-US</string>
     <string name="shared_preferences.settings.value.language.unspecified" translatable="false">language_unspecified</string>
+    <string name="shared_preferences.settings.key.showing_demo_info_screen" translatable="false">showing_demo_info</string>
+
+
+    <!-- Mock strings -->
+    <!-- Demo expired messages -->
+    <string name="home_fragment.toast.demo_expired" translatable="false">null</string>
+    <string name="home_fragment.navigation.button.watch_later.toast.demo_expired" translatable="false">null</string>
+    <string name="home_fragment.navigation.button.favorite.toast.demo_expired" translatable="false">null</string>
+    <string name="details_fragment.fab.add_watch_later.toast.demo_expired" translatable="false">null</string>
+    <string name="details_fragment.fab.add_favorite.toast.demo_expired" translatable="false">null</string>
 </resources>

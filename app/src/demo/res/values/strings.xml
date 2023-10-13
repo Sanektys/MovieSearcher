@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Movie Searcher (Demo)</string>
+
+    <!-- Demo info screen -->
+    <string name="home_fragment.info_screen.message">Вы используете демо-версию приложения&lt;br/>&lt;br/>После &lt;b>%d&lt;/b> дней нельзя будет пользоваться списками &lt;big>&lt;b>"смотреть позже"&lt;/b>&lt;/big> и &lt;big>&lt;b>"избранное"&lt;/b>&lt;/big></string>
+    <string name="home_fragment.info_screen.ok_button">Понятно</string>
+    <string name="home_fragment.info_screen.label.watch_later">смотреть позже</string>
+    <string name="home_fragment.info_screen.label.favorite">избранное</string>
+
+
+    <!-- Demo expired messages -->
+    <string name="home_fragment.toast.demo_expired">Пробный период окончился\nНекоторые функции отключены</string>
+    <string name="home_fragment.navigation.button.watch_later.toast.demo_expired">Пробный период истёк\nСписок "смотреть позже" недоступен</string>
+    <string name="home_fragment.navigation.button.favorite.toast.demo_expired">Пробный период истёк\nСписок "избранное" недоступен</string>
+
+    <string name="details_fragment.fab.add_watch_later.toast.demo_expired">@string/home_fragment.navigation.button.watch_later.toast.demo_expired</string>
+    <string name="details_fragment.fab.add_favorite.toast.demo_expired">@string/home_fragment.navigation.button.favorite.toast.demo_expired</string>
+</resources>

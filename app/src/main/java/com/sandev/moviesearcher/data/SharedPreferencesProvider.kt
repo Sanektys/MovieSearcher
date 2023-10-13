@@ -25,6 +25,8 @@ class SharedPreferencesProvider(context: Context) {
     private val isSplashScreenSwitchButtonEnabledByDefault = true
     private val isRatingDonutSwitchButtonEnabledByDefault = true
 
+    private val isDemoInfoScreenShowingByDefault = true
+
     init {
         if (sharedPreferences.getBoolean(keyFirstLaunch, true)) {
             sharedPreferences.edit { putBoolean(keyFirstLaunch, false) }
@@ -34,6 +36,7 @@ class SharedPreferencesProvider(context: Context) {
             sharedPreferences.edit { putBoolean(KEY_ENABLE_RATING_DONUT_ANIMATION, isRatingDonutAnimationEnabledByDefault)}
             sharedPreferences.edit { putBoolean(KEY_ENABLE_SPLASH_SCREEN_SWITCH_BUTTON, isSplashScreenSwitchButtonEnabledByDefault)}
             sharedPreferences.edit { putBoolean(KEY_ENABLE_RATING_DONUT_SWITCH_BUTTON, isRatingDonutSwitchButtonEnabledByDefault)}
+            sharedPreferences.edit { putBoolean(KEY_SHOWING_DEMO_INFO_SCREEN, isDemoInfoScreenShowingByDefault) }
         }
     }
 
@@ -80,6 +83,12 @@ class SharedPreferencesProvider(context: Context) {
         KEY_ENABLE_RATING_DONUT_SWITCH_BUTTON, isRatingDonutSwitchButtonEnabledByDefault
     )
 
+    fun setShowingDemoInfoScreen(isShowing: Boolean) = sharedPreferences.edit {
+        putBoolean(KEY_SHOWING_DEMO_INFO_SCREEN, isShowing)
+    }
+
+    fun isDemoInfoScreenShowing() = sharedPreferences.getBoolean(KEY_SHOWING_DEMO_INFO_SCREEN, isDemoInfoScreenShowingByDefault)
+
     fun registerSharedPreferencesChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) =
         sharedPreferences.registerOnSharedPreferenceChangeListener(listener)
 
@@ -112,6 +121,7 @@ class SharedPreferencesProvider(context: Context) {
 
         val LANGUAGE_RUSSIAN = App.instance.getString(R.string.shared_preferences_settings_value_language_russian)
         val LANGUAGE_ENGLISH = App.instance.getString(R.string.shared_preferences_settings_value_language_english)
-        val LANGUAGE_UNSPECIFIED = App.instance.getString(R.string.shared_preferences_settings_value_language_unspecified)
+
+        val KEY_SHOWING_DEMO_INFO_SCREEN = App.instance.getString(R.string.shared_preferences_settings_key_showing_demo_info_screen)
     }
 }

@@ -52,11 +52,13 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.sandev.cached_movies_feature.favorite_movies.FavoriteMoviesComponentViewModel
 import com.sandev.cached_movies_feature.watch_later_movies.WatchLaterMoviesComponentViewModel
+import com.sandev.moviesearcher.BuildConfig
 import com.sandev.moviesearcher.R
 import com.sandev.moviesearcher.databinding.FragmentDetailsBinding
 import com.sandev.moviesearcher.utils.changeAppearanceToSamsungOneUI
 import com.sandev.moviesearcher.utils.workers.WorkRequests
 import com.sandev.moviesearcher.view.MainActivity
+import com.sandev.moviesearcher.view.checkDemoExpiredWithToast
 import com.sandev.moviesearcher.view.dialogs.DateTimePickerDialog
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -219,6 +221,11 @@ class DetailsFragment : Fragment() {
 
     private fun setFloatButtonOnClick() {
         binding.fabToFavorite.setOnClickListener {
+            if (BuildConfig.DEMO) {
+                if ((requireActivity() as MainActivity).checkDemoExpiredWithToast(R.string.details_fragment_fab_add_favorite_toast_demo_expired))
+                    return@setOnClickListener
+            }
+
             binding.fabToFavorite.isSelected = !binding.fabToFavorite.isSelected
             binding.fabToFavorite.setImageResource(R.drawable.favorite_icon_selector)
             viewModel.isFavoriteButtonSelected = binding.fabToFavorite.isSelected
@@ -232,6 +239,11 @@ class DetailsFragment : Fragment() {
         }
 
         binding.fabToWatchLater.setOnClickListener {
+            if (BuildConfig.DEMO) {
+                if ((requireActivity() as MainActivity).checkDemoExpiredWithToast(R.string.details_fragment_fab_add_watch_later_toast_demo_expired))
+                    return@setOnClickListener
+            }
+
             if (checkNotificationPermission().not()) {
                 requestNotificationPermission()
                 return@setOnClickListener
