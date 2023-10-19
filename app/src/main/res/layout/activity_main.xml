@@ -35,4 +35,9 @@
         app:labelVisibilityMode="selected"
         app:itemPaddingTop="@dimen/activity_main.bottom_navigation_bar.padding_top"
         app:itemPaddingBottom="@dimen/activity_main.bottom_navigation_bar.padding_bottom" />
+
+    <include
+        layout="@layout/merge_screen_movie_promotion"
+        android:id="@+id/promotionViewScreen"
+        android:visibility="gone" />
 </androidx.constraintlayout.widget.ConstraintLayout>

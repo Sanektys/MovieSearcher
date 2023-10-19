@@ -13,6 +13,13 @@
     <string name="activity_main.toast.message.low_battery">Low battery, some animation disabled</string>
 
 
+    <!-- Movie promotion screen -->
+    <string name="activity_main.movie_promotion.message">Watch this movie\nYou might like it!</string>
+    <string name="activity_main.movie_promotion.poster_click_hint">(Click to the poster for details)</string>
+    <string name="activity_main.movie_promotion.decision_button.ok">Check out</string>
+    <string name="activity_main.movie_promotion.decision_button.cancel">Not interested</string>
+
+
     <!-- Settings fragment -->
     <string name="settings_fragment.app_bar.search_bar.hint">Settings</string>
     <string name="settings_fragment.movie_category.title">Movie category in the \"All Movies\" list</string>

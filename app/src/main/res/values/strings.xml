@@ -14,6 +14,13 @@
     <string name="activity_main.toast.message.low_battery">Низкий заряд батареи, отключены некоторые анимации</string>
 
 
+    <!-- Movie promotion screen -->
+    <string name="activity_main.movie_promotion.message">Посмотрите этот фильм\nВозможно Вам он понравится!</string>
+    <string name="activity_main.movie_promotion.poster_click_hint">(Нажмите на постер, чтобы увидеть подробности)</string>
+    <string name="activity_main.movie_promotion.decision_button.ok">Посмотреть</string>
+    <string name="activity_main.movie_promotion.decision_button.cancel">Не интересует</string>
+
+
     <!-- Settings fragment -->
     <string name="settings_fragment.app_bar.search_bar.hint">Настройки</string>
     <string name="settings_fragment.movie_category.title">Категория фильмов в списке \"Все Фильмы\"</string>

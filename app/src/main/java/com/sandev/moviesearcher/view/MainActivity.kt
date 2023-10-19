@@ -19,11 +19,14 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.cardview.widget.CardView
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.LocaleListCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.doOnLayout
 import androidx.core.view.doOnNextLayout
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.forEach
@@ -109,7 +112,7 @@ class MainActivity : AppCompatActivity() {
         if (supportFragmentManager.backStackEntryCount == 0) {
             startSplashScreen()
         } else {
-            showDemoInfoScreenIfNeeded(isAnimated = false)
+            showGreetingsScreen(isAnimated = false)
         }
     }
 
@@ -138,7 +141,7 @@ class MainActivity : AppCompatActivity() {
             .addToBackStack(HOME_FRAGMENT_COMMIT)
             .commit()
 
-        showDemoInfoScreenIfNeeded(isAnimated = true)
+        showGreetingsScreen(isAnimated = true)
 
         checkIntentForLaunchSeparateDetailsFromNotification(intent)
     }
@@ -165,18 +168,26 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showDemoInfoScreenIfNeeded(isAnimated: Boolean) {
+    private fun showGreetingsScreen(isAnimated: Boolean) {
+        if (showDemoInfoScreenIfNeeded(isAnimated).not()) {
+            showPromotionMovieScreen(isAnimated)
+        }
+    }
+
+    private fun showDemoInfoScreenIfNeeded(isAnimated: Boolean): Boolean {
         if (BuildConfig.DEMO) {
             if (checkDemoExpired().not()) {
                 if (viewModel.sharedPreferencesInteractor.isDemoInfoScreenShowing()) {
                     showDemoInfoScreen(view = binding.root, isAnimated = isAnimated) {
                         viewModel.sharedPreferencesInteractor.setShowingDemoInfoScreen(false)
                     }
+                    return true
                 }
             } else {
                 Toast.makeText(this, getString(R.string.home_fragment_toast_demo_expired), Toast.LENGTH_LONG).show()
             }
         }
+        return false
     }
 
     private fun checkIntentForLaunchSeparateDetailsFromNotification(intent: Intent?) = intent?.run {
@@ -670,6 +681,48 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }, true)
+    }
+
+    private fun showPromotionMovieScreen(isAnimated: Boolean) {
+        initializePromotionScreenAppearance()
+
+        if (isAnimated) {
+            animatePromotionScreenAppearance()
+        }
+
+        binding.promotionViewScreen?.root?.visibility = View.VISIBLE
+    }
+
+    private fun initializePromotionScreenAppearance() {
+        binding.promotionViewScreen?.promotionMessage?.apply {
+            val paddingVertical = resources.getDimensionPixelSize(R.dimen.activity_main_movie_promotion_headline_verticalPadding)
+
+            ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
+                setContentPadding(
+                    0,
+                    insets.getInsets(WindowInsetsCompat.Type.systemBars()).top + paddingVertical,
+                    0,
+                    paddingVertical
+                )
+                insets
+            }
+        }
+    }
+
+    private fun animatePromotionScreenAppearance() {
+        binding.promotionViewScreen?.root?.apply {
+            alpha = 0f
+            val scale = ResourcesCompat.getFloat(resources, R.dimen.activity_main_movie_promotion_animation_scale)
+            scaleX = scale
+            scaleY = scale
+
+            animate()
+                .setDuration(resources.getInteger(R.integer.activity_main_movie_promotion_animation_duration).toLong())
+                .setInterpolator(DecelerateInterpolator())
+                .alpha(1f)
+                .scaleX(1f)
+                .scaleY(1f)
+        }
     }
 
 

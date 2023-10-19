@@ -15,6 +15,10 @@
     <integer name="activity_main.animations_durations.first_appearance.navigation_bar">600</integer>
 
 
+    <!-- Movie Promotion Screen -->
+    <integer name="activity_main.movie_promotion.animation.duration">600</integer>
+
+
     <!-- Settings fragment -->
     <integer name="fragment_settings.item.title.max_lines">1</integer>
 
