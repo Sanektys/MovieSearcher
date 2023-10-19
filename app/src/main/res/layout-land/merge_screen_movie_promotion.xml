@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:elevation="@dimen/activity_main.movie_promotion.elevation">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="@dimen/activity_main.movie_promotion.dim.alpha"
+        android:background="?attr/colorSurface"
+        android:clickable="true"
+        android:fitsSystemWindows="true"
+        android:focusable="true" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/promotionMessage"
+        style="@style/Widget.Material3.CardView.Filled"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="?attr/colorTertiaryContainer"
+        app:contentPaddingBottom="@dimen/activity_main.movie_promotion.headline.verticalPadding"
+        app:contentPaddingTop="@dimen/activity_main.movie_promotion.headline.verticalPadding"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/promotionMoviePoster"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.ExtraLarge"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Bottom">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/activity_main.movie_promotion.headline.marginHorizontal"
+            android:text="@string/activity_main.movie_promotion.message"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textColor="?attr/colorOnTertiaryContainer"
+            app:layout_constrainedWidth="true" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/promotionMovieTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/activity_main.movie_promotion.movie_title.marginHorizontal"
+        android:shadowColor="?attr/colorOnSurfaceVariant"
+        android:shadowRadius="@dimen/activity_main.movie_promotion.movie_title.shadowRadius"
+        android:text="Avatar: the way of water"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toTopOf="@id/promotionDecisionButtons"
+        app:layout_constraintEnd_toEndOf="@id/promotionMessage"
+        app:layout_constraintStart_toStartOf="@id/promotionMessage"
+        app:layout_constraintTop_toBottomOf="@id/promotionMessage" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/promotionMoviePoster"
+        android:layout_width="@dimen/activity_main.movie_promotion.movie_poster.width"
+        android:layout_height="@dimen/activity_main.movie_promotion.movie_poster.height"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/dummy_poster"
+        android:stateListAnimator="@animator/promotion_movie_poster_click_animation"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/promotionMessage"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.ExtraLarge" />
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/promotionDecisionButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/promotionMoviePoster"
+        app:layout_constraintEnd_toEndOf="@id/promotionMessage"
+        app:layout_constraintStart_toStartOf="@id/promotionMessage"
+        app:selectionRequired="true"
+        app:singleSelection="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/okButton"
+            style="@style/Widget.Material3.Button.TonalButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?attr/colorTertiaryContainer"
+            android:text="@string/activity_main.movie_promotion.decision_button.ok"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textColor="?attr/colorOnTertiaryContainer"
+            app:icon="@drawable/round_eye"
+            app:iconTint="?attr/colorOnTertiaryContainer"
+            app:toggleCheckedStateOnClick="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cancelButton"
+            style="@style/Widget.Material3.Button.TonalButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?attr/colorTertiaryContainer"
+            android:text="@string/activity_main.movie_promotion.decision_button.cancel"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textColor="?attr/colorOnTertiaryContainer"
+            app:icon="@drawable/round_not_interested"
+            app:iconTint="?attr/colorOnTertiaryContainer"
+            app:toggleCheckedStateOnClick="false" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+</androidx.constraintlayout.widget.ConstraintLayout>
