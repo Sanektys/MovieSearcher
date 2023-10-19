@@ -32,6 +32,7 @@ import androidx.core.view.doOnPreDraw
 import androidx.core.view.forEach
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
+import androidx.core.view.updatePaddingRelative
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks
@@ -690,11 +691,11 @@ class MainActivity : AppCompatActivity() {
             animatePromotionScreenAppearance()
         }
 
-        binding.promotionViewScreen?.root?.visibility = View.VISIBLE
+        binding.promotionViewScreen.root.visibility = View.VISIBLE
     }
 
     private fun initializePromotionScreenAppearance() {
-        binding.promotionViewScreen?.promotionMessage?.apply {
+        binding.promotionViewScreen.promotionMessage.apply {
             val paddingVertical = resources.getDimensionPixelSize(R.dimen.activity_main_movie_promotion_headline_verticalPadding)
 
             ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
@@ -707,10 +708,18 @@ class MainActivity : AppCompatActivity() {
                 insets
             }
         }
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            binding.promotionViewScreen.promotionDecisionButtons.apply {
+                ViewCompat.setOnApplyWindowInsetsListener(this) { v, insets ->
+                    translationY = -(insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom / 2f)
+                    insets
+                }
+            }
+        }
     }
 
     private fun animatePromotionScreenAppearance() {
-        binding.promotionViewScreen?.root?.apply {
+        binding.promotionViewScreen.root.apply {
             alpha = 0f
             val scale = ResourcesCompat.getFloat(resources, R.dimen.activity_main_movie_promotion_animation_scale)
             scaleX = scale
@@ -722,6 +731,14 @@ class MainActivity : AppCompatActivity() {
                 .alpha(1f)
                 .scaleX(1f)
                 .scaleY(1f)
+        }
+        binding.promotionViewScreen.promotionMoviePosterHint?.apply {
+            alpha = 1f
+
+            animate()
+                .setDuration(resources.getInteger(R.integer.activity_main_movie_promotion_animation_duration).toLong())
+                .setStartDelay(resources.getInteger(R.integer.activity_main_movie_promotion_poster_hint_animation_delay).toLong())
+                .alpha(0f)
         }
     }
 

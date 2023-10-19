@@ -17,6 +17,7 @@
 
     <!-- Movie Promotion Screen -->
     <integer name="activity_main.movie_promotion.animation.duration">600</integer>
+    <integer name="activity_main.movie_promotion.poster_hint.animation.delay">8000</integer>
 
 
     <!-- Settings fragment -->

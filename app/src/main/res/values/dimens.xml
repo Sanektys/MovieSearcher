@@ -46,12 +46,12 @@
     <dimen name="activity_main.movie_promotion.animation.scale">1.2</dimen>
     <dimen name="activity_main.movie_promotion.headline.verticalPadding">14dp</dimen>
     <dimen name="activity_main.movie_promotion.headline.marginHorizontal">28dp</dimen>
-    <dimen name="activity_main.movie_promotion.movie_title.marginTop">48dp</dimen>
+    <dimen name="activity_main.movie_promotion.movie_title.verticalBias">0.64</dimen>
     <dimen name="activity_main.movie_promotion.movie_title.marginHorizontal">20dp</dimen>
     <dimen name="activity_main.movie_promotion.movie_title.shadowRadius">2</dimen>
     <dimen name="activity_main.movie_promotion.movie_poster.width">190dp</dimen>
     <dimen name="activity_main.movie_promotion.movie_poster.height">280dp</dimen>
-    <dimen name="activity_main.movie_promotion.movie_poster.marginTop">28dp</dimen>
+    <dimen name="activity_main.movie_promotion.movie_poster.verticalBias">0.36</dimen>
     <dimen name="activity_main.movie_promotion.movie_poster.animation.scale">1.14</dimen>
     <dimen name="activity_main.movie_promotion.poster_click_hint.marginTop">16dp</dimen>
     <dimen name="activity_main.movie_promotion.poster_click_hint.marginHorizontal">28dp</dimen>
