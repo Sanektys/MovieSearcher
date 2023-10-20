@@ -16,7 +16,8 @@
 
 
     <!-- Movie Promotion Screen -->
-    <integer name="activity_main.movie_promotion.animation.duration">600</integer>
+    <integer name="activity_main.movie_promotion.animation.appearance.duration">600</integer>
+    <integer name="activity_main.movie_promotion.animation.disappearance.duration">200</integer>
     <integer name="activity_main.movie_promotion.poster_hint.animation.delay">8000</integer>
 
 

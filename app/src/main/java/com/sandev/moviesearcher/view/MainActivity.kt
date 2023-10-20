@@ -38,6 +38,8 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.moviesearcher.BuildConfig
@@ -684,18 +686,26 @@ class MainActivity : AppCompatActivity() {
         }, true)
     }
 
-    private fun showPromotionMovieScreen(isAnimated: Boolean) {
-        initializePromotionScreenAppearance()
+    private fun showPromotionMovieScreen(isAnimated: Boolean, promotionMovie: DatabaseMovie = DatabaseMovie(
+        0,
+        "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg",
+        "Barbie",
+        "Barbie and Ken are having the time of their lives in the colorful and seemingly perfect world of Barbie Land. However, when they get a chance to go to the real world, they soon discover the joys and perils of living among humans.",
+        76f)
+    ) {
+        initializePromotionScreenAppearance(promotionMovie)
 
         if (isAnimated) {
             animatePromotionScreenAppearance()
         }
 
         binding.promotionViewScreen.root.visibility = View.VISIBLE
+
+        initializePromotionButtons(promotionMovie)
     }
 
-    private fun initializePromotionScreenAppearance() {
-        binding.promotionViewScreen.promotionMessage.apply {
+    private fun initializePromotionScreenAppearance(promotionMovie: DatabaseMovie) = with(binding.promotionViewScreen) {
+        promotionMessage.apply {
             val paddingVertical = resources.getDimensionPixelSize(R.dimen.activity_main_movie_promotion_headline_verticalPadding)
 
             ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
@@ -709,36 +719,76 @@ class MainActivity : AppCompatActivity() {
             }
         }
         if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            binding.promotionViewScreen.promotionDecisionButtons.apply {
-                ViewCompat.setOnApplyWindowInsetsListener(this) { v, insets ->
+            promotionDecisionButtons.apply {
+                ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
                     translationY = -(insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom / 2f)
                     insets
                 }
             }
         }
+
+        promotionMovieTitle.text = promotionMovie.title
+        Glide.with(this@MainActivity)
+            .load(promotionMovie.poster)
+            .placeholder(R.drawable.dummy_poster)
+            .apply(RequestOptions().dontTransform())
+            .into(promotionMoviePoster)
     }
 
-    private fun animatePromotionScreenAppearance() {
-        binding.promotionViewScreen.root.apply {
+    private fun animatePromotionScreenAppearance() = with(binding.promotionViewScreen) {
+       root.apply {
             alpha = 0f
             val scale = ResourcesCompat.getFloat(resources, R.dimen.activity_main_movie_promotion_animation_scale)
             scaleX = scale
             scaleY = scale
 
             animate()
-                .setDuration(resources.getInteger(R.integer.activity_main_movie_promotion_animation_duration).toLong())
+                .setDuration(resources.getInteger(R.integer.activity_main_movie_promotion_animation_appearance_duration).toLong())
                 .setInterpolator(DecelerateInterpolator())
                 .alpha(1f)
                 .scaleX(1f)
                 .scaleY(1f)
         }
-        binding.promotionViewScreen.promotionMoviePosterHint?.apply {
+        promotionMoviePosterHint?.apply {
             alpha = 1f
 
             animate()
-                .setDuration(resources.getInteger(R.integer.activity_main_movie_promotion_animation_duration).toLong())
+                .setDuration(resources.getInteger(R.integer.activity_main_movie_promotion_animation_appearance_duration).toLong())
                 .setStartDelay(resources.getInteger(R.integer.activity_main_movie_promotion_poster_hint_animation_delay).toLong())
                 .alpha(0f)
+        }
+    }
+
+    private fun animatePromotionScreenDisappearance() = binding.promotionViewScreen.root.apply {
+        val scale = ResourcesCompat.getFloat(resources, R.dimen.activity_main_movie_promotion_animation_scale)
+
+        animate()
+            .setDuration(resources.getInteger(R.integer.activity_main_movie_promotion_animation_disappearance_duration).toLong())
+                    .setInterpolator(AccelerateInterpolator())
+            .alpha(0f)
+            .scaleX(scale)
+            .scaleY(scale)
+            .withEndAction { visibility = View.GONE }
+    }
+
+    private fun initializePromotionButtons(promotionMovie: DatabaseMovie) = with(binding.promotionViewScreen) {
+        fun clearButtonsListeners() {
+            okButton.setOnClickListener {}
+            cancelButton.setOnClickListener {}
+            promotionMoviePoster.setOnClickListener {}
+        }
+
+        cancelButton.setOnClickListener {
+            clearButtonsListeners()
+            animatePromotionScreenDisappearance()
+        }
+        okButton.setOnClickListener {
+            clearButtonsListeners()
+            startDetailsFragment(promotionMovie, promotionMoviePoster)
+        }
+        promotionMoviePoster.setOnClickListener {
+            clearButtonsListeners()
+            startDetailsFragment(promotionMovie, promotionMoviePoster)
         }
     }
 

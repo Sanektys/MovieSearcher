@@ -47,14 +47,14 @@
         android:layout_marginHorizontal="@dimen/activity_main.movie_promotion.movie_title.marginHorizontal"
         android:shadowColor="?attr/colorOnSurfaceVariant"
         android:shadowRadius="@dimen/activity_main.movie_promotion.movie_title.shadowRadius"
-        android:text="Avatar: the way of water"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toTopOf="@id/promotionDecisionButtons"
         app:layout_constraintEnd_toEndOf="@id/promotionMessage"
         app:layout_constraintStart_toStartOf="@id/promotionMessage"
-        app:layout_constraintTop_toBottomOf="@id/promotionMessage" />
+        app:layout_constraintTop_toBottomOf="@id/promotionMessage"
+        tools:text="Movie title" />
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/promotionMoviePoster"
@@ -64,6 +64,7 @@
         android:focusable="true"
         android:src="@drawable/dummy_poster"
         android:stateListAnimator="@animator/promotion_movie_poster_click_animation"
+        android:transitionName="promotionMoviePoster"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/promotionMessage"
         app:layout_constraintHorizontal_chainStyle="spread"
