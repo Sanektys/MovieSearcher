@@ -75,6 +75,7 @@ class HomeFragment : MoviesListFragment() {
         _bindingBlank = FragmentHomeBinding.inflate(inflater, container, false)
 
         mainActivity = activity as MainActivity
+
         setAllTransitionAnimation()
 
         return bindingBlank.root
@@ -93,8 +94,6 @@ class HomeFragment : MoviesListFragment() {
         setupViewModelObserving()
 
         initializeMovieRecycler()
-
-        resetExitReenterTransitionAnimations()
     }
 
     override fun onDestroyView() {
@@ -114,7 +113,6 @@ class HomeFragment : MoviesListFragment() {
     private fun initializeMovieRecycler() {
         viewModel.recyclerAdapter.setPosterOnClickListener(object : MoviesRecyclerAdapter.OnPosterClickListener {
             override fun onClick(databaseMovie: DatabaseMovie, posterView: ShapeableImageView) {
-                resetExitReenterTransitionAnimations()
                 mainActivity?.startDetailsFragment(databaseMovie, posterView)
             }
         })

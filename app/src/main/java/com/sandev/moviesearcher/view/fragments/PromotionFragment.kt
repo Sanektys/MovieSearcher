@@ -92,7 +92,7 @@ class PromotionFragment : Fragment(R.layout.fragment_promotion) {
         fun clearButtonsListeners() {
             _binding?.okButton?.setOnClickListener {}
             _binding?.cancelButton?.setOnClickListener {}
-            _binding?.promotionMoviePoster?.setOnClickListener {}
+            _binding?.posterHolder?.setOnClickListener {}
         }
         fun openMovieDetails() {
             clearButtonsListeners()
@@ -106,7 +106,7 @@ class PromotionFragment : Fragment(R.layout.fragment_promotion) {
         binding.okButton.setOnClickListener {
             openMovieDetails()
         }
-        binding.promotionMoviePoster.setOnClickListener {
+        binding.posterHolder.setOnClickListener {
             openMovieDetails()
         }
     }

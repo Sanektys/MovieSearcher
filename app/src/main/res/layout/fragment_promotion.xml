@@ -51,20 +51,23 @@
         app:layout_constrainedWidth="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/posterHierarchy"
+        app:layout_constraintBottom_toTopOf="@id/posterHolder"
         app:layout_constraintTop_toBottomOf="@id/promotionMessage"
         app:layout_constraintVertical_bias="@dimen/activity_main.movie_promotion.movie_title.verticalBias"
         tools:text="Movie title" />
 
     <FrameLayout
-        android:id="@+id/posterHierarchy"
+        android:id="@+id/posterHolder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/promotionMessage"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="@dimen/activity_main.movie_promotion.movie_poster.verticalBias">
+        app:layout_constraintVertical_bias="@dimen/activity_main.movie_promotion.movie_poster.verticalBias"
+        android:clickable="true"
+        android:focusable="true"
+        android:stateListAnimator="@animator/promotion_movie_poster_click_animation">
 
         <!-- Вся эта лишняя иерархия FrameLayout просто чтобы нормально отображался shared view transition -->
         <FrameLayout
@@ -76,10 +79,8 @@
                 android:id="@+id/promotionMoviePoster"
                 android:layout_width="@dimen/activity_main.movie_promotion.movie_poster.width"
                 android:layout_height="@dimen/activity_main.movie_promotion.movie_poster.height"
-                android:clickable="true"
-                android:focusable="true"
                 android:src="@drawable/dummy_poster"
-                android:stateListAnimator="@animator/promotion_movie_poster_click_animation"
+                android:scaleType="centerCrop"
                 android:transitionName="promotionMoviePoster"
                 app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.ExtraLarge" />
         </FrameLayout>
@@ -97,7 +98,7 @@
         android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/posterHierarchy"
+        app:layout_constraintTop_toBottomOf="@id/posterHolder"
         android:alpha="0"
         tools:alpha="1"/>
 
@@ -108,7 +109,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/posterHierarchy"
+        app:layout_constraintTop_toBottomOf="@id/posterHolder"
         app:selectionRequired="true"
         app:singleSelection="true">
 
