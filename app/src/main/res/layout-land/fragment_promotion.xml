@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:elevation="@dimen/activity_main.movie_promotion.elevation">
+    android:layout_height="match_parent">
 
     <View
         android:layout_width="match_parent"
@@ -24,7 +23,7 @@
         app:contentPaddingBottom="@dimen/activity_main.movie_promotion.headline.verticalPadding"
         app:contentPaddingTop="@dimen/activity_main.movie_promotion.headline.verticalPadding"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/promotionMoviePoster"
+        app:layout_constraintStart_toEndOf="@id/posterHierarchy"
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.ExtraLarge"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Bottom">
@@ -56,27 +55,40 @@
         app:layout_constraintTop_toBottomOf="@id/promotionMessage"
         tools:text="Movie title" />
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/promotionMoviePoster"
-        android:layout_width="@dimen/activity_main.movie_promotion.movie_poster.width"
-        android:layout_height="@dimen/activity_main.movie_promotion.movie_poster.height"
-        android:clickable="true"
-        android:focusable="true"
-        android:src="@drawable/dummy_poster"
-        android:stateListAnimator="@animator/promotion_movie_poster_click_animation"
-        android:transitionName="promotionMoviePoster"
+    <FrameLayout
+        android:id="@+id/posterHierarchy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/promotionMessage"
         app:layout_constraintHorizontal_chainStyle="spread"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.ExtraLarge" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Вся эта лишняя иерархия FrameLayout просто чтобы нормально отображался shared view transition -->
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:ignore="UselessParent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/promotionMoviePoster"
+                android:layout_width="@dimen/activity_main.movie_promotion.movie_poster.width"
+                android:layout_height="@dimen/activity_main.movie_promotion.movie_poster.height"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/dummy_poster"
+                android:stateListAnimator="@animator/promotion_movie_poster_click_animation"
+                android:transitionName="promotionMoviePoster"
+                app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.ExtraLarge" />
+        </FrameLayout>
+    </FrameLayout>
 
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/promotionDecisionButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@id/promotionMoviePoster"
+        app:layout_constraintBottom_toBottomOf="@id/posterHierarchy"
         app:layout_constraintEnd_toEndOf="@id/promotionMessage"
         app:layout_constraintStart_toStartOf="@id/promotionMessage"
         app:selectionRequired="true"

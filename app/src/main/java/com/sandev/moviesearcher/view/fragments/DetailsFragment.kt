@@ -140,9 +140,10 @@ class DetailsFragment : Fragment() {
             }
         }
 
-        initializeContent()
+        setTransitionAnimation()
         setToolbarBackButton()
         setFloatButtonOnClick()
+        initializeContent()
 
         if (savedInstanceState != null) {
             binding.fabToFavorite.isSelected = viewModel.isFavoriteButtonSelected
@@ -154,7 +155,6 @@ class DetailsFragment : Fragment() {
             setFloatButtonsState()
         }
 
-        setTransitionAnimation()
         prepareMenuFabDialog()
         binding.fabDialogMenuProgressIndicator.hide()
     }

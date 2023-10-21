@@ -93,6 +93,8 @@ class HomeFragment : MoviesListFragment() {
         setupViewModelObserving()
 
         initializeMovieRecycler()
+
+        resetExitReenterTransitionAnimations()
     }
 
     override fun onDestroyView() {

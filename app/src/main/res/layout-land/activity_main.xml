@@ -36,8 +36,9 @@
         app:itemPaddingTop="@dimen/activity_main.bottom_navigation_bar.padding_top"
         app:itemPaddingBottom="@dimen/activity_main.bottom_navigation_bar.padding_bottom" />
 
-    <include
-        layout="@layout/merge_screen_movie_promotion"
-        android:id="@+id/promotionViewScreen"
-        android:visibility="gone" />
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fullscreenFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="@dimen/activity_main.fullscreen_fragment.elevation" />
 </androidx.constraintlayout.widget.ConstraintLayout>

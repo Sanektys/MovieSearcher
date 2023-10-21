@@ -39,9 +39,10 @@
     <dimen name="activity_main.bottom_navigation_bar.padding_top">10dp</dimen>
     <dimen name="activity_main.bottom_navigation_bar.padding_bottom">10dp</dimen>
 
+    <dimen name="activity_main.fullscreen_fragment.elevation">4dp</dimen>
+
 
     <!-- Movie promotion screen -->
-    <dimen name="activity_main.movie_promotion.elevation">4dp</dimen>
     <dimen name="activity_main.movie_promotion.dim.alpha">0.94</dimen>
     <dimen name="activity_main.movie_promotion.animation.scale">1.2</dimen>
     <dimen name="activity_main.movie_promotion.headline.verticalPadding">14dp</dimen>
