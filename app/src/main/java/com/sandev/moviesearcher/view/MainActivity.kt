@@ -32,10 +32,8 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks
-import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.transition.Transition
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.moviesearcher.BuildConfig
@@ -52,6 +50,7 @@ import com.sandev.moviesearcher.view.fragments.SettingsFragment
 import com.sandev.moviesearcher.view.fragments.SplashScreenFragment
 import com.sandev.moviesearcher.view.fragments.WatchLaterFragment
 import com.sandev.moviesearcher.view.viewmodels.MainActivityViewModel
+import com.sandev.tmdb_feature.TmdbComponentViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -60,7 +59,10 @@ import java.util.Locale
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainActivityViewModel by lazy {
-        ViewModelProvider(this)[MainActivityViewModel::class.java]
+        val tmdbComponent = ViewModelProvider(this)[TmdbComponentViewModel::class.java]
+
+        val viewModelFactory = MainActivityViewModel.ViewModelFactory(tmdbComponent.interactor)
+        ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
     }
 
     var previousFragmentName: String? = null
@@ -170,7 +172,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showGreetingsScreen(isAnimated: Boolean) {
         if (showDemoInfoScreenIfNeeded(isAnimated).not()) {
-            showPromotionMovieScreen(isAnimated)
+            showPromotionMovieScreen()
         }
     }
 
@@ -685,7 +687,7 @@ class MainActivity : AppCompatActivity() {
         }, true)
     }
 
-    private fun showPromotionMovieScreen(isAnimated: Boolean, promotionMovie: DatabaseMovie = DatabaseMovie(
+    private fun showPromotionMovieScreen(promotionMovie: DatabaseMovie = DatabaseMovie(
         0,
         "/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg",
         "Barbie",
