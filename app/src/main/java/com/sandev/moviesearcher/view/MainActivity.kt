@@ -56,6 +56,7 @@ import com.sandev.tmdb_feature.TmdbComponentViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
+import kotlin.reflect.KClass
 
 
 class MainActivity : AppCompatActivity() {
@@ -67,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
     }
 
-    var previousFragmentName: String? = null
+    var previousFragment: KClass<*>? = null
 
     private var backPressedLastTime: Long = 0
 
@@ -179,7 +180,7 @@ class MainActivity : AppCompatActivity() {
     private fun showGreetingsScreen(isAnimated: Boolean) {
         if (showDemoInfoScreenIfNeeded(isAnimated).not()) {
             binding.root.postDelayed(6000) {
-                showPromotionMovieScreen()
+//                showPromotionMovieScreen()
             }
         }
     }
@@ -297,9 +298,6 @@ class MainActivity : AppCompatActivity() {
         return when (menuItem.itemId) {
             R.id.bottom_navigation_all_movies_button -> {
                 if (lastFragmentInBackStack !is HomeFragment) {
-                    if (lastFragmentInBackStack is WatchLaterFragment) {
-                        lastFragmentInBackStack.prepareTransitionBeforeNewFragment(true)
-                    }
                     supportFragmentManager.popBackStackWithSavingFragments(HOME_FRAGMENT_COMMIT)
                 }
                 true
@@ -317,9 +315,6 @@ class MainActivity : AppCompatActivity() {
                     if (checkDemoExpiredWithToast(R.string.home_fragment_navigation_button_favorite_toast_demo_expired)) return false
                 }
 
-                if (lastFragmentInBackStack is WatchLaterFragment) {
-                    lastFragmentInBackStack.prepareTransitionBeforeNewFragment(false)
-                }
                 startFragmentFromNavigation(favoritesFragment, FAVORITES_FRAGMENT_COMMIT)
                 true
             }
@@ -330,7 +325,7 @@ class MainActivity : AppCompatActivity() {
     private fun startFragmentFromNavigation(fragment: Fragment, commitName: String) {
         val lastFragmentInBackStack = supportFragmentManager.fragments.last()
         if (lastFragmentInBackStack != fragment) {
-            previousFragmentName = lastFragmentInBackStack::class.qualifiedName
+            previousFragment = lastFragmentInBackStack::class
             var fragmentAlreadyExists = false
             for (i in 0 until supportFragmentManager.backStackEntryCount) {
                 if (supportFragmentManager.getBackStackEntryAt(i).name == commitName) {
@@ -361,7 +356,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun startDetailsFragment(databaseMovie: DatabaseMovie, posterView: ShapeableImageView) {
-        previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
+        previousFragment = supportFragmentManager.fragments.last()::class
         supportFragmentManager
             .beginTransaction()
             .setReorderingAllowed(true)
@@ -409,7 +404,7 @@ class MainActivity : AppCompatActivity() {
                 is WatchLaterFragment -> watchLaterFragment = lastFragmentInBackStack
                 is FavoritesFragment -> favoritesFragment  = lastFragmentInBackStack
             }
-            previousFragmentName = lastFragmentInBackStack::class.qualifiedName
+            previousFragment = lastFragmentInBackStack::class
             popBackStack()
         }
 
@@ -447,16 +442,6 @@ class MainActivity : AppCompatActivity() {
                         dummyOnBackPressed.isEnabled = true
                         isEnabled = false
                         return
-                    }
-
-                    if (lastFragmentInBackStack is WatchLaterFragment) {
-                        val nextPopFragment = supportFragmentManager
-                            .getBackStackEntryAt(supportFragmentManager.backStackEntryCount - 2)
-                        if (nextPopFragment.name == HOME_FRAGMENT_COMMIT) {
-                            lastFragmentInBackStack.prepareTransitionBeforeNewFragment(true)
-                        } else if (nextPopFragment.name == FAVORITES_FRAGMENT_COMMIT) {
-                            lastFragmentInBackStack.prepareTransitionBeforeNewFragment(false)
-                        }
                     }
                 }
                 val backPressedTime = System.currentTimeMillis()
@@ -740,7 +725,7 @@ class MainActivity : AppCompatActivity() {
             .beginTransaction()
 
         supportFragmentManager.findFragmentById(R.id.fragment)?.run { // Текущий открытый список с фильмами
-            previousFragmentName = this::class.qualifiedName
+            previousFragment = this::class
             transaction.remove(this)
         }
 

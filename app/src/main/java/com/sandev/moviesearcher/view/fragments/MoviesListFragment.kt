@@ -29,6 +29,7 @@ import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Fade
 import androidx.transition.Slide
+import androidx.transition.Transition
 import androidx.transition.TransitionSet
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -154,15 +155,35 @@ abstract class MoviesListFragment : Fragment() {
             }
             transitionSet.addTransition(appBarTransition)
         }
+        transitionSet.addListener(object : Transition.TransitionListener {
+            override fun onTransitionStart(transition: Transition) {}
+            override fun onTransitionCancel(transition: Transition) {}
+            override fun onTransitionPause(transition: Transition) {}
+            override fun onTransitionResume(transition: Transition) {}
+
+            override fun onTransitionEnd(transition: Transition) {
+                resetExitReenterTransitionAnimations()
+            }
+        })
+
         enterTransition = transitionSet
-        returnTransition = transitionSet
         exitTransition = transitionSet
-        reenterTransition = transitionSet
+    }
+
+    protected fun setExitTransitionAnimation(slideGravity: Int = viewModel.lastSlideGravity, recycler: View = recyclerView) {
+        val newTopFragmentInBackStack = requireActivity().supportFragmentManager.findFragmentById(R.id.fragment)
+
+        if (newTopFragmentInBackStack == this) return
+
+        if (newTopFragmentInBackStack is MoviesListFragment) {
+            // Подготовить анимацию листания(уход фрагмента вбок) если новый фрагмент - это список фильмов
+            setTransitionAnimation(slideGravity, recycler)
+        }
     }
 
     protected fun resetExitReenterTransitionAnimations() {
+        enterTransition = null
         exitTransition = null
-        reenterTransition = null
     }
 
     private fun setupRecyclerUpdateOnScroll() {

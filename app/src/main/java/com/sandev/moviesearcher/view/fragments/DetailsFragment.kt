@@ -136,7 +136,7 @@ class DetailsFragment : Fragment() {
                 arguments?.getBoolean(KEY_SEPARATE_DETAILS_FRAGMENT) ?: false
 
             if (viewModel.isFragmentSeparate.not()) {
-                viewModel.fragmentThatLaunchedDetails = (activity as MainActivity).previousFragmentName
+                viewModel.fragmentThatLaunchedDetails = (activity as MainActivity).previousFragment
             }
         }
 
@@ -274,7 +274,7 @@ class DetailsFragment : Fragment() {
             }
 
             if (viewModel.isWatchLaterButtonSelected.not()) {
-                if (viewModel.fragmentThatLaunchedDetails != WatchLaterFragment::class.qualifiedName) {
+                if (viewModel.fragmentThatLaunchedDetails != WatchLaterFragment::class) {
                     DateTimePickerDialog.show(
                         activity = requireActivity(),
                         datePickerTitle = R.string.details_fragment_fab_add_watch_later_date_picker_title,
@@ -417,7 +417,7 @@ class DetailsFragment : Fragment() {
     }
 
     private fun changeFavoriteMoviesList() {
-        if (viewModel.fragmentThatLaunchedDetails == FavoritesFragment::class.qualifiedName) {
+        if (viewModel.fragmentThatLaunchedDetails == FavoritesFragment::class) {
             if (viewModel.isFavoriteMovie && !viewModel.isFavoriteButtonSelected) {
                 requireActivity().supportFragmentManager.setFragmentResult(
                     FavoritesFragment.FAVORITES_DETAILS_RESULT_KEY,
@@ -428,7 +428,7 @@ class DetailsFragment : Fragment() {
     }
 
     private fun changeWatchLaterMoviesList() {
-        if (viewModel.fragmentThatLaunchedDetails == WatchLaterFragment::class.qualifiedName) {
+        if (viewModel.fragmentThatLaunchedDetails == WatchLaterFragment::class) {
             if (viewModel.isWatchLaterMovie && !viewModel.isWatchLaterButtonSelected) {
                 requireActivity().supportFragmentManager.setFragmentResult(
                     WatchLaterFragment.WATCH_LATER_DETAILS_RESULT_KEY,

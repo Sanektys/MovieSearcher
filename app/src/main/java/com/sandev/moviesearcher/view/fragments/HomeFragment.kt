@@ -6,7 +6,6 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
 import androidx.core.view.doOnPreDraw
@@ -94,6 +93,12 @@ class HomeFragment : MoviesListFragment() {
         setupViewModelObserving()
 
         initializeMovieRecycler()
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        setExitTransitionAnimation(Gravity.START, bindingFull.swipeRefresh)
     }
 
     override fun onDestroyView() {
@@ -228,25 +233,15 @@ class HomeFragment : MoviesListFragment() {
 
         _bindingFull = MergeFragmentHomeContentBinding.bind(bindingBlank.root)
 
-        if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {
-            // Не включать transition анимации после выхода из окна деталей
-            resetExitReenterTransitionAnimations()
-
-            val layoutAnimationListener = object : Animation.AnimationListener {
-                override fun onAnimationStart(animation: Animation?) {}
-                override fun onAnimationRepeat(animation: Animation?) {}
-                override fun onAnimationEnd(animation: Animation) {
-                    bindingFull.moviesListRecycler.layoutAnimationListener = null
-                    setTransitionAnimation(Gravity.START, bindingFull.swipeRefresh)
-                }
-            }
-            bindingFull.moviesListRecycler.layoutAnimationListener = layoutAnimationListener
+        if (mainActivity?.previousFragment == WatchLaterFragment::class ||
+            mainActivity?.previousFragment == FavoritesFragment::class) {
+            // Включать transition анимации листания только если предыдущий фрагмент был списком фильмов
+            setTransitionAnimation(Gravity.START, bindingFull.swipeRefresh)
+        } else {
             // LayoutAnimation для recycler включается только при возвращении с экрана деталей
             bindingFull.moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(
                 requireContext(), R.anim.posters_appearance
             )
-        } else {
-            setTransitionAnimation(Gravity.START, bindingFull.swipeRefresh)
         }
     }
 

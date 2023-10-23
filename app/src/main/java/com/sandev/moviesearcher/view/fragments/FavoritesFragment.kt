@@ -93,6 +93,12 @@ class FavoritesFragment : MoviesListFragment() {
         initializeMovieRecyclerList()
     }
 
+    override fun onStop() {
+        super.onStop()
+
+        setExitTransitionAnimation(Gravity.END)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
 
@@ -118,15 +124,16 @@ class FavoritesFragment : MoviesListFragment() {
     }
 
     private fun setAllAnimationTransition() {
-        setTransitionAnimation(Gravity.END)
-
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
-        if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {
+        if (mainActivity?.previousFragment == HomeFragment::class ||
+            mainActivity?.previousFragment == WatchLaterFragment::class) {
+            // Запускать анимацию листания (появление сбоку) только если предыдущий фрагмент был списком фильмов
+            setTransitionAnimation(Gravity.END)
+            viewModel.unblockCallbackOnPosterClick(posterOnClick)
+        } else {
             // Пока не прошла анимация не обрабатывать клики на постеры
             viewModel.blockCallbackOnPosterClickAndMovieDeletion()
-
-            resetExitReenterTransitionAnimations()
 
             val layoutAnimationListener = object : Animation.AnimationListener {
                 override fun onAnimationStart(animation: Animation?) {}
@@ -136,7 +143,6 @@ class FavoritesFragment : MoviesListFragment() {
                     viewLifecycleOwner.lifecycleScope.launch {
                         launch {
                             binding.moviesListRecycler.layoutAnimationListener = null
-                            setTransitionAnimation(Gravity.END)
                         }
                         launch(Dispatchers.Default) {
                             viewModel.unblockMovieDeletion()  // Запускать удаление карточки фильма только после отрисовки анимации recycler
@@ -149,8 +155,6 @@ class FavoritesFragment : MoviesListFragment() {
             binding.moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(
                 requireContext(), R.anim.posters_appearance
             )
-        } else {
-            viewModel.unblockCallbackOnPosterClick(posterOnClick)
         }
     }
 

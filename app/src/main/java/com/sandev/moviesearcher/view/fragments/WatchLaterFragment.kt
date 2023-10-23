@@ -76,13 +76,10 @@ class WatchLaterFragment : MoviesListFragment() {
 
         mainActivity = activity as MainActivity
 
-        val previousFragmentName = mainActivity?.previousFragmentName
-        if (previousFragmentName != DetailsFragment::class.qualifiedName) {
-            if (previousFragmentName == HomeFragment::class.qualifiedName) {
-                viewModel.isLaunchedFromLeft = true
-            } else if (previousFragmentName == FavoritesFragment::class.qualifiedName) {
-                viewModel.isLaunchedFromLeft = false
-            }
+        if (mainActivity?.previousFragment == HomeFragment::class) {
+            viewModel.isLaunchedFromLeft = true
+        } else if (mainActivity?.previousFragment == FavoritesFragment::class) {
+            viewModel.isLaunchedFromLeft = false
         }
 
         initializeViewsReferences(binding.root)
@@ -108,6 +105,12 @@ class WatchLaterFragment : MoviesListFragment() {
         initializeMovieRecyclerList()
     }
 
+    override fun onStop() {
+        super.onStop()
+
+        setExitTransitionAnimation()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
 
@@ -118,14 +121,6 @@ class WatchLaterFragment : MoviesListFragment() {
         }
 
         _binding = null
-    }
-
-    fun prepareTransitionBeforeNewFragment(targetFragmentInLeft: Boolean) {
-        if (targetFragmentInLeft) {
-            setTransitionAnimation(Gravity.END)
-        } else {
-            setTransitionAnimation(Gravity.START)
-        }
     }
 
     private fun initializeScheduleNotificationButton(): WatchLaterRecyclerAdapter.ScheduleNotificationButtonClick {
@@ -181,15 +176,16 @@ class WatchLaterFragment : MoviesListFragment() {
     }
 
     private fun setAllAnimationTransition() {
-        setTransitionAnimation()
-
         postponeEnterTransition()  // не запускать анимацию возвращения постера в список пока не просчитается recycler
 
-        if (mainActivity?.previousFragmentName == DetailsFragment::class.qualifiedName) {
+        if (mainActivity?.previousFragment == HomeFragment::class ||
+            mainActivity?.previousFragment == FavoritesFragment::class) {
+            // Запускать анимацию листания (появление сбоку) только если предыдущий фрагмент был списком фильмов
+            setTransitionAnimation(if (viewModel.isLaunchedFromLeft) Gravity.END else Gravity.START)
+            viewModel.unblockOnClickCallbacksOnMovieCardElements(posterOnClick, scheduleButtonOnClick)
+        } else {
             // Пока не прошла анимация не обрабатывать клики на постеры и кнопки настройки нотификаций
             viewModel.blockOnClickCallbacksOnMovieCardElementsAndMovieDeletion()
-
-            resetExitReenterTransitionAnimations()
 
             val layoutAnimationListener = object : Animation.AnimationListener {
                 override fun onAnimationStart(animation: Animation?) {}
@@ -199,7 +195,6 @@ class WatchLaterFragment : MoviesListFragment() {
                     viewLifecycleOwner.lifecycleScope.launch {
                         launch {
                             binding.moviesListRecycler.layoutAnimationListener = null
-                            setTransitionAnimation(Gravity.END)
                         }
                         launch(Dispatchers.Default) {  // Запускать удаление карточки фильма только после отрисовки анимации recycler
                             viewModel.unblockMovieDeletion()
@@ -212,15 +207,18 @@ class WatchLaterFragment : MoviesListFragment() {
             binding.moviesListRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(
                 requireContext(), R.anim.posters_appearance
             )
-        } else {
-            viewModel.unblockOnClickCallbacksOnMovieCardElements(posterOnClick, scheduleButtonOnClick)
         }
     }
 
-    private fun setTransitionAnimation() {
-        if (viewModel.isLaunchedFromLeft) {
+    private fun setExitTransitionAnimation() {
+        val newTopFragmentInBackStack = requireActivity().supportFragmentManager.findFragmentById(R.id.fragment)
+
+        if (newTopFragmentInBackStack == this) return
+
+        // Подготовить анимацию листания(уход фрагмента вбок) если новый фрагмент - это список фильмов
+        if (newTopFragmentInBackStack is HomeFragment) {
             setTransitionAnimation(Gravity.END)
-        } else {
+        } else if (newTopFragmentInBackStack is FavoritesFragment) {
             setTransitionAnimation(Gravity.START)
         }
     }
