@@ -27,11 +27,13 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.doOnNextLayout
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.forEach
+import androidx.core.view.postDelayed
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.domain_api.local_database.entities.DatabaseMovie
@@ -100,6 +102,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         checkCurrentLocaleInSystemSettings()
+
+        if (viewModel.sharedPreferencesInteractor.isDemoInfoScreenShowing().not()) {
+            viewModel.checkForCurrentMoviePromotion()
+        }
 
         setSystemBarsAppearanceAndBehavior()
         setNavigationBarAppearance(savedInstanceState)
@@ -172,7 +178,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun showGreetingsScreen(isAnimated: Boolean) {
         if (showDemoInfoScreenIfNeeded(isAnimated).not()) {
-            showPromotionMovieScreen()
+            binding.root.postDelayed(6000) {
+                showPromotionMovieScreen()
+            }
         }
     }
 
@@ -712,7 +720,8 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(R.anim.promotion_fragment_appearance, R.anim.promotion_fragment_disappearance)
             .add(R.id.fullscreenFragment, promotionFragment)
-            .commit()
+            .addToBackStack(null)
+            .commitAllowingStateLoss()
     }
 
     fun finishPromotionFragment(fragment: PromotionFragment) {
@@ -727,14 +736,19 @@ class MainActivity : AppCompatActivity() {
         databaseMovie: DatabaseMovie,
         posterView: ShapeableImageView
     ) {
-        previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
-        supportFragmentManager
+        val transaction = supportFragmentManager
             .beginTransaction()
+
+        supportFragmentManager.findFragmentById(R.id.fragment)?.run { // Текущий открытый список с фильмами
+            previousFragmentName = this::class.qualifiedName
+            transaction.remove(this)
+        }
+
+        transaction
             .setReorderingAllowed(true)
             .addSharedElement(posterView, posterView.transitionName)
-            .hide(removingFragment)
+            .hide(removingFragment)  // Сначала прячем, а затем удаляем в другой транзакции чтобы фрагмент не вернулся с бэкстека
             .add(R.id.fullscreenFragment, initiateDetailsFragment(databaseMovie, posterView))
-            .remove(homeFragment)
             .addToBackStack(null)
             .commit()
 
