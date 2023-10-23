@@ -2,6 +2,7 @@ package com.sandev.moviesearcher.di.components
 
 import android.content.Context
 import com.sandev.moviesearcher.di.modules.NotificationsModule
+import com.sandev.moviesearcher.di.modules.RemoteConfigModule
 import com.sandev.moviesearcher.di.modules.SharedPreferenceModule
 import com.sandev.moviesearcher.utils.workers.WatchLaterNotificationWorker
 import com.sandev.moviesearcher.view.viewmodels.DetailsFragmentViewModel
@@ -17,6 +18,7 @@ import javax.inject.Singleton
 @Component(
     modules = [
         SharedPreferenceModule::class,
+        RemoteConfigModule::class,
         NotificationsModule::class
     ]
 )

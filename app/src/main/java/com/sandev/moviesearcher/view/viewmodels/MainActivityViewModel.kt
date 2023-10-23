@@ -4,6 +4,7 @@ import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.domain_api.local_database.entities.DatabaseMovie
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.sandev.moviesearcher.App
 import com.sandev.moviesearcher.domain.interactors.SharedPreferencesInteractor
 import com.sandev.moviesearcher.view.notifications.WatchMovieNotification
@@ -21,6 +22,9 @@ class MainActivityViewModel(private val tmdbInteractor: TmdbInteractor) : ViewMo
     @Inject
     lateinit var watchMovieNotification: WatchMovieNotification
 
+    @Inject
+    lateinit var remoteConfig: FirebaseRemoteConfig
+
     var isPrimaryInitializationPerformed = false
 
     var navigationBarTranslationY: Float = 0f
@@ -33,6 +37,10 @@ class MainActivityViewModel(private val tmdbInteractor: TmdbInteractor) : ViewMo
         watchMovieNotification.registerChannel()
     }
 
+
+    fun checkForCurrentMoviePromotion() {
+
+    }
 
     suspend fun getPromotedMovie(promotionMovieInfo: String): DatabaseMovie? {
         var movieTitle: String? = null
