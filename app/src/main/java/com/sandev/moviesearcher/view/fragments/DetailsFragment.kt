@@ -396,7 +396,7 @@ class DetailsFragment : Fragment() {
                         override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
                             if (verticalOffset == 0) {  // collapsing toolbar полностью развёрнут
                                 activity?.onBackPressedDispatcher?.onBackPressed()
-                                binding.appBar.removeOnOffsetChangedListener(this)
+                                _binding?.appBar?.removeOnOffsetChangedListener(this)
                             }
                         }
                     })

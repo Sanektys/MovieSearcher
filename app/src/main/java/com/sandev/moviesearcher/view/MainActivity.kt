@@ -27,13 +27,12 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.doOnNextLayout
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.forEach
-import androidx.core.view.postDelayed
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks
-import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.domain_api.local_database.entities.DatabaseMovie
@@ -53,9 +52,12 @@ import com.sandev.moviesearcher.view.fragments.SplashScreenFragment
 import com.sandev.moviesearcher.view.fragments.WatchLaterFragment
 import com.sandev.moviesearcher.view.viewmodels.MainActivityViewModel
 import com.sandev.tmdb_feature.TmdbComponentViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.reflect.KClass
 
 
@@ -104,8 +106,8 @@ class MainActivity : AppCompatActivity() {
 
         checkCurrentLocaleInSystemSettings()
 
-        if (viewModel.sharedPreferencesInteractor.isDemoInfoScreenShowing().not()) {
-            viewModel.checkForCurrentMoviePromotion()
+        if (savedInstanceState == null) {
+            checkForPromotedMovie()
         }
 
         setSystemBarsAppearanceAndBehavior()
@@ -178,20 +180,33 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showGreetingsScreen(isAnimated: Boolean) {
-        if (showDemoInfoScreenIfNeeded(isAnimated).not()) {
-            binding.root.postDelayed(6000) {
-//                showPromotionMovieScreen()
+        fun observeForPromotedMovie() = viewModel.getPromotedMovie.observe(this) { promotedMovie ->
+            if (promotedMovie != null) {
+                startPromotionFragment(promotedMovie)
+                viewModel.getPromotedMovie.removeObservers(this)
+                viewModel.isPromotedMovieShowed = true
             }
+        }
+
+        val isDemoScreenShowed = showDemoInfoScreenIfNeeded(isAnimated) {
+            viewModel.sharedPreferencesInteractor.setShowingDemoInfoScreen(false)
+            observeForPromotedMovie()
+        }
+
+        if (isDemoScreenShowed.not()) {
+            observeForPromotedMovie()
         }
     }
 
-    private fun showDemoInfoScreenIfNeeded(isAnimated: Boolean): Boolean {
+    private fun showDemoInfoScreenIfNeeded(isAnimated: Boolean, onOkClick: () -> Unit): Boolean {
         if (BuildConfig.DEMO) {
             if (checkDemoExpired().not()) {
                 if (viewModel.sharedPreferencesInteractor.isDemoInfoScreenShowing()) {
-                    showDemoInfoScreen(view = binding.root, isAnimated = isAnimated) {
-                        viewModel.sharedPreferencesInteractor.setShowingDemoInfoScreen(false)
-                    }
+                    showDemoInfoScreen(
+                        view = binding.root,
+                        isAnimated = isAnimated,
+                        okButtonCallback = onOkClick
+                    )
                     return true
                 }
             } else {
@@ -455,7 +470,13 @@ class MainActivity : AppCompatActivity() {
                     backPressedLastTime = backPressedTime
                 } else if (lastFragmentInBackStack is DetailsFragment) {
                     if (lastFragmentInBackStack.collapsingToolbarExpanded()) {
-                        supportFragmentManager.popBackStackWithSavingFragments()
+                        val promotionFragment = supportFragmentManager.fragments.find { it is PromotionFragment }
+                        if (promotionFragment != null) {  //  Удаление с одновременным pop чтобы экран промоушена не восстановился через backstack
+                            supportFragmentManager.beginTransaction().remove(promotionFragment).commitNow()
+                            supportFragmentManager.popBackStackImmediate(SHOW_PROMOTED_MOVIE_COMMIT, POP_BACK_STACK_INCLUSIVE)
+                        } else {
+                            supportFragmentManager.popBackStackWithSavingFragments()
+                        }
                     }
                 } else {
                     supportFragmentManager.popBackStackWithSavingFragments()
@@ -680,14 +701,14 @@ class MainActivity : AppCompatActivity() {
         }, true)
     }
 
-    private fun showPromotionMovieScreen(promotionMovie: DatabaseMovie = DatabaseMovie(
-        0,
-        "/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg",
-        "Barbie",
-        "Barbie and Ken are having the time of their lives in the colorful and seemingly perfect world of Barbie Land. However, when they get a chance to go to the real world, they soon discover the joys and perils of living among humans.",
-        76f)
-    ) {
-        startPromotionFragment(promotionMovie)
+    private fun checkForPromotedMovie() {
+        CoroutineScope(EmptyCoroutineContext).run {
+            launch {
+                viewModel.checkForCurrentMoviePromotion()
+            }.invokeOnCompletion {
+                cancel()
+            }
+        }
     }
 
     private fun startPromotionFragment(promotionMovie: DatabaseMovie) {
@@ -703,17 +724,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         supportFragmentManager.beginTransaction()
-            .setCustomAnimations(R.anim.promotion_fragment_appearance, R.anim.promotion_fragment_disappearance)
+            .setCustomAnimations(
+                R.anim.promotion_fragment_appearance,
+                R.anim.promotion_fragment_disappearance,
+                R.anim.promotion_fragment_appearance,
+                R.anim.promotion_fragment_disappearance
+            )
             .add(R.id.fullscreenFragment, promotionFragment)
-            .addToBackStack(null)
+            .addToBackStack(SHOW_PROMOTED_MOVIE_COMMIT)
             .commitAllowingStateLoss()
     }
 
-    fun finishPromotionFragment(fragment: PromotionFragment) {
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(R.anim.promotion_fragment_appearance, R.anim.promotion_fragment_disappearance)
-            .remove(fragment)
-            .commit()
+    fun finishPromotionFragment() {
+        supportFragmentManager.popBackStack(SHOW_PROMOTED_MOVIE_COMMIT, POP_BACK_STACK_INCLUSIVE)
     }
 
     fun startDetailsFragmentFromPromotionFragment(
@@ -736,11 +759,6 @@ class MainActivity : AppCompatActivity() {
             .add(R.id.fullscreenFragment, initiateDetailsFragment(databaseMovie, posterView))
             .addToBackStack(null)
             .commit()
-
-        supportFragmentManager
-            .beginTransaction()
-            .remove(removingFragment)
-            .commit()
     }
 
 
@@ -751,6 +769,7 @@ class MainActivity : AppCompatActivity() {
         private const val HOME_FRAGMENT_COMMIT = "HOME_FRAGMENT_COMMIT"
         private const val FAVORITES_FRAGMENT_COMMIT = "FAVORITES_FRAGMENT_COMMIT"
         private const val WATCH_LATER_FRAGMENT_COMMIT = "WATCH_LATER_FRAGMENT_COMMIT"
+        private const val SHOW_PROMOTED_MOVIE_COMMIT = "PROMOTED_MOVIE_COMMIT"
 
         private const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
         private const val ONE_FRAGMENT_IN_STACK = 1

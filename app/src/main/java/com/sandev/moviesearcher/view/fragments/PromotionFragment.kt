@@ -101,7 +101,7 @@ class PromotionFragment : Fragment(R.layout.fragment_promotion) {
 
         binding.cancelButton.setOnClickListener {
             clearButtonsListeners()
-            (activity as? MainActivity)?.finishPromotionFragment(this)
+            (activity as? MainActivity)?.finishPromotionFragment()
         }
         binding.okButton.setOnClickListener {
             openMovieDetails()
