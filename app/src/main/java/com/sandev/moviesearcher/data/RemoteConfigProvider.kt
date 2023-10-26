@@ -13,7 +13,7 @@ class RemoteConfigProvider {
         fun getInstance(): FirebaseRemoteConfig {
             val settings = remoteConfigSettings {
                 fetchTimeoutInSeconds = FETCH_TIMEOUT
-                minimumFetchIntervalInSeconds = FETCH_INTERVAL  // Default interval is 12 hours
+//                minimumFetchIntervalInSeconds = FETCH_INTERVAL  // Default interval is 12 hours
             }
             return Firebase.remoteConfig.apply {
                 setConfigSettingsAsync(settings)
