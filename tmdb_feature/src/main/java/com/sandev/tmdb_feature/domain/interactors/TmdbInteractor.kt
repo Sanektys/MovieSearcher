@@ -5,6 +5,7 @@ import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.example.domain_api.local_database.repository.MoviesListRepository
 import com.example.domain_api.the_movie_database.api.TmdbApi
 import com.example.domain_api.the_movie_database.dto.TmdbMoviesListDto
+import com.example.domain_api.the_movie_database.dto.TmdbResultDto
 import com.example.domain_impl.local_database.repositories.PlayingMoviesListRepository
 import com.example.domain_impl.local_database.repositories.PopularMoviesListRepository
 import com.example.domain_impl.local_database.repositories.TopMoviesListRepository
@@ -19,6 +20,11 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 
 
 class TmdbInteractor(
@@ -69,6 +75,21 @@ class TmdbInteractor(
         val movies = convertApiDtoListToMovieList(it.results)
         TmdbMoviesListDto(movies = movies, totalPages = it.totalPages)
     }.observeOn(Schedulers.io())
+
+    suspend fun getSearchedMoviesByYearFromApi(query: String, year: String, page: Int): Flow<TmdbMoviesListDto> = flow {
+        emit(
+            retrofitService.getSearchedMoviesByYear(
+                apiKey = TmdbApiKey.KEY,
+                query = query,
+                year = year,
+                page = page,
+                language = AppCompatDelegate.getApplicationLocales()[0]!!.language
+            )
+        )
+    }.map {
+        val movies = convertApiDtoListToMovieList(it.results)
+        TmdbMoviesListDto(movies = movies, totalPages = it.totalPages)
+    }.flowOn(Dispatchers.IO)
 
     fun putMoviesToDB(moviesList: List<DatabaseMovie>, repositoryType: RepositoryType)
             = Completable.create { emitter ->

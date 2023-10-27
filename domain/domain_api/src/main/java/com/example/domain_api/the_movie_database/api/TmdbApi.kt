@@ -23,4 +23,13 @@ interface TmdbApi {
         @Query("language") language: String,
         @Query("page") page: Int
     ): Single<TmdbResultDto>
+
+    @GET("search/movie")
+    suspend fun getSearchedMoviesByYear(
+        @Query("api_key") apiKey: String,
+        @Query("query") query: String,
+        @Query("primary_release_year") year: String,
+        @Query("language") language: String,
+        @Query("page") page: Int
+    ): TmdbResultDto
 }

@@ -32,6 +32,7 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.domain_api.local_database.entities.DatabaseMovie
@@ -45,22 +46,31 @@ import com.sandev.moviesearcher.view.fragments.DetailsFragment
 import com.sandev.moviesearcher.view.fragments.FavoritesFragment
 import com.sandev.moviesearcher.view.fragments.HomeFragment
 import com.sandev.moviesearcher.view.fragments.MoviesListFragment
+import com.sandev.moviesearcher.view.fragments.PromotionFragment
 import com.sandev.moviesearcher.view.fragments.SettingsFragment
 import com.sandev.moviesearcher.view.fragments.SplashScreenFragment
 import com.sandev.moviesearcher.view.fragments.WatchLaterFragment
 import com.sandev.moviesearcher.view.viewmodels.MainActivityViewModel
+import com.sandev.tmdb_feature.TmdbComponentViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.reflect.KClass
 
 
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainActivityViewModel by lazy {
-        ViewModelProvider(this)[MainActivityViewModel::class.java]
+        val tmdbComponent = ViewModelProvider(this)[TmdbComponentViewModel::class.java]
+
+        val viewModelFactory = MainActivityViewModel.ViewModelFactory(tmdbComponent.interactor)
+        ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
     }
 
-    var previousFragmentName: String? = null
+    var previousFragment: KClass<*>? = null
 
     private var backPressedLastTime: Long = 0
 
@@ -96,6 +106,10 @@ class MainActivity : AppCompatActivity() {
 
         checkCurrentLocaleInSystemSettings()
 
+        if (savedInstanceState == null) {
+            checkForPromotedMovie()
+        }
+
         setSystemBarsAppearanceAndBehavior()
         setNavigationBarAppearance(savedInstanceState)
         setOnBackPressedAction()
@@ -109,7 +123,7 @@ class MainActivity : AppCompatActivity() {
         if (supportFragmentManager.backStackEntryCount == 0) {
             startSplashScreen()
         } else {
-            showDemoInfoScreenIfNeeded(isAnimated = false)
+            showGreetingsScreen(isAnimated = false)
         }
     }
 
@@ -138,7 +152,7 @@ class MainActivity : AppCompatActivity() {
             .addToBackStack(HOME_FRAGMENT_COMMIT)
             .commit()
 
-        showDemoInfoScreenIfNeeded(isAnimated = true)
+        showGreetingsScreen(isAnimated = true)
 
         checkIntentForLaunchSeparateDetailsFromNotification(intent)
     }
@@ -165,18 +179,41 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showDemoInfoScreenIfNeeded(isAnimated: Boolean) {
+    private fun showGreetingsScreen(isAnimated: Boolean) {
+        fun observeForPromotedMovie() = viewModel.getPromotedMovie.observe(this) { promotedMovie ->
+            if (promotedMovie != null) {
+                startPromotionFragment(promotedMovie)
+                viewModel.getPromotedMovie.removeObservers(this)
+                viewModel.isPromotedMovieShowed = true
+            }
+        }
+
+        val isDemoScreenShowed = showDemoInfoScreenIfNeeded(isAnimated) {
+            viewModel.sharedPreferencesInteractor.setShowingDemoInfoScreen(false)
+            observeForPromotedMovie()
+        }
+
+        if (isDemoScreenShowed.not()) {
+            observeForPromotedMovie()
+        }
+    }
+
+    private fun showDemoInfoScreenIfNeeded(isAnimated: Boolean, onOkClick: () -> Unit): Boolean {
         if (BuildConfig.DEMO) {
             if (checkDemoExpired().not()) {
                 if (viewModel.sharedPreferencesInteractor.isDemoInfoScreenShowing()) {
-                    showDemoInfoScreen(view = binding.root, isAnimated = isAnimated) {
-                        viewModel.sharedPreferencesInteractor.setShowingDemoInfoScreen(false)
-                    }
+                    showDemoInfoScreen(
+                        view = binding.root,
+                        isAnimated = isAnimated,
+                        okButtonCallback = onOkClick
+                    )
+                    return true
                 }
             } else {
                 Toast.makeText(this, getString(R.string.home_fragment_toast_demo_expired), Toast.LENGTH_LONG).show()
             }
         }
+        return false
     }
 
     private fun checkIntentForLaunchSeparateDetailsFromNotification(intent: Intent?) = intent?.run {
@@ -276,9 +313,6 @@ class MainActivity : AppCompatActivity() {
         return when (menuItem.itemId) {
             R.id.bottom_navigation_all_movies_button -> {
                 if (lastFragmentInBackStack !is HomeFragment) {
-                    if (lastFragmentInBackStack is WatchLaterFragment) {
-                        lastFragmentInBackStack.prepareTransitionBeforeNewFragment(true)
-                    }
                     supportFragmentManager.popBackStackWithSavingFragments(HOME_FRAGMENT_COMMIT)
                 }
                 true
@@ -296,9 +330,6 @@ class MainActivity : AppCompatActivity() {
                     if (checkDemoExpiredWithToast(R.string.home_fragment_navigation_button_favorite_toast_demo_expired)) return false
                 }
 
-                if (lastFragmentInBackStack is WatchLaterFragment) {
-                    lastFragmentInBackStack.prepareTransitionBeforeNewFragment(false)
-                }
                 startFragmentFromNavigation(favoritesFragment, FAVORITES_FRAGMENT_COMMIT)
                 true
             }
@@ -309,7 +340,7 @@ class MainActivity : AppCompatActivity() {
     private fun startFragmentFromNavigation(fragment: Fragment, commitName: String) {
         val lastFragmentInBackStack = supportFragmentManager.fragments.last()
         if (lastFragmentInBackStack != fragment) {
-            previousFragmentName = lastFragmentInBackStack::class.qualifiedName
+            previousFragment = lastFragmentInBackStack::class
             var fragmentAlreadyExists = false
             for (i in 0 until supportFragmentManager.backStackEntryCount) {
                 if (supportFragmentManager.getBackStackEntryAt(i).name == commitName) {
@@ -328,22 +359,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun startDetailsFragment(databaseMovie: DatabaseMovie, posterView: ShapeableImageView) {
-        val bundle = Bundle()
-        bundle.putParcelable(MOVIE_DATA_KEY, databaseMovie)
-        val transitionName = posterView.transitionName
-        bundle.putString(POSTER_TRANSITION_KEY, transitionName)
-
+    private fun initiateDetailsFragment(movie: DatabaseMovie, sharedView: ShapeableImageView): DetailsFragment {
+        val bundle = Bundle().apply {
+            putParcelable(MOVIE_DATA_KEY, movie)
+            putString(POSTER_TRANSITION_KEY, sharedView.transitionName)
+        }
         val detailsFragment = DetailsFragment().apply {
             arguments = bundle
         }
+        return detailsFragment
+    }
 
-        previousFragmentName = supportFragmentManager.fragments.last()::class.qualifiedName
+    fun startDetailsFragment(databaseMovie: DatabaseMovie, posterView: ShapeableImageView) {
+        previousFragment = supportFragmentManager.fragments.last()::class
         supportFragmentManager
             .beginTransaction()
             .setReorderingAllowed(true)
-            .addSharedElement(posterView, transitionName)
-            .replace(R.id.fragment, detailsFragment)
+            .addSharedElement(posterView, posterView.transitionName)
+            .replace(R.id.fragment, initiateDetailsFragment(databaseMovie, posterView))
             .addToBackStack(null)
             .commit()
     }
@@ -386,7 +419,7 @@ class MainActivity : AppCompatActivity() {
                 is WatchLaterFragment -> watchLaterFragment = lastFragmentInBackStack
                 is FavoritesFragment -> favoritesFragment  = lastFragmentInBackStack
             }
-            previousFragmentName = lastFragmentInBackStack::class.qualifiedName
+            previousFragment = lastFragmentInBackStack::class
             popBackStack()
         }
 
@@ -425,16 +458,6 @@ class MainActivity : AppCompatActivity() {
                         isEnabled = false
                         return
                     }
-
-                    if (lastFragmentInBackStack is WatchLaterFragment) {
-                        val nextPopFragment = supportFragmentManager
-                            .getBackStackEntryAt(supportFragmentManager.backStackEntryCount - 2)
-                        if (nextPopFragment.name == HOME_FRAGMENT_COMMIT) {
-                            lastFragmentInBackStack.prepareTransitionBeforeNewFragment(true)
-                        } else if (nextPopFragment.name == FAVORITES_FRAGMENT_COMMIT) {
-                            lastFragmentInBackStack.prepareTransitionBeforeNewFragment(false)
-                        }
-                    }
                 }
                 val backPressedTime = System.currentTimeMillis()
                 if (supportFragmentManager.backStackEntryCount <= ONE_FRAGMENT_IN_STACK) {
@@ -447,7 +470,13 @@ class MainActivity : AppCompatActivity() {
                     backPressedLastTime = backPressedTime
                 } else if (lastFragmentInBackStack is DetailsFragment) {
                     if (lastFragmentInBackStack.collapsingToolbarExpanded()) {
-                        supportFragmentManager.popBackStackWithSavingFragments()
+                        val promotionFragment = supportFragmentManager.fragments.find { it is PromotionFragment }
+                        if (promotionFragment != null) {  //  Удаление с одновременным pop чтобы экран промоушена не восстановился через backstack
+                            supportFragmentManager.beginTransaction().remove(promotionFragment).commitNow()
+                            supportFragmentManager.popBackStackImmediate(SHOW_PROMOTED_MOVIE_COMMIT, POP_BACK_STACK_INCLUSIVE)
+                        } else {
+                            supportFragmentManager.popBackStackWithSavingFragments()
+                        }
                     }
                 } else {
                     supportFragmentManager.popBackStackWithSavingFragments()
@@ -672,6 +701,66 @@ class MainActivity : AppCompatActivity() {
         }, true)
     }
 
+    private fun checkForPromotedMovie() {
+        CoroutineScope(EmptyCoroutineContext).run {
+            launch {
+                viewModel.checkForCurrentMoviePromotion()
+            }.invokeOnCompletion {
+                cancel()
+            }
+        }
+    }
+
+    private fun startPromotionFragment(promotionMovie: DatabaseMovie) {
+        supportFragmentManager.fragments.forEach { fragment ->
+            if (fragment is PromotionFragment) return  // Фрагмент уже был добавлен
+        }
+
+        val bundle = Bundle().apply {
+           putParcelable(MOVIE_DATA_KEY, promotionMovie)
+        }
+        val promotionFragment = PromotionFragment().apply {
+            arguments = bundle
+        }
+
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                R.anim.promotion_fragment_appearance,
+                R.anim.promotion_fragment_disappearance,
+                R.anim.promotion_fragment_appearance,
+                R.anim.promotion_fragment_disappearance
+            )
+            .add(R.id.fullscreenFragment, promotionFragment)
+            .addToBackStack(SHOW_PROMOTED_MOVIE_COMMIT)
+            .commitAllowingStateLoss()
+    }
+
+    fun finishPromotionFragment() {
+        supportFragmentManager.popBackStack(SHOW_PROMOTED_MOVIE_COMMIT, POP_BACK_STACK_INCLUSIVE)
+    }
+
+    fun startDetailsFragmentFromPromotionFragment(
+        removingFragment: PromotionFragment,
+        databaseMovie: DatabaseMovie,
+        posterView: ShapeableImageView
+    ) {
+        val transaction = supportFragmentManager
+            .beginTransaction()
+
+        supportFragmentManager.findFragmentById(R.id.fragment)?.run { // Текущий открытый список с фильмами
+            previousFragment = this::class
+            transaction.remove(this)
+        }
+
+        transaction
+            .setReorderingAllowed(true)
+            .addSharedElement(posterView, posterView.transitionName)
+            .hide(removingFragment)  // Сначала прячем, а затем удаляем в другой транзакции чтобы фрагмент не вернулся с бэкстека
+            .add(R.id.fullscreenFragment, initiateDetailsFragment(databaseMovie, posterView))
+            .addToBackStack(null)
+            .commit()
+    }
+
 
     companion object {
         const val MOVIE_DATA_KEY = "MOVIE"
@@ -680,6 +769,7 @@ class MainActivity : AppCompatActivity() {
         private const val HOME_FRAGMENT_COMMIT = "HOME_FRAGMENT_COMMIT"
         private const val FAVORITES_FRAGMENT_COMMIT = "FAVORITES_FRAGMENT_COMMIT"
         private const val WATCH_LATER_FRAGMENT_COMMIT = "WATCH_LATER_FRAGMENT_COMMIT"
+        private const val SHOW_PROMOTED_MOVIE_COMMIT = "PROMOTED_MOVIE_COMMIT"
 
         private const val BACK_DOUBLE_TAP_THRESHOLD = 1500L
         private const val ONE_FRAGMENT_IN_STACK = 1

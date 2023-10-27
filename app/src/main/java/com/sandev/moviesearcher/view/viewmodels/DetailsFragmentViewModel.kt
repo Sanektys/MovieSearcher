@@ -18,6 +18,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import java.io.IOException
 import java.net.URL
 import javax.inject.Inject
+import kotlin.reflect.KClass
 
 
 class DetailsFragmentViewModel : ViewModel() {
@@ -53,7 +54,7 @@ class DetailsFragmentViewModel : ViewModel() {
 
     var isLowQualityPosterDownloaded: Boolean = false
 
-    var fragmentThatLaunchedDetails: String? = null
+    var fragmentThatLaunchedDetails: KClass<*>? = null
 
 
     init {
@@ -77,7 +78,7 @@ class DetailsFragmentViewModel : ViewModel() {
     }
 
     fun changeFavoriteListImmediatelyIfPossible() {
-        if (isFavoriteMovie.not() || fragmentThatLaunchedDetails != FavoritesFragment::class.qualifiedName) {
+        if (isFavoriteMovie.not() || fragmentThatLaunchedDetails != FavoritesFragment::class) {
             if (isFavoriteButtonSelected) {
                 addToFavorite(movie)
             } else {
@@ -87,7 +88,7 @@ class DetailsFragmentViewModel : ViewModel() {
     }
 
     fun changeWatchLaterListImmediatelyIfPossible(context: Context, notificationDate: Long?) {
-        if (isWatchLaterMovie.not() || fragmentThatLaunchedDetails != WatchLaterFragment::class.qualifiedName) {
+        if (isWatchLaterMovie.not() || fragmentThatLaunchedDetails != WatchLaterFragment::class) {
             if (isWatchLaterButtonSelected && notificationDate != null) {
                 WorkRequests.enqueueWatchLaterNotificationWork(context, movie, notificationDate)
 

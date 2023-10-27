@@ -23,11 +23,13 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
+import androidx.fragment.app.FragmentOnAttachListener
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Fade
 import androidx.transition.Slide
+import androidx.transition.Transition
 import androidx.transition.TransitionSet
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -73,6 +75,18 @@ abstract class MoviesListFragment : Fragment() {
 
     private var searchInputObserver: Disposable? = null
 
+    private val backStackAttachListener: FragmentOnAttachListener
+
+
+    init {
+        backStackAttachListener = FragmentOnAttachListener { _, fragment ->
+            if (fragment !is MoviesListFragment) {
+                // Отключить анимацию "листания" если открываемый фрагмент не список с фильмами
+                resetExitReenterTransitionAnimations()
+            }
+        }
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setAppBarAppearance()
@@ -81,6 +95,8 @@ abstract class MoviesListFragment : Fragment() {
         setupRecyclerUpdateOnScroll()
         initializeToolbar()
         setupSearchBehavior()
+
+        requireActivity().supportFragmentManager.addFragmentOnAttachListener(backStackAttachListener)
 
         if (childFragmentManager.fragments.size != 0) {
             createSettingsFragment()
@@ -94,6 +110,8 @@ abstract class MoviesListFragment : Fragment() {
         recyclerShapeView?.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View?, outline: Outline?) {}
         }
+
+        requireActivity().supportFragmentManager.removeFragmentOnAttachListener(backStackAttachListener)
 
         recyclerShapeView = null
         recyclerShapeInvalidator = null
@@ -137,15 +155,35 @@ abstract class MoviesListFragment : Fragment() {
             }
             transitionSet.addTransition(appBarTransition)
         }
+        transitionSet.addListener(object : Transition.TransitionListener {
+            override fun onTransitionStart(transition: Transition) {}
+            override fun onTransitionCancel(transition: Transition) {}
+            override fun onTransitionPause(transition: Transition) {}
+            override fun onTransitionResume(transition: Transition) {}
+
+            override fun onTransitionEnd(transition: Transition) {
+                resetExitReenterTransitionAnimations()
+            }
+        })
+
         enterTransition = transitionSet
-        returnTransition = transitionSet
         exitTransition = transitionSet
-        reenterTransition = transitionSet
+    }
+
+    protected fun setExitTransitionAnimation(slideGravity: Int = viewModel.lastSlideGravity, recycler: View = recyclerView) {
+        val newTopFragmentInBackStack = requireActivity().supportFragmentManager.findFragmentById(R.id.fragment)
+
+        if (newTopFragmentInBackStack == this) return
+
+        if (newTopFragmentInBackStack is MoviesListFragment) {
+            // Подготовить анимацию листания(уход фрагмента вбок) если новый фрагмент - это список фильмов
+            setTransitionAnimation(slideGravity, recycler)
+        }
     }
 
     protected fun resetExitReenterTransitionAnimations() {
+        enterTransition = null
         exitTransition = null
-        reenterTransition = null
     }
 
     private fun setupRecyclerUpdateOnScroll() {

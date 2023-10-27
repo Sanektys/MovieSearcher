@@ -35,4 +35,10 @@
         app:labelVisibilityMode="selected"
         app:itemPaddingTop="@dimen/activity_main.bottom_navigation_bar.padding_top"
         app:itemPaddingBottom="@dimen/activity_main.bottom_navigation_bar.padding_bottom" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fullscreenFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="@dimen/activity_main.fullscreen_fragment.elevation" />
 </androidx.constraintlayout.widget.ConstraintLayout>

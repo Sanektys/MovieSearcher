@@ -39,6 +39,24 @@
     <dimen name="activity_main.bottom_navigation_bar.padding_top">10dp</dimen>
     <dimen name="activity_main.bottom_navigation_bar.padding_bottom">10dp</dimen>
 
+    <dimen name="activity_main.fullscreen_fragment.elevation">4dp</dimen>
+
+
+    <!-- Movie promotion screen -->
+    <dimen name="activity_main.movie_promotion.dim.alpha">0.94</dimen>
+    <dimen name="activity_main.movie_promotion.animation.scale">1.2</dimen>
+    <dimen name="activity_main.movie_promotion.headline.verticalPadding">14dp</dimen>
+    <dimen name="activity_main.movie_promotion.headline.marginHorizontal">28dp</dimen>
+    <dimen name="activity_main.movie_promotion.movie_title.verticalBias">0.64</dimen>
+    <dimen name="activity_main.movie_promotion.movie_title.marginHorizontal">20dp</dimen>
+    <dimen name="activity_main.movie_promotion.movie_title.shadowRadius">2</dimen>
+    <dimen name="activity_main.movie_promotion.movie_poster.width">190dp</dimen>
+    <dimen name="activity_main.movie_promotion.movie_poster.height">280dp</dimen>
+    <dimen name="activity_main.movie_promotion.movie_poster.verticalBias">0.36</dimen>
+    <dimen name="activity_main.movie_promotion.movie_poster.animation.scale">1.14</dimen>
+    <dimen name="activity_main.movie_promotion.poster_click_hint.marginTop">16dp</dimen>
+    <dimen name="activity_main.movie_promotion.poster_click_hint.marginHorizontal">28dp</dimen>
+
 
     <!-- settings fragment -->
     <dimen name="fragment_settings.search_bar.height">@dimen/activity_main.search_bar.height</dimen>

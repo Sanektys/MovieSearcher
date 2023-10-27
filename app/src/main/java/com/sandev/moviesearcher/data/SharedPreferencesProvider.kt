@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.sandev.moviesearcher.App
+import com.sandev.moviesearcher.BuildConfig
 import com.sandev.moviesearcher.R
 
 
@@ -25,7 +26,7 @@ class SharedPreferencesProvider(context: Context) {
     private val isSplashScreenSwitchButtonEnabledByDefault = true
     private val isRatingDonutSwitchButtonEnabledByDefault = true
 
-    private val isDemoInfoScreenShowingByDefault = true
+    private val isDemoInfoScreenShowingByDefault = BuildConfig.DEMO
 
     init {
         if (sharedPreferences.getBoolean(keyFirstLaunch, true)) {

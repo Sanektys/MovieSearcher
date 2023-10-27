@@ -15,7 +15,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/navigation_bar"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:layout="@layout/fragment_home" />
+        tools:name="com.sandev.moviesearcher.view.fragments.HomeFragment" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation_bar"
@@ -35,4 +35,10 @@
         app:labelVisibilityMode="selected"
         app:itemPaddingTop="@dimen/activity_main.bottom_navigation_bar.padding_top"
         app:itemPaddingBottom="@dimen/activity_main.bottom_navigation_bar.padding_bottom" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fullscreenFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="@dimen/activity_main.fullscreen_fragment.elevation" />
 </androidx.constraintlayout.widget.ConstraintLayout>
