@@ -95,7 +95,7 @@ class DetailsFragment : Fragment() {
         super.onAttach(context)
 
         val favoritesMoviesDatabaseComponentFactory
-                = FavoriteMoviesComponentViewModel.ViewModelFactory(context)
+                = FavoriteMoviesComponentViewModel.ViewModelFactory(requireActivity().applicationContext)
         val favoritesMoviesDatabaseComponent = ViewModelProvider(
             requireActivity(),
             favoritesMoviesDatabaseComponentFactory
@@ -103,7 +103,7 @@ class DetailsFragment : Fragment() {
         viewModel.favoritesMoviesDatabaseInteractor = favoritesMoviesDatabaseComponent.interactor
 
         val watchLaterMoviesDatabaseComponentFactory
-                = WatchLaterMoviesComponentViewModel.ViewModelFactory(context)
+                = WatchLaterMoviesComponentViewModel.ViewModelFactory(requireActivity().applicationContext)
         val watchLaterMoviesDatabaseComponent = ViewModelProvider(
             requireActivity(),
             watchLaterMoviesDatabaseComponentFactory

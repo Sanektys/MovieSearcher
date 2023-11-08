@@ -11,6 +11,7 @@ import android.view.animation.AnimationUtils
 import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.transition.Transition
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.google.android.material.imageview.ShapeableImageView
 import com.sandev.cached_movies_feature.favorite_movies.FavoriteMoviesComponentViewModel
@@ -52,7 +53,7 @@ class FavoritesFragment : MoviesListFragment() {
         super.onAttach(context)
 
         val favoriteMoviesDatabaseComponentFactory
-                = FavoriteMoviesComponentViewModel.ViewModelFactory(context)
+                = FavoriteMoviesComponentViewModel.ViewModelFactory(requireContext().applicationContext)
         val favoriteMoviesDatabaseComponent = ViewModelProvider(
             requireActivity(),
             favoriteMoviesDatabaseComponentFactory
@@ -108,7 +109,25 @@ class FavoritesFragment : MoviesListFragment() {
             job.cancel()
         }
 
+        // Т.к. адаптер хранится во viewModel, то нужно при уничтожении вью его занулить, дабы избежать утечки памяти
+        // (если этого не сделать, то адаптер будет ссылаться на само RecyclerView, поэтому оно НЕ соберётся GC.
+        // А в самом RecyclerView есть ссылка на контекст до самой Activity, что приведёт к утечке и Activity тоже)
+        val moviesRecycler = binding.moviesListRecycler
+
+        (exitTransition as? Transition)?.addListener(object : Transition.TransitionListener {
+            override fun onTransitionStart(transition: Transition) {}
+            override fun onTransitionCancel(transition: Transition) {}
+            override fun onTransitionPause(transition: Transition) {}
+            override fun onTransitionResume(transition: Transition) {}
+
+            override fun onTransitionEnd(transition: Transition) {
+                (exitTransition as? Transition)?.removeListener(this)
+                moviesRecycler.adapter = null
+            }
+        }) ?: moviesRecycler.setAdapter(null)
+
         _binding = null
+        mainActivity = null
     }
 
     private fun initializeMovieRecyclerList() {
