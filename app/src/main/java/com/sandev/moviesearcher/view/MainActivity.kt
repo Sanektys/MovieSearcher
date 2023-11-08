@@ -74,11 +74,13 @@ class MainActivity : AppCompatActivity() {
 
     private var backPressedLastTime: Long = 0
 
-    private lateinit var binding: ActivityMainBinding
+    private var _binding: ActivityMainBinding? = null
+    private val binding: ActivityMainBinding
+        get() = _binding!!
 
-    private var homeFragment = HomeFragment()
-    private var favoritesFragment = FavoritesFragment()
-    private var watchLaterFragment = WatchLaterFragment()
+    private var homeFragment: HomeFragment? = HomeFragment()
+    private var favoritesFragment: FavoritesFragment? = FavoritesFragment()
+    private var watchLaterFragment: WatchLaterFragment? = WatchLaterFragment()
 
     private var batteryBroadcastReceiver = BatteryBroadcastReceiver(
         onBatteryLow = this::onBatteryLevelLow,
@@ -101,7 +103,7 @@ class MainActivity : AppCompatActivity() {
             viewModel.isPrimaryInitializationPerformed = true
         }
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         checkCurrentLocaleInSystemSettings()
@@ -132,6 +134,12 @@ class MainActivity : AppCompatActivity() {
 
         removeSharedPreferencesChangeListener()
         unregisterReceiver(batteryBroadcastReceiver)
+
+        homeFragment = null
+        favoritesFragment = null
+        watchLaterFragment = null
+
+        _binding = null
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -148,7 +156,7 @@ class MainActivity : AppCompatActivity() {
     fun startHomeFragment() {
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.fragment, homeFragment)
+            .add(R.id.fragment, homeFragment!!)
             .addToBackStack(HOME_FRAGMENT_COMMIT)
             .commit()
 
@@ -322,7 +330,7 @@ class MainActivity : AppCompatActivity() {
                     if (checkDemoExpiredWithToast(R.string.home_fragment_navigation_button_watch_later_toast_demo_expired)) return false
                 }
 
-                startFragmentFromNavigation(watchLaterFragment, WATCH_LATER_FRAGMENT_COMMIT)
+                startFragmentFromNavigation(watchLaterFragment!!, WATCH_LATER_FRAGMENT_COMMIT)
                 true
             }
             R.id.bottom_navigation_favorites_button -> {
@@ -330,7 +338,7 @@ class MainActivity : AppCompatActivity() {
                     if (checkDemoExpiredWithToast(R.string.home_fragment_navigation_button_favorite_toast_demo_expired)) return false
                 }
 
-                startFragmentFromNavigation(favoritesFragment, FAVORITES_FRAGMENT_COMMIT)
+                startFragmentFromNavigation(favoritesFragment!!, FAVORITES_FRAGMENT_COMMIT)
                 true
             }
             else -> false

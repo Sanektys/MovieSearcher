@@ -107,8 +107,26 @@ class HomeFragment : MoviesListFragment() {
         bindingFull.moviesListRecycler.clearOnChildAttachStateChangeListeners()
         childFragmentManager.removeOnBackStackChangedListener(backStackChangedListener)
 
+        // Т.к. адаптер хранится во viewModel, то нужно при уничтожении вью его занулить, дабы избежать утечки памяти
+        // (если этого не сделать, то адаптер будет ссылаться на само RecyclerView, поэтому оно НЕ соберётся GC.
+        // А в самом RecyclerView есть ссылка на контекст до самой Activity, что приведёт к утечке и Activity тоже)
+        val moviesRecycler = bindingFull.moviesListRecycler
+
+        (exitTransition as? Transition)?.addListener(object : Transition.TransitionListener {
+            override fun onTransitionStart(transition: Transition) {}
+            override fun onTransitionCancel(transition: Transition) {}
+            override fun onTransitionPause(transition: Transition) {}
+            override fun onTransitionResume(transition: Transition) {}
+
+            override fun onTransitionEnd(transition: Transition) {
+                (exitTransition as? Transition)?.removeListener(this)
+                moviesRecycler.adapter = null
+            }
+        }) ?: moviesRecycler.setAdapter(null)
+
         _bindingFull = null
         _bindingBlank = null
+        mainActivity = null
     }
 
     override fun setRecyclerViewAppearance(view: View) {
@@ -218,6 +236,7 @@ class HomeFragment : MoviesListFragment() {
                     override fun onTransitionPause(transition: Transition) {}
                     override fun onTransitionResume(transition: Transition) {}
                     override fun onTransitionEnd(transition: Transition) {
+                        removeListener(this)
                         isFragmentClassOnceCreated = true
                     }
                 })

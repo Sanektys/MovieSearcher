@@ -13,6 +13,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.transition.Transition
 import com.example.domain_api.local_database.entities.DatabaseMovie
 import com.example.domain_api.local_database.entities.WatchLaterDatabaseMovie
 import com.google.android.material.imageview.ShapeableImageView
@@ -47,7 +48,7 @@ class WatchLaterFragment : MoviesListFragment() {
     private val posterOnClick = object : MoviesRecyclerAdapter.OnPosterClickListener {
         override fun onClick(databaseMovie: DatabaseMovie, posterView: ShapeableImageView) {
             resetExitReenterTransitionAnimations()
-            viewModel.lastClickedDatabaseMovie = databaseMovie
+            _viewModel?.lastClickedDatabaseMovie = databaseMovie
             mainActivity?.startDetailsFragment(databaseMovie, posterView)
         }
     }
@@ -58,7 +59,7 @@ class WatchLaterFragment : MoviesListFragment() {
         super.onAttach(context)
 
         val watchLaterMoviesDatabaseComponentFactory
-                = WatchLaterMoviesComponentViewModel.ViewModelFactory(context)
+                = WatchLaterMoviesComponentViewModel.ViewModelFactory(requireContext().applicationContext)
         val watchLaterMoviesDatabaseComponent = ViewModelProvider(
             requireActivity(),
             watchLaterMoviesDatabaseComponentFactory
@@ -120,7 +121,25 @@ class WatchLaterFragment : MoviesListFragment() {
             job.cancel()
         }
 
+        // Т.к. адаптер хранится во viewModel, то нужно при уничтожении вью его занулить, дабы избежать утечки памяти
+        // (если этого не сделать, то адаптер будет ссылаться на само RecyclerView, поэтому оно НЕ соберётся GC.
+        // А в самом RecyclerView есть ссылка на контекст до самой Activity, что приведёт к утечке и Activity тоже)
+        val moviesRecycler = binding.moviesListRecycler
+
+        (exitTransition as? Transition)?.addListener(object : Transition.TransitionListener {
+            override fun onTransitionStart(transition: Transition) {}
+            override fun onTransitionCancel(transition: Transition) {}
+            override fun onTransitionPause(transition: Transition) {}
+            override fun onTransitionResume(transition: Transition) {}
+
+            override fun onTransitionEnd(transition: Transition) {
+                (exitTransition as? Transition)?.removeListener(this)
+                moviesRecycler.adapter = null
+            }
+        }) ?: moviesRecycler.setAdapter(null)
+
         _binding = null
+        mainActivity = null
     }
 
     private fun initializeScheduleNotificationButton(): WatchLaterRecyclerAdapter.ScheduleNotificationButtonClick {
